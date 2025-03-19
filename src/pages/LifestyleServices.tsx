@@ -23,7 +23,6 @@ import {
   Calendar,
   PlusCircle
 } from 'lucide-react';
-import BottomNav from '@/components/BottomNav';
 
 const LifestyleServices = () => {
   const navigate = useNavigate();
@@ -452,9 +451,6 @@ const LifestyleServices = () => {
       <button className="fixed bottom-20 right-4 bg-gradient-to-r from-app-orange to-amber-500 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg">
         <Plus size={24} />
       </button>
-      
-      {/* Bottom Navigation */}
-      <BottomNav />
     </div>
   );
 };

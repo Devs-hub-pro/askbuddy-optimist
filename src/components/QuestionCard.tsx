@@ -29,31 +29,31 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
     >
       <h3 className="font-semibold text-base mb-2 text-app-text">{title}</h3>
       
-      <div className="flex items-center space-x-2 mb-3">
-        <img 
-          src={asker.avatar} 
-          alt={asker.name}
-          className="w-8 h-8 rounded-full flex-shrink-0" 
-        />
-        <div>
-          <div className="text-sm font-medium">{asker.name}</div>
-          <div className="text-xs text-gray-500">{time}</div>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center space-x-2">
+          <img 
+            src={asker.avatar} 
+            alt={asker.name}
+            className="w-8 h-8 rounded-full flex-shrink-0" 
+          />
+          <div>
+            <div className="text-sm font-medium">{asker.name}</div>
+            <div className="text-xs text-gray-500">{time}</div>
+          </div>
         </div>
+        
+        <span className="bg-yellow-100 text-yellow-500 text-xs px-2 py-1 rounded-full">
+          {points} 积分
+        </span>
       </div>
       
-      <div className="flex flex-wrap gap-2 mb-2">
-        {tags.map((tag, index) => (
-          <span key={index} className="inline-block text-xs px-2 py-1 rounded-full bg-green-100 text-app-green">
-            {tag}
-          </span>
-        ))}
-      </div>
-      
-      <div className="flex items-center justify-between mt-3">
-        <div className="flex items-center space-x-1">
-          <span className="bg-yellow-100 text-yellow-500 text-xs px-2 py-1 rounded-full">
-            {points} 积分
-          </span>
+      <div className="flex justify-between items-center">
+        <div className="flex flex-wrap gap-2">
+          {tags.map((tag, index) => (
+            <span key={index} className="inline-block text-xs px-2 py-1 rounded-full bg-green-100 text-app-green">
+              {tag}
+            </span>
+          ))}
         </div>
         
         <button className="bg-app-teal text-white px-3 py-1 rounded-full text-xs font-medium">

@@ -48,6 +48,10 @@ Page({
       {
         id: '1',
         title: '高考填报志愿热门问题',
+        description: '有哪些大学和专业比较适合理科生？如何根据分数和兴趣做出最佳选择？',
+        icon: '/assets/icons/graduation-cap.png',
+        iconBg: 'bg-blue-100',
+        viewCount: '2.3k',
         asker: {
           name: '李明',
           avatar: 'https://randomuser.me/api/portraits/men/32.jpg'
@@ -59,6 +63,10 @@ Page({
       {
         id: '2',
         title: '留学申请的必备条件',
+        description: '想申请美国名校，需要准备哪些材料？如何提高申请成功率？',
+        icon: '/assets/icons/globe.png',
+        iconBg: 'bg-green-100',
+        viewCount: '1.8k',
         asker: {
           name: '王芳',
           avatar: 'https://randomuser.me/api/portraits/women/68.jpg'
@@ -70,6 +78,10 @@ Page({
       {
         id: '3',
         title: '如何选择最佳职业路径',
+        description: '毕业后是进国企还是私企？如何根据自身情况做出规划？',
+        icon: '/assets/icons/briefcase.png',
+        iconBg: 'bg-orange-100',
+        viewCount: '3.5k',
         asker: {
           name: '张伟',
           avatar: 'https://randomuser.me/api/portraits/men/44.jpg'

@@ -7,9 +7,6 @@ import ActivityCard from '../components/ActivityCard';
 import QuestionCard from '../components/QuestionCard';
 import BottomNav from '../components/BottomNav';
 import { Sparkles, MessageSquare, Award } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface LocationState {
   location?: string;
@@ -209,47 +206,49 @@ const Index = () => {
               ))}
             </div>
           ) : (
-            <div className="bg-white rounded-xl p-5 shadow-md hover:shadow-lg transition-all duration-300">
-              <div className="flex items-start gap-4 mb-4">
-                <Avatar className="w-16 h-16 border-2 border-green-100">
-                  <AvatarImage src={featuredExpert.avatar} alt={featuredExpert.name} className="object-cover" />
-                  <AvatarFallback>{featuredExpert.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="flex-1">
-                  <div className="flex items-center justify-between">
-                    <h3 className="text-lg font-semibold text-gray-800">{featuredExpert.name}</h3>
-                    <div className="flex items-center text-yellow-500 gap-1">
-                      <Award size={14} />
-                      <span className="text-sm font-medium">{featuredExpert.rating}</span>
+            <div className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300">
+              <div className="flex justify-between items-start">
+                <div className="flex items-center gap-3">
+                  <Avatar className="w-12 h-12 border-2 border-green-100">
+                    <AvatarImage src={featuredExpert.avatar} alt={featuredExpert.name} className="object-cover" />
+                    <AvatarFallback>{featuredExpert.name.charAt(0)}</AvatarFallback>
+                  </Avatar>
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-base font-semibold text-gray-800">{featuredExpert.name}</h3>
+                      <div className="flex items-center text-yellow-500 gap-1">
+                        <Award size={14} />
+                        <span className="text-sm font-medium">{featuredExpert.rating}</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-green-600 font-medium">{featuredExpert.title}</p>
+                    <div className="flex items-center gap-2 mt-1">
+                      <span className="text-xs text-gray-500">响应速度</span>
+                      <span className="text-xs font-medium text-green-600">{featuredExpert.responseRate}</span>
                     </div>
                   </div>
-                  <p className="text-sm text-green-600 font-medium">{featuredExpert.title}</p>
-                  <div className="flex items-center gap-2 mt-1">
-                    <span className="text-xs text-gray-500">响应速度</span>
-                    <span className="text-xs font-medium text-green-600">{featuredExpert.responseRate}</span>
-                  </div>
                 </div>
+                
+                <button 
+                  onClick={() => handleAskMe(featuredExpert.name)}
+                  className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                >
+                  <MessageSquare size={14} />
+                  找我问问
+                </button>
               </div>
               
-              <p className="text-sm text-gray-700 mb-4 border-l-2 border-green-200 pl-3 py-1 bg-green-50/50 rounded-r-md">
+              <p className="text-sm text-gray-700 my-3 border-l-2 border-green-200 pl-3 py-1 bg-green-50/50 rounded-r-md">
                 {featuredExpert.description}
               </p>
               
-              <div className="flex flex-wrap gap-2 mb-4">
+              <div className="flex flex-wrap gap-2">
                 {featuredExpert.tags.map((tag, index) => (
                   <span key={index} className="bg-green-50 text-green-600 text-xs px-2.5 py-1 rounded-full font-medium">
                     #{tag}
                   </span>
                 ))}
               </div>
-              
-              <Button 
-                onClick={() => handleAskMe(featuredExpert.name)}
-                className="w-full bg-gradient-to-r from-green-500 to-teal-400 text-white rounded-full py-2.5 font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all hover:brightness-105"
-              >
-                <MessageSquare size={18} />
-                找我问问
-              </Button>
             </div>
           )
         )}

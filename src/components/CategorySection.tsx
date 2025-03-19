@@ -43,7 +43,7 @@ const categories: Category[] = [
     icon: <Camera size={20} />,
     color: 'bg-app-red',
     gradient: 'from-pink-400 to-rose-500',
-    path: '/'
+    path: '/hobbies'
   }
 ];
 

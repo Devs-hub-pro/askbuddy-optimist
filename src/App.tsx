@@ -11,6 +11,7 @@ import IconsPreview from "./components/IconsPreview";
 import EducationLearning from "./pages/EducationLearning";
 import CareerDevelopment from "./pages/CareerDevelopment";
 import LifestyleServices from "./pages/LifestyleServices";
+import HobbiesSkills from "./pages/HobbiesSkills";
 
 const queryClient = new QueryClient();
 
@@ -37,6 +38,7 @@ const App = () => (
           <Route path="/education" element={<EducationLearning />} />
           <Route path="/career" element={<CareerDevelopment />} />
           <Route path="/lifestyle" element={<LifestyleServices />} />
+          <Route path="/hobbies" element={<HobbiesSkills />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

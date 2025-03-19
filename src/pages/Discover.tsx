@@ -1,11 +1,10 @@
-
 import React, { useState } from 'react';
-import { Search, Image, Video, Heart, MessageCircle, Share2, Plus } from 'lucide-react';
+import { Image, Video, Heart, MessageCircle, Share2, Plus } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { Textarea } from "@/components/ui/textarea";
 import BottomNav from '../components/BottomNav';
 
 // Feed post type definition
@@ -32,36 +31,41 @@ interface RecommendationCard {
   title: string;
   description: string;
   imageUrl: string;
+  bgColor: string;
 }
 
 const Discover: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'following' | 'recommended' | 'local'>('recommended');
   
-  // Sample recommendation cards
+  // Sample recommendation cards with youth-oriented styling
   const recommendationCards: RecommendationCard[] = [
     {
       id: '1',
       title: '职场吐槽',
       description: '领导又开始画饼了，干还是不干？',
-      imageUrl: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=300&h=150&auto=format&fit=crop'
+      imageUrl: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=300&h=150&auto=format&fit=crop',
+      bgColor: 'bg-soft-purple'
     },
     {
       id: '2',
       title: '校园趣事',
       description: '宿舍的猫今天又把我们早餐吃了…',
-      imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=300&h=150&auto=format&fit=crop'
+      imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=300&h=150&auto=format&fit=crop',
+      bgColor: 'bg-soft-peach'
     },
     {
       id: '3',
       title: '今日热点',
       description: '考公还是考研？大家怎么看？',
-      imageUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=300&h=150&auto=format&fit=crop'
+      imageUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=300&h=150&auto=format&fit=crop',
+      bgColor: 'bg-soft-green'
     },
     {
       id: '4',
       title: '生活妙招',
       description: '合租时如何保护自己的权益？',
-      imageUrl: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=300&h=150&auto=format&fit=crop'
+      imageUrl: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=300&h=150&auto=format&fit=crop',
+      bgColor: 'bg-soft-blue'
     }
   ];
   
@@ -178,18 +182,6 @@ const Discover: React.FC = () => {
             </TabsList>
           </div>
           
-          {/* Search bar */}
-          <div className="px-4 py-3 bg-white">
-            <div className="relative">
-              <Input
-                type="search"
-                placeholder="搜索动态/用户/话题"
-                className="pl-10 pr-4 py-2 bg-gray-100 border-0 hover:bg-gray-200/60 focus-visible:ring-1 focus-visible:ring-app-teal/30"
-              />
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            </div>
-          </div>
-          
           {/* TabContent for each tab */}
           <TabsContent value="following" className="m-0 outline-none">
             <DiscoverFeed 
@@ -232,7 +224,7 @@ const Discover: React.FC = () => {
             <DialogTitle>发布动态</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
-            <textarea 
+            <Textarea 
               placeholder="分享你的想法..." 
               className="w-full h-32 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-teal/30"
             />
@@ -267,25 +259,23 @@ interface DiscoverFeedProps {
 const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts, likedPosts, onLike }) => {
   return (
     <div className="pb-4">
-      {/* Recommendation Cards (horizontal scroll) */}
+      {/* Youth-oriented Recommendation Cards (horizontal scroll) */}
       <div className="px-4 py-3 bg-white">
         <div className="overflow-x-auto flex space-x-3 pb-2 scrollbar-hide">
           {recommendationCards.map(card => (
-            <div key={card.id} className="flex-shrink-0 w-60 rounded-lg overflow-hidden shadow-sm border bg-white">
-              <div className="relative h-24">
-                <img 
-                  src={card.imageUrl} 
-                  alt={card.title}
-                  className="w-full h-full object-cover"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent">
-                  <div className="absolute bottom-2 left-2 text-white font-medium">
-                    {card.title}
-                  </div>
+            <div 
+              key={card.id} 
+              className={`flex-shrink-0 w-28 h-36 rounded-lg overflow-hidden shadow-sm border ${card.bgColor}`}
+            >
+              <div className="h-full flex flex-col justify-between p-2">
+                <div className="text-xs font-bold p-1 bg-white/80 rounded w-fit">
+                  {card.title}
                 </div>
-              </div>
-              <div className="p-2">
-                <p className="text-xs text-gray-700 line-clamp-2">{card.description}</p>
+                <div className="mt-auto">
+                  <p className="text-xs line-clamp-2 text-gray-700 bg-white/80 p-1 rounded">
+                    {card.description}
+                  </p>
+                </div>
               </div>
             </div>
           ))}

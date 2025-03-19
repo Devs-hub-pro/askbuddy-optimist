@@ -1,4 +1,3 @@
-
 import type { Config } from "tailwindcss";
 
 export default {
@@ -76,6 +75,15 @@ export default {
         'app-light-bg': '#E6F9F7',
         'app-gray': '#F0F0F0',
         'app-text': '#333333',
+        
+        // Soft colors for youth-oriented cards
+        'soft-green': '#F2FCE2',
+        'soft-yellow': '#FEF7CD',
+        'soft-orange': '#FEC6A1', 
+        'soft-purple': '#E5DEFF',
+        'soft-pink': '#FFDEE2',
+        'soft-peach': '#FDE1D3',
+        'soft-blue': '#D3E4FD',
       },
       boxShadow: {
         'soft': '0 4px 20px rgba(0, 0, 0, 0.05)',

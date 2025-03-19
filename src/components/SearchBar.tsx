@@ -1,10 +1,30 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { Search, Users, Sparkles } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
-const SearchBar: React.FC = () => {
+interface SearchBarProps {
+  onSearch?: (value: string) => void;
+  placeholder?: string;
+}
+
+const SearchBar: React.FC<SearchBarProps> = ({ 
+  onSearch, 
+  placeholder = "搜索问题/达人/话题" 
+}) => {
+  const [searchValue, setSearchValue] = useState('');
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setSearchValue(value);
+    
+    if (onSearch) {
+      onSearch(value);
+    }
+  };
+
   return (
-    <div className="px-4 py-6 bg-gradient-to-b from-app-teal/10 to-transparent animate-fade-in">
+    <div className="px-4 py-4 bg-gradient-to-b from-app-teal/10 to-transparent animate-fade-in">
       <div className="flex items-center space-x-2 mb-4">
         <div className="flex items-center gap-1">
           <Users size={20} className="text-app-blue" />
@@ -17,9 +37,11 @@ const SearchBar: React.FC = () => {
       </div>
       
       <div className="relative">
-        <input
+        <Input
           type="text"
-          placeholder="搜索问题/达人/话题"
+          value={searchValue}
+          onChange={handleInputChange}
+          placeholder={placeholder}
           className="search-input pr-10 focus:ring-2 focus:ring-app-teal/30 shadow-md"
         />
         <Search 

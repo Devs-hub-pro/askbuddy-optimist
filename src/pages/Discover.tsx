@@ -158,20 +158,7 @@ const Discover: React.FC = () => {
   
   return (
     <div className="pb-20 bg-gray-50 min-h-screen">
-      {/* Notification Header - Removed "发现" title */}
-      <div className="sticky top-0 z-40 bg-gradient-to-r from-app-teal to-app-blue shadow-md flex justify-end items-center px-4 py-3">
-        <button 
-          className="relative p-2"
-          onClick={handleNotificationClick}
-        >
-          <Bell size={24} className="text-white" />
-          {showNotification && (
-            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
-          )}
-        </button>
-      </div>
-      
-      {/* Tabs with horizontal layout but left-aligned */}
+      {/* Tabs with horizontal layout but left-aligned, directly at the top */}
       <div className="w-full">
         <Tabs 
           defaultValue="recommended" 
@@ -198,6 +185,19 @@ const Discover: React.FC = () => {
               同城
             </TabsTrigger>
           </TabsList>
+          
+          {/* Notification bell moved to the right side of the tabs */}
+          <div className="absolute top-4 right-4 z-10">
+            <button 
+              className="relative p-2"
+              onClick={handleNotificationClick}
+            >
+              <Bell size={22} className="text-gray-700" />
+              {showNotification && (
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+              )}
+            </button>
+          </div>
           
           <TabsContent value="following" className="m-0 outline-none">
             <DiscoverFeed 

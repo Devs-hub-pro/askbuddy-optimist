@@ -24,6 +24,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import SearchBar from "@/components/SearchBar";
 import QuestionCard from '@/components/QuestionCard';
+import ExpertDetailDialog from '@/components/ExpertDetailDialog';
 
 const EducationLearning = () => {
   const navigate = useNavigate();
@@ -384,8 +385,6 @@ const EducationLearning = () => {
                     tags={question.tags}
                     points={question.points}
                     viewCount={question.viewCount}
-                    answerName={question.answerName}
-                    answerAvatar={question.answerAvatar}
                     delay={0.3 + index * 0.1}
                   />
                 ))}
@@ -412,58 +411,73 @@ const EducationLearning = () => {
             ) : (
               <div className="space-y-3">
                 {filteredExperts.map((expert) => (
-                  <div key={expert.id} className="bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300">
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="w-10 h-10 border border-green-50">
-                          <AvatarImage src={expert.avatar} alt={expert.name} className="object-cover" />
-                          <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="text-sm font-semibold text-gray-800">{expert.name}</h3>
-                          <p className="text-xs text-green-600">{expert.title}</p>
+                  <ExpertDetailDialog
+                    key={expert.id}
+                    id={expert.id}
+                    name={expert.name}
+                    avatar={expert.avatar}
+                    title={expert.title}
+                    description={expert.description}
+                    tags={expert.tags}
+                    rating={expert.rating}
+                    responseRate={expert.responseRate}
+                    orderCount={expert.orderCount}
+                  >
+                    <div className="bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer">
+                      <div className="flex justify-between items-start">
+                        <div className="flex items-center gap-2">
+                          <Avatar className="w-10 h-10 border border-green-50">
+                            <AvatarImage src={expert.avatar} alt={expert.name} className="object-cover" />
+                            <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
+                          </Avatar>
+                          <div>
+                            <h3 className="text-sm font-semibold text-gray-800">{expert.name}</h3>
+                            <p className="text-xs text-green-600">{expert.title}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-col items-end">
+                          <div className="flex items-center text-yellow-500 gap-1">
+                            <Award size={12} />
+                            <span className="text-xs font-medium">{expert.rating}</span>
+                          </div>
+                          <div className="flex items-center text-blue-500 gap-1 text-xs">
+                            <Clock size={10} />
+                            <span>{expert.responseRate}</span>
+                          </div>
+                          <div className="flex items-center text-green-500 gap-1 text-xs">
+                            <Package size={10} />
+                            <span>{expert.orderCount}</span>
+                          </div>
                         </div>
                       </div>
-                      
-                      <div className="flex flex-col items-end">
-                        <div className="flex items-center text-yellow-500 gap-1">
-                          <Award size={12} />
-                          <span className="text-xs font-medium">{expert.rating}</span>
-                        </div>
-                        <div className="flex items-center text-blue-500 gap-1 text-xs">
-                          <Clock size={10} />
-                          <span>{expert.responseRate}</span>
-                        </div>
-                        <div className="flex items-center text-green-500 gap-1 text-xs">
-                          <Package size={10} />
-                          <span>{expert.orderCount}</span>
-                        </div>
-                      </div>
-                    </div>
 
-                    <div className="flex mt-2">
-                      <p className="text-xs text-gray-700 border-l-2 border-green-200 pl-2 py-0.5 bg-green-50/50 rounded-r-md flex-1 mr-2">
-                        {expert.description}
-                      </p>
+                      <div className="flex mt-2">
+                        <p className="text-xs text-gray-700 border-l-2 border-green-200 pl-2 py-0.5 bg-green-50/50 rounded-r-md flex-1 mr-2 line-clamp-2">
+                          {expert.description}
+                        </p>
+                        
+                        <button 
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleAskMe(expert.name);
+                          }}
+                          className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-2.5 py-1 rounded-full text-xs flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 h-auto"
+                        >
+                          <MessageSquare size={10} />
+                          找我问问
+                        </button>
+                      </div>
                       
-                      <Button 
-                        onClick={() => handleAskMe(expert.name)}
-                        className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-2.5 py-1 rounded-full text-xs flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 h-auto"
-                        size="sm"
-                      >
-                        <MessageSquare size={10} />
-                        找我问问
-                      </Button>
+                      <div className="flex flex-wrap gap-1.5 mt-2">
+                        {expert.tags.map((tag, index) => (
+                          <span key={index} className="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
                     </div>
-                    
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {expert.tags.map((tag, index) => (
-                        <span key={index} className="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full">
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                  </ExpertDetailDialog>
                 ))}
               </div>
             )}

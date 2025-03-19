@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -6,6 +5,7 @@ import SearchBar from '../components/SearchBar';
 import CategorySection from '../components/CategorySection';
 import ActivityCard from '../components/ActivityCard';
 import QuestionCard from '../components/QuestionCard';
+import ExpertDetailDialog from '../components/ExpertDetailDialog';
 import BottomNav from '../components/BottomNav';
 import { Sparkles, MessageSquare, Award, Clock, Package, Users } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -101,11 +101,13 @@ const Index = () => {
     name: '张同学',
     avatar: 'https://randomuser.me/api/portraits/women/22.jpg',
     title: '北大硕士 | 出国党',
-    description: '专注留学申请文书指导，斯坦福offer获得者',
+    description: '专注留学申请文书指导，斯坦福offer获得者。我有多年指导经验，曾帮助超过50名学生申请到世界顶尖大学。擅长个人陈述、研究计划书撰写，精通面试技巧指导。我相信每个学生都有自己的闪光点，只要找到合适的表达方式，就能在激烈的申请中脱颖而出。我希望通过我的专业知识和经验，帮助每位学生实现留学梦想。',
     tags: ['留学', '文书', '面试'],
     rating: 4.9,
     responseRate: '98%',
-    orderCount: '126单'
+    orderCount: '126单',
+    education: ['北京大学 | 教育学硕士', '清华大学 | 英语文学学士'],
+    experience: ['某知名留学机构 | 高级顾问', '斯坦福大学 | 校友面试官']
   };
 
   const handleAskMe = (expertName: string) => {
@@ -229,57 +231,62 @@ const Index = () => {
               ))}
             </div>
           ) : (
-            <div className="bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300">
-              <div className="flex justify-between items-start">
-                <div className="flex items-center gap-2">
-                  <Avatar className="w-10 h-10 border border-green-50">
-                    <AvatarImage src={featuredExpert.avatar} alt={featuredExpert.name} className="object-cover" />
-                    <AvatarFallback>{featuredExpert.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <h3 className="text-sm font-semibold text-gray-800">{featuredExpert.name}</h3>
-                    <p className="text-xs text-green-600">{featuredExpert.title}</p>
+            <ExpertDetailDialog {...featuredExpert}>
+              <div className="bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer">
+                <div className="flex justify-between items-start">
+                  <div className="flex items-center gap-2">
+                    <Avatar className="w-10 h-10 border border-green-50">
+                      <AvatarImage src={featuredExpert.avatar} alt={featuredExpert.name} className="object-cover" />
+                      <AvatarFallback>{featuredExpert.name.charAt(0)}</AvatarFallback>
+                    </Avatar>
+                    <div>
+                      <h3 className="text-sm font-semibold text-gray-800">{featuredExpert.name}</h3>
+                      <p className="text-xs text-green-600">{featuredExpert.title}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-col items-end">
+                    <div className="flex items-center text-yellow-500 gap-1">
+                      <Award size={12} />
+                      <span className="text-xs font-medium">{featuredExpert.rating}</span>
+                    </div>
+                    <div className="flex items-center text-blue-500 gap-1 text-xs">
+                      <Clock size={10} />
+                      <span>{featuredExpert.responseRate}</span>
+                    </div>
+                    <div className="flex items-center text-green-500 gap-1 text-xs">
+                      <Package size={10} />
+                      <span>{featuredExpert.orderCount}</span>
+                    </div>
                   </div>
                 </div>
-                
-                <div className="flex flex-col items-end">
-                  <div className="flex items-center text-yellow-500 gap-1">
-                    <Award size={12} />
-                    <span className="text-xs font-medium">{featuredExpert.rating}</span>
-                  </div>
-                  <div className="flex items-center text-blue-500 gap-1 text-xs">
-                    <Clock size={10} />
-                    <span>{featuredExpert.responseRate}</span>
-                  </div>
-                  <div className="flex items-center text-green-500 gap-1 text-xs">
-                    <Package size={10} />
-                    <span>{featuredExpert.orderCount}</span>
-                  </div>
-                </div>
-              </div>
 
-              <div className="flex mt-2">
-                <p className="text-xs text-gray-700 border-l-2 border-green-200 pl-2 py-0.5 bg-green-50/50 rounded-r-md flex-1 mr-2">
-                  {featuredExpert.description}
-                </p>
+                <div className="flex mt-2">
+                  <p className="text-xs text-gray-700 border-l-2 border-green-200 pl-2 py-0.5 bg-green-50/50 rounded-r-md flex-1 mr-2 line-clamp-2">
+                    {featuredExpert.description}
+                  </p>
+                  
+                  <button 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleAskMe(featuredExpert.name);
+                    }}
+                    className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-2.5 py-1 rounded-full text-xs flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                  >
+                    <MessageSquare size={10} />
+                    找我问问
+                  </button>
+                </div>
                 
-                <button 
-                  onClick={() => handleAskMe(featuredExpert.name)}
-                  className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-2.5 py-1 rounded-full text-xs flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0"
-                >
-                  <MessageSquare size={10} />
-                  找我问问
-                </button>
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {featuredExpert.tags.map((tag, index) => (
+                    <span key={index} className="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full">
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
               </div>
-              
-              <div className="flex flex-wrap gap-1.5 mt-2">
-                {featuredExpert.tags.map((tag, index) => (
-                  <span key={index} className="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            </div>
+            </ExpertDetailDialog>
           )
         )}
       </div>
@@ -290,3 +297,4 @@ const Index = () => {
 };
 
 export default Index;
+

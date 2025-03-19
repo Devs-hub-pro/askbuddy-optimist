@@ -6,50 +6,55 @@
     "pages/new/new",
     "pages/messages/messages",
     "pages/profile/profile",
-    "pages/city-selector/city-selector"
+    "pages/city-selector/city-selector",
+    "pages/expert/profile",
+    "pages/question/detail"
   ],
   "window": {
     "backgroundTextStyle": "light",
-    "navigationBarBackgroundColor": "#4FD1C5",
+    "navigationBarBackgroundColor": "#fff",
     "navigationBarTitleText": "找人问问",
     "navigationBarTextStyle": "black"
   },
   "tabBar": {
+    "custom": false,
     "color": "#999999",
     "selectedColor": "#4FD1C5",
     "backgroundColor": "#ffffff",
-    "borderStyle": "black",
     "list": [
       {
         "pagePath": "pages/index/index",
         "text": "首页",
-        "iconPath": "assets/icons/home.png",
-        "selectedIconPath": "assets/icons/home-active.png"
+        "iconPath": "assets/icons/tabbar/home.png",
+        "selectedIconPath": "assets/icons/tabbar/home-active.png"
       },
       {
         "pagePath": "pages/discover/discover",
         "text": "发现",
-        "iconPath": "assets/icons/compass.png",
-        "selectedIconPath": "assets/icons/compass-active.png"
+        "iconPath": "assets/icons/tabbar/compass.png",
+        "selectedIconPath": "assets/icons/tabbar/compass-active.png"
       },
       {
         "pagePath": "pages/new/new",
-        "text": "提问",
-        "iconPath": "assets/icons/plus.png",
-        "selectedIconPath": "assets/icons/plus-active.png"
+        "text": "发布",
+        "iconPath": "assets/icons/tabbar/plus-square.png",
+        "selectedIconPath": "assets/icons/tabbar/plus-square-active.png"
       },
       {
         "pagePath": "pages/messages/messages",
         "text": "消息",
-        "iconPath": "assets/icons/message.png",
-        "selectedIconPath": "assets/icons/message-active.png"
+        "iconPath": "assets/icons/tabbar/message-square.png",
+        "selectedIconPath": "assets/icons/tabbar/message-square-active.png"
       },
       {
         "pagePath": "pages/profile/profile",
         "text": "我的",
-        "iconPath": "assets/icons/user.png",
-        "selectedIconPath": "assets/icons/user-active.png"
+        "iconPath": "assets/icons/tabbar/user.png",
+        "selectedIconPath": "assets/icons/tabbar/user-active.png"
       }
     ]
-  }
+  },
+  "style": "v2",
+  "sitemapLocation": "sitemap.json",
+  "lazyCodeLoading": "requiredComponents"
 }

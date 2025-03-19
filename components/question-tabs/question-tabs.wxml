@@ -43,7 +43,10 @@
     <block wx:if="{{activeTab === 'topics'}}">
       <view class="space-y-3">
         <block wx:for="{{questions}}" wx:key="id">
-          <view class="question-card bg-white rounded-lg p-4 animate-fade-in" style="animation-delay: {{0.4 + index * 0.1}}s">
+          <view class="question-card bg-white rounded-lg p-4 animate-fade-in" 
+                style="animation-delay: {{0.4 + index * 0.1}}s"
+                bindtap="handleQuestionClick" 
+                data-id="{{item.id}}">
             <!-- Question header with avatar and title -->
             <view class="flex items-start mb-3">
               <view class="flex-shrink-0 mr-3">
@@ -83,7 +86,7 @@
                 </view>
               </view>
               
-              <view bindtap="handleAnswer" data-id="{{item.id}}" class="answer-btn">
+              <view class="answer-btn" catchtap="handleAnswer" data-id="{{item.id}}">
                 我来回答
               </view>
             </view>
@@ -95,7 +98,12 @@
     <block wx:else>
       <view class="space-y-3">
         <block wx:for="{{questions}}" wx:key="id">
-          <view class="question-card bg-white rounded-lg p-4 mb-3 animate-fade-in" style="animation-delay: {{0.4 + index * 0.1}}s">
+          <view class="expert-card bg-white rounded-lg p-4 mb-3 animate-fade-in" 
+                style="animation-delay: {{0.4 + index * 0.1}}s"
+                bindtap="handleExpertClick" 
+                data-expert-id="{{item.asker.id || item.id}}"
+                data-expert-name="{{item.asker.name}}"
+                data-expert-avatar="{{item.asker.avatar}}">
             <text class="font-semibold text-base mb-3 block">{{item.title}}</text>
             
             <view class="flex items-center justify-between">

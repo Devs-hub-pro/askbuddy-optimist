@@ -54,6 +54,7 @@ Page({
         iconBg: 'bg-blue-100',
         viewCount: '2.5k',
         asker: {
+          id: 'user1',
           name: '李明',
           avatar: 'https://randomuser.me/api/portraits/men/32.jpg'
         },
@@ -71,8 +72,9 @@ Page({
         iconBg: 'bg-green-100',
         viewCount: '1.8k',
         asker: {
+          id: 'user2',
           name: '王芳',
-          avatar: 'https://randomuser.me/api/portraits/men/44.jpg'
+          avatar: 'https://randomuser.me/api/portraits/women/44.jpg'
         },
         time: '5小时前',
         tags: ['留学', '申请'],
@@ -87,6 +89,7 @@ Page({
         iconBg: 'bg-orange-100',
         viewCount: '3.5k',
         asker: {
+          id: 'user3',
           name: '张伟',
           avatar: 'https://randomuser.me/api/portraits/men/44.jpg'
         },
@@ -95,7 +98,41 @@ Page({
         points: 40
       }
     ],
-    activeTab: 'topics'  // 'topics' or 'experts'
+    activeTab: 'topics',  // 'topics' or 'experts'
+    experts: [
+      {
+        id: 'expert1',
+        name: '张老师',
+        avatar: 'https://randomuser.me/api/portraits/women/32.jpg',
+        title: '北大硕士 | 教育规划专家',
+        description: '5年高考志愿规划经验，帮助500+学生进入理想大学',
+        responseRate: '98%',
+        rating: 4.9,
+        tags: ['高考规划', '志愿填报', '留学申请']
+      },
+      {
+        id: 'expert2',
+        name: '王教授',
+        avatar: 'https://randomuser.me/api/portraits/men/68.jpg',
+        title: '清华博士 | 计算机科学教授',
+        description: '10年教学经验，专注算法与人工智能方向',
+        responseRate: '95%',
+        rating: 4.8,
+        tags: ['计算机科学', '算法', 'AI']
+      },
+      {
+        id: 'expert3',
+        name: '李职业顾问',
+        avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
+        title: '资深职业规划师 | 互联网HR',
+        description: '帮助200+求职者进入知名企业，简历优化专家',
+        responseRate: '90%',
+        rating: 4.7,
+        tags: ['职业规划', '简历优化', '面试技巧']
+      }
+    ],
+    searchQuery: '',
+    searchFocused: false
   },
 
   onLoad: function() {
@@ -165,24 +202,69 @@ Page({
       title: '即将跳转到回答页面',
       icon: 'none'
     });
-    // Implementation for answering would go here
+    // Navigate to answer page
+    wx.navigateTo({
+      url: `/pages/question/detail?id=${questionId}`
+    });
+  },
+
+  handleQuestionClick: function(e) {
+    const questionId = e.detail.id;
+    // Navigate to question detail page
+    wx.navigateTo({
+      url: `/pages/question/detail?id=${questionId}`
+    });
+  },
+
+  handleExpertClick: function(e) {
+    const { expertId, expertName, expertAvatar } = e.detail;
+    // Navigate to expert profile page
+    wx.navigateTo({
+      url: `/pages/expert/profile?id=${expertId}&name=${expertName}&avatar=${encodeURIComponent(expertAvatar)}`
+    });
   },
 
   onSearch: function(e) {
     const value = e.detail.value;
+    this.setData({
+      searchQuery: value
+    });
     console.log('Search query:', value);
-    // Implementation for search would go here
+    
+    if (value.trim() !== '') {
+      wx.navigateTo({
+        url: `/pages/search/results?q=${encodeURIComponent(value)}`
+      });
+    }
+  },
+
+  onSearchFocus: function() {
+    this.setData({
+      searchFocused: true
+    });
+  },
+
+  onSearchBlur: function() {
+    this.setData({
+      searchFocused: false
+    });
   },
 
   onCategorySelect: function(e) {
     const category = e.detail.category;
     console.log('Selected category:', category);
-    // Implementation for category selection would go here
+    // Navigate to category page
+    wx.navigateTo({
+      url: `/pages/category/detail?id=${category.id}`
+    });
   },
 
   onActivitySelect: function(e) {
     const activity = e.detail.activity;
     console.log('Selected activity:', activity);
-    // Implementation for activity selection would go here
+    // Navigate to activity page
+    wx.navigateTo({
+      url: `/pages/activity/detail?id=${activity.id}`
+    });
   }
 })

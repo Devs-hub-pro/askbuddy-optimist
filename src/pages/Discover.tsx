@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Image, Video, Heart, MessageCircle, Share2, Plus, Bell } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -45,28 +46,28 @@ const Discover: React.FC = () => {
       title: '职场吐槽',
       description: '领导又开始画饼了，干还是不干？',
       imageUrl: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=300&h=150&auto=format&fit=crop',
-      bgColor: 'bg-soft-purple'
+      bgColor: 'bg-gradient-to-br from-purple-500 to-indigo-600'
     },
     {
       id: '2',
       title: '校园趣事',
       description: '宿舍的猫今天又把我们早餐吃了…',
       imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=300&h=150&auto=format&fit=crop',
-      bgColor: 'bg-soft-peach'
+      bgColor: 'bg-gradient-to-br from-pink-500 to-rose-400'
     },
     {
       id: '3',
       title: '今日热点',
       description: '考公还是考研？大家怎么看？',
       imageUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=300&h=150&auto=format&fit=crop',
-      bgColor: 'bg-soft-green'
+      bgColor: 'bg-gradient-to-br from-blue-500 to-cyan-400'
     },
     {
       id: '4',
       title: '生活妙招',
       description: '合租时如何保护自己的权益？',
       imageUrl: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=300&h=150&auto=format&fit=crop',
-      bgColor: 'bg-soft-blue'
+      bgColor: 'bg-gradient-to-br from-amber-500 to-orange-400'
     }
   ];
   
@@ -157,14 +158,13 @@ const Discover: React.FC = () => {
   
   return (
     <div className="pb-20 bg-gray-50 min-h-screen">
-      {/* Notification Bell and Header */}
-      <div className="sticky top-0 bg-white z-40 shadow-sm flex justify-between items-center px-4 py-3">
-        <h1 className="text-xl font-bold text-app-teal">发现</h1>
+      {/* Notification Header - Removed "发现" title */}
+      <div className="sticky top-0 z-40 bg-gradient-to-r from-app-teal to-app-blue shadow-md flex justify-end items-center px-4 py-3">
         <button 
           className="relative p-2"
           onClick={handleNotificationClick}
         >
-          <Bell size={22} className="text-gray-700" />
+          <Bell size={24} className="text-white" />
           {showNotification && (
             <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
           )}
@@ -231,13 +231,13 @@ const Discover: React.FC = () => {
       {/* Enhanced Floating Action Button for Creating Posts */}
       <Dialog>
         <DialogTrigger asChild>
-          <Button className="fixed bottom-20 right-5 w-14 h-14 rounded-full bg-gradient-to-r from-app-teal to-app-blue shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center">
+          <Button className="fixed bottom-20 right-5 w-14 h-14 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center">
             <Plus className="h-6 w-6 text-white" />
           </Button>
         </DialogTrigger>
-        <DialogContent>
+        <DialogContent className="bg-white/95 backdrop-blur-md border border-gray-200">
           <DialogHeader>
-            <DialogTitle>发布动态</DialogTitle>
+            <DialogTitle className="text-center text-lg font-bold">分享动态</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
             <Textarea 
@@ -245,15 +245,15 @@ const Discover: React.FC = () => {
               className="w-full h-32 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-teal/30"
             />
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="flex gap-1">
+              <Button variant="outline" size="sm" className="flex gap-1 rounded-full">
                 <Image size={18} /> 添加图片
               </Button>
-              <Button variant="outline" size="sm" className="flex gap-1">
+              <Button variant="outline" size="sm" className="flex gap-1 rounded-full">
                 <Video size={18} /> 添加视频
               </Button>
             </div>
             <div className="pt-2 flex justify-end">
-              <Button className="bg-app-teal hover:bg-app-teal/90">发布</Button>
+              <Button className="bg-gradient-to-r from-app-teal to-app-blue hover:opacity-90 rounded-full">发布</Button>
             </div>
           </div>
         </DialogContent>
@@ -275,15 +275,15 @@ interface DiscoverFeedProps {
 const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts, likedPosts, onLike }) => {
   return (
     <div className="pb-4">
-      {/* Youth-oriented Recommendation Cards (horizontal scroll) - Redesigned as small squares with white text */}
+      {/* Youth-oriented Recommendation Cards (horizontal scroll) - Redesigned as small squares with gradient backgrounds */}
       <div className="px-4 py-3 bg-white">
         <div className="overflow-x-auto flex space-x-3 pb-2 scrollbar-hide">
           {recommendationCards.map(card => (
             <div 
               key={card.id} 
-              className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden shadow-sm ${card.bgColor} relative`}
+              className={`flex-shrink-0 w-20 h-20 rounded-2xl overflow-hidden shadow-md ${card.bgColor} relative hover:scale-105 transition-transform duration-200`}
             >
-              <div className="absolute inset-0 bg-black/20"></div>
+              <div className="absolute inset-0 bg-black/10"></div>
               <div className="h-full flex flex-col justify-between p-2 relative z-10">
                 <div className="text-xs font-bold text-white">
                   {card.title}
@@ -299,13 +299,13 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
         </div>
       </div>
       
-      {/* Posts Feed */}
-      <div className="space-y-3 mt-3">
+      {/* Posts Feed - Enhanced styling */}
+      <div className="space-y-3 mt-3 px-3">
         {posts.map(post => (
-          <div key={post.id} className="bg-white p-4 shadow-sm">
+          <div key={post.id} className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
             {/* Author info */}
             <div className="flex items-center space-x-3 mb-3">
-              <Avatar className="h-10 w-10">
+              <Avatar className="h-10 w-10 ring-2 ring-gray-100">
                 <AvatarImage src={post.author.avatar} alt={post.author.name} />
                 <AvatarFallback>{post.author.name.slice(0, 2)}</AvatarFallback>
               </Avatar>
@@ -329,7 +329,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
                   {post.images.slice(0, 9).map((img, index) => (
                     <div key={index} className={`${
                       post.images && post.images.length === 1 ? 'aspect-w-16 aspect-h-9' : 'aspect-square'
-                    } bg-gray-100 rounded-md overflow-hidden`}>
+                    } bg-gray-100 rounded-lg overflow-hidden`}>
                       <img src={img} alt="" className="w-full h-full object-cover" />
                     </div>
                   ))}
@@ -338,7 +338,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
               
               {/* Video */}
               {post.video && (
-                <div className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-md overflow-hidden mb-3">
+                <div className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden mb-3">
                   <video 
                     src={post.video} 
                     className="w-full h-full object-cover" 
@@ -370,19 +370,19 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
             {/* Interaction buttons */}
             <div className="flex justify-between border-t pt-3">
               <button 
-                className="flex items-center space-x-1 text-sm text-gray-500"
+                className="flex items-center space-x-1 text-sm text-gray-500 transition-colors hover:text-pink-500"
                 onClick={() => onLike(post.id)}
               >
-                <Heart className={`h-5 w-5 ${likedPosts[post.id] ? 'fill-red-500 text-red-500' : 'text-current'}`} />
+                <Heart className={`h-5 w-5 ${likedPosts[post.id] ? 'fill-pink-500 text-pink-500' : 'text-current'}`} />
                 <span>{post.likes + (likedPosts[post.id] ? 1 : 0)}</span>
               </button>
               
-              <button className="flex items-center space-x-1 text-sm text-gray-500">
+              <button className="flex items-center space-x-1 text-sm text-gray-500 transition-colors hover:text-blue-500">
                 <MessageCircle className="h-5 w-5" />
                 <span>{post.comments}</span>
               </button>
               
-              <button className="flex items-center space-x-1 text-sm text-gray-500">
+              <button className="flex items-center space-x-1 text-sm text-gray-500 transition-colors hover:text-green-500">
                 <Share2 className="h-5 w-5" />
                 <span>{post.shares}</span>
               </button>

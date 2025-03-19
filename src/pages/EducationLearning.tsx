@@ -229,8 +229,8 @@ const EducationLearning = () => {
     ? communityQuestions
     : communityQuestions.filter(question => question.category === activeCategory);
 
-  const handleSearch = () => {
-    console.log('Search initiated');
+  const handleSearch = (value: string) => {
+    navigate(`/education/search?q=${encodeURIComponent(value)}`);
   };
 
   const handleCategorySelect = (categoryId: string) => {
@@ -266,7 +266,11 @@ const EducationLearning = () => {
       </div>
       
       <div className="px-4 py-3 bg-app-light-bg">
-        <SearchBar placeholder="搜索问题/达人/话题" />
+        <SearchBar 
+          placeholder="搜索问题/达人/话题" 
+          onSearch={handleSearch}
+          context="education"
+        />
       </div>
       
       <div className="px-4 mb-6">

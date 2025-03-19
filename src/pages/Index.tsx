@@ -97,7 +97,7 @@ const Index = () => {
       
       <div className="px-4 mb-6">
         <div className="flex items-center justify-between mb-4">
-          <button className="font-bold text-lg animate-fade-in animate-delay-3 text-app-text border-b-2 border-app-blue pb-1">大家都在问</button>
+          <button className="font-bold text-lg animate-fade-in animate-delay-3 text-app-text border-b-2 border-app-teal pb-1">大家都在问</button>
           <button className="font-bold text-lg animate-fade-in animate-delay-3 text-gray-400 pb-1">找TA问问</button>
         </div>
         

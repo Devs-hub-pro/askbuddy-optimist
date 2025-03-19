@@ -16,7 +16,7 @@ const Navbar: React.FC<NavbarProps> = ({ location = "深圳" }) => {
           className="flex items-center space-x-1 text-slate-800 font-medium"
           onClick={() => setIsOpen(!isOpen)}
         >
-          <MapPin size={18} className="text-app-blue" />
+          <MapPin size={18} className="text-app-green" />
           <span>{location}</span>
           <ChevronDown size={16} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
         </button>
@@ -28,7 +28,7 @@ const Navbar: React.FC<NavbarProps> = ({ location = "深圳" }) => {
             {['北京', '上海', '广州', '深圳', '杭州'].map((city) => (
               <li key={city}>
                 <button 
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm ${city === location ? 'bg-blue-50 text-app-blue' : 'hover:bg-gray-50'}`}
+                  className={`w-full text-left px-3 py-2 rounded-md text-sm ${city === location ? 'bg-green-50 text-app-green' : 'hover:bg-gray-50'}`}
                   onClick={() => setIsOpen(false)}
                 >
                   {city}

@@ -7,6 +7,7 @@ import ActivityCard from '../components/ActivityCard';
 import QuestionCard from '../components/QuestionCard';
 import BottomNav from '../components/BottomNav';
 import { Sparkles, MessageSquare, Award } from 'lucide-react';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface LocationState {
   location?: string;
@@ -209,7 +210,7 @@ const Index = () => {
             <div className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300">
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-3">
-                  <Avatar className="w-12 h-12 border-2 border-green-100">
+                  <Avatar className="w-10 h-10 border-2 border-green-100">
                     <AvatarImage src={featuredExpert.avatar} alt={featuredExpert.name} className="object-cover" />
                     <AvatarFallback>{featuredExpert.name.charAt(0)}</AvatarFallback>
                   </Avatar>

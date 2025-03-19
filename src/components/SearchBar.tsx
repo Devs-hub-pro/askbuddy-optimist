@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search } from 'lucide-react';
@@ -57,16 +58,16 @@ const SearchBar: React.FC<SearchBarProps> = ({
         onSearch(searchValue);
       }
     } else {
-      // Otherwise navigate to the search page
-      navigate(`/education/search?q=${encodeURIComponent(searchValue)}`);
+      // Navigate to the general search page instead of education-specific search
+      navigate(`/search?q=${encodeURIComponent(searchValue)}`);
     }
   };
 
   const handleFocus = () => {
     setIsFocused(true);
-    // If we're on the education page and not already on the search page, navigate to search page
-    if (location.pathname === '/education' && !location.pathname.includes('/search')) {
-      navigate('/education/search');
+    // Navigate to general search page instead of education-specific search
+    if (!location.pathname.includes('/search')) {
+      navigate('/search');
     }
   };
 

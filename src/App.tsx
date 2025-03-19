@@ -13,7 +13,6 @@ import IconsPreview from "./components/IconsPreview";
 import QuestionDetail from "./pages/QuestionDetail";
 import ExpertDetail from "./pages/ExpertDetail";
 import ExpertProfile from "./pages/ExpertProfile";
-import Search from "./pages/Search";
 import { Toaster } from "@/components/ui/toaster";
 import "./App.css";
 
@@ -28,7 +27,6 @@ function App() {
             <Route path="/career" element={<CareerDevelopment />} />
             <Route path="/education" element={<EducationLearning />} />
             <Route path="/education/search" element={<EducationSearchResults />} />
-            <Route path="/search" element={<Search />} />
             <Route path="/lifestyle" element={<LifestyleServices />} />
             <Route path="/hobbies" element={<HobbiesSkills />} />
             <Route path="/city-selector" element={<CitySelector />} />

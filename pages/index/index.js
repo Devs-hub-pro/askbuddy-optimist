@@ -1,0 +1,114 @@
+
+// index.js
+Page({
+  data: {
+    isLoading: true,
+    location: "深圳",
+    locationMenuOpen: false,
+    cities: ['北京', '上海', '广州', '深圳', '杭州'],
+    categories: [
+      {
+        id: 'education',
+        name: '教育学习',
+        icon: '/assets/icons/graduation-cap.png',
+        color: 'bg-app-blue'
+      },
+      {
+        id: 'career',
+        name: '职业发展',
+        icon: '/assets/icons/briefcase.png',
+        color: 'bg-app-green'
+      },
+      {
+        id: 'lifestyle',
+        name: '生活服务',
+        icon: '/assets/icons/home.png',
+        color: 'bg-app-orange'
+      },
+      {
+        id: 'hobbies',
+        name: '兴趣技能',
+        icon: '/assets/icons/camera.png',
+        color: 'bg-app-red'
+      }
+    ],
+    activities: [
+      {
+        id: '1',
+        title: '大学生灵活就业圈',
+        imageUrl: 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&h=225&q=80'
+      },
+      {
+        id: '2',
+        title: '留学申请季交流空间',
+        imageUrl: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&h=225&q=80'
+      }
+    ],
+    questions: [
+      {
+        id: '1',
+        title: '高考填报志愿热门问题',
+        asker: {
+          name: '李明',
+          avatar: 'https://randomuser.me/api/portraits/men/32.jpg'
+        },
+        time: '2小时前',
+        tags: ['高考', '志愿填报'],
+        points: 50
+      },
+      {
+        id: '2',
+        title: '留学申请的必备条件',
+        asker: {
+          name: '王芳',
+          avatar: 'https://randomuser.me/api/portraits/women/68.jpg'
+        },
+        time: '5小时前',
+        tags: ['留学', '申请'],
+        points: 30
+      },
+      {
+        id: '3',
+        title: '如何选择最佳职业路径',
+        asker: {
+          name: '张伟',
+          avatar: 'https://randomuser.me/api/portraits/men/44.jpg'
+        },
+        time: '1天前',
+        tags: ['职业发展', '路径选择'],
+        points: 40
+      }
+    ],
+    activeTab: 'topics'  // 'topics' or 'experts'
+  },
+
+  onLoad: function() {
+    // Simulate loading
+    setTimeout(() => {
+      this.setData({
+        isLoading: false
+      });
+    }, 1000);
+  },
+
+  toggleLocationMenu: function() {
+    this.setData({
+      locationMenuOpen: !this.data.locationMenuOpen
+    });
+  },
+
+  selectLocation: function(e) {
+    const city = e.currentTarget.dataset.city;
+    this.setData({
+      location: city,
+      locationMenuOpen: false
+    });
+  },
+  
+  switchTab: function(e) {
+    const tab = e.currentTarget.dataset.tab;
+    this.setData({
+      activeTab: tab
+    });
+  }
+})

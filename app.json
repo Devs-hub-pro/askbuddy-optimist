@@ -1,0 +1,54 @@
+
+{
+  "pages": [
+    "pages/index/index",
+    "pages/discover/discover",
+    "pages/new/new",
+    "pages/messages/messages",
+    "pages/profile/profile"
+  ],
+  "window": {
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#4FD1C5",
+    "navigationBarTitleText": "找人问问",
+    "navigationBarTextStyle": "black"
+  },
+  "tabBar": {
+    "color": "#999999",
+    "selectedColor": "#4FD1C5",
+    "backgroundColor": "#ffffff",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "首页",
+        "iconPath": "assets/icons/home.png",
+        "selectedIconPath": "assets/icons/home-active.png"
+      },
+      {
+        "pagePath": "pages/discover/discover",
+        "text": "发现",
+        "iconPath": "assets/icons/compass.png",
+        "selectedIconPath": "assets/icons/compass-active.png"
+      },
+      {
+        "pagePath": "pages/new/new",
+        "text": "提问",
+        "iconPath": "assets/icons/plus.png",
+        "selectedIconPath": "assets/icons/plus-active.png"
+      },
+      {
+        "pagePath": "pages/messages/messages",
+        "text": "消息",
+        "iconPath": "assets/icons/message.png",
+        "selectedIconPath": "assets/icons/message-active.png"
+      },
+      {
+        "pagePath": "pages/profile/profile",
+        "text": "我的",
+        "iconPath": "assets/icons/user.png",
+        "selectedIconPath": "assets/icons/user-active.png"
+      }
+    ]
+  }
+}

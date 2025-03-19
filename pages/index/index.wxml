@@ -1,0 +1,169 @@
+
+<!-- index.wxml -->
+<view class="container">
+  <!-- Navbar -->
+  <view class="sticky top-0 z-50 bg-app-teal animate-fade-in">
+    <view class="flex items-center justify-end h-12 px-4">
+      <view class="flex items-center space-x-1 text-slate-800 font-medium" bindtap="toggleLocationMenu">
+        <image src="/assets/icons/map-pin.png" style="width: 18px; height: 18px;" />
+        <text>{{location}}</text>
+        <image src="/assets/icons/chevron-down.png" style="width: 16px; height: 16px; transform: {{locationMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)'}};" />
+      </view>
+    </view>
+    
+    <view wx:if="{{locationMenuOpen}}" class="absolute top-12 right-0 w-32 bg-white rounded-md shadow-md p-2 animate-scale">
+      <view>
+        <block wx:for="{{cities}}" wx:key="*this">
+          <view 
+            class="w-full text-left px-3 py-2 rounded-md text-sm {{item === location ? 'bg-blue-50 text-app-blue' : ''}}"
+            bindtap="selectLocation"
+            data-city="{{item}}"
+          >
+            {{item}}
+          </view>
+        </block>
+      </view>
+    </view>
+  </view>
+  
+  <!-- Search Bar -->
+  <view class="px-4 py-6 bg-app-light-bg animate-fade-in">
+    <view class="flex items-center space-x-2 mb-4">
+      <image src="/assets/icons/users.png" style="width: 24px; height: 24px;" />
+      <text class="text-xl font-bold">找人问问</text>
+      <text class="text-gray-600 text-sm">AI无法回答的，人来回答！</text>
+    </view>
+    
+    <view class="relative">
+      <input
+        type="text"
+        placeholder="搜索问题/达人/话题"
+        class="search-input pr-10"
+      />
+      <image 
+        src="/assets/icons/search.png" 
+        style="width: 20px; height: 20px; position: absolute; right: 16px; top: 50%; transform: translateY(-50%);" 
+      />
+    </view>
+  </view>
+  
+  <!-- Category Section -->
+  <view class="py-6 px-4 animate-fade-in">
+    <view class="grid grid-cols-4 gap-2">
+      <block wx:for="{{categories}}" wx:key="id">
+        <view class="flex flex-col items-center animate-slide-up" style="animation-delay: {{index * 0.1 + 0.2}}s">
+          <view class="category-icon mb-2 {{item.color}}">
+            <image src="{{item.icon}}" style="width: 24px; height: 24px;" />
+          </view>
+          <text class="text-xs text-center">{{item.name}}</text>
+        </view>
+      </block>
+    </view>
+  </view>
+  
+  <!-- Activities Section -->
+  <view class="px-4 mb-6">
+    <text class="text-lg font-bold mb-4 animate-fade-in" style="animation-delay: 0.2s; display: block;">
+      热点热门活动
+    </text>
+    
+    <view class="grid grid-cols-2 gap-4">
+      <block wx:for="{{activities}}" wx:key="id">
+        <view class="bg-white rounded-lg overflow-hidden shadow-soft card-animate animate-fade-in" style="animation-delay: {{0.3 + index * 0.1}}s">
+          <view style="aspect-ratio: 16/9; background-color: #f3f4f6;">
+            <image 
+              src="{{item.imageUrl}}" 
+              mode="aspectFill"
+              style="width: 100%; height: 100%;"
+            />
+          </view>
+          
+          <view class="p-3">
+            <text class="font-semibold text-sm leading-tight mb-2 block">{{item.title}}</text>
+            <text class="text-xs text-gray-500">参与讨论</text>
+          </view>
+        </view>
+      </block>
+    </view>
+  </view>
+  
+  <!-- Questions Section -->
+  <view class="px-4 mb-6">
+    <view class="flex items-center justify-between mb-4">
+      <view 
+        class="{{activeTab === 'topics' ? 'font-bold text-lg animate-fade-in text-app-text border-b-2 border-app-blue' : 'font-bold text-lg animate-fade-in text-gray-400'}} pb-1"
+        bindtap="switchTab"
+        data-tab="topics"
+      >
+        推荐话题
+      </view>
+      <view 
+        class="{{activeTab === 'experts' ? 'font-bold text-lg animate-fade-in text-app-text border-b-2 border-app-blue' : 'font-bold text-lg animate-fade-in text-gray-400'}} pb-1"
+        bindtap="switchTab"
+        data-tab="experts"
+      >
+        推荐达人
+      </view>
+    </view>
+    
+    <block wx:if="{{isLoading}}">
+      <view class="space-y-4">
+        <block wx:for="{{[1, 2, 3]}}" wx:key="*this">
+          <view class="bg-white rounded-lg p-4 animate-pulse-soft">
+            <view class="h-5 bg-gray-200 rounded w-3/4 mb-3"></view>
+            <view class="flex items-center space-x-2 mb-3">
+              <view class="w-8 h-8 bg-gray-200 rounded-full"></view>
+              <view>
+                <view class="h-3 bg-gray-200 rounded w-24"></view>
+                <view class="h-3 bg-gray-200 rounded w-16 mt-1"></view>
+              </view>
+            </view>
+            <view class="flex space-x-2">
+              <view class="h-4 bg-gray-200 rounded w-12"></view>
+              <view class="h-4 bg-gray-200 rounded w-12"></view>
+            </view>
+          </view>
+        </block>
+      </view>
+    </block>
+    
+    <block wx:else>
+      <view class="space-y-3">
+        <block wx:for="{{questions}}" wx:key="id">
+          <view class="bg-white rounded-lg p-4 mb-3 shadow-soft animate-fade-in card-animate" style="animation-delay: {{0.4 + index * 0.1}}s">
+            <text class="font-semibold text-base mb-3 block">{{item.title}}</text>
+            
+            <view class="flex items-center justify-between">
+              <view class="flex items-center space-x-2">
+                <view class="w-8 h-8 rounded-full overflow-hidden bg-gray-200">
+                  <image 
+                    src="{{item.asker.avatar}}" 
+                    mode="aspectFill"
+                    style="width: 100%; height: 100%;"
+                  />
+                </view>
+                <view>
+                  <text class="text-xs text-gray-700 block">提问者: {{item.asker.name}}</text>
+                  <text class="text-xs text-gray-500 block">提问时间: {{item.time}}</text>
+                </view>
+              </view>
+              
+              <view class="flex items-center">
+                <view class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center mr-1">
+                  <image src="/assets/icons/sun.png" style="width: 14px; height: 14px;" />
+                </view>
+                <text class="text-yellow-500 font-medium">{{item.points}}</text>
+              </view>
+            </view>
+            
+            <view class="mt-3 flex flex-wrap gap-2">
+              <block wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">
+                <text class="tag">#{{tag}}</text>
+              </block>
+            </view>
+          </view>
+        </block>
+      </view>
+    </block>
+  </view>
+</view>

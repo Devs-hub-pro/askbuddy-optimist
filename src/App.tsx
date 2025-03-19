@@ -8,6 +8,7 @@ import Index from "./pages/Index";
 import CitySelector from "./pages/CitySelector";
 import NotFound from "./pages/NotFound";
 import IconsPreview from "./components/IconsPreview";
+import EducationLearning from "./pages/EducationLearning";
 
 const queryClient = new QueryClient();
 
@@ -31,6 +32,7 @@ const App = () => (
           <Route path="/messages" element={<Messages />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/icons-preview" element={<IconsPreview />} />
+          <Route path="/education" element={<EducationLearning />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

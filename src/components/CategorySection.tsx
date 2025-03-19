@@ -27,7 +27,7 @@ const categories: Category[] = [
     icon: <Briefcase size={20} />,
     color: 'bg-app-green',
     gradient: 'from-green-400 to-teal-500',
-    path: '/'
+    path: '/career'
   },
   {
     id: 'lifestyle',

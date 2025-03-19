@@ -1,6 +1,7 @@
 
 import React from 'react';
-import { MessageCircle, Award } from 'lucide-react';
+import { MessageCircle, Award, MessageSquare } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 interface QuestionCardProps {
   id: string;
@@ -23,6 +24,13 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   points,
   delay = 0 
 }) => {
+  // Handle direct messaging to the expert
+  const handleAskMe = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click event if the button is clicked
+    console.log(`Ask expert: ${asker.name}`);
+    // This would typically open a chat or contact form
+  };
+
   return (
     <div 
       className="bg-gradient-to-br from-white to-blue-50/30 rounded-xl p-4 shadow-md card-animate animate-fade-in hover:shadow-lg transition-all duration-300"
@@ -58,10 +66,22 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           ))}
         </div>
         
-        <button className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 hover:brightness-105">
-          <MessageCircle size={14} />
-          回答
-        </button>
+        <div className="flex gap-2">
+          <Button 
+            onClick={handleAskMe}
+            variant="outline" 
+            size="sm"
+            className="text-green-600 border-green-200 bg-green-50 hover:bg-green-100 rounded-full text-xs py-1 h-auto flex items-center gap-1"
+          >
+            <MessageSquare size={14} />
+            找我问问
+          </Button>
+          
+          <button className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 hover:brightness-105">
+            <MessageCircle size={14} />
+            回答
+          </button>
+        </div>
       </div>
     </div>
   );

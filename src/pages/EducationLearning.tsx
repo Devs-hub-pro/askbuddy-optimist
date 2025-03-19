@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -12,10 +11,12 @@ import {
   Plus,
   Bell,
   CalendarPlus,
-  User
+  User,
+  MessageSquare
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/SearchBar";
 
 const EducationLearning = () => {
@@ -26,7 +27,6 @@ const EducationLearning = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   
-  // Simulate loading content
   useEffect(() => {
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -34,20 +34,17 @@ const EducationLearning = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Important dates data
   const importantDates = [
     { date: '2024-12-25', event: '全国研究生考试', countdown: 65, type: 'kaoyan' },
     { date: '2024-10-15', event: '考研预报名开始', countdown: 15, type: 'kaoyan' },
     { date: '2024-11-20', event: 'TOEFL/GRE冬季考试', countdown: 40, type: 'study-abroad' },
     { date: '2025-06-07', event: '2025高考', countdown: 240, type: 'gaokao' }
   ];
-  
-  // Filter important dates based on selected category
+
   const filteredDates = activeCategory === 'all' 
     ? importantDates 
     : importantDates.filter(date => date.type === activeCategory);
-  
-  // Categories data
+
   const categories = [
     { id: 'all', name: '全部', icon: <Calendar size={16} /> },
     { id: 'gaokao', name: '高考', icon: <GraduationCap size={16} /> },
@@ -56,8 +53,7 @@ const EducationLearning = () => {
     { id: 'competition', name: '竞赛', icon: <Award size={16} /> },
     { id: 'paper', name: '论文写作', icon: <FileText size={16} /> }
   ];
-  
-  // Experts data
+
   const allExperts = [
     {
       id: '1',
@@ -120,13 +116,11 @@ const EducationLearning = () => {
       category: 'competition'
     }
   ];
-  
-  // Filter experts based on selected category
+
   const filteredExperts = activeCategory === 'all' 
     ? allExperts 
     : allExperts.filter(expert => expert.category === activeCategory);
-  
-  // Community questions data
+
   const communityQuestions = [
     {
       id: '1',
@@ -194,13 +188,11 @@ const EducationLearning = () => {
       category: 'competition'
     }
   ];
-  
-  // Filter questions based on selected category
+
   const filteredQuestions = activeCategory === 'all'
     ? communityQuestions
     : communityQuestions.filter(question => question.category === activeCategory);
 
-  // Handle search functionality
   const handleSearch = (value: string) => {
     setSearchQuery(value);
     
@@ -212,13 +204,10 @@ const EducationLearning = () => {
     
     setIsSearching(true);
     
-    // Simulate search delay
     setTimeout(() => {
-      // Match experts based on keywords
       const filteredExperts = allExperts.filter(expert => {
         const lowerCaseValue = value.toLowerCase();
         
-        // Check if any keyword contains the search value
         return expert.keywords.some(keyword => 
           keyword.toLowerCase().includes(lowerCaseValue)
         );
@@ -229,22 +218,21 @@ const EducationLearning = () => {
     }, 500);
   };
 
-  // Handle category selection
   const handleCategorySelect = (categoryId: string) => {
     setActiveCategory(categoryId);
-    // In a real app, this would trigger a data fetch for the specific category
     console.log(`Selected category: ${categoryId}`);
   };
 
-  // Handle adding custom date
   const handleAddDate = () => {
-    // In a real app, this would open a date picker or form
     console.log('Adding custom date');
+  };
+
+  const handleAskMe = (expertName: string) => {
+    console.log(`Opening chat with ${expertName}`);
   };
 
   return (
     <div className="app-container bg-gradient-to-b from-white to-blue-50/30 pb-20">
-      {/* Header with back button */}
       <div className="sticky top-0 z-50 bg-app-teal shadow-sm animate-fade-in">
         <div className="flex items-center justify-between h-12 px-4">
           <button onClick={() => navigate('/')} className="text-white">
@@ -257,13 +245,11 @@ const EducationLearning = () => {
         </div>
       </div>
       
-      {/* Enhanced Search Bar - without slogan */}
       <SearchBar 
         onSearch={handleSearch} 
         placeholder="搜索问题/达人/话题"
       />
       
-      {/* Search Results */}
       {searchQuery.trim() !== '' && (
         <div className="px-4 mb-6">
           <h2 className="text-lg font-bold mb-3">
@@ -302,13 +288,22 @@ const EducationLearning = () => {
                       </div>
                     </div>
                     <p className="text-xs text-gray-700 mb-2 line-clamp-2">{expert.description}</p>
-                    <div className="flex flex-wrap gap-1">
+                    <div className="flex flex-wrap gap-1 mb-2">
                       {expert.tags.map((tag, index) => (
                         <span key={index} className="bg-green-50 text-green-600 text-xs px-1.5 py-0.5 rounded-full">
                           {tag}
                         </span>
                       ))}
                     </div>
+                    <Button 
+                      onClick={() => handleAskMe(expert.name)}
+                      variant="outline" 
+                      size="sm"
+                      className="w-full text-green-600 border-green-200 bg-green-50 hover:bg-green-100 rounded-full text-xs py-1 h-auto flex items-center gap-1 justify-center"
+                    >
+                      <MessageSquare size={14} />
+                      找我问问
+                    </Button>
                   </CardContent>
                 </Card>
               ))}
@@ -324,10 +319,8 @@ const EducationLearning = () => {
         </div>
       )}
       
-      {/* Only show the normal content if not searching */}
       {searchQuery.trim() === '' && (
         <>
-          {/* Important Dates Calendar - Combined Section */}
           <div className="px-4 mb-6">
             <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 shadow-sm">
               <div className="flex items-center justify-between mb-3">
@@ -365,7 +358,6 @@ const EducationLearning = () => {
             </div>
           </div>
           
-          {/* Category Tags - Made clickable */}
           <div className="px-4 mb-4 overflow-x-auto">
             <div className="flex space-x-2">
               {categories.map((category) => (
@@ -381,7 +373,6 @@ const EducationLearning = () => {
             </div>
           </div>
           
-          {/* Community Questions */}
           <div className="px-4 mb-6">
             <Tabs defaultValue="everyone" className="w-full">
               <div className="relative mb-6 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:bg-gray-100">
@@ -490,13 +481,22 @@ const EducationLearning = () => {
                             </div>
                           </div>
                           <p className="text-xs text-gray-700 mb-2 line-clamp-2">{expert.description}</p>
-                          <div className="flex flex-wrap gap-1">
+                          <div className="flex flex-wrap gap-1 mb-2">
                             {expert.tags.map((tag, index) => (
                               <span key={index} className="bg-green-50 text-green-600 text-xs px-1.5 py-0.5 rounded-full">
                                 {tag}
                               </span>
                             ))}
                           </div>
+                          <Button 
+                            onClick={() => handleAskMe(expert.name)}
+                            variant="outline" 
+                            size="sm"
+                            className="w-full text-green-600 border-green-200 bg-green-50 hover:bg-green-100 rounded-full text-xs py-1 h-auto flex items-center gap-1 justify-center"
+                          >
+                            <MessageSquare size={14} />
+                            找我问问
+                          </Button>
                         </CardContent>
                       </Card>
                     ))}
@@ -508,7 +508,6 @@ const EducationLearning = () => {
         </>
       )}
       
-      {/* Floating Ask Button */}
       <button className="fixed bottom-20 right-4 bg-gradient-to-r from-app-teal to-app-blue text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg">
         <Plus size={24} />
       </button>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -18,10 +17,12 @@ import {
   User,
   Tag,
   Flame,
-  PlusCircle 
+  PlusCircle,
+  MessageSquare 
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 
 const HobbiesSkills = () => {
@@ -192,6 +193,12 @@ const HobbiesSkills = () => {
   const filteredQuestions = activeCategory === 'all'
     ? communityQuestions
     : communityQuestions.filter(question => question.category === activeCategory);
+
+  // Add handler for the "Ask Me" button
+  const handleAskMe = (expertName: string) => {
+    console.log(`Opening chat with ${expertName}`);
+    // This would typically initiate a direct message or contact form
+  };
 
   return (
     <div className="app-container bg-gradient-to-b from-white to-rose-50/30 pb-20">
@@ -373,13 +380,22 @@ const HobbiesSkills = () => {
                     </div>
                   </div>
                   <p className="text-xs text-gray-700 mb-2 line-clamp-2">{expert.description}</p>
-                  <div className="flex flex-wrap gap-1">
+                  <div className="flex flex-wrap gap-1 mb-2">
                     {expert.tags.map((tag, index) => (
                       <span key={index} className="bg-pink-50 text-pink-600 text-xs px-1.5 py-0.5 rounded-full">
                         {tag}
                       </span>
                     ))}
                   </div>
+                  <Button 
+                    onClick={() => handleAskMe(expert.name)}
+                    variant="outline" 
+                    size="sm"
+                    className="w-full text-pink-600 border-pink-200 bg-pink-50 hover:bg-pink-100 rounded-full text-xs py-1 h-auto flex items-center gap-1 justify-center"
+                  >
+                    <MessageSquare size={14} />
+                    找我问问
+                  </Button>
                 </CardContent>
               </Card>
             ))

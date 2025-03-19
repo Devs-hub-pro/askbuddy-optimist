@@ -17,11 +17,7 @@
   </view>
   
   <!-- Search Bar -->
-  <search-bar 
-    bind:search="onSearch" 
-    bind:focus="onSearchFocus"
-    bind:blur="onSearchBlur"
-  />
+  <search-bar bind:search="onSearch" />
   
   <!-- Category Section -->
   <category-grid categories="{{categories}}" bind:select="onCategorySelect" />
@@ -33,10 +29,8 @@
   <question-tabs 
     activeTab="{{activeTab}}" 
     isLoading="{{isLoading}}" 
-    questions="{{activeTab === 'topics' ? questions : experts}}"
+    questions="{{questions}}"
     bind:tabchange="switchTab"
     bind:answer="handleAnswer"
-    bind:questionclick="handleQuestionClick"
-    bind:expertclick="handleExpertClick"
   />
 </view>

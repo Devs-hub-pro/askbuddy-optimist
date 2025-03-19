@@ -1,11 +1,15 @@
 
-import React from 'react';
+import React, { useState } from 'react';
 import { allIcons } from '../utils/iconsList';
 import * as LucideIcons from 'lucide-react';
 import { Button } from './ui/button';
 import { Download } from 'lucide-react';
+import { Toggle } from './ui/toggle';
 
 const IconsPreview: React.FC = () => {
+  const [selectedIcons, setSelectedIcons] = useState<Set<string>>(new Set());
+  const [downloadColor, setDownloadColor] = useState('#000000');
+
   // Create a mapping of icon names to Lucide components
   const iconComponents: Record<string, React.ComponentType<any>> = {
     'map-pin': LucideIcons.MapPin,
@@ -27,18 +31,91 @@ const IconsPreview: React.FC = () => {
     'user': LucideIcons.User,
   };
 
+  // Toggle selection of an icon
+  const toggleIconSelection = (iconName: string) => {
+    const newSelection = new Set(selectedIcons);
+    if (newSelection.has(iconName)) {
+      newSelection.delete(iconName);
+    } else {
+      newSelection.add(iconName);
+    }
+    setSelectedIcons(newSelection);
+  };
+
+  // Select or deselect all icons
+  const toggleSelectAll = () => {
+    if (selectedIcons.size === allIcons.length) {
+      setSelectedIcons(new Set());
+    } else {
+      setSelectedIcons(new Set(allIcons.map(icon => icon.name)));
+    }
+  };
+
+  // Function to create SVG content for an icon
+  const createSvgContent = (iconName: string, color: string = '#000000') => {
+    const IconComponent = iconComponents[iconName];
+    if (!IconComponent) return null;
+    
+    // Create a temporary element to render the icon
+    const tempDiv = document.createElement('div');
+    const tempReactElement = document.createElement('div');
+    tempDiv.appendChild(tempReactElement);
+    
+    // Render the icon into the temp element
+    const iconInstance = React.createElement(IconComponent, { color });
+    React.render(iconInstance, tempReactElement);
+    
+    // Get the SVG from the rendered element
+    const svgElement = tempReactElement.querySelector('svg');
+    if (!svgElement) return null;
+    
+    return `
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        ${svgElement.innerHTML}
+      </svg>
+    `;
+  };
+
   // Function to download SVG
   const downloadSvg = (iconName: string, color: string = '#000000') => {
     const IconComponent = iconComponents[iconName];
     if (!IconComponent) return;
+    
+    // Get the SVG element from the component
+    const element = document.createElement('div');
+    const reactElement = React.createElement(IconComponent, { color });
+    React.render(reactElement, element);
+    
+    const svgElement = element.querySelector('svg');
+    if (!svgElement) return;
+    
+    // Get the SVG content
+    const svgContent = svgElement.outerHTML;
+    
+    // Create blob and download
+    const blob = new Blob([svgContent], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `${iconName}.svg`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
 
-    // Create SVG content
+  // Using a more compatible approach for rendering and extracting SVG
+  const downloadSvgFixed = (iconName: string, color: string = '#000000') => {
+    const IconComponent = iconComponents[iconName];
+    if (!IconComponent) return;
+    
+    // Create SVG content directly using the known structure
     const svgString = `
-      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        ${IconComponent({}).props.children}
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-${iconName}">
+        ${React.renderToStaticMarkup(React.createElement(IconComponent, { color })).replace(/<svg[^>]*>|<\/svg>/g, '')}
       </svg>
     `;
-
+    
     // Create blob and download
     const blob = new Blob([svgString], { type: 'image/svg+xml' });
     const url = URL.createObjectURL(blob);
@@ -51,10 +128,29 @@ const IconsPreview: React.FC = () => {
     URL.revokeObjectURL(url);
   };
 
-  // Function to download all icons as a zip
-  const downloadAllIcons = () => {
-    // Create a message for users since we can't create a zip file directly in browser
-    alert('由于浏览器限制，无法直接下载所有图标为zip包。请逐个下载图标，或访问 https://lucide.dev/icons/ 搜索并下载所需图标。');
+  // Function to download multiple SVGs at once
+  const downloadSelectedIcons = () => {
+    if (selectedIcons.size === 0) {
+      alert('请先选择要下载的图标');
+      return;
+    }
+    
+    // Since browsers can't create zip files directly, 
+    // we'll download icons one by one with a small delay between each
+    const selectedIconsList = Array.from(selectedIcons);
+    
+    alert(`将依次下载 ${selectedIconsList.length} 个图标，请稍等...`);
+    
+    selectedIconsList.forEach((iconName, index) => {
+      setTimeout(() => {
+        try {
+          // Try the fixed method with known structure
+          downloadSvgFixed(iconName, downloadColor);
+        } catch (error) {
+          console.error(`下载图标 ${iconName} 失败:`, error);
+        }
+      }, index * 300); // Add a delay between downloads to avoid browser limitations
+    });
   };
 
   return (
@@ -64,21 +160,48 @@ const IconsPreview: React.FC = () => {
         These icons need to be saved as PNG files in the /assets/icons/ directory for the WeChat mini-program.
       </p>
       
-      <div className="mb-6">
-        <Button onClick={downloadAllIcons} className="flex items-center gap-2">
-          <Download size={16} />
-          尝试下载所有图标
-        </Button>
-        <p className="mt-2 text-sm text-gray-500">
-          注意：请点击每个图标下方的"下载SVG"按钮来下载单个图标。下载后，您可以使用在线工具将SVG转换为PNG格式。
+      <div className="mb-6 space-y-4">
+        <div className="flex flex-wrap items-center gap-2">
+          <Button onClick={toggleSelectAll} variant="outline" className="flex items-center gap-2">
+            {selectedIcons.size === allIcons.length ? '取消全选' : '全选'}
+          </Button>
+          
+          <Button 
+            onClick={downloadSelectedIcons} 
+            disabled={selectedIcons.size === 0}
+            className="flex items-center gap-2"
+          >
+            <Download size={16} />
+            下载选中的图标 ({selectedIcons.size})
+          </Button>
+          
+          <div className="flex items-center gap-2 ml-2">
+            <span className="text-sm">颜色:</span>
+            <input 
+              type="color" 
+              value={downloadColor}
+              onChange={(e) => setDownloadColor(e.target.value)}
+              className="w-8 h-8 p-0 border-0"
+            />
+          </div>
+        </div>
+        
+        <p className="text-sm text-gray-500">
+          提示：点击图标卡片可以选择/取消选择图标。下载后，您可以使用在线工具将SVG转换为PNG格式。
         </p>
       </div>
       
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         {allIcons.map((icon) => {
           const IconComponent = iconComponents[icon.name];
+          const isSelected = selectedIcons.has(icon.name);
+          
           return (
-            <div key={icon.name} className="border rounded-lg p-4 flex flex-col items-center">
+            <div 
+              key={icon.name} 
+              className={`border rounded-lg p-4 flex flex-col items-center cursor-pointer transition-colors ${isSelected ? 'bg-blue-50 border-blue-300' : ''}`}
+              onClick={() => toggleIconSelection(icon.name)}
+            >
               <div className="p-4 bg-gray-100 rounded-full mb-2">
                 {IconComponent && <IconComponent size={24} className="text-gray-700" />}
               </div>
@@ -89,10 +212,23 @@ const IconsPreview: React.FC = () => {
                   variant="outline" 
                   size="sm" 
                   className="mt-2"
-                  onClick={() => downloadSvg(icon.name)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    downloadSvgFixed(icon.name, downloadColor);
+                  }}
                 >
                   下载SVG
                 </Button>
+                <Toggle
+                  pressed={isSelected}
+                  className="mt-2 w-full text-xs"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    toggleIconSelection(icon.name);
+                  }}
+                >
+                  {isSelected ? '已选择' : '选择'}
+                </Toggle>
               </div>
             </div>
           );

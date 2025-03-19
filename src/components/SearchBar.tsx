@@ -7,21 +7,29 @@ interface SearchBarProps {
   onSearch?: (value: string) => void;
   placeholder?: string;
   className?: string;
+  value?: string;
+  onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ 
   onSearch, 
   placeholder = "搜索问题/达人/话题", 
-  className = ""
+  className = "",
+  value,
+  onChange
 }) => {
-  const [searchValue, setSearchValue] = useState('');
+  const [searchValue, setSearchValue] = useState(value || '');
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = e.target.value;
-    setSearchValue(value);
+    const newValue = e.target.value;
+    setSearchValue(newValue);
+    
+    if (onChange) {
+      onChange(e);
+    }
     
     if (onSearch) {
-      onSearch(value);
+      onSearch(newValue);
     }
   };
 
@@ -30,7 +38,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
       <div className="relative">
         <Input
           type="text"
-          value={searchValue}
+          value={value !== undefined ? value : searchValue}
           onChange={handleInputChange}
           placeholder={placeholder}
           className="search-input pr-10 focus:ring-2 focus:ring-app-teal/30 shadow-md"

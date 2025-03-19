@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Calendar, 
-  Clock, 
   ChevronLeft, 
   GraduationCap, 
   BookOpen, 
@@ -12,7 +11,8 @@ import {
   FileText, 
   Plus,
   Bell,
-  CalendarPlus
+  CalendarPlus,
+  User
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -229,6 +229,19 @@ const EducationLearning = () => {
     }, 500);
   };
 
+  // Handle category selection
+  const handleCategorySelect = (categoryId: string) => {
+    setActiveCategory(categoryId);
+    // In a real app, this would trigger a data fetch for the specific category
+    console.log(`Selected category: ${categoryId}`);
+  };
+
+  // Handle adding custom date
+  const handleAddDate = () => {
+    // In a real app, this would open a date picker or form
+    console.log('Adding custom date');
+  };
+
   return (
     <div className="app-container bg-gradient-to-b from-white to-blue-50/30 pb-20">
       {/* Header with back button */}
@@ -244,10 +257,10 @@ const EducationLearning = () => {
         </div>
       </div>
       
-      {/* Enhanced Search Bar */}
+      {/* Enhanced Search Bar - without slogan */}
       <SearchBar 
         onSearch={handleSearch} 
-        placeholder="搜索问题/达人/话题，为您匹配合适的回答者"
+        placeholder="搜索问题/达人/话题"
       />
       
       {/* Search Results */}
@@ -322,7 +335,10 @@ const EducationLearning = () => {
                   <Calendar size={18} className="text-indigo-600 mr-2" />
                   <h3 className="font-medium text-sm">重要日期日历</h3>
                 </div>
-                <button className="flex items-center text-xs text-indigo-600 bg-white rounded-full px-2 py-1 shadow-sm">
+                <button 
+                  className="flex items-center text-xs text-indigo-600 bg-white rounded-full px-2 py-1 shadow-sm"
+                  onClick={handleAddDate}
+                >
                   <CalendarPlus size={12} className="mr-1" />
                   <span>添加日程</span>
                 </button>
@@ -349,14 +365,14 @@ const EducationLearning = () => {
             </div>
           </div>
           
-          {/* Category Tags */}
+          {/* Category Tags - Made clickable */}
           <div className="px-4 mb-4 overflow-x-auto">
             <div className="flex space-x-2">
               {categories.map((category) => (
                 <div 
                   key={category.id} 
-                  className={`flex-shrink-0 ${activeCategory === category.id ? 'bg-blue-500 text-white' : 'bg-white shadow-sm'} rounded-full px-3 py-1.5 flex items-center gap-1 cursor-pointer`}
-                  onClick={() => setActiveCategory(category.id)}
+                  className={`flex-shrink-0 ${activeCategory === category.id ? 'bg-blue-500 text-white' : 'bg-white shadow-sm'} rounded-full px-3 py-1.5 flex items-center gap-1 cursor-pointer transition-colors`}
+                  onClick={() => handleCategorySelect(category.id)}
                 >
                   {category.icon}
                   <span className="text-xs font-medium">{category.name}</span>

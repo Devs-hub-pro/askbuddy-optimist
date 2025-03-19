@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Search, Calendar, Briefcase, FileText, Video, Clock, 
   Users, User, MessageCircleQuestion, MessageCirclePlus,
-  Star, Mail, ChevronLeft, ArrowRight
+  Star, Mail, ChevronLeft, ArrowRight, Plus
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -128,6 +129,32 @@ const importantDates = [
   { date: '2024-12-10', event: '年终跳槽黄金期' }
 ];
 
+// Featured questions data (to match Education page format)
+const featuredQuestions = [
+  {
+    id: '1',
+    title: '如何准备大厂前端技术面试？',
+    views: '3.2k',
+    tags: ['前端', '面试', '技术'],
+    user: {
+      name: '张老师',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Oliver',
+      role: '阿里P8技术专家'
+    }
+  },
+  {
+    id: '2',
+    title: '跨行业转产品经理需要做好哪些准备？',
+    views: '2.5k',
+    tags: ['产品经理', '转行', '职业规划'],
+    user: {
+      name: '李产品',
+      avatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Emily',
+      role: '腾讯高级产品经理'
+    }
+  }
+];
+
 // Categories
 const categories = [
   { id: "job", label: "求职", icon: <Briefcase size={16} /> },
@@ -171,7 +198,7 @@ const CareerDevelopment: React.FC = () => {
       {/* Search Bar */}
       <div className="px-4 py-4 bg-gradient-to-b from-purple-600/10 to-transparent">
         <div className="relative">
-          <Input
+          <input
             type="text"
             placeholder="搜索岗位、行业、面试技巧"
             className="search-input pr-10 focus:ring-2 focus:ring-purple-400/30 shadow-md"
@@ -196,35 +223,162 @@ const CareerDevelopment: React.FC = () => {
         </div>
       </div>
       
-      {/* Category Tags - Replaced with Carousel */}
-      <div className="px-4 mb-4">
-        <Carousel
-          opts={{
-            align: "start",
-            loop: false
-          }}
-          className="w-full"
-        >
-          <CarouselContent className="-ml-2">
-            {categories.map((category) => (
-              <CarouselItem key={category.id} className="pl-2 basis-auto">
-                <div 
-                  className={`flex-shrink-0 rounded-full px-3 py-1.5 flex items-center gap-1 cursor-pointer ${
-                    activeCategory === category.id ? 
-                    'bg-purple-500 text-white' : 
-                    'bg-white text-gray-700 shadow-sm'
-                  }`}
-                  onClick={() => setActiveCategory(category.id)}
-                >
-                  {category.icon}
-                  <span className="text-xs font-medium">{category.label}</span>
+      {/* Category Tags with Carousel */}
+      <div className="px-4 mb-4 overflow-x-auto">
+        <div className="flex space-x-2">
+          {categories.map((category) => (
+            <div 
+              key={category.id} 
+              className={`flex-shrink-0 rounded-full px-3 py-1.5 flex items-center gap-1 cursor-pointer ${
+                activeCategory === category.id ? 
+                'bg-purple-500 text-white' : 
+                'bg-white text-gray-700 shadow-sm'
+              }`}
+              onClick={() => setActiveCategory(category.id)}
+            >
+              {category.icon}
+              <span className="text-xs font-medium">{category.label}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Featured Content */}
+      <div className="px-4 mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-bold">精选推荐</h2>
+          <span className="text-xs text-gray-500">更多 &gt;</span>
+        </div>
+        
+        <div className="space-y-3">
+          {isLoading ? (
+            <div className="space-y-3">
+              {[1, 2].map((item) => (
+                <div key={item} className="bg-white rounded-lg p-4 animate-pulse-soft shadow-sm">
+                  <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
+                  <div className="flex items-center space-x-2 mb-3">
+                    <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                    <div>
+                      <div className="h-3 bg-gray-200 rounded w-24"></div>
+                      <div className="h-3 bg-gray-200 rounded w-16 mt-1"></div>
+                    </div>
+                  </div>
                 </div>
-              </CarouselItem>
-            ))}
-          </CarouselContent>
-          <CarouselPrevious className="left-0 bg-white shadow-md border-0 hover:bg-gray-100" />
-          <CarouselNext className="right-0 bg-white shadow-md border-0 hover:bg-gray-100" />
-        </Carousel>
+              ))}
+            </div>
+          ) : (
+            featuredQuestions.map((item) => (
+              <Card key={item.id} className="shadow-sm hover:shadow transition-shadow">
+                <CardContent className="p-4">
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="font-semibold text-base">{item.title}</h3>
+                    <div className="flex items-center text-gray-500 text-xs">
+                      <span>{item.views} 浏览</span>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center mb-3">
+                    <img 
+                      src={item.user.avatar} 
+                      alt={item.user.name} 
+                      className="w-8 h-8 rounded-full mr-2"
+                    />
+                    <div>
+                      <p className="text-sm font-medium">{item.user.name}</p>
+                      <p className="text-xs text-gray-500">{item.user.role}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex flex-wrap gap-2">
+                    {item.tags.map((tag, index) => (
+                      <span key={index} className="bg-purple-50 text-purple-600 text-xs px-2 py-0.5 rounded-full">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+      </div>
+      
+      {/* Senior Mentors Section */}
+      <div className="px-4 mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-bold">行业导师专栏</h2>
+          <span className="text-xs text-gray-500">更多 &gt;</span>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-3">
+          {isLoading ? (
+            [1, 2].map((item) => (
+              <div key={item} className="bg-white rounded-lg p-3 animate-pulse-soft shadow-sm">
+                <div className="flex items-center mb-2">
+                  <div className="w-10 h-10 bg-gray-200 rounded-full mr-2"></div>
+                  <div>
+                    <div className="h-3 bg-gray-200 rounded w-16 mb-1"></div>
+                    <div className="h-2 bg-gray-200 rounded w-24"></div>
+                  </div>
+                </div>
+                <div className="h-10 bg-gray-200 rounded w-full"></div>
+              </div>
+            ))
+          ) : (
+            mentors.slice(0, 2).map((mentor) => (
+              <Card key={mentor.id} className="shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-3">
+                  <div className="flex items-center mb-2">
+                    <img 
+                      src={mentor.avatar} 
+                      alt={mentor.name} 
+                      className="w-10 h-10 rounded-full mr-2"
+                    />
+                    <div>
+                      <p className="text-sm font-medium">{mentor.name}</p>
+                      <p className="text-xs text-gray-500">{mentor.role} · {mentor.years}年经验</p>
+                    </div>
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center gap-1">
+                      <Star size={12} className="text-yellow-500 fill-yellow-500" />
+                      <span className="text-xs">{mentor.rating}</span>
+                    </div>
+                    <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-100">
+                      ¥{mentor.price}/次
+                    </Badge>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+      </div>
+      
+      {/* Important Dates */}
+      <div className="px-4 mb-6">
+        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-3 shadow-sm">
+          <div className="flex items-center mb-3">
+            <Calendar size={18} className="text-purple-600 mr-2" />
+            <h3 className="font-medium text-sm">重要日期提醒</h3>
+          </div>
+          
+          <div className="space-y-2">
+            {importantDates.map((item, index) => {
+              const eventDate = new Date(item.date);
+              const formattedDate = `${eventDate.getMonth() + 1}月${eventDate.getDate()}日`;
+              
+              return (
+                <div key={index} className="flex items-center justify-between">
+                  <span className="text-xs font-medium">{item.event}</span>
+                  <span className="text-xs bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full">
+                    {formattedDate}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
       
       {/* Industry News */}
@@ -280,105 +434,7 @@ const CareerDevelopment: React.FC = () => {
         </div>
       </div>
       
-      {/* Important Dates */}
-      <div className="px-4 mb-6">
-        <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-3 shadow-sm">
-          <div className="flex items-center mb-3">
-            <Calendar size={18} className="text-purple-600 mr-2" />
-            <h3 className="font-medium text-sm">重要日期提醒</h3>
-          </div>
-          
-          <div className="space-y-2">
-            {importantDates.map((item, index) => {
-              const eventDate = new Date(item.date);
-              const formattedDate = `${eventDate.getMonth() + 1}月${eventDate.getDate()}日`;
-              
-              return (
-                <div key={index} className="flex items-center justify-between">
-                  <span className="text-xs font-medium">{item.event}</span>
-                  <span className="text-xs bg-purple-100 text-purple-600 px-2 py-0.5 rounded-full">
-                    {formattedDate}
-                  </span>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-      
-      {/* Mentor Recommendations with Carousel */}
-      <div className="px-4 mb-6">
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-lg font-bold flex items-center gap-1">
-            <User size={18} className="text-purple-600" />
-            导师推荐
-          </h2>
-          <span className="text-xs text-gray-500">更多 &gt;</span>
-        </div>
-        
-        {isLoading ? (
-          <div className="grid grid-cols-2 gap-3">
-            {[1, 2].map((item) => (
-              <div key={item} className="bg-white rounded-lg p-3 animate-pulse-soft shadow-sm">
-                <div className="flex items-center mb-2">
-                  <div className="w-10 h-10 bg-gray-200 rounded-full mr-2"></div>
-                  <div>
-                    <div className="h-3 bg-gray-200 rounded w-16 mb-1"></div>
-                    <div className="h-2 bg-gray-200 rounded w-24"></div>
-                  </div>
-                </div>
-                <div className="h-10 bg-gray-200 rounded w-full"></div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <Carousel
-            opts={{
-              align: "start",
-              loop: true
-            }}
-            className="w-full"
-          >
-            <CarouselContent className="-ml-4">
-              {mentors.map((mentor) => (
-                <CarouselItem key={mentor.id} className="pl-4 md:basis-1/2 basis-full">
-                  <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-all h-full">
-                    <CardContent className="p-3">
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
-                          <img src={mentor.avatar} alt={mentor.name} className="w-full h-full object-cover" />
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between">
-                            <h3 className="font-medium">{mentor.name}</h3>
-                            <div className="flex items-center gap-1">
-                              <Star size={12} className="text-yellow-500 fill-yellow-500" />
-                              <span className="text-xs">{mentor.rating}</span>
-                            </div>
-                          </div>
-                          <p className="text-xs text-gray-500">{mentor.role} · {mentor.years}年经验</p>
-                          <div className="flex items-center justify-between mt-2">
-                            <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-100">
-                              ¥{mentor.price}/次
-                            </Badge>
-                            <Button size="sm" className="h-7 rounded-full bg-purple-600 hover:bg-purple-700 text-xs">
-                              咨询预约
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </CarouselItem>
-              ))}
-            </CarouselContent>
-            <CarouselPrevious className="left-0 -translate-y-1/2 bg-white shadow-md border-0 hover:bg-gray-100" />
-            <CarouselNext className="right-0 -translate-y-1/2 bg-white shadow-md border-0 hover:bg-gray-100" />
-          </Carousel>
-        )}
-      </div>
-      
-      {/* Job Q&A */}
+      {/* Community Questions */}
       <div className="px-4 mb-6">
         <Tabs defaultValue="everyone" className="w-full">
           <div className="relative mb-6 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:bg-gray-100">
@@ -468,11 +524,10 @@ const CareerDevelopment: React.FC = () => {
       
       {/* Floating Ask Button */}
       <button className="fixed bottom-20 right-4 bg-gradient-to-r from-purple-500 to-indigo-500 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg">
-        <MessageCirclePlus size={24} />
+        <Plus size={24} />
       </button>
     </div>
   );
 };
 
 export default CareerDevelopment;
-

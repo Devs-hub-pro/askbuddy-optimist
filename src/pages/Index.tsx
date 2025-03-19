@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -7,7 +6,7 @@ import CategorySection from '../components/CategorySection';
 import ActivityCard from '../components/ActivityCard';
 import QuestionCard from '../components/QuestionCard';
 import BottomNav from '../components/BottomNav';
-import { Sparkles, MessageSquare } from 'lucide-react';
+import { Sparkles, MessageSquare, Award } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -25,11 +24,9 @@ const Index = () => {
   const [currentLocation, setCurrentLocation] = useState<string>('深圳');
   
   useEffect(() => {
-    // Get initial location from localStorage or use default
     const storedLocation = localStorage.getItem('currentLocation') || '深圳';
     setCurrentLocation(storedLocation);
     
-    // Simulate content loading
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 1000);
@@ -38,13 +35,11 @@ const Index = () => {
   }, []);
   
   useEffect(() => {
-    // Update location when coming back from city selector
     if (locationState?.location) {
       setCurrentLocation(locationState.location);
     }
   }, [locationState]);
   
-  // Sample activities data
   const activities = [
     {
       id: '1',
@@ -58,7 +53,6 @@ const Index = () => {
     }
   ];
   
-  // Sample questions data
   const questions = [
     {
       id: '1',
@@ -95,48 +89,23 @@ const Index = () => {
     }
   ];
 
-  // Sample experts data
-  const experts = [
-    {
-      id: '1',
-      name: '张同学',
-      avatar: 'https://randomuser.me/api/portraits/women/22.jpg',
-      title: '北大硕士 | 出国党',
-      description: '专注留学申请文书指导，斯坦福offer获得者',
-      tags: ['留学', '文书', '面试'],
-    },
-    {
-      id: '2',
-      name: '刘导师',
-      avatar: 'https://randomuser.me/api/portraits/men/55.jpg',
-      title: '清华博士 | 考研规划',
-      description: '5年考研辅导经验，擅长数学与专业课',
-      tags: ['考研', '数学', '规划'],
-    },
-    {
-      id: '3',
-      name: '王老师',
-      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-      title: '高考志愿规划师',
-      description: '10年高考志愿填报指导经验，专精各省份政策',
-      tags: ['高考', '志愿填报', '专业选择'],
-    },
-    {
-      id: '4',
-      name: '李明',
-      avatar: 'https://randomuser.me/api/portraits/men/43.jpg',
-      title: '清华研究生',
-      description: '考研英语特长，英语六级高分，专注英语学习方法',
-      tags: ['考研', '英语', '备考'],
-    }
-  ];
+  const featuredExpert = {
+    id: '1',
+    name: '张同学',
+    avatar: 'https://randomuser.me/api/portraits/women/22.jpg',
+    title: '北大硕士 | 出国党',
+    description: '专注留学申请文书指导，斯坦福offer获得者',
+    tags: ['留学', '文书', '面试'],
+    rating: 4.9,
+    responseRate: '98%'
+  };
 
   const handleAskMe = (expertName: string) => {
     console.log(`Opening chat with ${expertName}`);
   };
 
   return (
-    <div className="app-container bg-gradient-to-b from-white to-blue-50/30">
+    <div className="app-container bg-gradient-to-b from-white to-blue-50/30 pb-20">
       <Navbar location={currentLocation} />
       
       <SearchBar />
@@ -190,9 +159,8 @@ const Index = () => {
         {isLoading ? (
           <div className="space-y-4">
             {activeTab === 'everyone' ? (
-              // Loading state for questions
               [1, 2, 3].map((item) => (
-                <div key={item} className="bg-white rounded-lg p-4 animate-pulse-soft shadow-md">
+                <div key={item} className="bg-white rounded-xl p-4 animate-pulse-soft shadow-md">
                   <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
                   <div className="flex items-center space-x-2 mb-3">
                     <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
@@ -208,27 +176,30 @@ const Index = () => {
                 </div>
               ))
             ) : (
-              // Loading state for experts
-              <div className="grid grid-cols-2 gap-3">
-                {[1, 2, 3, 4].map((item) => (
-                  <div key={item} className="bg-white rounded-lg p-3 animate-pulse-soft shadow-sm">
-                    <div className="flex items-center mb-2">
-                      <div className="w-10 h-10 bg-gray-200 rounded-full mr-2"></div>
-                      <div>
-                        <div className="h-3 bg-gray-200 rounded w-16 mb-1"></div>
-                        <div className="h-2 bg-gray-200 rounded w-24"></div>
-                      </div>
-                    </div>
-                    <div className="h-10 bg-gray-200 rounded w-full"></div>
+              <div className="bg-white rounded-xl p-5 animate-pulse-soft shadow-md">
+                <div className="flex items-center mb-4 gap-3">
+                  <div className="w-16 h-16 bg-gray-200 rounded-full"></div>
+                  <div className="flex-1">
+                    <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-1/2 mb-2"></div>
+                    <div className="h-3 bg-gray-200 rounded w-3/4"></div>
                   </div>
-                ))}
+                </div>
+                <div className="space-y-2">
+                  <div className="h-3 bg-gray-200 rounded w-full"></div>
+                  <div className="h-3 bg-gray-200 rounded w-5/6"></div>
+                </div>
+                <div className="flex gap-2 mt-4">
+                  <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+                  <div className="h-6 bg-gray-200 rounded-full w-16"></div>
+                </div>
+                <div className="h-10 bg-gray-200 rounded-full w-full mt-4"></div>
               </div>
             )}
           </div>
         ) : (
           activeTab === 'everyone' ? (
-            // Questions tab content
-            <div className="space-y-3">
+            <div className="space-y-4">
               {questions.map((question, index) => (
                 <QuestionCard
                   key={question.id}
@@ -238,41 +209,47 @@ const Index = () => {
               ))}
             </div>
           ) : (
-            // Experts tab content - new grid layout similar to EducationLearning page
-            <div className="grid grid-cols-2 gap-3">
-              {experts.map((expert, index) => (
-                <Card key={expert.id} className="shadow-sm hover:shadow-md transition-shadow">
-                  <CardContent className="p-3">
-                    <div className="flex items-center mb-2">
-                      <Avatar className="w-10 h-10 mr-2">
-                        <AvatarImage src={expert.avatar} alt={expert.name} className="object-cover" />
-                        <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <p className="text-sm font-medium">{expert.name}</p>
-                        <p className="text-xs text-gray-500">{expert.title}</p>
-                      </div>
+            <div className="bg-white rounded-xl p-5 shadow-md hover:shadow-lg transition-all duration-300">
+              <div className="flex items-start gap-4 mb-4">
+                <Avatar className="w-16 h-16 border-2 border-green-100">
+                  <AvatarImage src={featuredExpert.avatar} alt={featuredExpert.name} className="object-cover" />
+                  <AvatarFallback>{featuredExpert.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-800">{featuredExpert.name}</h3>
+                    <div className="flex items-center text-yellow-500 gap-1">
+                      <Award size={14} />
+                      <span className="text-sm font-medium">{featuredExpert.rating}</span>
                     </div>
-                    <p className="text-xs text-gray-700 mb-2 line-clamp-2">{expert.description}</p>
-                    <div className="flex flex-wrap gap-1 mb-2">
-                      {expert.tags.map((tag, index) => (
-                        <span key={index} className="bg-green-50 text-green-600 text-xs px-1.5 py-0.5 rounded-full">
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                    <Button 
-                      onClick={() => handleAskMe(expert.name)}
-                      variant="outline" 
-                      size="sm"
-                      className="w-full text-green-600 border-green-200 bg-green-50 hover:bg-green-100 rounded-full text-xs py-1 h-auto flex items-center gap-1 justify-center"
-                    >
-                      <MessageSquare size={14} />
-                      找我问问
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
+                  </div>
+                  <p className="text-sm text-green-600 font-medium">{featuredExpert.title}</p>
+                  <div className="flex items-center gap-2 mt-1">
+                    <span className="text-xs text-gray-500">响应速度</span>
+                    <span className="text-xs font-medium text-green-600">{featuredExpert.responseRate}</span>
+                  </div>
+                </div>
+              </div>
+              
+              <p className="text-sm text-gray-700 mb-4 border-l-2 border-green-200 pl-3 py-1 bg-green-50/50 rounded-r-md">
+                {featuredExpert.description}
+              </p>
+              
+              <div className="flex flex-wrap gap-2 mb-4">
+                {featuredExpert.tags.map((tag, index) => (
+                  <span key={index} className="bg-green-50 text-green-600 text-xs px-2.5 py-1 rounded-full font-medium">
+                    #{tag}
+                  </span>
+                ))}
+              </div>
+              
+              <Button 
+                onClick={() => handleAskMe(featuredExpert.name)}
+                className="w-full bg-gradient-to-r from-green-500 to-teal-400 text-white rounded-full py-2.5 font-medium flex items-center justify-center gap-2 shadow-sm hover:shadow-md transition-all hover:brightness-105"
+              >
+                <MessageSquare size={18} />
+                找我问问
+              </Button>
             </div>
           )
         )}

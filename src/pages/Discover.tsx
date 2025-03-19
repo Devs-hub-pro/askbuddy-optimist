@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Image, Video, Heart, MessageCircle, Share2, Plus } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -212,7 +213,7 @@ const Discover: React.FC = () => {
         </Tabs>
       </div>
       
-      {/* Floating Action Button */}
+      {/* Floating Action Button for Creating Posts */}
       <Dialog>
         <DialogTrigger asChild>
           <Button className="fixed bottom-20 right-5 w-14 h-14 rounded-full bg-gradient-to-r from-app-teal to-app-blue shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center">
@@ -259,20 +260,21 @@ interface DiscoverFeedProps {
 const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts, likedPosts, onLike }) => {
   return (
     <div className="pb-4">
-      {/* Youth-oriented Recommendation Cards (horizontal scroll) */}
+      {/* Youth-oriented Recommendation Cards (horizontal scroll) - Redesigned as small squares with white text */}
       <div className="px-4 py-3 bg-white">
         <div className="overflow-x-auto flex space-x-3 pb-2 scrollbar-hide">
           {recommendationCards.map(card => (
             <div 
               key={card.id} 
-              className={`flex-shrink-0 w-28 h-36 rounded-lg overflow-hidden shadow-sm border ${card.bgColor}`}
+              className={`flex-shrink-0 w-20 h-20 rounded-lg overflow-hidden shadow-sm ${card.bgColor} relative`}
             >
-              <div className="h-full flex flex-col justify-between p-2">
-                <div className="text-xs font-bold p-1 bg-white/80 rounded w-fit">
+              <div className="absolute inset-0 bg-black/20"></div>
+              <div className="h-full flex flex-col justify-between p-2 relative z-10">
+                <div className="text-xs font-bold text-white">
                   {card.title}
                 </div>
                 <div className="mt-auto">
-                  <p className="text-xs line-clamp-2 text-gray-700 bg-white/80 p-1 rounded">
+                  <p className="text-xs line-clamp-2 text-white">
                     {card.description}
                   </p>
                 </div>

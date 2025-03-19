@@ -10,7 +10,7 @@ const Navbar: React.FC<NavbarProps> = ({ location = "深圳" }) => {
   const [isOpen, setIsOpen] = useState(false);
   
   return (
-    <header className="sticky top-0 z-50 bg-gradient-to-r from-app-teal to-blue-300 animate-fade-in shadow-sm">
+    <header className="sticky top-0 z-50 bg-app-teal animate-fade-in shadow-sm">
       <div className="flex items-center justify-between h-12 px-4">
         <div className="text-white font-medium text-sm">问问</div>
         

@@ -1,0 +1,26 @@
+
+<!-- Activity Cards Component -->
+<view class="px-4 mb-6">
+  <text class="text-lg font-bold mb-4 animate-fade-in" style="animation-delay: 0.2s; display: block;">
+    问问热榜
+  </text>
+  
+  <view class="grid grid-cols-2 gap-4">
+    <block wx:for="{{activities}}" wx:key="id">
+      <view class="bg-white rounded-lg overflow-hidden shadow-soft card-animate animate-fade-in" style="animation-delay: {{0.3 + index * 0.1}}s">
+        <view style="aspect-ratio: 16/9; background-color: #f3f4f6;">
+          <image 
+            src="{{item.imageUrl}}" 
+            mode="aspectFill"
+            style="width: 100%; height: 100%;"
+          />
+        </view>
+        
+        <view class="p-3">
+          <text class="font-semibold text-sm leading-tight mb-2 block">{{item.title}}</text>
+          <text class="text-xs text-gray-500">参与讨论</text>
+        </view>
+      </view>
+    </block>
+  </view>
+</view>

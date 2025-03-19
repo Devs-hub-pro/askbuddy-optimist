@@ -1,0 +1,21 @@
+
+<!-- Location Selector Component -->
+<view class="flex items-center space-x-1 text-slate-800 font-medium" bindtap="toggleLocationMenu">
+  <image src="/assets/icons/map-pin.png" style="width: 18px; height: 18px;" />
+  <text>{{location}}</text>
+  <image src="/assets/icons/chevron-down.png" style="width: 16px; height: 16px; transform: {{locationMenuOpen ? 'rotate(180deg)' : 'rotate(0deg)'}};" />
+</view>
+
+<view wx:if="{{locationMenuOpen}}" class="absolute top-12 right-0 w-32 bg-white rounded-md shadow-md p-2 animate-scale">
+  <view>
+    <block wx:for="{{cities}}" wx:key="*this">
+      <view 
+        class="w-full text-left px-3 py-2 rounded-md text-sm {{item === location ? 'bg-blue-50 text-app-blue' : ''}}"
+        bindtap="selectLocation"
+        data-city="{{item}}"
+      >
+        {{item}}
+      </view>
+    </block>
+  </view>
+</view>

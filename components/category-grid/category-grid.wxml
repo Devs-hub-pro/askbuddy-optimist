@@ -1,0 +1,14 @@
+
+<!-- Category Grid Component -->
+<view class="py-6 px-4 animate-fade-in">
+  <view class="grid grid-cols-4 gap-2">
+    <block wx:for="{{categories}}" wx:key="id">
+      <view class="flex flex-col items-center animate-slide-up" style="animation-delay: {{index * 0.1 + 0.2}}s">
+        <view class="category-icon mb-2 {{item.color}}">
+          <image src="{{item.icon}}" style="width: 24px; height: 24px;" />
+        </view>
+        <text class="text-xs text-center">{{item.name}}</text>
+      </view>
+    </block>
+  </view>
+</view>

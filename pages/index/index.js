@@ -113,7 +113,7 @@ Page({
   },
 
   selectLocation: function(e) {
-    const city = e.currentTarget.dataset.city;
+    const city = e.detail.city;
     this.setData({
       location: city,
       locationMenuOpen: false
@@ -121,18 +121,36 @@ Page({
   },
   
   switchTab: function(e) {
-    const tab = e.currentTarget.dataset.tab;
+    const tab = e.detail.tab;
     this.setData({
       activeTab: tab
     });
   },
 
   handleAnswer: function(e) {
-    const questionId = e.currentTarget.dataset.id;
+    const questionId = e.detail.id;
     wx.showToast({
       title: '即将跳转到回答页面',
       icon: 'none'
     });
     // Implementation for answering would go here
+  },
+
+  onSearch: function(e) {
+    const value = e.detail.value;
+    console.log('Search query:', value);
+    // Implementation for search would go here
+  },
+
+  onCategorySelect: function(e) {
+    const category = e.detail.category;
+    console.log('Selected category:', category);
+    // Implementation for category selection would go here
+  },
+
+  onActivitySelect: function(e) {
+    const activity = e.detail.activity;
+    console.log('Selected activity:', activity);
+    // Implementation for activity selection would go here
   }
 })

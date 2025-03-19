@@ -1,0 +1,10 @@
+
+{
+  "usingComponents": {
+    "location-selector": "/components/location-selector/location-selector",
+    "search-bar": "/components/search-bar/search-bar",
+    "category-grid": "/components/category-grid/category-grid",
+    "activity-cards": "/components/activity-cards/activity-cards",
+    "question-tabs": "/components/question-tabs/question-tabs"
+  }
+}

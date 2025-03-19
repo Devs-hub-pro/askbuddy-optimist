@@ -6,13 +6,13 @@ import {
   Bell, 
   Award, 
   MessageSquare, 
-  Calendar,
   Eye,
   BookmarkPlus,
   Share2,
   ChevronDown,
   ChevronUp,
-  ArrowRight
+  Mail,
+  User
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -56,7 +56,7 @@ const QuestionDetail = () => {
       </div>
       
       <div className="p-4 bg-white shadow-sm mb-3">
-        <h1 className="text-xl font-bold text-gray-800 mb-3">{question.title}</h1>
+        <h1 className="text-xl font-bold text-gray-800 mb-3 text-left">{question.title}</h1>
         
         <div className="flex items-center mb-4">
           <Avatar className="w-8 h-8 mr-2">
@@ -84,7 +84,7 @@ const QuestionDetail = () => {
           onOpenChange={setIsDescriptionExpanded}
           className="mb-4"
         >
-          <div className="text-sm text-gray-700 leading-relaxed">
+          <div className="text-sm text-gray-700 leading-relaxed text-left">
             {question.description.length > 100 && !isDescriptionExpanded ? (
               <>
                 <p>{question.description.substring(0, 100)}...</p>
@@ -93,19 +93,15 @@ const QuestionDetail = () => {
                 </CollapsibleTrigger>
               </>
             ) : (
-              <>
-                <p>{question.description}</p>
-                {question.description.length > 100 && (
-                  <CollapsibleTrigger className="text-blue-500 text-xs mt-2 hover:underline flex items-center">
-                    收起 <ChevronUp size={12} className="ml-1" />
-                  </CollapsibleTrigger>
-                )}
-              </>
+              <p>{question.description}</p>
             )}
           </div>
           
           <CollapsibleContent>
-            <p className="text-sm text-gray-700 leading-relaxed">{question.description}</p>
+            <p className="text-sm text-gray-700 leading-relaxed text-left">{question.description}</p>
+            <CollapsibleTrigger className="text-blue-500 text-xs mt-2 hover:underline flex items-center">
+              收起 <ChevronUp size={12} className="ml-1" />
+            </CollapsibleTrigger>
           </CollapsibleContent>
         </Collapsible>
         
@@ -134,7 +130,7 @@ const QuestionDetail = () => {
       
       <div className="px-4 mb-4">
         <div className="flex justify-between items-center mb-3">
-          <h2 className="font-bold text-lg">回答 ({question.answers})</h2>
+          <h2 className="font-bold text-lg text-left">回答 ({question.answers})</h2>
           <Button variant="ghost" size="sm" className="text-blue-500 text-xs">
             按热度排序 <ChevronDown size={14} className="ml-1" />
           </Button>
@@ -161,7 +157,7 @@ const QuestionDetail = () => {
                   </div>
                 )}
               </div>
-              <p className="text-sm text-gray-700 mb-3">
+              <p className="text-sm text-gray-700 mb-3 text-left">
                 考研复习时间管理非常重要，我建议：
                 {index === 1 ? (
                   <>
@@ -191,10 +187,12 @@ const QuestionDetail = () => {
       </div>
       
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex gap-3">
-        <Button variant="outline" className="flex-1">
-          预约咨询
+        <Button variant="outline" className="flex-1 flex items-center justify-center">
+          <Mail size={16} className="mr-2" />
+          邀请回答
         </Button>
         <Button className="flex-1 bg-gradient-to-r from-blue-500 to-app-blue">
+          <MessageSquare size={16} className="mr-2" />
           我来回答
         </Button>
       </div>

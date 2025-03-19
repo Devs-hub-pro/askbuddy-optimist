@@ -1,6 +1,25 @@
-import React, { useState } from 'react';
+
+import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Edit, Camera, MapPin, Award, MessageSquare, Clock, Package, CheckCircle, Calendar, GraduationCap, Briefcase } from 'lucide-react';
+import { 
+  ChevronLeft, 
+  Camera, 
+  MapPin, 
+  Award, 
+  MessageSquare, 
+  Clock, 
+  Package, 
+  CheckCircle, 
+  Calendar, 
+  GraduationCap, 
+  Briefcase,
+  Heart,
+  Star,
+  ChevronRight,
+  ChevronDown,
+  ChevronUp,
+  User
+} from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -18,11 +37,19 @@ interface Experience {
   years?: string;
 }
 
+interface Topic {
+  id: string;
+  title: string;
+  tags: string[];
+}
+
 const ExpertProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isBioExpanded, setIsBioExpanded] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState('https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1200&h=400');
+  const topicsScrollRef = useRef<HTMLDivElement>(null);
   
   const expert = {
     id: id || '1',
@@ -31,6 +58,13 @@ const ExpertProfile = () => {
     title: '北大硕士 | 出国党',
     location: '北京',
     bio: '专注留学申请文书指导，斯坦福offer获得者。我有多年指导经验，曾帮助超过50名学生申请到世界顶尖大学。擅长个人陈述、研究计划书撰写，精通面试技巧指导。我相信每个学生都有自己的闪光点，只要找到合适的表达方式，就能在激烈的申请中脱颖而出。我希望通过我的专业知识和经验，帮助每位学生实现留学梦想。',
+    topics: [
+      { id: '1', title: '如何准备托福口语考试？', tags: ['托福', '口语', '留学'] },
+      { id: '2', title: '美国大学申请文书怎么写？', tags: ['申请', '文书', '留学'] },
+      { id: '3', title: '留学生活如何快速适应？', tags: ['留学', '生活', '适应'] },
+      { id: '4', title: '斯坦福申请要注意什么？', tags: ['申请', '斯坦福', '留学'] },
+      { id: '5', title: '如何提高英语口语流利度？', tags: ['英语', '口语', '学习'] },
+    ],
     tags: ['留学', '文书', '面试', '高考', '语言考试', '申请规划'],
     verifiedInfo: {
       education: true,
@@ -40,7 +74,8 @@ const ExpertProfile = () => {
       rating: 4.9,
       responseRate: '98%',
       orderCount: '126单',
-      consultationCount: 235
+      consultationCount: 235,
+      followers: 356
     },
     education: [
       { school: '北京大学', degree: '教育学硕士', years: '2018-2021' },
@@ -63,6 +98,21 @@ const ExpertProfile = () => {
     const currentIndex = backgrounds.indexOf(backgroundImage);
     const nextIndex = (currentIndex + 1) % backgrounds.length;
     setBackgroundImage(backgrounds[nextIndex]);
+  };
+
+  const scrollTopics = (direction: 'left' | 'right') => {
+    if (topicsScrollRef.current) {
+      const scrollAmount = 300;
+      if (direction === 'left') {
+        topicsScrollRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+      } else {
+        topicsScrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+      }
+    }
+  };
+
+  const handleFollowToggle = () => {
+    setIsFollowing(!isFollowing);
   };
 
   return (
@@ -96,9 +146,23 @@ const ExpertProfile = () => {
               <AvatarImage src={expert.avatar} alt={expert.name} />
               <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
             </Avatar>
-            <Button variant="outline" size="sm" className="bg-white/80 backdrop-blur-sm">
-              <Edit size={14} className="mr-1" />
-              编辑资料
+            <Button 
+              variant={isFollowing ? "default" : "outline"} 
+              size="sm" 
+              className={isFollowing ? "bg-app-teal text-white" : "bg-white/80 backdrop-blur-sm"}
+              onClick={handleFollowToggle}
+            >
+              {isFollowing ? (
+                <>
+                  <CheckCircle size={14} className="mr-1" />
+                  已关注
+                </>
+              ) : (
+                <>
+                  <Heart size={14} className="mr-1" />
+                  关注
+                </>
+              )}
             </Button>
           </div>
           
@@ -117,7 +181,7 @@ const ExpertProfile = () => {
               <MapPin size={12} className="mr-1" />
               <span>{expert.location}</span>
               <span className="mx-2">·</span>
-              <span>IP属地：{expert.location}</span>
+              <span>粉丝 {expert.stats.followers}</span>
             </div>
           </div>
           
@@ -152,39 +216,82 @@ const ExpertProfile = () => {
       </div>
       
       <div className="px-4 mb-6">
-        <h2 className="text-lg font-semibold mb-2">个人介绍</h2>
+        <h2 className="text-lg font-semibold mb-2 text-left">擅长话题</h2>
+        <div className="relative">
+          <button 
+            onClick={() => scrollTopics('left')} 
+            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-1 shadow-md z-10"
+          >
+            <ChevronLeft size={18} />
+          </button>
+          
+          <div 
+            ref={topicsScrollRef}
+            className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 px-4 -mx-4 scroll-smooth"
+            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+          >
+            {expert.topics.map((topic, index) => (
+              <div 
+                key={index} 
+                className="min-w-[260px] flex-shrink-0 border border-green-100 rounded-lg p-3 bg-green-50/30"
+              >
+                <h3 className="text-sm font-medium text-gray-800 mb-2">{topic.title}</h3>
+                <div className="flex flex-wrap gap-1.5">
+                  {topic.tags.map((tag, tagIndex) => (
+                    <span 
+                      key={tagIndex} 
+                      className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700"
+                    >
+                      #{tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </div>
+          
+          <button 
+            onClick={() => scrollTopics('right')} 
+            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-1 shadow-md z-10"
+          >
+            <ChevronRight size={18} />
+          </button>
+        </div>
+      </div>
+      
+      <div className="px-4 mb-6">
+        <h2 className="text-lg font-semibold mb-2 text-left">个人介绍</h2>
         <Collapsible
           open={isBioExpanded}
           onOpenChange={setIsBioExpanded}
         >
           <div className="text-sm text-gray-700 leading-relaxed">
-            {expert.bio.length > 100 && !isBioExpanded ? (
-              <>
-                <p>{expert.bio.substring(0, 100)}...</p>
-                <CollapsibleTrigger className="text-blue-500 text-xs mt-2 hover:underline flex items-center">
-                  展开全部
-                </CollapsibleTrigger>
-              </>
-            ) : (
-              <>
-                <p>{expert.bio}</p>
-                {expert.bio.length > 100 && (
-                  <CollapsibleTrigger className="text-blue-500 text-xs mt-2 hover:underline flex items-center">
-                    收起
+            {!isBioExpanded ? (
+              <div className="line-clamp-6">
+                {expert.bio}
+                {expert.bio.length > 200 && (
+                  <CollapsibleTrigger className="text-blue-500 text-xs block mt-2 hover:underline flex items-center">
+                    展开全部 <ChevronDown size={12} className="ml-1" />
                   </CollapsibleTrigger>
                 )}
-              </>
+              </div>
+            ) : (
+              <div>
+                {expert.bio}
+              </div>
             )}
           </div>
           
           <CollapsibleContent>
-            <p className="text-sm text-gray-700 leading-relaxed">{expert.bio}</p>
+            <CollapsibleTrigger className="text-blue-500 text-xs mt-2 hover:underline flex items-center">
+              收起 <ChevronUp size={12} className="ml-1" />
+            </CollapsibleTrigger>
           </CollapsibleContent>
         </Collapsible>
       </div>
       
       <div className="px-4 mb-6">
-        <h2 className="text-lg font-semibold mb-2">擅长话题</h2>
+        <h2 className="text-lg font-semibold mb-2 text-left">擅长领域</h2>
         <div className="flex flex-wrap gap-2">
           {expert.tags.map((tag, index) => (
             <span 
@@ -199,10 +306,11 @@ const ExpertProfile = () => {
 
       <div className="px-4 mb-20">
         <Tabs defaultValue="about" className="w-full">
-          <TabsList className="grid w-full grid-cols-3 mb-4">
+          <TabsList className="grid w-full grid-cols-4 mb-4">
             <TabsTrigger value="about">履历</TabsTrigger>
             <TabsTrigger value="answers">回答</TabsTrigger>
-            <TabsTrigger value="services">服务</TabsTrigger>
+            <TabsTrigger value="questions">问题</TabsTrigger>
+            <TabsTrigger value="reviews">评价</TabsTrigger>
           </TabsList>
           
           <TabsContent value="about" className="space-y-4">
@@ -258,50 +366,85 @@ const ExpertProfile = () => {
             </div>
           </TabsContent>
           
-          <TabsContent value="services">
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="text-base font-semibold mb-3">咨询服务</h3>
+          <TabsContent value="questions">
+            <div className="space-y-4">
+              {[1, 2, 3].map((index) => (
+                <div key={index} className="bg-white rounded-lg p-4 shadow-sm">
+                  <h3 className="text-base font-medium mb-2">如何有效提高托福阅读速度？</h3>
+                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
+                    我目前托福阅读总是时间不够，想了解有什么提高阅读速度的方法...
+                  </p>
+                  <div className="flex flex-wrap gap-1.5 mb-3">
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
+                      #托福
+                    </span>
+                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
+                      #阅读
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-xs text-gray-500">
+                    <span>3天前</span>
+                    <div className="flex items-center gap-2">
+                      <span className="flex items-center">
+                        <MessageSquare size={12} className="mr-1" />
+                        5条回答
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </TabsContent>
+          
+          <TabsContent value="reviews">
+            <div className="bg-white rounded-lg p-4 shadow-sm mb-4">
+              <div className="flex items-center justify-between mb-4">
+                <div className="flex items-center">
+                  <div className="bg-yellow-50 rounded-lg p-3 mr-3">
+                    <Star className="h-8 w-8 text-yellow-500" />
+                  </div>
+                  <div>
+                    <div className="text-xl font-bold">{expert.stats.rating}</div>
+                    <div className="text-sm text-gray-500">总体评分</div>
+                  </div>
+                </div>
+                <div className="text-sm text-gray-500">
+                  基于 {expert.stats.consultationCount} 次咨询
+                </div>
+              </div>
               
-              <div className="space-y-3">
-                <div className="border border-green-100 rounded-lg p-3 bg-green-50/30">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="text-base font-medium">留学文书指导</h4>
-                      <p className="text-sm text-gray-600">包含SOP、PS、CV等文书一对一修改</p>
+              <div className="space-y-4">
+                {[1, 2, 3].map((index) => (
+                  <div key={index} className="border-t border-gray-100 pt-4">
+                    <div className="flex justify-between mb-2">
+                      <div className="flex items-center">
+                        <Avatar className="w-8 h-8 mr-2">
+                          <AvatarImage src={`https://randomuser.me/api/portraits/${index % 2 ? 'women' : 'men'}/${20 + index}.jpg`} />
+                          <AvatarFallback>U{index}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="text-sm font-medium">用户{index}</div>
+                          <div className="text-xs text-gray-500">1周前</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center">
+                        {Array(5).fill(0).map((_, starIndex) => (
+                          <Star 
+                            key={starIndex} 
+                            size={14} 
+                            className={starIndex < 5 - index % 2 ? "text-yellow-400" : "text-gray-200"} 
+                            fill={starIndex < 5 - index % 2 ? "currentColor" : "none"}
+                          />
+                        ))}
+                      </div>
                     </div>
-                    <div className="text-orange-500 font-semibold">¥300/次</div>
+                    <p className="text-sm text-gray-700">
+                      {index === 1 
+                        ? "回答非常详细，解决了我的问题，非常满意！老师很有耐心，讲解很清晰。" 
+                        : "老师很专业，回答了我所有的问题，非常感谢！"}
+                    </p>
                   </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="text-xs h-8 flex items-center">
-                      <MessageSquare size={12} className="mr-1" />
-                      咨询详情
-                    </Button>
-                    <Button size="sm" className="text-xs h-8 flex items-center bg-gradient-to-r from-green-500 to-teal-500">
-                      <Calendar size={12} className="mr-1" />
-                      立即预约
-                    </Button>
-                  </div>
-                </div>
-                
-                <div className="border border-blue-100 rounded-lg p-3 bg-blue-50/30">
-                  <div className="flex justify-between items-start mb-2">
-                    <div>
-                      <h4 className="text-base font-medium">留学申请规划</h4>
-                      <p className="text-sm text-gray-600">从选校、准备材料到面试全程指导</p>
-                    </div>
-                    <div className="text-orange-500 font-semibold">¥500/小时</div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button size="sm" variant="outline" className="text-xs h-8 flex items-center">
-                      <MessageSquare size={12} className="mr-1" />
-                      咨询详情
-                    </Button>
-                    <Button size="sm" className="text-xs h-8 flex items-center bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
-                      <Calendar size={12} className="mr-1" />
-                      立即预约
-                    </Button>
-                  </div>
-                </div>
+                ))}
               </div>
             </div>
           </TabsContent>

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -16,13 +15,15 @@ import {
   MessageCircle,
   Clock,
   Package,
-  Users
+  Users,
+  Eye
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import SearchBar from "@/components/SearchBar";
+import QuestionCard from '@/components/QuestionCard';
 
 const EducationLearning = () => {
   const navigate = useNavigate();
@@ -146,12 +147,14 @@ const EducationLearning = () => {
       id: '1',
       title: '如何有效管理考研复习时间？',
       description: '我是23届考研生，感觉每天都很忙但效率不高，有没有好的时间管理方法...',
-      user: {
+      asker: {
         name: '小李',
         avatar: 'https://randomuser.me/api/portraits/women/68.jpg'
       },
+      time: '2小时前',
       tags: ['考研', '时间管理'],
       answers: 12,
+      viewCount: '3.8k',
       points: 30,
       category: 'kaoyan'
     },
@@ -159,38 +162,48 @@ const EducationLearning = () => {
       id: '2',
       title: '美国本科留学需要准备哪些标化考试？',
       description: '高二学生，计划申请美国本科，不知道需要准备什么考试，什么时候开始准备比较好...',
-      user: {
+      asker: {
         name: '高中生',
         avatar: 'https://randomuser.me/api/portraits/men/42.jpg'
       },
+      time: '4小时前',
       tags: ['留学', '标化考试'],
       answers: 8,
+      viewCount: '2.1k',
       points: 25,
-      category: 'study-abroad'
+      category: 'study-abroad',
+      answerName: '留学顾问',
+      answerAvatar: 'https://randomuser.me/api/portraits/women/33.jpg'
     },
     {
       id: '3',
       title: '高考志愿：985分数够不到怎么选择？',
       description: '今年高考估分630，想上计算机但分数线可能差一点，是冲一冲还是选二本保底呢？',
-      user: {
+      asker: {
         name: '高考生',
         avatar: 'https://randomuser.me/api/portraits/women/42.jpg'
       },
+      time: '1天前',
       tags: ['高考', '志愿填报'],
       answers: 15,
+      viewCount: '5.2k',
       points: 40,
-      category: 'gaokao'
+      category: 'gaokao',
+      answerName: '王老师',
+      answerAvatar: 'https://randomuser.me/api/portraits/men/32.jpg'
     },
     {
       id: '4',
       title: 'SCI论文投稿被拒怎么修改提高接收率？',
       description: '博士生，论文被拒了两次，审稿人给了很多意见，但不知道如何有效修改...',
-      user: {
+      asker: {
         name: '博士在读',
         avatar: 'https://randomuser.me/api/portraits/men/36.jpg'
       },
+      time: '2天前',
       tags: ['论文', 'SCI', '修改'],
       answers: 9,
+      viewCount: '1.7k',
       points: 35,
       category: 'paper'
     },
@@ -198,14 +211,18 @@ const EducationLearning = () => {
       id: '5',
       title: '数学建模竞赛如何选择合适的算法？',
       description: '准备参加下一届美赛，想了解不同类型问题适合用什么算法和模型...',
-      user: {
+      asker: {
         name: '数模爱好者',
         avatar: 'https://randomuser.me/api/portraits/women/32.jpg'
       },
+      time: '3天前',
       tags: ['数学建模', '算法', '竞赛'],
       answers: 7,
+      viewCount: '1.2k',
       points: 20,
-      category: 'competition'
+      category: 'competition',
+      answerName: '张教授',
+      answerAvatar: 'https://randomuser.me/api/portraits/men/75.jpg'
     }
   ];
 
@@ -334,53 +351,43 @@ const EducationLearning = () => {
                   <div key={item} className="bg-white rounded-lg p-4 animate-pulse-soft shadow-sm">
                     <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
                     <div className="h-10 bg-gray-200 rounded w-full mb-3"></div>
-                    <div className="flex space-x-2">
-                      <div className="h-4 bg-gray-200 rounded w-12"></div>
-                      <div className="h-4 bg-gray-200 rounded w-12"></div>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
+                        <div>
+                          <div className="h-3 bg-gray-200 rounded w-20"></div>
+                          <div className="h-3 bg-gray-200 rounded w-16 mt-1"></div>
+                        </div>
+                      </div>
+                      <div className="h-5 bg-gray-200 rounded-full w-16"></div>
+                    </div>
+                    <div className="flex justify-between">
+                      <div className="flex gap-1">
+                        <div className="h-4 bg-gray-200 rounded-full w-12"></div>
+                        <div className="h-4 bg-gray-200 rounded-full w-12"></div>
+                      </div>
+                      <div className="h-6 bg-gray-200 rounded-full w-16"></div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
               <div className="space-y-4">
-                {filteredQuestions.map((question) => (
-                  <div key={question.id} className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300">
-                    <h3 className="font-semibold text-base mb-3 text-gray-800">{question.title}</h3>
-                    <p className="text-sm text-gray-700 mb-3 line-clamp-2">{question.description}</p>
-                    
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="w-9 h-9 border border-gray-100">
-                          <AvatarImage src={question.user.avatar} alt={question.user.name} className="object-cover" />
-                          <AvatarFallback>{question.user.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="text-sm font-medium text-gray-700">{question.user.name}</div>
-                          <div className="text-xs text-gray-500">{question.answers} 回答</div>
-                        </div>
-                      </div>
-                      
-                      <span className="flex items-center gap-1 bg-yellow-50 text-yellow-600 text-xs px-2.5 py-1 rounded-full font-medium">
-                        <Award size={14} className="text-yellow-500" />
-                        {question.points} 积分
-                      </span>
-                    </div>
-                    
-                    <div className="flex justify-between items-center">
-                      <div className="flex flex-wrap gap-2">
-                        {question.tags.map((tag, index) => (
-                          <span key={index} className="inline-block text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 font-medium">
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                      
-                      <button className="bg-gradient-to-r from-blue-500 to-app-blue text-white px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0">
-                        <MessageCircle size={14} />
-                        回答
-                      </button>
-                    </div>
-                  </div>
+                {filteredQuestions.map((question, index) => (
+                  <QuestionCard
+                    key={question.id}
+                    id={question.id}
+                    title={question.title}
+                    description={question.description}
+                    asker={question.asker}
+                    time={question.time}
+                    tags={question.tags}
+                    points={question.points}
+                    viewCount={question.viewCount}
+                    answerName={question.answerName}
+                    answerAvatar={question.answerAvatar}
+                    delay={0.3 + index * 0.1}
+                  />
                 ))}
               </div>
             )}

@@ -56,35 +56,43 @@ const Index = () => {
     {
       id: '1',
       title: '高考填报志愿热门问题',
+      description: '面对众多院校和专业选择，如何根据自己的分数、兴趣做出最优选择？分享经验...',
       asker: {
         name: '李明',
         avatar: 'https://randomuser.me/api/portraits/men/32.jpg'
       },
       time: '2小时前',
       tags: ['高考', '志愿填报'],
-      points: 50
+      points: 50,
+      viewCount: '2.5k',
+      answerName: '张老师',
+      answerAvatar: 'https://randomuser.me/api/portraits/women/32.jpg'
     },
     {
       id: '2',
       title: '留学申请的必备条件',
+      description: '想申请美国Top30名校研究生，除了GPA和语言成绩，还需要准备哪些材料？',
       asker: {
         name: '王芳',
         avatar: 'https://randomuser.me/api/portraits/women/68.jpg'
       },
       time: '5小时前',
       tags: ['留学', '申请'],
-      points: 30
+      points: 30,
+      viewCount: '1.8k'
     },
     {
       id: '3',
       title: '如何选择最佳职业路径',
+      description: '毕业后是进国企还是私企？如何根据自身情况做出规划？',
       asker: {
         name: '张伟',
         avatar: 'https://randomuser.me/api/portraits/men/44.jpg'
       },
       time: '1天前',
       tags: ['职业发展', '路径选择'],
-      points: 40
+      points: 40,
+      viewCount: '3.5k'
     }
   ];
 
@@ -170,6 +178,7 @@ const Index = () => {
               [1, 2, 3].map((item) => (
                 <div key={item} className="bg-white rounded-xl p-4 animate-pulse-soft shadow-md">
                   <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
+                  <div className="h-3 bg-gray-200 rounded w-full mb-3"></div>
                   <div className="flex items-center space-x-2 mb-3">
                     <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
                     <div>
@@ -177,9 +186,12 @@ const Index = () => {
                       <div className="h-3 bg-gray-200 rounded w-16 mt-1"></div>
                     </div>
                   </div>
-                  <div className="flex space-x-2">
-                    <div className="h-4 bg-gray-200 rounded w-12"></div>
-                    <div className="h-4 bg-gray-200 rounded w-12"></div>
+                  <div className="flex justify-between">
+                    <div className="flex space-x-2">
+                      <div className="h-4 bg-gray-200 rounded w-12"></div>
+                      <div className="h-4 bg-gray-200 rounded w-12"></div>
+                    </div>
+                    <div className="h-6 bg-gray-200 rounded-full w-16"></div>
                   </div>
                 </div>
               ))

@@ -1,5 +1,6 @@
 
 import React from 'react';
+import { MessageCircle } from 'lucide-react';
 
 interface QuestionCardProps {
   id: string;
@@ -56,7 +57,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           ))}
         </div>
         
-        <button className="bg-app-teal text-white px-3 py-1 rounded-full text-xs font-medium">
+        <button className="bg-gradient-to-r from-app-teal to-app-blue text-white px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 active:translate-y-0">
+          <MessageCircle size={14} />
           回答
         </button>
       </div>

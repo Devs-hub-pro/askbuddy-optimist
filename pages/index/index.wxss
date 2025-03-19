@@ -1,4 +1,3 @@
-
 /**index.wxss**/
 .grid {
   display: flex;
@@ -410,6 +409,40 @@
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+}
+
+/* Question card styles */
+.question-card {
+  border-radius: 12px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: transform 0.2s;
+}
+
+.question-card:active {
+  transform: scale(0.98);
+}
+
+.ml-13 {
+  margin-left: 52px;
+}
+
+.tag-green {
+  display: inline-block;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background-color: rgba(16, 185, 129, 0.1);
+  color: #10B981;
+}
+
+.answer-btn {
+  background-color: #4FD1C5;
+  color: white;
+  font-size: 14px;
+  padding: 6px 16px;
+  border-radius: 20px;
+  font-weight: 500;
 }
 
 /* Topic specific styles */

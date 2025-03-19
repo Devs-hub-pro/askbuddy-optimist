@@ -131,69 +131,48 @@
       <block wx:if="{{activeTab === 'topics'}}">
         <view class="space-y-3">
           <block wx:for="{{questions}}" wx:key="id">
-            <view class="bg-white rounded-lg shadow-soft animate-fade-in card-animate" style="animation-delay: {{0.4 + index * 0.1}}s">
-              <!-- Topic header with icon -->
-              <view class="p-4 border-b border-gray-100">
-                <view class="flex items-center justify-between">
-                  <view class="flex items-center space-x-2">
-                    <view class="topic-icon-bg {{item.iconBg || 'bg-blue-100'}}">
-                      <image src="{{item.icon || '/assets/icons/message-circle.png'}}" style="width: 18px; height: 18px;" />
-                    </view>
+            <view class="question-card bg-white rounded-lg p-4 animate-fade-in" style="animation-delay: {{0.4 + index * 0.1}}s">
+              <!-- Question header with avatar and title -->
+              <view class="flex items-start mb-3">
+                <view class="flex-shrink-0 mr-3">
+                  <image class="rounded-full w-10 h-10" src="{{item.asker.avatar}}" mode="aspectFill"/>
+                </view>
+                <view class="flex-1">
+                  <view class="flex items-center justify-between">
                     <text class="font-semibold text-base">{{item.title}}</text>
-                  </view>
-                  <view class="topic-stat">
-                    <text class="text-xs text-gray-500">{{item.viewCount || '1.2k'}}浏览</text>
+                    <view class="flex items-center">
+                      <image src="/assets/icons/eye.png" class="w-4 h-4 mr-1" />
+                      <text class="text-gray-500 text-sm">{{item.viewCount}}</text>
+                    </view>
                   </view>
                 </view>
               </view>
+
+              <!-- Question description -->
+              <view class="ml-13 mb-4">
+                <text class="text-gray-700 text-sm line-clamp-2">{{item.description}}</text>
+              </view>
               
-              <!-- Topic content -->
-              <view class="p-4">
-                <view class="flex items-start mb-3">
-                  <view class="w-8 h-8 rounded-full overflow-hidden bg-gray-200 flex-shrink-0">
-                    <image 
-                      src="{{item.asker.avatar}}" 
-                      mode="aspectFill"
-                      style="width: 100%; height: 100%;"
-                    />
-                  </view>
-                  <view class="ml-2 flex-1">
-                    <view class="flex items-center justify-between">
-                      <view>
-                        <text class="text-sm text-gray-700 font-medium block">{{item.asker.name}}</text>
-                        <text class="text-xs text-gray-500 block">{{item.time}}</text>
-                      </view>
-                      <view class="flex items-center">
-                        <view class="topic-reward-icon">
-                          <image src="/assets/icons/sun.png" style="width: 14px; height: 14px;" />
-                        </view>
-                        <text class="text-yellow-500 font-medium ml-1">{{item.points}}</text>
-                      </view>
-                    </view>
-                    <text class="text-sm text-gray-700 mt-2 line-clamp-2 block">{{item.description || '这个问题很有意思，我想知道大家对此有什么看法...'}}</text>
+              <!-- Tags -->
+              <view class="flex flex-wrap gap-2 mb-4">
+                <block wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">
+                  <text class="tag-green">#{{tag}}</text>
+                </block>
+              </view>
+              
+              <!-- Answer status -->
+              <view class="flex items-center justify-between">
+                <view class="flex items-center">
+                  <image class="w-5 h-5 rounded-full" src="{{item.answerAvatar || '/assets/icons/user-avatar.png'}}" mode="aspectFill"/>
+                  <text class="text-sm text-gray-700 ml-1">{{item.answerName || '张老师'}}已回答</text>
+                  <view class="flex items-center ml-2">
+                    <image src="/assets/icons/sun.png" class="w-4 h-4 text-yellow-500" />
+                    <text class="text-sm text-green-500 ml-1">{{item.points}}</text>
                   </view>
                 </view>
                 
-                <!-- Topic tags and stats -->
-                <view class="flex flex-wrap gap-2 mb-2">
-                  <block wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">
-                    <text class="topic-tag">#{{tag}}</text>
-                  </block>
-                </view>
-                
-                <view class="topic-actions">
-                  <view class="topic-action-btn">
-                    <image src="/assets/icons/message-square.png" style="width: 16px; height: 16px;" />
-                    <text class="ml-1">回答</text>
-                  </view>
-                  <view class="topic-action-btn">
-                    <image src="/assets/icons/share.png" style="width: 16px; height: 16px;" />
-                    <text class="ml-1">分享</text>
-                  </view>
-                  <view class="topic-action-btn">
-                    <image src="/assets/icons/bookmark.png" style="width: 16px; height: 16px;" />
-                    <text class="ml-1">收藏</text>
-                  </view>
+                <view bindtap="handleAnswer" data-id="{{item.id}}" class="answer-btn">
+                  我来回答
                 </view>
               </view>
             </view>
@@ -204,7 +183,7 @@
       <block wx:else>
         <view class="space-y-3">
           <block wx:for="{{questions}}" wx:key="id">
-            <view class="bg-white rounded-lg p-4 mb-3 shadow-soft animate-fade-in card-animate" style="animation-delay: {{0.4 + index * 0.1}}s">
+            <view class="question-card bg-white rounded-lg p-4 mb-3 animate-fade-in" style="animation-delay: {{0.4 + index * 0.1}}s">
               <text class="font-semibold text-base mb-3 block">{{item.title}}</text>
               
               <view class="flex items-center justify-between">

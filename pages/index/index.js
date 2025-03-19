@@ -48,32 +48,35 @@ Page({
       {
         id: '1',
         title: '高考填报志愿热门问题',
-        description: '有哪些大学和专业比较适合理科生？如何根据分数和兴趣做出最佳选择？',
+        description: '面对众多院校和专业选择，如何根据自己的分数、兴趣做出最优选择？分享经验...',
         icon: '/assets/icons/graduation-cap.png',
         iconBg: 'bg-blue-100',
-        viewCount: '2.3k',
+        viewCount: '2.5k',
         asker: {
           name: '李明',
           avatar: 'https://randomuser.me/api/portraits/men/32.jpg'
         },
         time: '2小时前',
         tags: ['高考', '志愿填报'],
-        points: 50
+        points: 50,
+        answerName: '张老师',
+        answerAvatar: 'https://randomuser.me/api/portraits/women/32.jpg'
       },
       {
         id: '2',
         title: '留学申请的必备条件',
-        description: '想申请美国名校，需要准备哪些材料？如何提高申请成功率？',
+        description: '想申请美国Top30名校研究生，除了GPA和语言成绩，还需要准备哪些材料？',
         icon: '/assets/icons/globe.png',
         iconBg: 'bg-green-100',
         viewCount: '1.8k',
         asker: {
           name: '王芳',
-          avatar: 'https://randomuser.me/api/portraits/women/68.jpg'
+          avatar: 'https://randomuser.me/api/portraits/men/44.jpg'
         },
         time: '5小时前',
         tags: ['留学', '申请'],
-        points: 30
+        points: 30,
+        answerStatus: 'waiting'
       },
       {
         id: '3',
@@ -122,5 +125,14 @@ Page({
     this.setData({
       activeTab: tab
     });
+  },
+
+  handleAnswer: function(e) {
+    const questionId = e.currentTarget.dataset.id;
+    wx.showToast({
+      title: '即将跳转到回答页面',
+      icon: 'none'
+    });
+    // Implementation for answering would go here
   }
 })

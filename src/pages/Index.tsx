@@ -6,7 +6,7 @@ import CategorySection from '../components/CategorySection';
 import ActivityCard from '../components/ActivityCard';
 import QuestionCard from '../components/QuestionCard';
 import BottomNav from '../components/BottomNav';
-import { Sparkles, MessageSquare, Award } from 'lucide-react';
+import { Sparkles, MessageSquare, Award, Clock, CheckCircle } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface LocationState {
@@ -95,7 +95,8 @@ const Index = () => {
     description: '专注留学申请文书指导，斯坦福offer获得者',
     tags: ['留学', '文书', '面试'],
     rating: 4.9,
-    responseRate: '98%'
+    responseRate: '98%',
+    orderCount: '126单'
   };
 
   const handleAskMe = (expertName: string) => {
@@ -208,28 +209,35 @@ const Index = () => {
             </div>
           ) : (
             <div className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300">
-              <div className="flex justify-between items-start">
+              <div className="flex justify-between items-start mb-3">
                 <div className="flex items-center gap-3">
                   <Avatar className="w-10 h-10 border-2 border-green-100">
                     <AvatarImage src={featuredExpert.avatar} alt={featuredExpert.name} className="object-cover" />
                     <AvatarFallback>{featuredExpert.name.charAt(0)}</AvatarFallback>
                   </Avatar>
                   <div>
-                    <div className="flex items-center gap-2">
-                      <h3 className="text-base font-semibold text-gray-800">{featuredExpert.name}</h3>
-                      <div className="flex items-center text-yellow-500 gap-1">
-                        <Award size={14} />
-                        <span className="text-sm font-medium">{featuredExpert.rating}</span>
-                      </div>
-                    </div>
+                    <h3 className="text-base font-semibold text-gray-800">{featuredExpert.name}</h3>
                     <p className="text-sm text-green-600 font-medium">{featuredExpert.title}</p>
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs text-gray-500">响应速度</span>
-                      <span className="text-xs font-medium text-green-600">{featuredExpert.responseRate}</span>
-                    </div>
                   </div>
                 </div>
                 
+                <div className="flex flex-col items-end">
+                  <div className="flex items-center text-yellow-500 gap-1 mb-1">
+                    <Award size={14} />
+                    <span className="text-sm font-medium">{featuredExpert.rating}</span>
+                  </div>
+                  <div className="flex items-center text-green-600 gap-1 text-xs mb-1">
+                    <CheckCircle size={12} />
+                    <span>{featuredExpert.orderCount}</span>
+                  </div>
+                  <div className="flex items-center text-blue-500 gap-1 text-xs">
+                    <Clock size={12} />
+                    <span>{featuredExpert.responseRate}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex justify-end mb-3">
                 <button 
                   onClick={() => handleAskMe(featuredExpert.name)}
                   className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0"

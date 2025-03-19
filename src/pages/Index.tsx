@@ -6,9 +6,11 @@ import CategorySection from '../components/CategorySection';
 import ActivityCard from '../components/ActivityCard';
 import QuestionCard from '../components/QuestionCard';
 import BottomNav from '../components/BottomNav';
+import { Sparkles } from 'lucide-react';
 
 const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>('everyone');
   
   useEffect(() => {
     // Simulate content loading
@@ -71,7 +73,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="app-container">
+    <div className="app-container bg-gradient-to-b from-white to-blue-50">
       <Navbar />
       
       <SearchBar />
@@ -79,9 +81,12 @@ const Index = () => {
       <CategorySection />
       
       <div className="px-4 mb-6">
-        <h2 className="text-lg font-bold mb-4 animate-fade-in animate-delay-2">
-          问问热榜
-        </h2>
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles size={18} className="text-yellow-500" />
+          <h2 className="text-lg font-bold animate-fade-in animate-delay-2">
+            问问热榜
+          </h2>
+        </div>
         
         <div className="grid grid-cols-2 gap-4">
           {activities.map((activity, index) => (
@@ -96,15 +101,41 @@ const Index = () => {
       </div>
       
       <div className="px-4 mb-6">
-        <div className="flex items-center gap-4 mb-4">
-          <button className="font-bold text-lg animate-fade-in animate-delay-3 text-app-text border-b-2 border-app-teal pb-1">大家都在问</button>
-          <button className="font-bold text-lg animate-fade-in animate-delay-3 text-gray-400 pb-1">找TA问问</button>
+        <div className="relative mb-6 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:bg-gray-100">
+          <div className="flex gap-6">
+            <button 
+              className={`font-bold text-lg pb-2 relative ${activeTab === 'everyone' ? 'text-app-text' : 'text-gray-400'}`}
+              onClick={() => setActiveTab('everyone')}
+              style={{
+                transform: activeTab === 'everyone' ? 'translateY(0)' : 'translateY(0)',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              大家都在问
+              {activeTab === 'everyone' && (
+                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-app-teal to-app-blue z-10"></span>
+              )}
+            </button>
+            <button 
+              className={`font-bold text-lg pb-2 relative ${activeTab === 'experts' ? 'text-app-text' : 'text-gray-400'}`}
+              onClick={() => setActiveTab('experts')}
+              style={{
+                transform: activeTab === 'experts' ? 'translateY(0)' : 'translateY(0)',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              找TA问问
+              {activeTab === 'experts' && (
+                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-app-teal to-app-blue z-10"></span>
+              )}
+            </button>
+          </div>
         </div>
         
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((item) => (
-              <div key={item} className="bg-white rounded-lg p-4 animate-pulse-soft">
+              <div key={item} className="bg-white rounded-lg p-4 animate-pulse-soft shadow-soft">
                 <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
                 <div className="flex items-center space-x-2 mb-3">
                   <div className="w-8 h-8 bg-gray-200 rounded-full"></div>

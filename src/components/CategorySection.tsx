@@ -7,32 +7,37 @@ interface Category {
   name: string;
   icon: React.ReactNode;
   color: string;
+  gradient: string;
 }
 
 const categories: Category[] = [
   {
     id: 'education',
     name: '教育学习',
-    icon: <GraduationCap size={24} />,
-    color: 'bg-app-blue'
+    icon: <GraduationCap size={20} />,
+    color: 'bg-app-blue',
+    gradient: 'from-blue-400 to-indigo-500'
   },
   {
     id: 'career',
     name: '职业发展',
-    icon: <Briefcase size={24} />,
-    color: 'bg-app-green'
+    icon: <Briefcase size={20} />,
+    color: 'bg-app-green',
+    gradient: 'from-green-400 to-teal-500'
   },
   {
     id: 'lifestyle',
     name: '生活服务',
-    icon: <Home size={24} />,
-    color: 'bg-app-orange'
+    icon: <Home size={20} />,
+    color: 'bg-app-orange',
+    gradient: 'from-orange-400 to-amber-500'
   },
   {
     id: 'hobbies',
     name: '兴趣技能',
-    icon: <Camera size={24} />,
-    color: 'bg-app-red'
+    icon: <Camera size={20} />,
+    color: 'bg-app-red',
+    gradient: 'from-pink-400 to-rose-500'
   }
 ];
 
@@ -46,10 +51,10 @@ const CategorySection: React.FC = () => {
             className="flex flex-col items-center animate-slide-up"
             style={{ animationDelay: `${index * 0.1 + 0.2}s` }}
           >
-            <div className={`category-icon mb-2 ${category.color}`}>
+            <div className={`category-icon mb-2 bg-gradient-to-br ${category.gradient} shadow-sm`}>
               {category.icon}
             </div>
-            <span className="text-xs text-center">{category.name}</span>
+            <span className="text-xs text-center font-medium">{category.name}</span>
           </div>
         ))}
       </div>

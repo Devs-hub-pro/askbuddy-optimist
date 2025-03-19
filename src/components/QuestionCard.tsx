@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { MessageCircle } from 'lucide-react';
+import { MessageCircle, Award } from 'lucide-react';
 
 interface QuestionCardProps {
   id: string;
@@ -25,7 +25,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
 }) => {
   return (
     <div 
-      className="bg-white rounded-lg p-4 shadow-soft card-animate animate-fade-in"
+      className="bg-white rounded-xl p-4 shadow-soft card-animate animate-fade-in hover:shadow-md transition-all duration-300"
       style={{ animationDelay: `${delay}s` }}
     >
       <h3 className="font-semibold text-base mb-2 text-app-text">{title}</h3>
@@ -35,7 +35,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           <img 
             src={asker.avatar} 
             alt={asker.name}
-            className="w-8 h-8 rounded-full flex-shrink-0" 
+            className="w-8 h-8 rounded-full flex-shrink-0 object-cover border border-gray-100" 
           />
           <div>
             <div className="text-sm font-medium">{asker.name}</div>
@@ -43,7 +43,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           </div>
         </div>
         
-        <span className="bg-yellow-100 text-yellow-500 text-xs px-2 py-1 rounded-full">
+        <span className="flex items-center gap-1 bg-yellow-50 text-yellow-600 text-xs px-2 py-1 rounded-full">
+          <Award size={12} className="text-yellow-500" />
           {points} 积分
         </span>
       </div>
@@ -51,13 +52,13 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
       <div className="flex justify-between items-center">
         <div className="flex flex-wrap gap-2">
           {tags.map((tag, index) => (
-            <span key={index} className="inline-block text-xs px-2 py-1 rounded-full bg-green-100 text-app-green">
-              {tag}
+            <span key={index} className="inline-block text-xs px-2 py-1 rounded-full bg-blue-50 text-blue-600 font-medium">
+              #{tag}
             </span>
           ))}
         </div>
         
-        <button className="bg-gradient-to-r from-app-teal to-app-blue text-white px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 active:translate-y-0">
+        <button className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 active:translate-y-0">
           <MessageCircle size={14} />
           回答
         </button>

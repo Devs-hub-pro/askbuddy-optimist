@@ -17,7 +17,7 @@ const BottomNav: React.FC = () => {
         </a>
         
         <a href="/new" className="w-1/5 flex flex-col items-center justify-center transform -translate-y-5">
-          <div className="w-14 h-14 bg-gradient-to-r from-app-teal to-app-blue rounded-full flex items-center justify-center shadow-lg">
+          <div className="w-14 h-14 bg-app-teal rounded-full flex items-center justify-center shadow-lg">
             <Plus size={24} className="text-white" />
           </div>
           <span className="text-xs mt-1 text-app-teal font-medium">提问</span>

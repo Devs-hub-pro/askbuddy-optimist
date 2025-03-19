@@ -1,10 +1,10 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Heart, Home, ArrowLeft, MessageCircle, Star, ChevronRight, ChevronLeft, Briefcase, GraduationCap, Globe, Umbrella, PlusCircle, Clock, Award, User, UserCheck } from 'lucide-react';
+import BottomNav from '@/components/BottomNav';
 
 const LifestyleServices = () => {
   const navigate = useNavigate();

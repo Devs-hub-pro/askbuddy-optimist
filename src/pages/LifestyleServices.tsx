@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Heart, Home, ArrowLeft, MessageCircle, Star, ChevronRight, ChevronLeft, Briefcase, GraduationCap, Globe, Umbrella, PlusCircle, Clock, Award, User, UserCheck } from 'lucide-react';
+import { Heart, Home, ArrowLeft, MessageCircle, Star, ChevronRight, ChevronLeft, Briefcase, GraduationCap, Globe, Umbrella, PlusCircle, Clock, Award, User, UserCheck, Search, Calendar } from 'lucide-react';
 import BottomNav from '@/components/BottomNav';
 
 const LifestyleServices = () => {
@@ -66,7 +67,8 @@ const LifestyleServices = () => {
       avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
       description: '专注于劳动法、合同纠纷，5年执业经验',
       badge: '律师认证',
-      category: '法律'
+      category: '法律',
+      tags: ['劳动法', '合同', '纠纷']
     },
     {
       id: 2,
@@ -75,7 +77,8 @@ const LifestyleServices = () => {
       avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
       description: '婚恋关系、亲子关系咨询，执业8年',
       badge: '心理师认证',
-      category: '情感'
+      category: '情感',
+      tags: ['情感', '心理', '婚恋']
     },
     {
       id: 3,
@@ -84,7 +87,8 @@ const LifestyleServices = () => {
       avatar: 'https://randomuser.me/api/portraits/men/85.jpg',
       description: '10年租房经验，帮助过200+人解决租房问题',
       badge: '达人认证',
-      category: '租房'
+      category: '租房',
+      tags: ['租房', '合同', '维权']
     },
     {
       id: 4,
@@ -93,7 +97,8 @@ const LifestyleServices = () => {
       avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
       description: '专注于个人、家庭保险规划，擅长理赔指导',
       badge: '顾问认证',
-      category: '保险'
+      category: '保险',
+      tags: ['保险', '理赔', '规划']
     }
   ];
 
@@ -146,6 +151,13 @@ const LifestyleServices = () => {
     }
   ];
 
+  // Important dates
+  const importantDates = [
+    { date: '2024-11-15', event: '租房法规解读线上讲座' },
+    { date: '2024-12-01', event: '心理健康月活动开始' },
+    { date: '2025-01-20', event: '海外移民政策变更' }
+  ];
+
   useEffect(() => {
     // Simulate loading delay
     const timer = setTimeout(() => {
@@ -171,381 +183,278 @@ const LifestyleServices = () => {
   };
 
   return (
-    <div className="app-container pb-20">
+    <div className="app-container bg-gradient-to-b from-white to-orange-50/30 pb-20">
       {/* Header with back button */}
-      <div className="sticky top-0 z-50 bg-app-teal shadow-sm">
+      <div className="sticky top-0 z-50 bg-app-orange shadow-sm animate-fade-in">
         <div className="flex items-center h-12 px-4">
-          <Button 
-            variant="ghost" 
-            size="icon" 
-            className="text-white mr-2"
-            onClick={() => navigate(-1)}
-          >
-            <ArrowLeft size={20} />
-          </Button>
-          <div className="text-white font-medium">生活服务</div>
-        </div>
-      </div>
-
-      {/* Main content */}
-      <div className="px-4 py-4">
-        {/* Search Bar */}
-        <div className="relative mb-5">
-          <input
-            type="text"
-            placeholder="搜索问题/达人/话题"
-            className="search-input pr-10 w-full"
-          />
-          <div className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400">
-            <MessageCircle size={18} />
-          </div>
-        </div>
-
-        {/* Category Tabs - Horizontal Scrolling */}
-        <div className="mb-6">
-          <div className="relative">
-            <div className="flex space-x-3 overflow-x-auto hide-scrollbar pb-2">
-              {categories.map((category) => (
-                <Button
-                  key={category.id}
-                  variant="outline"
-                  className="flex items-center gap-1 rounded-full border-app-orange text-app-orange bg-orange-50 hover:bg-orange-100 whitespace-nowrap"
-                >
-                  {category.icon}
-                  <span>{category.name}</span>
-                </Button>
-              ))}
-            </div>
-            
-            {/* Navigation arrows */}
-            <button 
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full shadow-md p-1"
-              onClick={handlePrevFeatured}
-            >
-              <ChevronLeft size={18} className="text-gray-500" />
-            </button>
-            <button 
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full shadow-md p-1"
-              onClick={handleNextFeatured}
-            >
-              <ChevronRight size={18} className="text-gray-500" />
-            </button>
-          </div>
-        </div>
-
-        {/* Featured Recommendations */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <Star size={18} className="text-yellow-500" />
-              <h2 className="text-lg font-bold">精选推荐</h2>
-            </div>
-            <Button variant="ghost" size="sm" className="text-sm text-gray-500 flex items-center gap-1">
-              查看更多
-              <ChevronRight size={16} />
-            </Button>
-          </div>
-          
-          <div className="relative">
-            <div className="overflow-hidden">
-              <div 
-                className="flex transition-transform duration-300 ease-in-out"
-                style={{ transform: `translateX(-${featuredIndex * 100}%)` }}
-              >
-                {featuredRecommendations.map((item) => (
-                  <div key={item.id} className="min-w-full px-1">
-                    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 h-48">
-                      <div className="relative h-full">
-                        <img 
-                          src={item.image} 
-                          alt={item.title} 
-                          className="w-full h-full object-cover"
-                        />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-                        <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
-                          <div className="flex items-center gap-1 mb-2">
-                            <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs flex items-center gap-1">
-                              {item.icon}
-                              {item.tag}
-                            </span>
-                          </div>
-                          <h3 className="font-bold text-lg mb-1">{item.title}</h3>
-                          <p className="text-sm text-white/90">{item.description}</p>
-                        </div>
-                      </div>
-                    </Card>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Navigation dots */}
-            <div className="flex justify-center space-x-2 mt-3">
-              {featuredRecommendations.map((_, index) => (
-                <button
-                  key={index}
-                  className={`w-2 h-2 rounded-full ${
-                    index === featuredIndex ? 'bg-app-orange' : 'bg-gray-300'
-                  }`}
-                  onClick={() => setFeaturedIndex(index)}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-        
-        {/* Expert Recommendations */}
-        <div className="mb-8">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <UserCheck size={18} className="text-blue-500" />
-              <h2 className="text-lg font-bold">推荐达人</h2>
-            </div>
-            <Button variant="ghost" size="sm" className="text-sm text-gray-500 flex items-center gap-1">
-              查看更多
-              <ChevronRight size={16} />
-            </Button>
-          </div>
-          
-          <div className="relative">
-            <div className="overflow-hidden">
-              <div 
-                className="flex transition-transform duration-300 ease-in-out"
-                style={{ transform: `translateX(-${expertIndex * 100}%)` }}
-              >
-                {experts.map((expert) => (
-                  <div key={expert.id} className="min-w-full px-1">
-                    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-                      <CardContent className="p-4">
-                        <div className="flex items-start">
-                          <div className="relative mr-3">
-                            <img 
-                              src={expert.avatar} 
-                              alt={expert.name} 
-                              className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md"
-                            />
-                            <span className="absolute -bottom-1 -right-1 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                              {expert.category}
-                            </span>
-                          </div>
-                          <div className="flex-1">
-                            <div className="flex items-center gap-1 mb-1">
-                              <h3 className="font-bold">{expert.name}</h3>
-                              <span className="bg-yellow-100 text-yellow-700 text-xs px-1.5 py-0.5 rounded-full flex items-center gap-1">
-                                <Award size={10} />
-                                {expert.badge}
-                              </span>
-                            </div>
-                            <p className="text-gray-600 text-sm mb-2">{expert.title}</p>
-                            <p className="text-gray-500 text-xs mb-3 line-clamp-2">{expert.description}</p>
-                            <Button className="w-full bg-gradient-to-r from-blue-500 to-app-teal text-white rounded-full text-sm">
-                              立即咨询
-                            </Button>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Navigation buttons */}
-            <button 
-              className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full shadow-md p-1"
-              onClick={handlePrevExpert}
-            >
-              <ChevronLeft size={18} className="text-gray-500" />
-            </button>
-            <button 
-              className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white rounded-full shadow-md p-1"
-              onClick={handleNextExpert}
-            >
-              <ChevronRight size={18} className="text-gray-500" />
-            </button>
-            
-            {/* Navigation dots */}
-            <div className="flex justify-center space-x-2 mt-3">
-              {experts.map((_, index) => (
-                <button
-                  key={index}
-                  className={`w-2 h-2 rounded-full ${
-                    index === expertIndex ? 'bg-app-blue' : 'bg-gray-300'
-                  }`}
-                  onClick={() => setExpertIndex(index)}
-                />
-              ))}
-            </div>
-          </div>
-        </div>
-        
-        {/* Questions Tab Section */}
-        <div>
-          <Tabs defaultValue="questions" className="w-full">
-            <TabsList className="grid grid-cols-2 mb-6 bg-transparent gap-8">
-              <TabsTrigger 
-                value="questions" 
-                className="data-[state=active]:text-app-text data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-app-orange rounded-none font-bold text-lg"
-              >
-                大家都在问
-              </TabsTrigger>
-              <TabsTrigger 
-                value="experts" 
-                className="data-[state=active]:text-app-text data-[state=active]:shadow-none data-[state=active]:bg-transparent data-[state=active]:border-b-2 data-[state=active]:border-app-orange rounded-none font-bold text-lg"
-              >
-                找TA问问
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="questions" className="space-y-4">
-              {isLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map((item) => (
-                    <div key={item} className="bg-white rounded-lg p-4 animate-pulse-soft shadow-md">
-                      <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
-                      <div className="flex items-center space-x-2 mb-3">
-                        <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                        <div>
-                          <div className="h-3 bg-gray-200 rounded w-24"></div>
-                          <div className="h-3 bg-gray-200 rounded w-16 mt-1"></div>
-                        </div>
-                      </div>
-                      <div className="flex space-x-2">
-                        <div className="h-4 bg-gray-200 rounded w-12"></div>
-                        <div className="h-4 bg-gray-200 rounded w-12"></div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                questions.map((question) => (
-                  <Card key={question.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-                    <CardContent className="p-4">
-                      <h3 className="font-semibold text-base mb-2">{question.title}</h3>
-                      <p className="text-gray-600 text-sm mb-3 line-clamp-2">{question.description}</p>
-                      
-                      <div className="flex items-center justify-between mb-3">
-                        <div className="flex items-center space-x-2">
-                          <img 
-                            src={question.asker.avatar} 
-                            alt={question.asker.name}
-                            className="w-8 h-8 rounded-full flex-shrink-0 object-cover border border-gray-100" 
-                          />
-                          <div>
-                            <div className="text-sm font-medium">{question.asker.name}</div>
-                            <div className="text-xs text-gray-500">{question.time}</div>
-                          </div>
-                        </div>
-                        
-                        <div className="flex items-center gap-2 text-xs text-gray-500">
-                          <span className="flex items-center gap-1">
-                            <MessageCircle size={14} />
-                            {question.viewCount}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex justify-between items-center">
-                        <div className="flex flex-wrap gap-2">
-                          {question.tags.map((tag, index) => (
-                            <span key={index} className="inline-block text-xs px-2 py-1 rounded-full bg-orange-50 text-orange-600 font-medium">
-                              #{tag}
-                            </span>
-                          ))}
-                        </div>
-                        
-                        <span className="flex items-center gap-1 bg-yellow-50 text-yellow-600 text-xs px-2 py-1 rounded-full">
-                          <Award size={12} className="text-yellow-500" />
-                          {question.points} 积分
-                        </span>
-                      </div>
-                      
-                      <div className="mt-3 pt-3 border-t border-gray-100 flex justify-between items-center">
-                        <div className="flex items-center gap-1 text-sm text-gray-600">
-                          <img
-                            src={question.answerAvatar}
-                            alt={question.answerName}
-                            className="w-5 h-5 rounded-full"
-                          />
-                          <span>{question.answerName}已回答</span>
-                        </div>
-                        
-                        <Button 
-                          className="bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 text-white px-4 py-1 rounded-full text-xs font-medium flex items-center gap-1 shadow-sm"
-                        >
-                          <MessageCircle size={14} />
-                          回答
-                        </Button>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </TabsContent>
-            
-            <TabsContent value="experts" className="space-y-4">
-              {isLoading ? (
-                <div className="space-y-4">
-                  {[1, 2, 3].map((item) => (
-                    <div key={item} className="bg-white rounded-lg p-4 animate-pulse-soft shadow-md">
-                      <div className="flex items-center space-x-4 mb-4">
-                        <div className="w-12 h-12 bg-gray-200 rounded-full"></div>
-                        <div className="flex-1">
-                          <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
-                          <div className="h-3 bg-gray-200 rounded w-1/2"></div>
-                        </div>
-                      </div>
-                      <div className="h-20 bg-gray-200 rounded w-full"></div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                experts.map((expert) => (
-                  <Card key={expert.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1">
-                    <CardContent className="p-4">
-                      <div className="flex items-start">
-                        <div className="relative mr-4">
-                          <img 
-                            src={expert.avatar} 
-                            alt={expert.name} 
-                            className="w-16 h-16 rounded-full object-cover border-2 border-white shadow-md"
-                          />
-                          <span className="absolute -bottom-1 -right-1 bg-blue-500 text-white text-xs px-1.5 py-0.5 rounded-full">
-                            {expert.category}
-                          </span>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-1 mb-1">
-                            <h3 className="font-bold">{expert.name}</h3>
-                            <span className="bg-yellow-100 text-yellow-700 text-xs px-1.5 py-0.5 rounded-full flex items-center gap-1">
-                              <Award size={10} />
-                              {expert.badge}
-                            </span>
-                          </div>
-                          <p className="text-gray-600 text-sm mb-2">{expert.title}</p>
-                          <p className="text-gray-500 text-xs mb-3">{expert.description}</p>
-                          <Button className="w-full bg-gradient-to-r from-blue-500 to-app-blue text-white rounded-full text-sm">
-                            向TA咨询
-                          </Button>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </TabsContent>
-          </Tabs>
+          <button onClick={() => navigate('/')} className="text-white mr-2">
+            <ArrowLeft size={24} />
+          </button>
+          <div className="text-white font-medium text-base">生活服务</div>
         </div>
       </div>
       
-      {/* Floating Ask Button */}
-      <div className="fixed bottom-20 right-4 z-40">
-        <Button 
-          className="rounded-full w-14 h-14 bg-gradient-to-r from-orange-500 to-amber-400 hover:from-orange-600 hover:to-amber-500 shadow-lg text-white flex items-center justify-center"
-        >
-          <PlusCircle size={28} />
-        </Button>
+      {/* Search Bar */}
+      <div className="px-4 py-4 bg-gradient-to-b from-app-orange/10 to-transparent">
+        <div className="relative">
+          <input
+            type="text"
+            placeholder="搜索问题/达人/话题"
+            className="search-input pr-10 focus:ring-2 focus:ring-app-orange/30 shadow-md"
+          />
+          <Search 
+            size={18} 
+            className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" 
+          />
+        </div>
       </div>
+      
+      {/* Category Tags */}
+      <div className="px-4 mb-4 overflow-x-auto">
+        <div className="flex space-x-2">
+          {categories.map((category) => (
+            <div key={category.id} className="flex-shrink-0 bg-white shadow-sm rounded-full px-3 py-1.5 flex items-center gap-1">
+              {category.icon}
+              <span className="text-xs font-medium">{category.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      {/* Important Dates */}
+      <div className="px-4 mb-6">
+        <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-lg p-3 shadow-sm">
+          <div className="flex items-center mb-3">
+            <Calendar size={18} className="text-orange-600 mr-2" />
+            <h3 className="font-medium text-sm">重要日期提醒</h3>
+          </div>
+          
+          <div className="space-y-2">
+            {importantDates.map((item, index) => {
+              const eventDate = new Date(item.date);
+              const formattedDate = `${eventDate.getMonth() + 1}月${eventDate.getDate()}日`;
+              
+              return (
+                <div key={index} className="flex items-center justify-between">
+                  <span className="text-xs font-medium">{item.event}</span>
+                  <span className="text-xs bg-orange-100 text-orange-600 px-2 py-0.5 rounded-full">
+                    {formattedDate}
+                  </span>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      
+      {/* Featured Recommendations */}
+      <div className="px-4 mb-6">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-lg font-bold">精选推荐</h2>
+          <span className="text-xs text-gray-500">更多 &gt;</span>
+        </div>
+        
+        <div className="relative">
+          <div className="overflow-hidden">
+            <div 
+              className="flex transition-transform duration-300 ease-in-out"
+              style={{ transform: `translateX(-${featuredIndex * 100}%)` }}
+            >
+              {featuredRecommendations.map((item) => (
+                <div key={item.id} className="min-w-full px-1">
+                  <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 transform hover:-translate-y-1 h-48">
+                    <div className="relative h-full">
+                      <img 
+                        src={item.image} 
+                        alt={item.title} 
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
+                      <div className="absolute bottom-0 left-0 right-0 p-4 text-white">
+                        <div className="flex items-center gap-1 mb-2">
+                          <span className="bg-white/20 px-2 py-0.5 rounded-full text-xs flex items-center gap-1">
+                            {item.icon}
+                            {item.tag}
+                          </span>
+                        </div>
+                        <h3 className="font-bold text-lg mb-1">{item.title}</h3>
+                        <p className="text-sm text-white/90">{item.description}</p>
+                      </div>
+                    </div>
+                  </Card>
+                </div>
+              ))}
+            </div>
+          </div>
+          
+          {/* Navigation dots */}
+          <div className="flex justify-center space-x-2 mt-3">
+            {featuredRecommendations.map((_, index) => (
+              <button
+                key={index}
+                className={`w-2 h-2 rounded-full ${
+                  index === featuredIndex ? 'bg-app-orange' : 'bg-gray-300'
+                }`}
+                onClick={() => setFeaturedIndex(index)}
+              />
+            ))}
+          </div>
+        </div>
+      </div>
+      
+      {/* Expert Recommendations */}
+      <div className="px-4 mb-8">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <UserCheck size={18} className="text-orange-500" />
+            <h2 className="text-lg font-bold">推荐达人</h2>
+          </div>
+          <Button variant="ghost" size="sm" className="text-sm text-gray-500 flex items-center gap-1">
+            查看更多
+            <ChevronRight size={16} />
+          </Button>
+        </div>
+        
+        <div className="grid grid-cols-2 gap-3">
+          {isLoading ? (
+            [1, 2].map((item) => (
+              <div key={item} className="bg-white rounded-lg p-3 animate-pulse-soft shadow-sm">
+                <div className="flex items-center mb-2">
+                  <div className="w-10 h-10 bg-gray-200 rounded-full mr-2"></div>
+                  <div>
+                    <div className="h-3 bg-gray-200 rounded w-16 mb-1"></div>
+                    <div className="h-2 bg-gray-200 rounded w-24"></div>
+                  </div>
+                </div>
+                <div className="h-10 bg-gray-200 rounded w-full"></div>
+              </div>
+            ))
+          ) : (
+            experts.map((expert) => (
+              <Card key={expert.id} className="shadow-sm hover:shadow-md transition-shadow">
+                <CardContent className="p-3">
+                  <div className="flex items-center mb-2">
+                    <img 
+                      src={expert.avatar} 
+                      alt={expert.name} 
+                      className="w-10 h-10 rounded-full mr-2"
+                    />
+                    <div>
+                      <p className="text-sm font-medium">{expert.name}</p>
+                      <p className="text-xs text-gray-500">{expert.title}</p>
+                    </div>
+                  </div>
+                  <p className="text-xs text-gray-700 mb-2 line-clamp-2">{expert.description}</p>
+                  <div className="flex flex-wrap gap-1 mb-2">
+                    {expert.tags.map((tag, index) => (
+                      <span key={index} className="bg-orange-50 text-orange-600 text-xs px-1.5 py-0.5 rounded-full">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                  <Button className="w-full bg-gradient-to-r from-orange-500 to-amber-500 text-white rounded-full text-xs h-7">
+                    立即咨询
+                  </Button>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+      </div>
+      
+      {/* Questions Tab Section */}
+      <div className="px-4">
+        <Tabs defaultValue="questions" className="w-full">
+          <div className="relative mb-6 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:bg-gray-100">
+            <TabsList className="w-full bg-transparent p-0 h-auto">
+              <TabsTrigger 
+                value="questions" 
+                className="font-bold text-lg pb-2 relative data-[state=active]:text-app-text data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=inactive]:text-gray-400"
+              >
+                大家都在问
+                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-amber-500 to-orange-500 z-10 opacity-0 data-[state=active]:opacity-100 transition-opacity"></span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="experts" 
+                className="font-bold text-lg pb-2 relative data-[state=active]:text-app-text data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=inactive]:text-gray-400"
+              >
+                找TA问问
+                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-amber-500 to-orange-500 z-10 opacity-0 data-[state=active]:opacity-100 transition-opacity"></span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          
+          <TabsContent value="questions" className="mt-0">
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((item) => (
+                  <div key={item} className="bg-white rounded-lg p-4 animate-pulse-soft shadow-sm">
+                    <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
+                    <div className="h-10 bg-gray-200 rounded w-full mb-3"></div>
+                    <div className="flex space-x-2">
+                      <div className="h-4 bg-gray-200 rounded w-12"></div>
+                      <div className="h-4 bg-gray-200 rounded w-12"></div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {questions.map((question) => (
+                  <Card key={question.id} className="shadow-sm">
+                    <CardContent className="p-4">
+                      <h3 className="font-semibold text-base mb-2">{question.title}</h3>
+                      <p className="text-sm text-gray-700 mb-3 line-clamp-2">{question.description}</p>
+                      
+                      <div className="flex flex-wrap gap-2 mb-3">
+                        {question.tags.map((tag, index) => (
+                          <span key={index} className="bg-orange-50 text-orange-600 text-xs px-2 py-0.5 rounded-full">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center">
+                          <img 
+                            src={question.asker.avatar} 
+                            alt={question.asker.name} 
+                            className="w-6 h-6 rounded-full mr-2"
+                          />
+                          <span className="text-xs text-gray-600">{question.asker.name}</span>
+                          <span className="text-xs text-gray-400 ml-2">{question.time}</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2">
+                          <span className="text-xs text-gray-500">{question.viewCount} 浏览</span>
+                          <div className="flex items-center text-yellow-600 text-xs">
+                            <span className="bg-yellow-50 px-1.5 py-0.5 rounded-full">{question.points}积分</span>
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="experts" className="mt-0">
+            <div className="bg-orange-50 rounded-lg p-4 text-center">
+              <p className="text-sm text-gray-600 mb-2">寻找专业解答？</p>
+              <p className="text-base font-medium text-orange-700 mb-3">我们有专业达人为您解答</p>
+              <button className="bg-orange-500 text-white text-sm px-4 py-2 rounded-full shadow-sm">
+                找专家问问
+              </button>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
+      
+      {/* Floating Ask Button */}
+      <button className="fixed bottom-20 right-4 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg">
+        <PlusCircle size={24} />
+      </button>
       
       {/* Bottom Navigation */}
       <BottomNav />

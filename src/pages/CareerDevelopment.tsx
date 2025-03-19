@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -12,6 +11,13 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 // Mock data for job mentors
 const mentors = [
@@ -190,24 +196,35 @@ const CareerDevelopment: React.FC = () => {
         </div>
       </div>
       
-      {/* Category Tags */}
-      <div className="px-4 mb-4 overflow-x-auto hide-scrollbar">
-        <div className="flex space-x-2">
-          {categories.map((category) => (
-            <div 
-              key={category.id} 
-              className={`flex-shrink-0 rounded-full px-3 py-1.5 flex items-center gap-1 cursor-pointer ${
-                activeCategory === category.id ? 
-                'bg-purple-500 text-white' : 
-                'bg-white text-gray-700 shadow-sm'
-              }`}
-              onClick={() => setActiveCategory(category.id)}
-            >
-              {category.icon}
-              <span className="text-xs font-medium">{category.label}</span>
-            </div>
-          ))}
-        </div>
+      {/* Category Tags - Replaced with Carousel */}
+      <div className="px-4 mb-4">
+        <Carousel
+          opts={{
+            align: "start",
+            loop: false
+          }}
+          className="w-full"
+        >
+          <CarouselContent className="-ml-2">
+            {categories.map((category) => (
+              <CarouselItem key={category.id} className="pl-2 basis-auto">
+                <div 
+                  className={`flex-shrink-0 rounded-full px-3 py-1.5 flex items-center gap-1 cursor-pointer ${
+                    activeCategory === category.id ? 
+                    'bg-purple-500 text-white' : 
+                    'bg-white text-gray-700 shadow-sm'
+                  }`}
+                  onClick={() => setActiveCategory(category.id)}
+                >
+                  {category.icon}
+                  <span className="text-xs font-medium">{category.label}</span>
+                </div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="left-0 bg-white shadow-md border-0 hover:bg-gray-100" />
+          <CarouselNext className="right-0 bg-white shadow-md border-0 hover:bg-gray-100" />
+        </Carousel>
       </div>
       
       {/* Industry News */}
@@ -289,7 +306,7 @@ const CareerDevelopment: React.FC = () => {
         </div>
       </div>
       
-      {/* Mentor Recommendations */}
+      {/* Mentor Recommendations with Carousel */}
       <div className="px-4 mb-6">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-lg font-bold flex items-center gap-1">
@@ -299,9 +316,9 @@ const CareerDevelopment: React.FC = () => {
           <span className="text-xs text-gray-500">更多 &gt;</span>
         </div>
         
-        <div className="grid grid-cols-2 gap-3">
-          {isLoading ? (
-            [1, 2].map((item) => (
+        {isLoading ? (
+          <div className="grid grid-cols-2 gap-3">
+            {[1, 2].map((item) => (
               <div key={item} className="bg-white rounded-lg p-3 animate-pulse-soft shadow-sm">
                 <div className="flex items-center mb-2">
                   <div className="w-10 h-10 bg-gray-200 rounded-full mr-2"></div>
@@ -312,39 +329,53 @@ const CareerDevelopment: React.FC = () => {
                 </div>
                 <div className="h-10 bg-gray-200 rounded w-full"></div>
               </div>
-            ))
-          ) : (
-            mentors.map((mentor) => (
-              <Card key={mentor.id} className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-all">
-                <CardContent className="p-3">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
-                      <img src={mentor.avatar} alt={mentor.name} className="w-full h-full object-cover" />
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between">
-                        <h3 className="font-medium">{mentor.name}</h3>
-                        <div className="flex items-center gap-1">
-                          <Star size={12} className="text-yellow-500 fill-yellow-500" />
-                          <span className="text-xs">{mentor.rating}</span>
+            ))}
+          </div>
+        ) : (
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true
+            }}
+            className="w-full"
+          >
+            <CarouselContent className="-ml-4">
+              {mentors.map((mentor) => (
+                <CarouselItem key={mentor.id} className="pl-4 md:basis-1/2 basis-full">
+                  <Card className="overflow-hidden border-0 shadow-sm hover:shadow-md transition-all h-full">
+                    <CardContent className="p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 h-12 rounded-full overflow-hidden bg-gray-100 flex-shrink-0">
+                          <img src={mentor.avatar} alt={mentor.name} className="w-full h-full object-cover" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="flex items-center justify-between">
+                            <h3 className="font-medium">{mentor.name}</h3>
+                            <div className="flex items-center gap-1">
+                              <Star size={12} className="text-yellow-500 fill-yellow-500" />
+                              <span className="text-xs">{mentor.rating}</span>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-500">{mentor.role} · {mentor.years}年经验</p>
+                          <div className="flex items-center justify-between mt-2">
+                            <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-100">
+                              ¥{mentor.price}/次
+                            </Badge>
+                            <Button size="sm" className="h-7 rounded-full bg-purple-600 hover:bg-purple-700 text-xs">
+                              咨询预约
+                            </Button>
+                          </div>
                         </div>
                       </div>
-                      <p className="text-xs text-gray-500">{mentor.role} · {mentor.years}年经验</p>
-                      <div className="flex items-center justify-between mt-2">
-                        <Badge variant="outline" className="bg-purple-50 text-purple-700 border-purple-100">
-                          ¥{mentor.price}/次
-                        </Badge>
-                        <Button size="sm" className="h-7 rounded-full bg-purple-600 hover:bg-purple-700 text-xs">
-                          咨询预约
-                        </Button>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))
-          )}
-        </div>
+                    </CardContent>
+                  </Card>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-0 -translate-y-1/2 bg-white shadow-md border-0 hover:bg-gray-100" />
+            <CarouselNext className="right-0 -translate-y-1/2 bg-white shadow-md border-0 hover:bg-gray-100" />
+          </Carousel>
+        )}
       </div>
       
       {/* Job Q&A */}
@@ -444,3 +475,4 @@ const CareerDevelopment: React.FC = () => {
 };
 
 export default CareerDevelopment;
+

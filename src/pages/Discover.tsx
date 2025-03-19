@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { Image, Video, Heart, MessageCircle, Share2, Plus } from 'lucide-react';
+import { Image, Video, Heart, MessageCircle, Share2, Plus, Bell } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -37,6 +37,7 @@ interface RecommendationCard {
 
 const Discover: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'following' | 'recommended' | 'local'>('recommended');
+  const [showNotification, setShowNotification] = useState(true);
   
   // Sample recommendation cards with youth-oriented styling
   const recommendationCards: RecommendationCard[] = [
@@ -150,70 +151,91 @@ const Discover: React.FC = () => {
       [postId]: !prev[postId]
     }));
   };
+
+  const handleNotificationClick = () => {
+    setShowNotification(false);
+  };
   
   return (
     <div className="pb-20 bg-gray-50 min-h-screen">
-      {/* Top Navigation Tabs */}
-      <div className="sticky top-0 bg-white z-40 shadow-sm">
+      {/* Notification Bell and Header */}
+      <div className="sticky top-0 bg-white z-40 shadow-sm flex justify-between items-center px-4 py-3">
+        <h1 className="text-xl font-bold text-app-teal">发现</h1>
+        <button 
+          className="relative p-2"
+          onClick={handleNotificationClick}
+        >
+          <Bell size={22} className="text-gray-700" />
+          {showNotification && (
+            <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+          )}
+        </button>
+      </div>
+      
+      {/* Left Navigation Tabs with Vertical Layout and Feed Content Side by Side */}
+      <div className="flex">
         <Tabs 
           defaultValue="recommended" 
           className="w-full" 
+          orientation="vertical"
           onValueChange={(value) => setActiveTab(value as 'following' | 'recommended' | 'local')}
         >
-          <div className="flex justify-center border-b">
-            <TabsList className="h-12 bg-transparent">
+          <div className="w-24 bg-white border-r h-screen fixed left-0 top-12">
+            <TabsList className="flex flex-col h-auto bg-transparent w-full py-4 space-y-6">
               <TabsTrigger 
                 value="following" 
-                className="data-[state=active]:border-b-2 data-[state=active]:border-app-teal data-[state=active]:text-app-teal rounded-none px-6 font-medium"
+                className="data-[state=active]:border-l-4 data-[state=active]:border-app-teal data-[state=active]:text-app-teal rounded-none px-6 py-3 text-base font-medium w-full justify-start"
               >
                 关注
               </TabsTrigger>
               <TabsTrigger 
                 value="recommended" 
-                className="data-[state=active]:border-b-2 data-[state=active]:border-app-teal data-[state=active]:text-app-teal rounded-none px-6 font-medium"
+                className="data-[state=active]:border-l-4 data-[state=active]:border-app-teal data-[state=active]:text-app-teal rounded-none px-6 py-3 text-base font-medium w-full justify-start"
               >
                 推荐
               </TabsTrigger>
               <TabsTrigger 
                 value="local" 
-                className="data-[state=active]:border-b-2 data-[state=active]:border-app-teal data-[state=active]:text-app-teal rounded-none px-6 font-medium"
+                className="data-[state=active]:border-l-4 data-[state=active]:border-app-teal data-[state=active]:text-app-teal rounded-none px-6 py-3 text-base font-medium w-full justify-start"
               >
                 同城
               </TabsTrigger>
             </TabsList>
           </div>
           
-          {/* TabContent for each tab */}
-          <TabsContent value="following" className="m-0 outline-none">
-            <DiscoverFeed 
-              recommendationCards={recommendationCards} 
-              posts={posts.filter((_, index) => index % 2 === 0)} 
-              likedPosts={likedPosts}
-              onLike={handleLike}
-            />
-          </TabsContent>
-          
-          <TabsContent value="recommended" className="m-0 outline-none">
-            <DiscoverFeed 
-              recommendationCards={recommendationCards} 
-              posts={posts} 
-              likedPosts={likedPosts}
-              onLike={handleLike}
-            />
-          </TabsContent>
-          
-          <TabsContent value="local" className="m-0 outline-none">
-            <DiscoverFeed 
-              recommendationCards={recommendationCards.filter((_, index) => index % 2 === 1)} 
-              posts={posts.filter(post => post.topics?.includes('深圳'))} 
-              likedPosts={likedPosts}
-              onLike={handleLike}
-            />
-          </TabsContent>
+          {/* TabContent for each tab with left margin to accommodate fixed sidebar */}
+          <div className="ml-24">
+            <TabsContent value="following" className="m-0 outline-none">
+              <DiscoverFeed 
+                recommendationCards={recommendationCards} 
+                posts={posts.filter((_, index) => index % 2 === 0)} 
+                likedPosts={likedPosts}
+                onLike={handleLike}
+              />
+            </TabsContent>
+            
+            <TabsContent value="recommended" className="m-0 outline-none">
+              <DiscoverFeed 
+                recommendationCards={recommendationCards} 
+                posts={posts} 
+                likedPosts={likedPosts}
+                onLike={handleLike}
+              />
+            </TabsContent>
+            
+            <TabsContent value="local" className="m-0 outline-none">
+              <DiscoverFeed 
+                recommendationCards={recommendationCards.filter((_, index) => index % 2 === 1)} 
+                posts={posts.filter(post => post.topics?.includes('深圳'))} 
+                likedPosts={likedPosts}
+                onLike={handleLike}
+              />
+            </TabsContent>
+          </div>
         </Tabs>
       </div>
       
-      {/* Floating Action Button for Creating Posts */}
+      {/* Enhanced Floating Action Button for Creating Posts */}
       <Dialog>
         <DialogTrigger asChild>
           <Button className="fixed bottom-20 right-5 w-14 h-14 rounded-full bg-gradient-to-r from-app-teal to-app-blue shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center">

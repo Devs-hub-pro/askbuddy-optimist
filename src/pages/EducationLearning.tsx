@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -14,7 +15,8 @@ import {
   MessageSquare,
   MessageCircle,
   Clock,
-  Package
+  Package,
+  Users
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -242,7 +244,15 @@ const EducationLearning = () => {
         </div>
       </div>
       
-      <SearchBar placeholder="搜索问题/达人/话题" />
+      <div className="px-4 py-6 bg-app-light-bg animate-fade-in">
+        <div className="flex items-center space-x-2 mb-4">
+          <Users size={22} className="text-app-blue" />
+          <h1 className="text-xl font-bold text-gray-800">找人问问</h1>
+          <p className="text-gray-600 text-sm">AI无法回答的，就找人问问！</p>
+        </div>
+        
+        <SearchBar placeholder="搜索问题/达人/话题" />
+      </div>
       
       <div className="px-4 mb-6">
         <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 shadow-sm">
@@ -281,7 +291,7 @@ const EducationLearning = () => {
         </div>
       </div>
       
-      <div className="px-4 mb-4 overflow-x-auto">
+      <div className="px-4 mb-4 overflow-x-auto hide-scrollbar">
         <div className="flex space-x-2">
           {categories.map((category) => (
             <div 
@@ -290,7 +300,7 @@ const EducationLearning = () => {
               onClick={() => handleCategorySelect(category.id)}
             >
               {category.icon}
-              <span className="text-xs font-medium">{category.name}</span>
+              <span className="text-xs font-medium whitespace-nowrap">{category.name}</span>
             </div>
           ))}
         </div>
@@ -398,7 +408,7 @@ const EducationLearning = () => {
                   <div key={expert.id} className="bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300">
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-2">
-                        <Avatar className="w-8 h-8 border border-green-50">
+                        <Avatar className="w-10 h-10 border border-green-50">
                           <AvatarImage src={expert.avatar} alt={expert.name} className="object-cover" />
                           <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
                         </Avatar>

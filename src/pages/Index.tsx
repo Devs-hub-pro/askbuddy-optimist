@@ -7,7 +7,7 @@ import CategorySection from '../components/CategorySection';
 import ActivityCard from '../components/ActivityCard';
 import QuestionCard from '../components/QuestionCard';
 import BottomNav from '../components/BottomNav';
-import { Sparkles, MessageSquare, Award, Clock, CheckCircle, Package } from 'lucide-react';
+import { Sparkles, MessageSquare, Award, Clock, Package, Users } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface LocationState {
@@ -108,7 +108,15 @@ const Index = () => {
     <div className="app-container bg-gradient-to-b from-white to-blue-50/30 pb-20">
       <Navbar location={currentLocation} />
       
-      <SearchBar />
+      <div className="px-4 py-6 bg-app-light-bg animate-fade-in">
+        <div className="flex items-center space-x-2 mb-4">
+          <Users size={22} className="text-app-blue" />
+          <h1 className="text-xl font-bold text-gray-800">找人问问</h1>
+          <p className="text-gray-600 text-sm">AI无法回答的，就找人问问！</p>
+        </div>
+        
+        <SearchBar />
+      </div>
       
       <CategorySection />
       
@@ -212,7 +220,7 @@ const Index = () => {
             <div className="bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300">
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-2">
-                  <Avatar className="w-8 h-8 border border-green-50">
+                  <Avatar className="w-10 h-10 border border-green-50">
                     <AvatarImage src={featuredExpert.avatar} alt={featuredExpert.name} className="object-cover" />
                     <AvatarFallback>{featuredExpert.name.charAt(0)}</AvatarFallback>
                   </Avatar>
@@ -245,7 +253,7 @@ const Index = () => {
                 
                 <button 
                   onClick={() => handleAskMe(featuredExpert.name)}
-                  className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-2.5 py-1 rounded-full text-xs flex-shrink-0 flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+                  className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-2.5 py-1 rounded-full text-xs flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0"
                 >
                   <MessageSquare size={10} />
                   找我问问

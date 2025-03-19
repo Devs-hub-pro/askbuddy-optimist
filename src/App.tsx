@@ -9,7 +9,6 @@ import LifestyleServices from "./pages/LifestyleServices";
 import HobbiesSkills from "./pages/HobbiesSkills";
 import CitySelector from "./pages/CitySelector";
 import NotFound from "./pages/NotFound";
-import BottomNav from "./components/BottomNav";
 import IconsPreview from "./components/IconsPreview";
 import { Toaster } from "@/components/ui/toaster";
 import "./App.css";
@@ -30,7 +29,6 @@ function App() {
           <Route path="/icons" element={<IconsPreview />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
-        <BottomNav />
       </div>
       <Toaster />
     </Router>

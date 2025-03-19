@@ -11,9 +11,10 @@ import {
   Plus,
   Bell,
   CalendarPlus,
-  User,
   MessageSquare,
-  MessageCircle
+  MessageCircle,
+  Clock,
+  Package
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
@@ -62,7 +63,10 @@ const EducationLearning = () => {
       description: '专注留学申请文书指导，斯坦福offer获得者',
       tags: ['留学', '文书', '面试'],
       keywords: ['留学', '文书', '个人陈述', '面试', '斯坦福', '美国大学', '申请', 'SOP'],
-      category: 'study-abroad'
+      category: 'study-abroad',
+      rating: 4.9,
+      responseRate: '98%',
+      orderCount: '126单'
     },
     {
       id: '2',
@@ -72,7 +76,10 @@ const EducationLearning = () => {
       description: '5年考研辅导经验，擅长数学与专业课',
       tags: ['考研', '数学', '规划'],
       keywords: ['考研', '数学', '专业课', '清华', '规划', '复习'],
-      category: 'kaoyan'
+      category: 'kaoyan',
+      rating: 4.8,
+      responseRate: '95%',
+      orderCount: '210单'
     },
     {
       id: '3',
@@ -82,7 +89,10 @@ const EducationLearning = () => {
       description: '10年高考志愿填报指导经验，专精各省份政策',
       tags: ['高考', '志愿填报', '专业选择'],
       keywords: ['高考', '志愿', '填报', '专业选择', '大学', '分数线'],
-      category: 'gaokao'
+      category: 'gaokao',
+      rating: 4.7,
+      responseRate: '92%',
+      orderCount: '185单'
     },
     {
       id: '4',
@@ -92,7 +102,10 @@ const EducationLearning = () => {
       description: '考研英语特长，英语六级高分，专注英语学习方法',
       tags: ['考研', '英语', '备考'],
       keywords: ['考研', '英语', '六级', '词汇', '听力', '阅读', '写作'],
-      category: 'kaoyan'
+      category: 'kaoyan',
+      rating: 4.6,
+      responseRate: '90%',
+      orderCount: '98单'
     },
     {
       id: '5',
@@ -102,7 +115,10 @@ const EducationLearning = () => {
       description: '研究生导师，IEEE/SCI论文审稿人，多篇高被引论文',
       tags: ['论文', 'SCI', '科研'],
       keywords: ['学术论文', 'SCI', 'IEEE', '期刊投稿', '审稿意见', '开题报告'],
-      category: 'paper'
+      category: 'paper',
+      rating: 4.9,
+      responseRate: '96%',
+      orderCount: '156单'
     },
     {
       id: '6',
@@ -112,7 +128,10 @@ const EducationLearning = () => {
       description: '指导学生获得多项全国级奖项，擅长数学建模竞赛',
       tags: ['数学竞赛', '数模', '指导'],
       keywords: ['数学竞赛', '数学建模', 'MCM', 'ICM', '美赛', '华赛'],
-      category: 'competition'
+      category: 'competition',
+      rating: 4.8,
+      responseRate: '94%',
+      orderCount: '87单'
     }
   ];
 
@@ -193,7 +212,6 @@ const EducationLearning = () => {
     : communityQuestions.filter(question => question.category === activeCategory);
 
   const handleSearch = () => {
-    // Navigation to search page now handled by the SearchBar component
     console.log('Search initiated');
   };
 
@@ -377,38 +395,53 @@ const EducationLearning = () => {
             ) : (
               <div className="space-y-3">
                 {filteredExperts.map((expert) => (
-                  <div key={expert.id} className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300">
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-3">
-                        <Avatar className="w-12 h-12 border border-green-50">
+                  <div key={expert.id} className="bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300">
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="w-8 h-8 border border-green-50">
                           <AvatarImage src={expert.avatar} alt={expert.name} className="object-cover" />
                           <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
                         </Avatar>
                         <div>
-                          <h3 className="text-base font-semibold text-gray-800">{expert.name}</h3>
-                          <p className="text-sm text-green-600">{expert.title}</p>
+                          <h3 className="text-sm font-semibold text-gray-800">{expert.name}</h3>
+                          <p className="text-xs text-green-600">{expert.title}</p>
                         </div>
                       </div>
                       
+                      <div className="flex flex-col items-end">
+                        <div className="flex items-center text-yellow-500 gap-1">
+                          <Award size={12} />
+                          <span className="text-xs font-medium">{expert.rating}</span>
+                        </div>
+                        <div className="flex items-center text-blue-500 gap-1 text-xs">
+                          <Clock size={10} />
+                          <span>{expert.responseRate}</span>
+                        </div>
+                        <div className="flex items-center text-green-500 gap-1 text-xs">
+                          <Package size={10} />
+                          <span>{expert.orderCount}</span>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="flex mt-2">
+                      <p className="text-xs text-gray-700 border-l-2 border-green-200 pl-2 py-0.5 bg-green-50/50 rounded-r-md flex-1 mr-2">
+                        {expert.description}
+                      </p>
+                      
                       <Button 
                         onClick={() => handleAskMe(expert.name)}
-                        className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 h-auto"
+                        className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-2.5 py-1 rounded-full text-xs flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 h-auto"
                         size="sm"
                       >
-                        <MessageSquare size={14} />
+                        <MessageSquare size={10} />
                         找我问问
                       </Button>
                     </div>
                     
-                    <div className="bg-green-50/50 border-l-2 border-green-200 pl-3 py-2 mb-3 rounded-r-md">
-                      <p className="text-sm text-gray-700">
-                        {expert.description}
-                      </p>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-wrap gap-1.5 mt-2">
                       {expert.tags.map((tag, index) => (
-                        <span key={index} className="bg-green-50 text-green-600 text-xs px-2.5 py-1 rounded-full">
+                        <span key={index} className="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full">
                           #{tag}
                         </span>
                       ))}

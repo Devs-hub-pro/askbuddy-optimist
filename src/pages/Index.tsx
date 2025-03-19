@@ -7,7 +7,7 @@ import CategorySection from '../components/CategorySection';
 import ActivityCard from '../components/ActivityCard';
 import QuestionCard from '../components/QuestionCard';
 import BottomNav from '../components/BottomNav';
-import { Sparkles, MessageSquare, Award, Clock, CheckCircle } from 'lucide-react';
+import { Sparkles, MessageSquare, Award, Clock, CheckCircle, Package } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface LocationState {
@@ -230,6 +230,10 @@ const Index = () => {
                   <div className="flex items-center text-blue-500 gap-1 text-xs">
                     <Clock size={10} />
                     <span>{featuredExpert.responseRate}</span>
+                  </div>
+                  <div className="flex items-center text-green-500 gap-1 text-xs">
+                    <Package size={10} />
+                    <span>{featuredExpert.orderCount}</span>
                   </div>
                 </div>
               </div>

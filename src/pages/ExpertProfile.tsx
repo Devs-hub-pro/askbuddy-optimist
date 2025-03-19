@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ChevronLeft, Edit, Camera, MapPin, Award, MessageSquare, Clock, Package, CheckCircle, Calendar } from 'lucide-react';
+import { ChevronLeft, Edit, Camera, MapPin, Award, MessageSquare, Clock, Package, CheckCircle, Calendar, GraduationCap, Briefcase } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -25,7 +24,6 @@ const ExpertProfile = () => {
   const [isBioExpanded, setIsBioExpanded] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState('https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1200&h=400');
   
-  // Mock data for expert profile - in a real app, fetch based on ID
   const expert = {
     id: id || '1',
     name: '张同学',
@@ -55,7 +53,6 @@ const ExpertProfile = () => {
   };
 
   const handleBackgroundChange = () => {
-    // In a real app, this would open file selection dialog
     const backgrounds = [
       'https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1200&h=400',
       'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&h=400',
@@ -63,7 +60,6 @@ const ExpertProfile = () => {
       'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1200&h=400'
     ];
     
-    // For demo purposes, just cycle through the backgrounds
     const currentIndex = backgrounds.indexOf(backgroundImage);
     const nextIndex = (currentIndex + 1) % backgrounds.length;
     setBackgroundImage(backgrounds[nextIndex]);
@@ -71,7 +67,6 @@ const ExpertProfile = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Header with back button */}
       <div className="sticky top-0 z-50 bg-app-teal shadow-sm animate-fade-in">
         <div className="flex items-center h-12 px-4">
           <button onClick={() => navigate(-1)} className="text-white">
@@ -81,7 +76,6 @@ const ExpertProfile = () => {
         </div>
       </div>
       
-      {/* Profile header with background image */}
       <div className="relative">
         <div 
           className="w-full h-48 bg-cover bg-center"
@@ -96,7 +90,6 @@ const ExpertProfile = () => {
           </button>
         </div>
         
-        {/* Profile info - positioned over the background image bottom */}
         <div className="relative px-4 pb-4 -mt-16 pt-20">
           <div className="flex justify-between items-end">
             <Avatar className="w-20 h-20 border-4 border-white shadow-md">
@@ -128,7 +121,6 @@ const ExpertProfile = () => {
             </div>
           </div>
           
-          {/* Stats row */}
           <div className="flex justify-between mt-4 px-2 py-3 bg-gray-50 rounded-lg">
             <div className="flex flex-col items-center">
               <div className="flex items-center text-yellow-500">
@@ -159,7 +151,6 @@ const ExpertProfile = () => {
         </div>
       </div>
       
-      {/* Bio Section */}
       <div className="px-4 mb-6">
         <h2 className="text-lg font-semibold mb-2">个人介绍</h2>
         <Collapsible
@@ -192,7 +183,6 @@ const ExpertProfile = () => {
         </Collapsible>
       </div>
       
-      {/* Tags Section */}
       <div className="px-4 mb-6">
         <h2 className="text-lg font-semibold mb-2">擅长话题</h2>
         <div className="flex flex-wrap gap-2">
@@ -207,7 +197,6 @@ const ExpertProfile = () => {
         </div>
       </div>
 
-      {/* Tabs Section */}
       <div className="px-4 mb-20">
         <Tabs defaultValue="about" className="w-full">
           <TabsList className="grid w-full grid-cols-3 mb-4">
@@ -217,7 +206,6 @@ const ExpertProfile = () => {
           </TabsList>
           
           <TabsContent value="about" className="space-y-4">
-            {/* Education Section */}
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <h3 className="text-base font-semibold mb-3 flex items-center">
                 <GraduationCap className="w-4 h-4 mr-2 text-blue-500" />
@@ -240,7 +228,6 @@ const ExpertProfile = () => {
               ))}
             </div>
             
-            {/* Experience Section */}
             <div className="bg-white rounded-lg p-4 shadow-sm">
               <h3 className="text-base font-semibold mb-3 flex items-center">
                 <Briefcase className="w-4 h-4 mr-2 text-green-500" />
@@ -321,7 +308,6 @@ const ExpertProfile = () => {
         </Tabs>
       </div>
       
-      {/* Bottom action buttons */}
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex gap-3">
         <Button variant="outline" className="flex-1 flex items-center justify-center">
           <MessageSquare size={16} className="mr-2" />
@@ -337,5 +323,3 @@ const ExpertProfile = () => {
 };
 
 export default ExpertProfile;
-
-import { Briefcase } from 'lucide-react';

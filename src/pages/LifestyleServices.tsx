@@ -12,6 +12,7 @@ const LifestyleServices = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [featuredIndex, setFeaturedIndex] = useState(0);
   const [expertIndex, setExpertIndex] = useState(0);
+  const [activeCategory, setActiveCategory] = useState('housing'); // Default active category
 
   // Categories for Life Services
   const categories = [
@@ -67,7 +68,7 @@ const LifestyleServices = () => {
       avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
       description: '专注于劳动法、合同纠纷，5年执业经验',
       badge: '律师认证',
-      category: '法律',
+      category: 'legal',
       tags: ['劳动法', '合同', '纠纷']
     },
     {
@@ -77,7 +78,7 @@ const LifestyleServices = () => {
       avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
       description: '婚恋关系、亲子关系咨询，执业8年',
       badge: '心理师认证',
-      category: '情感',
+      category: 'emotional',
       tags: ['情感', '心理', '婚恋']
     },
     {
@@ -87,7 +88,7 @@ const LifestyleServices = () => {
       avatar: 'https://randomuser.me/api/portraits/men/85.jpg',
       description: '10年租房经验，帮助过200+人解决租房问题',
       badge: '达人认证',
-      category: '租房',
+      category: 'housing',
       tags: ['租房', '合同', '维权']
     },
     {
@@ -97,8 +98,18 @@ const LifestyleServices = () => {
       avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
       description: '专注于个人、家庭保险规划，擅长理赔指导',
       badge: '顾问认证',
-      category: '保险',
+      category: 'insurance',
       tags: ['保险', '理赔', '规划']
+    },
+    {
+      id: 5,
+      name: '郑先生',
+      title: '移民顾问',
+      avatar: 'https://randomuser.me/api/portraits/men/42.jpg',
+      description: '5年海外留学与移民经验，擅长澳洲和加拿大',
+      badge: '顾问认证',
+      category: 'overseas',
+      tags: ['移民', '留学', '海外生活']
     }
   ];
 
@@ -182,6 +193,11 @@ const LifestyleServices = () => {
     setExpertIndex((prev) => (prev === experts.length - 1 ? 0 : prev + 1));
   };
 
+  // Filter experts based on selected category
+  const filteredExperts = activeCategory === 'all' 
+    ? experts 
+    : experts.filter(expert => expert.category === activeCategory);
+
   return (
     <div className="app-container bg-gradient-to-b from-white to-orange-50/30 pb-20">
       {/* Header with back button */}
@@ -213,7 +229,11 @@ const LifestyleServices = () => {
       <div className="px-4 mb-4 overflow-x-auto">
         <div className="flex space-x-2">
           {categories.map((category) => (
-            <div key={category.id} className="flex-shrink-0 bg-white shadow-sm rounded-full px-3 py-1.5 flex items-center gap-1">
+            <div 
+              key={category.id} 
+              className={`flex-shrink-0 ${activeCategory === category.id ? 'bg-orange-500 text-white' : 'bg-white shadow-sm'} rounded-full px-3 py-1.5 flex items-center gap-1 cursor-pointer`}
+              onClick={() => setActiveCategory(category.id)}
+            >
               {category.icon}
               <span className="text-xs font-medium">{category.name}</span>
             </div>
@@ -330,7 +350,7 @@ const LifestyleServices = () => {
               </div>
             ))
           ) : (
-            experts.map((expert) => (
+            filteredExperts.map((expert) => (
               <Card key={expert.id} className="shadow-sm hover:shadow-md transition-shadow">
                 <CardContent className="p-3">
                   <div className="flex items-center mb-2">

@@ -1,16 +1,18 @@
 
 import React, { useState } from 'react';
-import { Search, Users, Sparkles } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 interface SearchBarProps {
   onSearch?: (value: string) => void;
   placeholder?: string;
+  className?: string;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ 
   onSearch, 
-  placeholder = "搜索问题/达人/话题" 
+  placeholder = "搜索问题/达人/话题", 
+  className = ""
 }) => {
   const [searchValue, setSearchValue] = useState('');
 
@@ -24,18 +26,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   return (
-    <div className="px-4 py-4 bg-gradient-to-b from-app-teal/10 to-transparent animate-fade-in">
-      <div className="flex items-center space-x-2 mb-4">
-        <div className="flex items-center gap-1">
-          <Users size={20} className="text-app-blue" />
-          <h1 className="text-lg font-bold">找人问问</h1>
-        </div>
-        <div className="flex items-center gap-1 px-2 py-1 bg-blue-50 rounded-full text-blue-600">
-          <Sparkles size={12} />
-          <span className="text-xs font-medium">AI无法回答的，人来回答！</span>
-        </div>
-      </div>
-      
+    <div className={`px-4 py-4 ${className}`}>
       <div className="relative">
         <Input
           type="text"

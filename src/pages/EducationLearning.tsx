@@ -1,9 +1,21 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Calendar, Clock, GraduationCap, BookOpen, GlobeIcon, Award, FileText, Plus, ChevronLeft } from 'lucide-react';
+import { 
+  Calendar, 
+  Clock, 
+  ChevronLeft, 
+  GraduationCap, 
+  BookOpen, 
+  GlobeIcon, 
+  Award, 
+  FileText, 
+  Plus,
+  Bell,
+  CalendarPlus
+} from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import SearchBar from "@/components/SearchBar";
 
 const EducationLearning = () => {
@@ -12,6 +24,7 @@ const EducationLearning = () => {
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [isSearching, setIsSearching] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [activeCategory, setActiveCategory] = useState('all');
   
   // Simulate loading content
   useEffect(() => {
@@ -21,13 +34,22 @@ const EducationLearning = () => {
     return () => clearTimeout(timer);
   }, []);
 
-  // Countdown to the next major exam
-  const examDate = new Date('2024-12-15');
-  const today = new Date();
-  const daysRemaining = Math.ceil((examDate.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
+  // Important dates data
+  const importantDates = [
+    { date: '2024-12-25', event: '全国研究生考试', countdown: 65, type: 'kaoyan' },
+    { date: '2024-10-15', event: '考研预报名开始', countdown: 15, type: 'kaoyan' },
+    { date: '2024-11-20', event: 'TOEFL/GRE冬季考试', countdown: 40, type: 'study-abroad' },
+    { date: '2025-06-07', event: '2025高考', countdown: 240, type: 'gaokao' }
+  ];
+  
+  // Filter important dates based on selected category
+  const filteredDates = activeCategory === 'all' 
+    ? importantDates 
+    : importantDates.filter(date => date.type === activeCategory);
   
   // Categories data
   const categories = [
+    { id: 'all', name: '全部', icon: <Calendar size={16} /> },
     { id: 'gaokao', name: '高考', icon: <GraduationCap size={16} /> },
     { id: 'kaoyan', name: '考研', icon: <BookOpen size={16} /> },
     { id: 'study-abroad', name: '留学', icon: <GlobeIcon size={16} /> },
@@ -35,7 +57,7 @@ const EducationLearning = () => {
     { id: 'paper', name: '论文写作', icon: <FileText size={16} /> }
   ];
   
-  // Senior students/experts data
+  // Experts data
   const allExperts = [
     {
       id: '1',
@@ -44,7 +66,8 @@ const EducationLearning = () => {
       title: '北大硕士 | 出国党',
       description: '专注留学申请文书指导，斯坦福offer获得者',
       tags: ['留学', '文书', '面试'],
-      keywords: ['留学', '文书', '个人陈述', '面试', '斯坦福', '美国大学', '申请', 'SOP']
+      keywords: ['留学', '文书', '个人陈述', '面试', '斯坦福', '美国大学', '申请', 'SOP'],
+      category: 'study-abroad'
     },
     {
       id: '2',
@@ -53,7 +76,8 @@ const EducationLearning = () => {
       title: '清华博士 | 考研规划',
       description: '5年考研辅导经验，擅长数学与专业课',
       tags: ['考研', '数学', '规划'],
-      keywords: ['考研', '数学', '专业课', '清华', '规划', '复习']
+      keywords: ['考研', '数学', '专业课', '清华', '规划', '复习'],
+      category: 'kaoyan'
     },
     {
       id: '3',
@@ -62,7 +86,8 @@ const EducationLearning = () => {
       title: '高考志愿规划师',
       description: '10年高考志愿填报指导经验，专精各省份政策',
       tags: ['高考', '志愿填报', '专业选择'],
-      keywords: ['高考', '志愿', '填报', '专业选择', '大学', '分数线']
+      keywords: ['高考', '志愿', '填报', '专业选择', '大学', '分数线'],
+      category: 'gaokao'
     },
     {
       id: '4',
@@ -71,35 +96,35 @@ const EducationLearning = () => {
       title: '清华研究生',
       description: '考研英语特长，英语六级高分，专注英语学习方法',
       tags: ['考研', '英语', '备考'],
-      keywords: ['考研', '英语', '六级', '词汇', '听力', '阅读', '写作']
+      keywords: ['考研', '英语', '六级', '词汇', '听力', '阅读', '写作'],
+      category: 'kaoyan'
+    },
+    {
+      id: '5',
+      name: '陈教授',
+      avatar: 'https://randomuser.me/api/portraits/men/75.jpg',
+      title: '某985教授 | 论文指导',
+      description: '研究生导师，IEEE/SCI论文审稿人，多篇高被引论文',
+      tags: ['论文', 'SCI', '科研'],
+      keywords: ['学术论文', 'SCI', 'IEEE', '期刊投稿', '审稿意见', '开题报告'],
+      category: 'paper'
+    },
+    {
+      id: '6',
+      name: '张竞赛',
+      avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
+      title: '全国数学竞赛金牌 | 教练',
+      description: '指导学生获得多项全国级奖项，擅长数学建模竞赛',
+      tags: ['数学竞赛', '数模', '指导'],
+      keywords: ['数学竞赛', '数学建模', 'MCM', 'ICM', '美赛', '华赛'],
+      category: 'competition'
     }
   ];
   
-  // Featured questions data
-  const featuredQuestions = [
-    {
-      id: '1',
-      title: '高考填报志愿如何避开专业误区？',
-      views: '2.4k',
-      tags: ['高考', '志愿填报', '专业选择'],
-      user: {
-        name: '王老师',
-        avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-        role: '高考志愿规划师'
-      }
-    },
-    {
-      id: '2',
-      title: '考研英语六级没过能上岸吗？',
-      views: '1.8k',
-      tags: ['考研', '英语', '备考'],
-      user: {
-        name: '李明',
-        avatar: 'https://randomuser.me/api/portraits/men/43.jpg',
-        role: '清华研究生'
-      }
-    }
-  ];
+  // Filter experts based on selected category
+  const filteredExperts = activeCategory === 'all' 
+    ? allExperts 
+    : allExperts.filter(expert => expert.category === activeCategory);
   
   // Community questions data
   const communityQuestions = [
@@ -113,7 +138,8 @@ const EducationLearning = () => {
       },
       tags: ['考研', '时间管理'],
       answers: 12,
-      points: 30
+      points: 30,
+      category: 'kaoyan'
     },
     {
       id: '2',
@@ -125,7 +151,8 @@ const EducationLearning = () => {
       },
       tags: ['留学', '标化考试'],
       answers: 8,
-      points: 25
+      points: 25,
+      category: 'study-abroad'
     },
     {
       id: '3',
@@ -137,16 +164,41 @@ const EducationLearning = () => {
       },
       tags: ['高考', '志愿填报'],
       answers: 15,
-      points: 40
+      points: 40,
+      category: 'gaokao'
+    },
+    {
+      id: '4',
+      title: 'SCI论文投稿被拒怎么修改提高接收率？',
+      description: '博士生，论文被拒了两次，审稿人给了很多意见，但不知道如何有效修改...',
+      user: {
+        name: '博士在读',
+        avatar: 'https://randomuser.me/api/portraits/men/36.jpg'
+      },
+      tags: ['论文', 'SCI', '修改'],
+      answers: 9,
+      points: 35,
+      category: 'paper'
+    },
+    {
+      id: '5',
+      title: '数学建模竞赛如何选择合适的算法？',
+      description: '准备参加下一届美赛，想了解不同类型问题适合用什么算法和模型...',
+      user: {
+        name: '数模爱好者',
+        avatar: 'https://randomuser.me/api/portraits/women/32.jpg'
+      },
+      tags: ['数学建模', '算法', '竞赛'],
+      answers: 7,
+      points: 20,
+      category: 'competition'
     }
   ];
   
-  // Important dates
-  const importantDates = [
-    { date: '2024-10-15', event: '考研预报名开始' },
-    { date: '2024-11-20', event: 'TOEFL/GRE冬季考试' },
-    { date: '2024-12-25', event: '全国研究生考试' }
-  ];
+  // Filter questions based on selected category
+  const filteredQuestions = activeCategory === 'all'
+    ? communityQuestions
+    : communityQuestions.filter(question => question.category === activeCategory);
 
   // Handle search functionality
   const handleSearch = (value: string) => {
@@ -181,11 +233,14 @@ const EducationLearning = () => {
     <div className="app-container bg-gradient-to-b from-white to-blue-50/30 pb-20">
       {/* Header with back button */}
       <div className="sticky top-0 z-50 bg-app-teal shadow-sm animate-fade-in">
-        <div className="flex items-center h-12 px-4">
-          <button onClick={() => navigate('/')} className="text-white mr-2">
+        <div className="flex items-center justify-between h-12 px-4">
+          <button onClick={() => navigate('/')} className="text-white">
             <ChevronLeft size={24} />
           </button>
           <div className="text-white font-medium text-base">教育学习</div>
+          <button className="text-white">
+            <Bell size={20} />
+          </button>
         </div>
       </div>
       
@@ -259,14 +314,38 @@ const EducationLearning = () => {
       {/* Only show the normal content if not searching */}
       {searchQuery.trim() === '' && (
         <>
-          {/* Exam Countdown */}
-          <div className="px-4 py-3 bg-gradient-to-r from-amber-50 to-orange-50 mb-4 flex items-center justify-between mx-4 rounded-lg shadow-sm">
-            <div className="flex items-center">
-              <Clock size={18} className="text-orange-500 mr-2" />
-              <span className="text-sm font-medium">考研倒计时</span>
-            </div>
-            <div className="bg-orange-500 text-white text-sm font-bold px-3 py-1 rounded-full">
-              {daysRemaining}天
+          {/* Important Dates Calendar - Combined Section */}
+          <div className="px-4 mb-6">
+            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 shadow-sm">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center">
+                  <Calendar size={18} className="text-indigo-600 mr-2" />
+                  <h3 className="font-medium text-sm">重要日期日历</h3>
+                </div>
+                <button className="flex items-center text-xs text-indigo-600 bg-white rounded-full px-2 py-1 shadow-sm">
+                  <CalendarPlus size={12} className="mr-1" />
+                  <span>添加日程</span>
+                </button>
+              </div>
+              
+              <div className="space-y-2">
+                {filteredDates.map((item, index) => {
+                  const eventDate = new Date(item.date);
+                  const formattedDate = `${eventDate.getMonth() + 1}月${eventDate.getDate()}日`;
+                  
+                  return (
+                    <div key={index} className="flex items-center justify-between bg-white rounded-md p-2">
+                      <div className="flex flex-col">
+                        <span className="text-xs font-medium">{item.event}</span>
+                        <span className="text-xs text-gray-500">{formattedDate}</span>
+                      </div>
+                      <div className="bg-indigo-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                        {item.countdown}天
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
           
@@ -274,148 +353,15 @@ const EducationLearning = () => {
           <div className="px-4 mb-4 overflow-x-auto">
             <div className="flex space-x-2">
               {categories.map((category) => (
-                <div key={category.id} className="flex-shrink-0 bg-white shadow-sm rounded-full px-3 py-1.5 flex items-center gap-1">
+                <div 
+                  key={category.id} 
+                  className={`flex-shrink-0 ${activeCategory === category.id ? 'bg-blue-500 text-white' : 'bg-white shadow-sm'} rounded-full px-3 py-1.5 flex items-center gap-1 cursor-pointer`}
+                  onClick={() => setActiveCategory(category.id)}
+                >
                   {category.icon}
                   <span className="text-xs font-medium">{category.name}</span>
                 </div>
               ))}
-            </div>
-          </div>
-          
-          {/* Featured Content */}
-          <div className="px-4 mb-6">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-bold">精选推荐</h2>
-              <span className="text-xs text-gray-500">更多 &gt;</span>
-            </div>
-            
-            <div className="space-y-3">
-              {isLoading ? (
-                <div className="space-y-3">
-                  {[1, 2].map((item) => (
-                    <div key={item} className="bg-white rounded-lg p-4 animate-pulse-soft shadow-sm">
-                      <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
-                      <div className="flex items-center space-x-2 mb-3">
-                        <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                        <div>
-                          <div className="h-3 bg-gray-200 rounded w-24"></div>
-                          <div className="h-3 bg-gray-200 rounded w-16 mt-1"></div>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                featuredQuestions.map((item) => (
-                  <Card key={item.id} className="shadow-sm hover:shadow transition-shadow">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <h3 className="font-semibold text-base">{item.title}</h3>
-                        <div className="flex items-center text-gray-500 text-xs">
-                          <span>{item.views} 浏览</span>
-                        </div>
-                      </div>
-                      
-                      <div className="flex items-center mb-3">
-                        <img 
-                          src={item.user.avatar} 
-                          alt={item.user.name} 
-                          className="w-8 h-8 rounded-full mr-2"
-                        />
-                        <div>
-                          <p className="text-sm font-medium">{item.user.name}</p>
-                          <p className="text-xs text-gray-500">{item.user.role}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-2">
-                        {item.tags.map((tag, index) => (
-                          <span key={index} className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full">
-                            #{tag}
-                          </span>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
-          </div>
-          
-          {/* Senior Students Section */}
-          <div className="px-4 mb-6">
-            <div className="flex items-center justify-between mb-3">
-              <h2 className="text-lg font-bold">学长学姐专栏</h2>
-              <span className="text-xs text-gray-500">更多 &gt;</span>
-            </div>
-            
-            <div className="grid grid-cols-2 gap-3">
-              {isLoading ? (
-                [1, 2].map((item) => (
-                  <div key={item} className="bg-white rounded-lg p-3 animate-pulse-soft shadow-sm">
-                    <div className="flex items-center mb-2">
-                      <div className="w-10 h-10 bg-gray-200 rounded-full mr-2"></div>
-                      <div>
-                        <div className="h-3 bg-gray-200 rounded w-16 mb-1"></div>
-                        <div className="h-2 bg-gray-200 rounded w-24"></div>
-                      </div>
-                    </div>
-                    <div className="h-10 bg-gray-200 rounded w-full"></div>
-                  </div>
-                ))
-              ) : (
-                allExperts.slice(0, 2).map((student) => (
-                  <Card key={student.id} className="shadow-sm hover:shadow-md transition-shadow">
-                    <CardContent className="p-3">
-                      <div className="flex items-center mb-2">
-                        <img 
-                          src={student.avatar} 
-                          alt={student.name} 
-                          className="w-10 h-10 rounded-full mr-2"
-                        />
-                        <div>
-                          <p className="text-sm font-medium">{student.name}</p>
-                          <p className="text-xs text-gray-500">{student.title}</p>
-                        </div>
-                      </div>
-                      <p className="text-xs text-gray-700 mb-2 line-clamp-2">{student.description}</p>
-                      <div className="flex flex-wrap gap-1">
-                        {student.tags.map((tag, index) => (
-                          <span key={index} className="bg-green-50 text-green-600 text-xs px-1.5 py-0.5 rounded-full">
-                            {tag}
-                          </span>
-                        ))}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))
-              )}
-            </div>
-          </div>
-          
-          {/* Important Dates */}
-          <div className="px-4 mb-6">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 shadow-sm">
-              <div className="flex items-center mb-3">
-                <Calendar size={18} className="text-indigo-600 mr-2" />
-                <h3 className="font-medium text-sm">重要日期提醒</h3>
-              </div>
-              
-              <div className="space-y-2">
-                {importantDates.map((item, index) => {
-                  const eventDate = new Date(item.date);
-                  const formattedDate = `${eventDate.getMonth() + 1}月${eventDate.getDate()}日`;
-                  
-                  return (
-                    <div key={index} className="flex items-center justify-between">
-                      <span className="text-xs font-medium">{item.event}</span>
-                      <span className="text-xs bg-indigo-100 text-indigo-600 px-2 py-0.5 rounded-full">
-                        {formattedDate}
-                      </span>
-                    </div>
-                  );
-                })}
-              </div>
             </div>
           </div>
           
@@ -457,7 +403,7 @@ const EducationLearning = () => {
                   </div>
                 ) : (
                   <div className="space-y-3">
-                    {communityQuestions.map((question) => (
+                    {filteredQuestions.map((question) => (
                       <Card key={question.id} className="shadow-sm">
                         <CardContent className="p-4">
                           <h3 className="font-semibold text-base mb-2">{question.title}</h3>
@@ -496,13 +442,50 @@ const EducationLearning = () => {
               </TabsContent>
               
               <TabsContent value="experts" className="mt-0">
-                <div className="bg-blue-50 rounded-lg p-4 text-center">
-                  <p className="text-sm text-gray-600 mb-2">寻找专业解答？</p>
-                  <p className="text-base font-medium text-blue-700 mb-3">我们有专业导师为您解答</p>
-                  <button className="bg-blue-600 text-white text-sm px-4 py-2 rounded-full shadow-sm">
-                    找专家问问
-                  </button>
-                </div>
+                {isLoading ? (
+                  <div className="grid grid-cols-2 gap-3">
+                    {[1, 2, 3, 4].map((item) => (
+                      <div key={item} className="bg-white rounded-lg p-3 animate-pulse-soft shadow-sm">
+                        <div className="flex items-center mb-2">
+                          <div className="w-10 h-10 bg-gray-200 rounded-full mr-2"></div>
+                          <div>
+                            <div className="h-3 bg-gray-200 rounded w-16 mb-1"></div>
+                            <div className="h-2 bg-gray-200 rounded w-24"></div>
+                          </div>
+                        </div>
+                        <div className="h-10 bg-gray-200 rounded w-full"></div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-2 gap-3">
+                    {filteredExperts.map((expert) => (
+                      <Card key={expert.id} className="shadow-sm hover:shadow-md transition-shadow">
+                        <CardContent className="p-3">
+                          <div className="flex items-center mb-2">
+                            <img 
+                              src={expert.avatar} 
+                              alt={expert.name} 
+                              className="w-10 h-10 rounded-full mr-2"
+                            />
+                            <div>
+                              <p className="text-sm font-medium">{expert.name}</p>
+                              <p className="text-xs text-gray-500">{expert.title}</p>
+                            </div>
+                          </div>
+                          <p className="text-xs text-gray-700 mb-2 line-clamp-2">{expert.description}</p>
+                          <div className="flex flex-wrap gap-1">
+                            {expert.tags.map((tag, index) => (
+                              <span key={index} className="bg-green-50 text-green-600 text-xs px-1.5 py-0.5 rounded-full">
+                                {tag}
+                              </span>
+                            ))}
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))}
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>

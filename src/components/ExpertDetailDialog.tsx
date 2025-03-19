@@ -17,7 +17,7 @@ import {
   MapPin, 
   ChevronDown, 
   ChevronUp, 
-  Verify
+  CheckCircle  // Changed from Verify to CheckCircle which exists in lucide-react
 } from 'lucide-react';
 import { 
   Collapsible,

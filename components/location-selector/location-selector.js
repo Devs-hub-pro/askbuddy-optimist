@@ -12,6 +12,10 @@ Component({
     locationMenuOpen: {
       type: Boolean,
       value: false
+    },
+    recentCities: {
+      type: Array,
+      value: []
     }
   },
   methods: {
@@ -21,6 +25,9 @@ Component({
     selectLocation(e) {
       const city = e.currentTarget.dataset.city;
       this.triggerEvent('select', { city });
+    },
+    showCitySelector() {
+      this.triggerEvent('showSelector');
     }
   }
 })

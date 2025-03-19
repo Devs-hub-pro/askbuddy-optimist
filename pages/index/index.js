@@ -6,6 +6,7 @@ Page({
     location: "深圳",
     locationMenuOpen: false,
     cities: ['北京', '上海', '广州', '深圳', '杭州'],
+    recentCities: [],
     categories: [
       {
         id: 'education',
@@ -98,7 +99,16 @@ Page({
   },
 
   onLoad: function() {
-    // Simulate loading
+    // 从本地存储获取当前城市和最近访问的城市
+    const currentCity = wx.getStorageSync('currentCity') || '深圳';
+    const recentCities = wx.getStorageSync('recentCities') || [];
+    
+    this.setData({
+      location: currentCity,
+      recentCities: recentCities
+    });
+    
+    // 模拟加载
     setTimeout(() => {
       this.setData({
         isLoading: false
@@ -114,9 +124,31 @@ Page({
 
   selectLocation: function(e) {
     const city = e.detail.city;
+    
+    // 更新最近访问的城市列表
+    let recentCities = wx.getStorageSync('recentCities') || [];
+    // 如果已经存在则移除
+    recentCities = recentCities.filter(item => item !== city);
+    // 添加到最前面
+    recentCities.unshift(city);
+    // 最多保留5个
+    recentCities = recentCities.slice(0, 5);
+    wx.setStorageSync('recentCities', recentCities);
+    wx.setStorageSync('currentCity', city);
+    
     this.setData({
       location: city,
+      locationMenuOpen: false,
+      recentCities: recentCities
+    });
+  },
+  
+  showCitySelector: function() {
+    this.setData({
       locationMenuOpen: false
+    });
+    wx.navigateTo({
+      url: '/pages/city-selector/city-selector'
     });
   },
   

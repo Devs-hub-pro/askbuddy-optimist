@@ -1,0 +1,99 @@
+
+<!-- City Selector Page -->
+<view class="container">
+  <!-- Header -->
+  <view class="bg-white px-4 py-3 flex items-center justify-between shadow-sm sticky top-0 z-10">
+    <navigator open-type="navigateBack" class="flex items-center">
+      <image src="/assets/icons/arrow-left.png" style="width: 20px; height: 20px;" />
+    </navigator>
+    <view class="text-lg font-bold">选择城市</view>
+    <view style="width: 20px;"></view>
+  </view>
+  
+  <!-- Current Location -->
+  <view class="bg-white px-4 py-3 flex items-center space-x-3 border-b border-gray-100">
+    <image src="/assets/icons/navigation.png" style="width: 20px; height: 20px;" />
+    <view bindtap="useCurrentLocation" class="flex-1">
+      <view class="text-sm">当前定位城市</view>
+      <view class="text-lg font-medium text-app-blue">{{currentCity}}</view>
+    </view>
+    <view class="px-3 py-1 bg-app-blue/10 text-app-blue rounded-full text-sm" bindtap="useCurrentLocation">使用</view>
+  </view>
+  
+  <!-- Recent Cities -->
+  <block wx:if="{{recentCities.length > 0}}">
+    <view class="bg-white px-4 py-2">
+      <view class="text-sm text-gray-500 mb-2">最近访问的城市</view>
+      <view class="flex flex-wrap">
+        <block wx:for="{{recentCities}}" wx:key="*this">
+          <view 
+            class="px-3 py-1 bg-gray-50 rounded-full mr-2 mb-2"
+            bindtap="selectCity"
+            data-city="{{item}}"
+          >
+            {{item}}
+          </view>
+        </block>
+      </view>
+    </view>
+  </block>
+  
+  <!-- Hot Cities -->
+  <view class="bg-white px-4 py-2 mt-2">
+    <view class="text-sm text-gray-500 mb-2">热门城市</view>
+    <view class="flex flex-wrap">
+      <block wx:for="{{hotCities}}" wx:key="*this">
+        <view 
+          class="px-3 py-1 bg-gray-50 rounded-full mr-2 mb-2"
+          bindtap="selectCity"
+          data-city="{{item}}"
+        >
+          {{item}}
+        </view>
+      </block>
+    </view>
+  </view>
+  
+  <!-- All Cities -->
+  <view class="flex mt-2">
+    <!-- City List -->
+    <scroll-view 
+      class="flex-1 bg-white"
+      scroll-y
+      scroll-into-view="{{scrollIntoView}}"
+      style="height: calc(100vh - 250px);"
+    >
+      <block wx:for="{{alphabet}}" wx:key="*this" wx:for-item="letter">
+        <block wx:if="{{allCities[letter] && allCities[letter].length > 0}}">
+          <view id="section-{{letter}}" class="sticky top-0 bg-gray-50 px-4 py-1 text-sm text-gray-500">
+            {{letter}}
+          </view>
+          <view class="px-4">
+            <block wx:for="{{allCities[letter]}}" wx:key="*this">
+              <view 
+                class="py-3 border-b border-gray-100 last:border-b-0" 
+                bindtap="selectCity"
+                data-city="{{item}}"
+              >
+                {{item}}
+              </view>
+            </block>
+          </view>
+        </block>
+      </block>
+    </scroll-view>
+    
+    <!-- Alphabet Index -->
+    <view class="sticky top-0 right-0 flex flex-col items-center justify-center px-1 py-2 bg-transparent">
+      <block wx:for="{{alphabet}}" wx:key="*this">
+        <view 
+          class="text-xs py-0.5 text-gray-500 font-medium" 
+          bindtap="scrollToSection"
+          data-alphabet="{{item}}"
+        >
+          {{item}}
+        </view>
+      </block>
+    </view>
+  </view>
+</view>

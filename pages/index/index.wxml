@@ -8,8 +8,10 @@
         location="{{location}}" 
         cities="{{cities}}" 
         locationMenuOpen="{{locationMenuOpen}}"
+        recentCities="{{recentCities}}"
         bind:toggle="toggleLocationMenu"
         bind:select="selectLocation"
+        bind:showSelector="showCitySelector"
       />
     </view>
   </view>

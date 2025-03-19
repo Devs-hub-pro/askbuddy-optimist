@@ -5,7 +5,8 @@
     "pages/discover/discover",
     "pages/new/new",
     "pages/messages/messages",
-    "pages/profile/profile"
+    "pages/profile/profile",
+    "pages/city-selector/city-selector"
   ],
   "window": {
     "backgroundTextStyle": "light",

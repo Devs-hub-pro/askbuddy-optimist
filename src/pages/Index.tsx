@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import SearchBar from '../components/SearchBar';
 import CategorySection from '../components/CategorySection';
@@ -7,11 +8,23 @@ import QuestionCard from '../components/QuestionCard';
 import BottomNav from '../components/BottomNav';
 import { Sparkles } from 'lucide-react';
 
+interface LocationState {
+  location?: string;
+}
+
 const Index = () => {
+  const routeLocation = useLocation();
+  const locationState = routeLocation.state as LocationState;
+  
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>('everyone');
+  const [currentLocation, setCurrentLocation] = useState<string>('深圳');
   
   useEffect(() => {
+    // Get initial location from localStorage or use default
+    const storedLocation = localStorage.getItem('currentLocation') || '深圳';
+    setCurrentLocation(storedLocation);
+    
     // Simulate content loading
     const timer = setTimeout(() => {
       setIsLoading(false);
@@ -19,6 +32,13 @@ const Index = () => {
     
     return () => clearTimeout(timer);
   }, []);
+  
+  useEffect(() => {
+    // Update location when coming back from city selector
+    if (locationState?.location) {
+      setCurrentLocation(locationState.location);
+    }
+  }, [locationState]);
   
   // Sample activities data
   const activities = [
@@ -73,7 +93,7 @@ const Index = () => {
 
   return (
     <div className="app-container bg-gradient-to-b from-white to-blue-50/30">
-      <Navbar />
+      <Navbar location={currentLocation} />
       
       <SearchBar />
       

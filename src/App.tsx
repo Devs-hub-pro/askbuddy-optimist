@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import CitySelector from "./pages/CitySelector";
 import NotFound from "./pages/NotFound";
 import IconsPreview from "./components/IconsPreview";
 
@@ -24,6 +25,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/city-selector" element={<CitySelector />} />
           <Route path="/discover" element={<Discover />} />
           <Route path="/new" element={<New />} />
           <Route path="/messages" element={<Messages />} />

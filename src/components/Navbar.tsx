@@ -1,6 +1,7 @@
 
 import React, { useState } from 'react';
 import { MapPin, ChevronDown, Bell } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 interface NavbarProps {
   location?: string;
@@ -8,6 +9,12 @@ interface NavbarProps {
 
 const Navbar: React.FC<NavbarProps> = ({ location = "深圳" }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const navigate = useNavigate();
+  
+  const handleLocationSelect = () => {
+    setIsOpen(false);
+    navigate('/city-selector');
+  };
   
   return (
     <header className="sticky top-0 z-50 bg-app-teal animate-fade-in shadow-sm">
@@ -22,31 +29,14 @@ const Navbar: React.FC<NavbarProps> = ({ location = "深圳" }) => {
           
           <button 
             className="flex items-center space-x-1 text-white font-medium text-sm px-2 py-1 rounded-full bg-white/20"
-            onClick={() => setIsOpen(!isOpen)}
+            onClick={handleLocationSelect}
           >
             <MapPin size={14} className="text-white" />
             <span>{location}</span>
-            <ChevronDown size={14} className={`transition-transform ${isOpen ? 'rotate-180' : ''}`} />
+            <ChevronDown size={14} />
           </button>
         </div>
       </div>
-      
-      {isOpen && (
-        <div className="absolute top-12 right-0 w-32 bg-white rounded-md shadow-xl p-2 animate-scale origin-top-right">
-          <ul>
-            {['北京', '上海', '广州', '深圳', '杭州'].map((city) => (
-              <li key={city}>
-                <button 
-                  className={`w-full text-left px-3 py-2 rounded-md text-sm ${city === location ? 'bg-green-50 text-app-green' : 'hover:bg-gray-50'}`}
-                  onClick={() => setIsOpen(false)}
-                >
-                  {city}
-                </button>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
     </header>
   );
 };

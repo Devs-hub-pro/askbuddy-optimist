@@ -41,7 +41,7 @@
       class="w-full text-left px-3 py-2 rounded-md text-sm bg-gray-50 flex items-center justify-between"
       bindtap="showCitySelector"
     >
-      <text>更多城市</text>
+      <text>查看全部城市和国家</text>
       <image src="/assets/icons/chevron-right.png" style="width: 16px; height: 16px;" />
     </view>
   </view>

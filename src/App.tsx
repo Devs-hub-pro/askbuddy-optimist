@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -8,6 +9,12 @@ import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
+// Create placeholder pages for routes that will be implemented later
+const Discover = () => <div className="min-h-screen flex items-center justify-center">发现页面正在开发中</div>;
+const New = () => <div className="min-h-screen flex items-center justify-center">新建问题页面正在开发中</div>;
+const Messages = () => <div className="min-h-screen flex items-center justify-center">消息页面正在开发中</div>;
+const Profile = () => <div className="min-h-screen flex items-center justify-center">个人页面正在开发中</div>;
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -16,7 +23,10 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+          <Route path="/discover" element={<Discover />} />
+          <Route path="/new" element={<New />} />
+          <Route path="/messages" element={<Messages />} />
+          <Route path="/profile" element={<Profile />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -12,11 +13,13 @@ import {
   Bell,
   CalendarPlus,
   User,
-  MessageSquare
+  MessageSquare,
+  MessageCircle
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import SearchBar from "@/components/SearchBar";
 
 const EducationLearning = () => {
@@ -409,40 +412,45 @@ const EducationLearning = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className="space-y-3">
+                  <div className="space-y-4">
                     {filteredQuestions.map((question) => (
-                      <Card key={question.id} className="shadow-sm">
-                        <CardContent className="p-4">
-                          <h3 className="font-semibold text-base mb-2">{question.title}</h3>
-                          <p className="text-sm text-gray-700 mb-3 line-clamp-2">{question.description}</p>
+                      <div key={question.id} className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300">
+                        <h3 className="font-semibold text-base mb-3 text-gray-800">{question.title}</h3>
+                        <p className="text-sm text-gray-700 mb-3 line-clamp-2">{question.description}</p>
+                        
+                        <div className="flex items-center justify-between mb-4">
+                          <div className="flex items-center gap-2">
+                            <Avatar className="w-9 h-9 border border-gray-100">
+                              <AvatarImage src={question.user.avatar} alt={question.user.name} className="object-cover" />
+                              <AvatarFallback>{question.user.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
+                            <div>
+                              <div className="text-sm font-medium text-gray-700">{question.user.name}</div>
+                              <div className="text-xs text-gray-500">{question.answers} 回答</div>
+                            </div>
+                          </div>
                           
-                          <div className="flex flex-wrap gap-2 mb-3">
+                          <span className="flex items-center gap-1 bg-yellow-50 text-yellow-600 text-xs px-2.5 py-1 rounded-full font-medium">
+                            <Award size={14} className="text-yellow-500" />
+                            {question.points} 积分
+                          </span>
+                        </div>
+                        
+                        <div className="flex justify-between items-center">
+                          <div className="flex flex-wrap gap-2">
                             {question.tags.map((tag, index) => (
-                              <span key={index} className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full">
+                              <span key={index} className="inline-block text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 font-medium">
                                 #{tag}
                               </span>
                             ))}
                           </div>
                           
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center">
-                              <img 
-                                src={question.user.avatar} 
-                                alt={question.user.name} 
-                                className="w-6 h-6 rounded-full mr-2"
-                              />
-                              <span className="text-xs text-gray-600">{question.user.name}</span>
-                            </div>
-                            
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs text-gray-500">{question.answers} 回答</span>
-                              <div className="flex items-center text-yellow-600 text-xs">
-                                <span className="bg-yellow-50 px-1.5 py-0.5 rounded-full">{question.points}积分</span>
-                              </div>
-                            </div>
-                          </div>
-                        </CardContent>
-                      </Card>
+                          <button className="bg-gradient-to-r from-blue-500 to-app-blue text-white px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                            <MessageCircle size={14} />
+                            回答
+                          </button>
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}
@@ -467,38 +475,42 @@ const EducationLearning = () => {
                 ) : (
                   <div className="grid grid-cols-2 gap-3">
                     {filteredExperts.map((expert) => (
-                      <Card key={expert.id} className="shadow-sm hover:shadow-md transition-shadow">
-                        <CardContent className="p-3">
-                          <div className="flex items-center mb-2">
-                            <img 
-                              src={expert.avatar} 
-                              alt={expert.name} 
-                              className="w-10 h-10 rounded-full mr-2"
-                            />
+                      <div key={expert.id} className="bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300">
+                        <div className="flex justify-between items-start">
+                          <div className="flex items-center gap-2">
+                            <Avatar className="w-8 h-8 border border-green-50">
+                              <AvatarImage src={expert.avatar} alt={expert.name} className="object-cover" />
+                              <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
+                            </Avatar>
                             <div>
-                              <p className="text-sm font-medium">{expert.name}</p>
-                              <p className="text-xs text-gray-500">{expert.title}</p>
+                              <h3 className="text-sm font-semibold text-gray-800">{expert.name}</h3>
+                              <p className="text-xs text-green-600">{expert.title}</p>
                             </div>
                           </div>
-                          <p className="text-xs text-gray-700 mb-2 line-clamp-2">{expert.description}</p>
-                          <div className="flex flex-wrap gap-1 mb-2">
-                            {expert.tags.map((tag, index) => (
-                              <span key={index} className="bg-green-50 text-green-600 text-xs px-1.5 py-0.5 rounded-full">
-                                {tag}
-                              </span>
-                            ))}
-                          </div>
-                          <Button 
+                        </div>
+                        
+                        <div className="flex mt-2">
+                          <p className="text-xs text-gray-700 border-l-2 border-green-200 pl-2 py-0.5 bg-green-50/50 rounded-r-md flex-1 mr-2 line-clamp-2">
+                            {expert.description}
+                          </p>
+                          
+                          <button 
                             onClick={() => handleAskMe(expert.name)}
-                            variant="outline" 
-                            size="sm"
-                            className="w-full text-green-600 border-green-200 bg-green-50 hover:bg-green-100 rounded-full text-xs py-1 h-auto flex items-center gap-1 justify-center"
+                            className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-2.5 py-1 rounded-full text-xs flex-shrink-0 flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0"
                           >
-                            <MessageSquare size={14} />
+                            <MessageSquare size={10} />
                             找我问问
-                          </Button>
-                        </CardContent>
-                      </Card>
+                          </button>
+                        </div>
+                        
+                        <div className="flex flex-wrap gap-1.5 mt-2">
+                          {expert.tags.map((tag, index) => (
+                            <span key={index} className="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full">
+                              #{tag}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
                     ))}
                   </div>
                 )}

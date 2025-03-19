@@ -1,5 +1,7 @@
 
 import React, { useState } from 'react';
+import { createRoot } from 'react-dom/client';
+import { renderToStaticMarkup } from 'react-dom/server';
 import { allIcons } from '../utils/iconsList';
 import * as LucideIcons from 'lucide-react';
 import { Button } from './ui/button';
@@ -61,9 +63,10 @@ const IconsPreview: React.FC = () => {
     const tempReactElement = document.createElement('div');
     tempDiv.appendChild(tempReactElement);
     
-    // Render the icon into the temp element
+    // Render the icon into the temp element using createRoot
     const iconInstance = React.createElement(IconComponent, { color });
-    React.render(iconInstance, tempReactElement);
+    const root = createRoot(tempReactElement);
+    root.render(iconInstance);
     
     // Get the SVG from the rendered element
     const svgElement = tempReactElement.querySelector('svg');
@@ -84,7 +87,10 @@ const IconsPreview: React.FC = () => {
     // Get the SVG element from the component
     const element = document.createElement('div');
     const reactElement = React.createElement(IconComponent, { color });
-    React.render(reactElement, element);
+    
+    // Use createRoot instead of React.render
+    const root = createRoot(element);
+    root.render(reactElement);
     
     const svgElement = element.querySelector('svg');
     if (!svgElement) return;
@@ -109,10 +115,10 @@ const IconsPreview: React.FC = () => {
     const IconComponent = iconComponents[iconName];
     if (!IconComponent) return;
     
-    // Create SVG content directly using the known structure
+    // Create SVG content directly using the known structure and renderToStaticMarkup
     const svgString = `
       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-${iconName}">
-        ${React.renderToStaticMarkup(React.createElement(IconComponent, { color })).replace(/<svg[^>]*>|<\/svg>/g, '')}
+        ${renderToStaticMarkup(React.createElement(IconComponent, { color })).replace(/<svg[^>]*>|<\/svg>/g, '')}
       </svg>
     `;
     

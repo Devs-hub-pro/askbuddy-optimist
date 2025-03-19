@@ -35,7 +35,7 @@ const categories: Category[] = [
     icon: <Home size={20} />,
     color: 'bg-app-orange',
     gradient: 'from-orange-400 to-amber-500',
-    path: '/'
+    path: '/lifestyle'
   },
   {
     id: 'hobbies',

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Image, Video, Heart, MessageCircle, Share2, Plus, Bell } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
@@ -172,66 +171,60 @@ const Discover: React.FC = () => {
         </button>
       </div>
       
-      {/* Left Navigation Tabs with Vertical Layout and Feed Content Side by Side */}
-      <div className="flex">
+      {/* Tabs with horizontal layout but left-aligned */}
+      <div className="w-full">
         <Tabs 
           defaultValue="recommended" 
           className="w-full" 
-          orientation="vertical"
           onValueChange={(value) => setActiveTab(value as 'following' | 'recommended' | 'local')}
         >
-          <div className="w-24 bg-white border-r h-screen fixed left-0 top-12">
-            <TabsList className="flex flex-col h-auto bg-transparent w-full py-4 space-y-6">
-              <TabsTrigger 
-                value="following" 
-                className="data-[state=active]:border-l-4 data-[state=active]:border-app-teal data-[state=active]:text-app-teal rounded-none px-6 py-3 text-base font-medium w-full justify-start"
-              >
-                关注
-              </TabsTrigger>
-              <TabsTrigger 
-                value="recommended" 
-                className="data-[state=active]:border-l-4 data-[state=active]:border-app-teal data-[state=active]:text-app-teal rounded-none px-6 py-3 text-base font-medium w-full justify-start"
-              >
-                推荐
-              </TabsTrigger>
-              <TabsTrigger 
-                value="local" 
-                className="data-[state=active]:border-l-4 data-[state=active]:border-app-teal data-[state=active]:text-app-teal rounded-none px-6 py-3 text-base font-medium w-full justify-start"
-              >
-                同城
-              </TabsTrigger>
-            </TabsList>
-          </div>
+          <TabsList className="w-full justify-start bg-white border-b px-2 h-14">
+            <TabsTrigger 
+              value="following" 
+              className="text-lg font-medium data-[state=active]:border-b-2 data-[state=active]:border-app-teal data-[state=active]:text-app-teal rounded-none px-6 py-4"
+            >
+              关注
+            </TabsTrigger>
+            <TabsTrigger 
+              value="recommended" 
+              className="text-lg font-medium data-[state=active]:border-b-2 data-[state=active]:border-app-teal data-[state=active]:text-app-teal rounded-none px-6 py-4"
+            >
+              推荐
+            </TabsTrigger>
+            <TabsTrigger 
+              value="local" 
+              className="text-lg font-medium data-[state=active]:border-b-2 data-[state=active]:border-app-teal data-[state=active]:text-app-teal rounded-none px-6 py-4"
+            >
+              同城
+            </TabsTrigger>
+          </TabsList>
           
-          {/* TabContent for each tab with left margin to accommodate fixed sidebar */}
-          <div className="ml-24">
-            <TabsContent value="following" className="m-0 outline-none">
-              <DiscoverFeed 
-                recommendationCards={recommendationCards} 
-                posts={posts.filter((_, index) => index % 2 === 0)} 
-                likedPosts={likedPosts}
-                onLike={handleLike}
-              />
-            </TabsContent>
-            
-            <TabsContent value="recommended" className="m-0 outline-none">
-              <DiscoverFeed 
-                recommendationCards={recommendationCards} 
-                posts={posts} 
-                likedPosts={likedPosts}
-                onLike={handleLike}
-              />
-            </TabsContent>
-            
-            <TabsContent value="local" className="m-0 outline-none">
-              <DiscoverFeed 
-                recommendationCards={recommendationCards.filter((_, index) => index % 2 === 1)} 
-                posts={posts.filter(post => post.topics?.includes('深圳'))} 
-                likedPosts={likedPosts}
-                onLike={handleLike}
-              />
-            </TabsContent>
-          </div>
+          <TabsContent value="following" className="m-0 outline-none">
+            <DiscoverFeed 
+              recommendationCards={recommendationCards} 
+              posts={posts.filter((_, index) => index % 2 === 0)} 
+              likedPosts={likedPosts}
+              onLike={handleLike}
+            />
+          </TabsContent>
+          
+          <TabsContent value="recommended" className="m-0 outline-none">
+            <DiscoverFeed 
+              recommendationCards={recommendationCards} 
+              posts={posts} 
+              likedPosts={likedPosts}
+              onLike={handleLike}
+            />
+          </TabsContent>
+          
+          <TabsContent value="local" className="m-0 outline-none">
+            <DiscoverFeed 
+              recommendationCards={recommendationCards.filter((_, index) => index % 2 === 1)} 
+              posts={posts.filter(post => post.topics?.includes('深圳'))} 
+              likedPosts={likedPosts}
+              onLike={handleLike}
+            />
+          </TabsContent>
         </Tabs>
       </div>
       

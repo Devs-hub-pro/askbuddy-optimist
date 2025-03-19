@@ -13,6 +13,7 @@ import IconsPreview from "./components/IconsPreview";
 import QuestionDetail from "./pages/QuestionDetail";
 import ExpertDetail from "./pages/ExpertDetail";
 import ExpertProfile from "./pages/ExpertProfile";
+import SearchPage from "./pages/SearchPage";
 import { Toaster } from "@/components/ui/toaster";
 import "./App.css";
 
@@ -34,6 +35,7 @@ function App() {
             <Route path="/question/:id" element={<QuestionDetail />} />
             <Route path="/expert/:id" element={<ExpertDetail />} />
             <Route path="/expert-profile/:id" element={<ExpertProfile />} />
+            <Route path="/search" element={<SearchPage />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

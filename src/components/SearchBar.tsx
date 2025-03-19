@@ -58,16 +58,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
       }
     } else {
       // Otherwise navigate to the search page
-      navigate(`/education/search?q=${encodeURIComponent(searchValue)}`);
+      navigate(`/search?q=${encodeURIComponent(searchValue)}`);
     }
   };
 
   const handleFocus = () => {
     setIsFocused(true);
-    // If we're on the education page and not already on the search page, navigate to search page
-    if (location.pathname === '/education' && !location.pathname.includes('/search')) {
-      navigate('/education/search');
-    }
+    // Navigate to search page on focus
+    navigate('/search');
   };
 
   const handleBlur = () => {

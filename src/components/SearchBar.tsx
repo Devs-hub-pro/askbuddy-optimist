@@ -1,5 +1,5 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
@@ -18,7 +18,16 @@ const SearchBar: React.FC<SearchBarProps> = ({
   value,
   onChange
 }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [searchValue, setSearchValue] = useState(value || '');
+  const [isFocused, setIsFocused] = useState(false);
+
+  useEffect(() => {
+    if (value !== undefined) {
+      setSearchValue(value);
+    }
+  }, [value]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -33,19 +42,55 @@ const SearchBar: React.FC<SearchBarProps> = ({
     }
   };
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const handleSearch = () => {
+    if (searchValue.trim() === '') return;
+    
+    // If we're already on the search page, use the provided onSearch function
+    if (location.pathname.includes('/search')) {
+      if (onSearch) {
+        onSearch(searchValue);
+      }
+    } else {
+      // Otherwise navigate to the search page
+      navigate(`/education/search?q=${encodeURIComponent(searchValue)}`);
+    }
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    // If we're on the education page and not already on the search page, navigate to search page
+    if (location.pathname === '/education' && !location.pathname.includes('/search')) {
+      navigate('/education/search');
+    }
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
+  };
+
   return (
     <div className={`px-4 py-3 ${className}`}>
-      <div className="relative">
+      <div className={`relative ${isFocused ? 'ring-2 ring-app-teal/30 rounded-md' : ''}`}>
         <Input
           type="text"
           value={value !== undefined ? value : searchValue}
           onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           placeholder={placeholder}
           className="search-input pr-10 focus:ring-2 focus:ring-app-teal/30 shadow-sm"
         />
         <Search 
           size={18} 
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400" 
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer" 
+          onClick={handleSearch}
         />
       </div>
     </div>

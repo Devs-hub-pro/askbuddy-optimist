@@ -24,9 +24,6 @@ import SearchBar from "@/components/SearchBar";
 const EducationLearning = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
-  const [searchResults, setSearchResults] = useState<any[]>([]);
-  const [isSearching, setIsSearching] = useState(false);
-  const [searchQuery, setSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('all');
   
   useEffect(() => {
@@ -195,29 +192,9 @@ const EducationLearning = () => {
     ? communityQuestions
     : communityQuestions.filter(question => question.category === activeCategory);
 
-  const handleSearch = (value: string) => {
-    setSearchQuery(value);
-    
-    if (value.trim() === '') {
-      setIsSearching(false);
-      setSearchResults([]);
-      return;
-    }
-    
-    setIsSearching(true);
-    
-    setTimeout(() => {
-      const filteredExperts = allExperts.filter(expert => {
-        const lowerCaseValue = value.toLowerCase();
-        
-        return expert.keywords.some(keyword => 
-          keyword.toLowerCase().includes(lowerCaseValue)
-        );
-      });
-      
-      setSearchResults(filteredExperts);
-      setIsSearching(false);
-    }, 500);
+  const handleSearch = () => {
+    // Navigation to search page now handled by the SearchBar component
+    console.log('Search initiated');
   };
 
   const handleCategorySelect = (categoryId: string) => {
@@ -247,278 +224,202 @@ const EducationLearning = () => {
         </div>
       </div>
       
-      <SearchBar 
-        onSearch={handleSearch} 
-        placeholder="搜索问题/达人/话题"
-      />
+      <SearchBar placeholder="搜索问题/达人/话题" />
       
-      {searchQuery.trim() !== '' && (
-        <div className="px-4 mb-6">
-          <h2 className="text-lg font-bold mb-3">
-            {isSearching ? '搜索中...' : `"${searchQuery}" 的匹配结果`}
-          </h2>
+      <div className="px-4 mb-6">
+        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 shadow-sm">
+          <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center">
+              <Calendar size={18} className="text-indigo-600 mr-2" />
+              <h3 className="font-medium text-sm">重要日期日历</h3>
+            </div>
+            <button 
+              className="flex items-center text-xs text-indigo-600 bg-white rounded-full px-2 py-1 shadow-sm"
+              onClick={handleAddDate}
+            >
+              <CalendarPlus size={12} className="mr-1" />
+              <span>添加日程</span>
+            </button>
+          </div>
           
-          {isSearching ? (
-            <div className="space-y-3">
-              {[1, 2].map((item) => (
-                <div key={item} className="bg-white rounded-lg p-3 animate-pulse shadow-sm">
-                  <div className="flex items-center mb-2">
-                    <div className="w-10 h-10 bg-gray-200 rounded-full mr-2"></div>
-                    <div>
-                      <div className="h-3 bg-gray-200 rounded w-16 mb-1"></div>
-                      <div className="h-2 bg-gray-200 rounded w-24"></div>
+          <div className="space-y-2">
+            {filteredDates.map((item, index) => {
+              const eventDate = new Date(item.date);
+              const formattedDate = `${eventDate.getMonth() + 1}月${eventDate.getDate()}日`;
+              
+              return (
+                <div key={index} className="flex items-center justify-between bg-white rounded-md p-2">
+                  <div className="flex flex-col">
+                    <span className="text-xs font-medium">{item.event}</span>
+                    <span className="text-xs text-gray-500">{formattedDate}</span>
+                  </div>
+                  <div className="bg-indigo-500 text-white text-xs font-bold px-2 py-1 rounded-full">
+                    {item.countdown}天
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </div>
+      
+      <div className="px-4 mb-4 overflow-x-auto">
+        <div className="flex space-x-2">
+          {categories.map((category) => (
+            <div 
+              key={category.id} 
+              className={`flex-shrink-0 ${activeCategory === category.id ? 'bg-blue-500 text-white' : 'bg-white shadow-sm'} rounded-full px-3 py-1.5 flex items-center gap-1 cursor-pointer transition-colors`}
+              onClick={() => handleCategorySelect(category.id)}
+            >
+              {category.icon}
+              <span className="text-xs font-medium">{category.name}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      
+      <div className="px-4 mb-6">
+        <Tabs defaultValue="everyone" className="w-full">
+          <div className="relative mb-6 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:bg-gray-100">
+            <TabsList className="w-full bg-transparent p-0 h-auto">
+              <TabsTrigger 
+                value="everyone" 
+                className="font-bold text-lg pb-2 relative data-[state=active]:text-app-text data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=inactive]:text-gray-400"
+              >
+                大家都在问
+                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-app-teal to-app-blue z-10 opacity-0 data-[state=active]:opacity-100 transition-opacity"></span>
+              </TabsTrigger>
+              <TabsTrigger 
+                value="experts" 
+                className="font-bold text-lg pb-2 relative data-[state=active]:text-app-text data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=inactive]:text-gray-400"
+              >
+                找TA问问
+                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-app-teal to-app-blue z-10 opacity-0 data-[state=active]:opacity-100 transition-opacity"></span>
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          
+          <TabsContent value="everyone" className="mt-0">
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3].map((item) => (
+                  <div key={item} className="bg-white rounded-lg p-4 animate-pulse-soft shadow-sm">
+                    <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
+                    <div className="h-10 bg-gray-200 rounded w-full mb-3"></div>
+                    <div className="flex space-x-2">
+                      <div className="h-4 bg-gray-200 rounded w-12"></div>
+                      <div className="h-4 bg-gray-200 rounded w-12"></div>
                     </div>
                   </div>
-                  <div className="h-10 bg-gray-200 rounded w-full"></div>
-                </div>
-              ))}
-            </div>
-          ) : searchResults.length > 0 ? (
-            <div className="space-y-3">
-              {searchResults.map(expert => (
-                <Card key={expert.id} className="shadow-sm hover:shadow-md transition-shadow">
-                  <CardContent className="p-3">
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {filteredQuestions.map((question) => (
+                  <div key={question.id} className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300">
+                    <h3 className="font-semibold text-base mb-3 text-gray-800">{question.title}</h3>
+                    <p className="text-sm text-gray-700 mb-3 line-clamp-2">{question.description}</p>
+                    
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="w-9 h-9 border border-gray-100">
+                          <AvatarImage src={question.user.avatar} alt={question.user.name} className="object-cover" />
+                          <AvatarFallback>{question.user.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <div className="text-sm font-medium text-gray-700">{question.user.name}</div>
+                          <div className="text-xs text-gray-500">{question.answers} 回答</div>
+                        </div>
+                      </div>
+                      
+                      <span className="flex items-center gap-1 bg-yellow-50 text-yellow-600 text-xs px-2.5 py-1 rounded-full font-medium">
+                        <Award size={14} className="text-yellow-500" />
+                        {question.points} 积分
+                      </span>
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <div className="flex flex-wrap gap-2">
+                        {question.tags.map((tag, index) => (
+                          <span key={index} className="inline-block text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 font-medium">
+                            #{tag}
+                          </span>
+                        ))}
+                      </div>
+                      
+                      <button className="bg-gradient-to-r from-blue-500 to-app-blue text-white px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0">
+                        <MessageCircle size={14} />
+                        回答
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </TabsContent>
+          
+          <TabsContent value="experts" className="mt-0">
+            {isLoading ? (
+              <div className="space-y-3">
+                {[1, 2, 3, 4].map((item) => (
+                  <div key={item} className="bg-white rounded-lg p-3 animate-pulse-soft shadow-sm">
                     <div className="flex items-center mb-2">
-                      <img 
-                        src={expert.avatar} 
-                        alt={expert.name} 
-                        className="w-10 h-10 rounded-full mr-2"
-                      />
+                      <div className="w-10 h-10 bg-gray-200 rounded-full mr-2"></div>
                       <div>
-                        <p className="text-sm font-medium">{expert.name}</p>
-                        <p className="text-xs text-gray-500">{expert.title}</p>
+                        <div className="h-3 bg-gray-200 rounded w-16 mb-1"></div>
+                        <div className="h-2 bg-gray-200 rounded w-24"></div>
                       </div>
                     </div>
-                    <p className="text-xs text-gray-700 mb-2 line-clamp-2">{expert.description}</p>
-                    <div className="flex flex-wrap gap-1 mb-2">
+                    <div className="h-10 bg-gray-200 rounded w-full"></div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredExperts.map((expert) => (
+                  <div key={expert.id} className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300">
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="flex items-center gap-3">
+                        <Avatar className="w-12 h-12 border border-green-50">
+                          <AvatarImage src={expert.avatar} alt={expert.name} className="object-cover" />
+                          <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="text-base font-semibold text-gray-800">{expert.name}</h3>
+                          <p className="text-sm text-green-600">{expert.title}</p>
+                        </div>
+                      </div>
+                      
+                      <Button 
+                        onClick={() => handleAskMe(expert.name)}
+                        className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 h-auto"
+                        size="sm"
+                      >
+                        <MessageSquare size={14} />
+                        找我问问
+                      </Button>
+                    </div>
+                    
+                    <div className="bg-green-50/50 border-l-2 border-green-200 pl-3 py-2 mb-3 rounded-r-md">
+                      <p className="text-sm text-gray-700">
+                        {expert.description}
+                      </p>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-2">
                       {expert.tags.map((tag, index) => (
-                        <span key={index} className="bg-green-50 text-green-600 text-xs px-1.5 py-0.5 rounded-full">
-                          {tag}
+                        <span key={index} className="bg-green-50 text-green-600 text-xs px-2.5 py-1 rounded-full">
+                          #{tag}
                         </span>
                       ))}
                     </div>
-                    <Button 
-                      onClick={() => handleAskMe(expert.name)}
-                      variant="outline" 
-                      size="sm"
-                      className="w-full text-green-600 border-green-200 bg-green-50 hover:bg-green-100 rounded-full text-xs py-1 h-auto flex items-center gap-1 justify-center"
-                    >
-                      <MessageSquare size={14} />
-                      找我问问
-                    </Button>
-                  </CardContent>
-                </Card>
-              ))}
-            </div>
-          ) : (
-            <div className="bg-white rounded-lg p-4 text-center">
-              <p className="text-gray-500">未找到匹配的回答者</p>
-              <p className="text-sm text-blue-600 mt-2">
-                您可以直接提问，我们会为您寻找最合适的回答者
-              </p>
-            </div>
-          )}
-        </div>
-      )}
-      
-      {searchQuery.trim() === '' && (
-        <>
-          <div className="px-4 mb-6">
-            <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <div className="flex items-center">
-                  <Calendar size={18} className="text-indigo-600 mr-2" />
-                  <h3 className="font-medium text-sm">重要日期日历</h3>
-                </div>
-                <button 
-                  className="flex items-center text-xs text-indigo-600 bg-white rounded-full px-2 py-1 shadow-sm"
-                  onClick={handleAddDate}
-                >
-                  <CalendarPlus size={12} className="mr-1" />
-                  <span>添加日程</span>
-                </button>
+                  </div>
+                ))}
               </div>
-              
-              <div className="space-y-2">
-                {filteredDates.map((item, index) => {
-                  const eventDate = new Date(item.date);
-                  const formattedDate = `${eventDate.getMonth() + 1}月${eventDate.getDate()}日`;
-                  
-                  return (
-                    <div key={index} className="flex items-center justify-between bg-white rounded-md p-2">
-                      <div className="flex flex-col">
-                        <span className="text-xs font-medium">{item.event}</span>
-                        <span className="text-xs text-gray-500">{formattedDate}</span>
-                      </div>
-                      <div className="bg-indigo-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                        {item.countdown}天
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            </div>
-          </div>
-          
-          <div className="px-4 mb-4 overflow-x-auto">
-            <div className="flex space-x-2">
-              {categories.map((category) => (
-                <div 
-                  key={category.id} 
-                  className={`flex-shrink-0 ${activeCategory === category.id ? 'bg-blue-500 text-white' : 'bg-white shadow-sm'} rounded-full px-3 py-1.5 flex items-center gap-1 cursor-pointer transition-colors`}
-                  onClick={() => handleCategorySelect(category.id)}
-                >
-                  {category.icon}
-                  <span className="text-xs font-medium">{category.name}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          <div className="px-4 mb-6">
-            <Tabs defaultValue="everyone" className="w-full">
-              <div className="relative mb-6 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:bg-gray-100">
-                <TabsList className="w-full bg-transparent p-0 h-auto">
-                  <TabsTrigger 
-                    value="everyone" 
-                    className="font-bold text-lg pb-2 relative data-[state=active]:text-app-text data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=inactive]:text-gray-400"
-                  >
-                    大家都在问
-                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-app-teal to-app-blue z-10 opacity-0 data-[state=active]:opacity-100 transition-opacity"></span>
-                  </TabsTrigger>
-                  <TabsTrigger 
-                    value="experts" 
-                    className="font-bold text-lg pb-2 relative data-[state=active]:text-app-text data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=inactive]:text-gray-400"
-                  >
-                    找TA问问
-                    <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-app-teal to-app-blue z-10 opacity-0 data-[state=active]:opacity-100 transition-opacity"></span>
-                  </TabsTrigger>
-                </TabsList>
-              </div>
-              
-              <TabsContent value="everyone" className="mt-0">
-                {isLoading ? (
-                  <div className="space-y-3">
-                    {[1, 2, 3].map((item) => (
-                      <div key={item} className="bg-white rounded-lg p-4 animate-pulse-soft shadow-sm">
-                        <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
-                        <div className="h-10 bg-gray-200 rounded w-full mb-3"></div>
-                        <div className="flex space-x-2">
-                          <div className="h-4 bg-gray-200 rounded w-12"></div>
-                          <div className="h-4 bg-gray-200 rounded w-12"></div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-4">
-                    {filteredQuestions.map((question) => (
-                      <div key={question.id} className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300">
-                        <h3 className="font-semibold text-base mb-3 text-gray-800">{question.title}</h3>
-                        <p className="text-sm text-gray-700 mb-3 line-clamp-2">{question.description}</p>
-                        
-                        <div className="flex items-center justify-between mb-4">
-                          <div className="flex items-center gap-2">
-                            <Avatar className="w-9 h-9 border border-gray-100">
-                              <AvatarImage src={question.user.avatar} alt={question.user.name} className="object-cover" />
-                              <AvatarFallback>{question.user.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <div className="text-sm font-medium text-gray-700">{question.user.name}</div>
-                              <div className="text-xs text-gray-500">{question.answers} 回答</div>
-                            </div>
-                          </div>
-                          
-                          <span className="flex items-center gap-1 bg-yellow-50 text-yellow-600 text-xs px-2.5 py-1 rounded-full font-medium">
-                            <Award size={14} className="text-yellow-500" />
-                            {question.points} 积分
-                          </span>
-                        </div>
-                        
-                        <div className="flex justify-between items-center">
-                          <div className="flex flex-wrap gap-2">
-                            {question.tags.map((tag, index) => (
-                              <span key={index} className="inline-block text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 font-medium">
-                                #{tag}
-                              </span>
-                            ))}
-                          </div>
-                          
-                          <button className="bg-gradient-to-r from-blue-500 to-app-blue text-white px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0">
-                            <MessageCircle size={14} />
-                            回答
-                          </button>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-              
-              <TabsContent value="experts" className="mt-0">
-                {isLoading ? (
-                  <div className="space-y-3">
-                    {[1, 2, 3, 4].map((item) => (
-                      <div key={item} className="bg-white rounded-lg p-3 animate-pulse-soft shadow-sm">
-                        <div className="flex items-center mb-2">
-                          <div className="w-10 h-10 bg-gray-200 rounded-full mr-2"></div>
-                          <div>
-                            <div className="h-3 bg-gray-200 rounded w-16 mb-1"></div>
-                            <div className="h-2 bg-gray-200 rounded w-24"></div>
-                          </div>
-                        </div>
-                        <div className="h-10 bg-gray-200 rounded w-full"></div>
-                      </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="space-y-3">
-                    {filteredExperts.map((expert) => (
-                      <div key={expert.id} className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300">
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex items-center gap-3">
-                            <Avatar className="w-12 h-12 border border-green-50">
-                              <AvatarImage src={expert.avatar} alt={expert.name} className="object-cover" />
-                              <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                              <h3 className="text-base font-semibold text-gray-800">{expert.name}</h3>
-                              <p className="text-sm text-green-600">{expert.title}</p>
-                            </div>
-                          </div>
-                          
-                          <Button 
-                            onClick={() => handleAskMe(expert.name)}
-                            className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-3 py-1.5 rounded-full text-sm flex items-center gap-1.5 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 h-auto"
-                            size="sm"
-                          >
-                            <MessageSquare size={14} />
-                            找我问问
-                          </Button>
-                        </div>
-                        
-                        <div className="bg-green-50/50 border-l-2 border-green-200 pl-3 py-2 mb-3 rounded-r-md">
-                          <p className="text-sm text-gray-700">
-                            {expert.description}
-                          </p>
-                        </div>
-                        
-                        <div className="flex flex-wrap gap-2">
-                          {expert.tags.map((tag, index) => (
-                            <span key={index} className="bg-green-50 text-green-600 text-xs px-2.5 py-1 rounded-full">
-                              #{tag}
-                            </span>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </TabsContent>
-            </Tabs>
-          </div>
-        </>
-      )}
+            )}
+          </TabsContent>
+        </Tabs>
+      </div>
       
       <button className="fixed bottom-20 right-4 bg-gradient-to-r from-app-teal to-app-blue text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg">
         <Plus size={24} />

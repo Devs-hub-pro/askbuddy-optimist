@@ -34,14 +34,14 @@ const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   return (
-    <div className={`px-4 py-4 ${className}`}>
+    <div className={`px-4 py-3 ${className}`}>
       <div className="relative">
         <Input
           type="text"
           value={value !== undefined ? value : searchValue}
           onChange={handleInputChange}
           placeholder={placeholder}
-          className="search-input pr-10 focus:ring-2 focus:ring-app-teal/30 shadow-md"
+          className="search-input pr-10 focus:ring-2 focus:ring-app-teal/30 shadow-sm"
         />
         <Search 
           size={18} 

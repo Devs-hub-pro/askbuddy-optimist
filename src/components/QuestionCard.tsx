@@ -2,6 +2,7 @@
 import React from 'react';
 import { MessageCircle, Award, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface QuestionCardProps {
   id: string;
@@ -40,11 +41,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
       
       <div className="flex items-center justify-between mb-3">
         <div className="flex items-center space-x-2">
-          <img 
-            src={asker.avatar} 
-            alt={asker.name}
-            className="w-8 h-8 rounded-full flex-shrink-0 object-cover border border-gray-100" 
-          />
+          <Avatar className="w-8 h-8 border border-gray-100">
+            <AvatarImage src={asker.avatar} alt={asker.name} className="object-cover" />
+            <AvatarFallback>{asker.name.charAt(0)}</AvatarFallback>
+          </Avatar>
           <div>
             <div className="text-sm font-medium">{asker.name}</div>
             <div className="text-xs text-gray-500">{time}</div>

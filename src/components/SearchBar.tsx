@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search } from 'lucide-react';
@@ -9,6 +10,7 @@ interface SearchBarProps {
   className?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  isEducation?: boolean;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ 
@@ -16,7 +18,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
   placeholder = "搜索问题/达人/话题", 
   className = "",
   value,
-  onChange
+  onChange,
+  isEducation = false
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -51,22 +54,31 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const handleSearch = () => {
     if (searchValue.trim() === '') return;
     
-    // If we're already on the search page, use the provided onSearch function
+    // If we're already on a search page, use the provided onSearch function
     if (location.pathname.includes('/search')) {
       if (onSearch) {
         onSearch(searchValue);
       }
     } else {
-      // Otherwise navigate to the search page
-      navigate(`/education/search?q=${encodeURIComponent(searchValue)}`);
+      // Navigate to the appropriate search page
+      if (isEducation) {
+        navigate(`/education/search?q=${encodeURIComponent(searchValue)}`);
+      } else {
+        // Global search
+        navigate(`/search?q=${encodeURIComponent(searchValue)}`);
+      }
     }
   };
 
   const handleFocus = () => {
     setIsFocused(true);
-    // If we're on the education page and not already on the search page, navigate to search page
-    if (location.pathname === '/education' && !location.pathname.includes('/search')) {
-      navigate('/education/search');
+    // Navigate directly to search page when focusing on the search bar
+    if (!location.pathname.includes('/search')) {
+      if (isEducation) {
+        navigate('/education/search');
+      } else {
+        navigate('/search');
+      }
     }
   };
 

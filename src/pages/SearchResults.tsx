@@ -7,9 +7,10 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import SearchBar from "@/components/SearchBar";
+import BottomNav from "@/components/BottomNav";
 import QuestionCard from '@/components/QuestionCard';
 
-const EducationSearchResults = () => {
+const SearchResults = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
@@ -20,7 +21,7 @@ const EducationSearchResults = () => {
   const [activeTab, setActiveTab] = useState<'all' | 'experts' | 'questions'>('all');
   const [noResults, setNoResults] = useState(false);
 
-  // Popular education search topics
+  // Popular search topics
   const popularTopics = ['考研', '留学申请', '高考志愿', '论文写作', '竞赛辅导', '考证', '英语学习', '数学提高'];
 
   // Mock experts data - in a real app this would come from an API
@@ -59,7 +60,7 @@ const EducationSearchResults = () => {
       description: '10年高考志愿填报指导经验，专精各省份政策',
       tags: ['高考', '志愿填报', '专业选择'],
       keywords: ['高考', '志愿', '填报', '专业选择', '大学', '分数线'],
-      category: 'gaokao',
+      category: 'career',
       rating: 4.7,
       responseRate: '92%',
       orderCount: '185单'
@@ -72,7 +73,7 @@ const EducationSearchResults = () => {
       description: '考研英语特长，英语六级高分，专注英语学习方法',
       tags: ['考研', '英语', '备考'],
       keywords: ['考研', '英语', '六级', '词汇', '听力', '阅读', '写作'],
-      category: 'kaoyan',
+      category: 'language',
       rating: 4.6,
       responseRate: '90%',
       orderCount: '98单'
@@ -85,7 +86,7 @@ const EducationSearchResults = () => {
       description: '研究生导师，IEEE/SCI论文审稿人，多篇高被引论文',
       tags: ['论文', 'SCI', '科研'],
       keywords: ['学术论文', 'SCI', 'IEEE', '期刊投稿', '审稿意见', '开题报告'],
-      category: 'paper',
+      category: 'academic',
       rating: 4.9,
       responseRate: '96%',
       orderCount: '156单'
@@ -102,6 +103,32 @@ const EducationSearchResults = () => {
       rating: 4.8,
       responseRate: '94%',
       orderCount: '87单'
+    },
+    {
+      id: '7',
+      name: '程序员小王',
+      avatar: 'https://randomuser.me/api/portraits/men/67.jpg',
+      title: '资深前端开发 | 大厂面试官',
+      description: '帮助上百名学生成功拿到大厂offer，前端面试专家',
+      tags: ['前端', '面试', '求职'],
+      keywords: ['前端', 'React', 'JavaScript', '面试', '算法', '求职', '简历', '大厂'],
+      category: 'tech',
+      rating: 4.9,
+      responseRate: '99%',
+      orderCount: '215单'
+    },
+    {
+      id: '8',
+      name: '健身教练小李',
+      avatar: 'https://randomuser.me/api/portraits/men/29.jpg',
+      title: '国家认证健身教练 | 营养师',
+      description: '7年健身指导经验，帮助500+客户实现减脂增肌目标',
+      tags: ['健身', '营养', '减脂'],
+      keywords: ['健身', '减肥', '增肌', '力量训练', '营养', '饮食', '健康'],
+      category: 'fitness',
+      rating: 4.7,
+      responseRate: '95%',
+      orderCount: '320单'
     }
   ];
 
@@ -119,7 +146,7 @@ const EducationSearchResults = () => {
       tags: ['考研', '时间管理'],
       points: 30,
       viewCount: '3.8k',
-      category: 'kaoyan'
+      category: 'education'
     },
     {
       id: '2',
@@ -133,7 +160,7 @@ const EducationSearchResults = () => {
       tags: ['留学', '标化考试'],
       points: 25,
       viewCount: '2.1k',
-      category: 'study-abroad',
+      category: 'education',
       answerName: '留学顾问',
       answerAvatar: 'https://randomuser.me/api/portraits/women/33.jpg'
     },
@@ -149,39 +176,39 @@ const EducationSearchResults = () => {
       tags: ['高考', '志愿填报'],
       points: 40,
       viewCount: '5.2k',
-      category: 'gaokao',
+      category: 'education',
       answerName: '王老师',
       answerAvatar: 'https://randomuser.me/api/portraits/men/32.jpg'
     },
     {
       id: '4',
-      title: 'SCI论文投稿被拒怎么修改提高接收率？',
-      description: '博士生，论文被拒了两次，审稿人给了很多意见，但不知道如何有效修改...',
+      title: '前端面试怎么准备算法题？',
+      description: '准备面试大厂前端，听说算法很重要，有什么好的复习资料和方法推荐？',
       asker: {
-        name: '博士在读',
+        name: 'JS爱好者',
         avatar: 'https://randomuser.me/api/portraits/men/36.jpg'
       },
-      time: '2天前',
-      tags: ['论文', 'SCI', '修改'],
-      points: 35,
-      viewCount: '1.7k',
-      category: 'paper'
+      time: '6小时前',
+      tags: ['前端', '算法', '面试'],
+      points: 45,
+      viewCount: '4.2k',
+      category: 'tech',
+      answerName: '程序员小王',
+      answerAvatar: 'https://randomuser.me/api/portraits/men/67.jpg'
     },
     {
       id: '5',
-      title: '数学建模竞赛如何选择合适的算法？',
-      description: '准备参加下一届美赛，想了解不同类型问题适合用什么算法和模型...',
+      title: '如何在一个月内科学减脂10斤？',
+      description: '女生，25岁，体重130斤，想在一个月内减掉10斤，有什么科学的饮食和运动方案？',
       asker: {
-        name: '数模爱好者',
-        avatar: 'https://randomuser.me/api/portraits/women/32.jpg'
+        name: '减肥达人',
+        avatar: 'https://randomuser.me/api/portraits/women/22.jpg'
       },
-      time: '3天前',
-      tags: ['数学建模', '算法', '竞赛'],
-      points: 20,
-      viewCount: '1.2k',
-      category: 'competition',
-      answerName: '张教授',
-      answerAvatar: 'https://randomuser.me/api/portraits/men/75.jpg'
+      time: '1天前',
+      tags: ['减脂', '健身', '饮食'],
+      points: 35,
+      viewCount: '6.7k',
+      category: 'fitness'
     }
   ];
 
@@ -284,7 +311,7 @@ const EducationSearchResults = () => {
   };
 
   const handleBack = () => {
-    navigate('/education');
+    navigate(-1);
   };
 
   return (
@@ -294,7 +321,7 @@ const EducationSearchResults = () => {
           <button onClick={handleBack} className="text-white">
             <ChevronLeft size={24} />
           </button>
-          <div className="text-white font-medium text-base">教育专家搜索</div>
+          <div className="text-white font-medium text-base">搜索</div>
           <button className="text-white">
             <Bell size={20} />
           </button>
@@ -306,7 +333,6 @@ const EducationSearchResults = () => {
         placeholder="搜索问题/达人/话题"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
-        isEducation={true}
       />
       
       <div className="p-4">
@@ -339,7 +365,7 @@ const EducationSearchResults = () => {
           <>
             <div className="flex items-center mb-4">
               <Search size={20} className="text-app-teal mr-2" />
-              <h2 className="text-lg font-bold">教育热门话题</h2>
+              <h2 className="text-lg font-bold">热门搜索</h2>
             </div>
             <div className="flex flex-wrap gap-2 mb-6">
               {popularTopics.map((topic, index) => (
@@ -386,11 +412,11 @@ const EducationSearchResults = () => {
                 尝试使用不同的关键词，或者直接提问，我们会为您寻找最合适的回答者
               </p>
               <Button 
-                onClick={() => navigate('/education')}
+                onClick={() => navigate('/')}
                 variant="outline" 
                 className="border-green-200 text-green-600 hover:bg-green-50"
               >
-                返回教育学习
+                返回主页
               </Button>
             </div>
           </div>
@@ -423,7 +449,7 @@ const EducationSearchResults = () => {
                   <div className="flex items-center justify-between mb-2">
                     <h3 className="text-base font-semibold flex items-center">
                       <Sparkles size={16} className="text-yellow-500 mr-1" />
-                      教育专家
+                      专家回答者
                     </h3>
                     {searchResults.experts.length > 2 && (
                       <Button 
@@ -581,7 +607,7 @@ const EducationSearchResults = () => {
             <div>
               <h3 className="text-base font-semibold mb-3 flex items-center">
                 <Sparkles size={16} className="text-yellow-500 mr-1" />
-                教育专家推荐
+                推荐专家
               </h3>
               <div className="space-y-3">
                 {allExperts.slice(0, 3).map(expert => (
@@ -627,7 +653,7 @@ const EducationSearchResults = () => {
             </div>
             
             <div>
-              <h3 className="text-base font-semibold mb-3">教育热门问题</h3>
+              <h3 className="text-base font-semibold mb-3">热门问题</h3>
               <div className="space-y-3">
                 {allQuestions.slice(0, 3).map(question => (
                   <div
@@ -646,8 +672,10 @@ const EducationSearchResults = () => {
           </div>
         )}
       </div>
+      
+      <BottomNav />
     </div>
   );
 };
 
-export default EducationSearchResults;
+export default SearchResults;

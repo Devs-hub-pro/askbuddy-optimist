@@ -1,8 +1,8 @@
-
 <!-- index.wxml -->
 <view class="container">
   <!-- Navbar -->
   <view class="sticky top-0 z-50 bg-app-teal animate-fade-in">
+    <!-- Navbar -->
     <view class="flex items-center justify-end h-12 px-4">
       <view class="flex items-center space-x-1 text-slate-800 font-medium" bindtap="toggleLocationMenu">
         <image src="/assets/icons/map-pin.png" style="width: 18px; height: 18px;" />
@@ -61,10 +61,10 @@
     </view>
   </view>
   
-  <!-- Activities Section -->
+  <!-- Activities Section - Changed title to "问问热榜" -->
   <view class="px-4 mb-6">
     <text class="text-lg font-bold mb-4 animate-fade-in" style="animation-delay: 0.2s; display: block;">
-      热点热门活动
+      问问热榜
     </text>
     
     <view class="grid grid-cols-2 gap-4">
@@ -87,7 +87,7 @@
     </view>
   </view>
   
-  <!-- Questions Section -->
+  <!-- Questions Section - Updated tab titles -->
   <view class="px-4 mb-6">
     <view class="flex items-center justify-between mb-4">
       <view 
@@ -95,14 +95,14 @@
         bindtap="switchTab"
         data-tab="topics"
       >
-        推荐话题
+        大家都在问
       </view>
       <view 
         class="{{activeTab === 'experts' ? 'font-bold text-lg animate-fade-in text-app-text border-b-2 border-app-blue' : 'font-bold text-lg animate-fade-in text-gray-400'}} pb-1"
         bindtap="switchTab"
         data-tab="experts"
       >
-        推荐达人
+        找TA问问
       </view>
     </view>
     

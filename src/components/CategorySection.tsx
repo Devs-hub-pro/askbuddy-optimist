@@ -44,14 +44,14 @@ const categories: Category[] = [
 const CategorySection: React.FC = () => {
   return (
     <div className="py-6 px-4 animate-fade-in animate-delay-1">
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-4 gap-3">
         {categories.map((category, index) => (
           <div 
             key={category.id}
             className="flex flex-col items-center animate-slide-up"
             style={{ animationDelay: `${index * 0.1 + 0.2}s` }}
           >
-            <div className={`category-icon mb-2 bg-gradient-to-br ${category.gradient} shadow-sm`}>
+            <div className={`category-icon mb-2 bg-gradient-to-br ${category.gradient} shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300`}>
               {category.icon}
             </div>
             <span className="text-xs text-center font-medium">{category.name}</span>

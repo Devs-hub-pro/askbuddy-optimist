@@ -100,7 +100,7 @@ const Index = () => {
         </div>
       </div>
       
-      <div className="px-4 mb-6">
+      <div className="px-4 mb-20">
         <div className="relative mb-6 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:bg-gray-100">
           <div className="flex gap-6">
             <button 
@@ -135,7 +135,7 @@ const Index = () => {
         {isLoading ? (
           <div className="space-y-4">
             {[1, 2, 3].map((item) => (
-              <div key={item} className="bg-white rounded-lg p-4 animate-pulse-soft shadow-soft">
+              <div key={item} className="bg-white rounded-lg p-4 animate-pulse-soft shadow-md">
                 <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
                 <div className="flex items-center space-x-2 mb-3">
                   <div className="w-8 h-8 bg-gray-200 rounded-full"></div>

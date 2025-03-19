@@ -4,7 +4,7 @@ import { Home, Compass, Plus, MessageSquare, User } from 'lucide-react';
 
 const BottomNav: React.FC = () => {
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 max-w-md mx-auto shadow-lg">
+    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-100 z-50 max-w-md mx-auto shadow-xl">
       <div className="flex items-center justify-around h-16">
         <a href="/" className="nav-item active flex flex-col items-center justify-center w-1/5 py-1">
           <div className="relative">
@@ -26,8 +26,9 @@ const BottomNav: React.FC = () => {
           <span className="text-xs mt-1 text-gray-700 font-medium">提问</span>
         </a>
         
-        <a href="/messages" className="nav-item flex flex-col items-center justify-center w-1/5 py-1">
+        <a href="/messages" className="nav-item flex flex-col items-center justify-center w-1/5 py-1 relative">
           <MessageSquare size={20} className="text-gray-400" />
+          <span className="absolute -top-1 -right-3 w-2 h-2 bg-red-500 rounded-full"></span>
           <span className="text-xs mt-1 text-gray-500">消息</span>
         </a>
         

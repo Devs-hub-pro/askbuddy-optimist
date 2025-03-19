@@ -25,7 +25,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
 }) => {
   return (
     <div 
-      className="bg-white rounded-xl p-4 shadow-soft card-animate animate-fade-in hover:shadow-md transition-all duration-300"
+      className="bg-white rounded-xl p-4 shadow-md card-animate animate-fade-in hover:shadow-lg transition-all duration-300"
       style={{ animationDelay: `${delay}s` }}
     >
       <h3 className="font-semibold text-base mb-2 text-app-text">{title}</h3>
@@ -58,7 +58,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           ))}
         </div>
         
-        <button className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 shadow-sm hover:shadow-md transition-all hover:-translate-y-0.5 active:translate-y-0">
+        <button className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-4 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 hover:brightness-105">
           <MessageCircle size={14} />
           回答
         </button>

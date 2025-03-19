@@ -15,7 +15,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 }) => {
   return (
     <div 
-      className="bg-white rounded-xl overflow-hidden shadow-soft card-animate animate-fade-in hover:shadow-md transition-all duration-300"
+      className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg card-animate animate-fade-in transform hover:-translate-y-1 transition-all duration-300"
       style={{ animationDelay: `${delay}s` }}
     >
       <div className="relative aspect-w-16 aspect-h-9 bg-gray-100 overflow-hidden">
@@ -28,7 +28,11 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             (e.target as HTMLImageElement).classList.add('animate-fade-in');
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
+          <div className="absolute bottom-3 left-3 text-white font-medium text-sm">
+            查看详情
+          </div>
+        </div>
       </div>
       
       <div className="p-3">

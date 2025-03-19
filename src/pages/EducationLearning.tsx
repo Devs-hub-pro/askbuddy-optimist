@@ -248,14 +248,23 @@ const EducationLearning = () => {
     console.log(`Opening chat with ${expertName}`);
   };
 
+  const handleViewExpertDetail = (expertId: string) => {
+    navigate(`/expert/${expertId}`);
+  };
+
+  const handleViewQuestionDetail = (questionId: string) => {
+    navigate(`/question/${questionId}`);
+  };
+
   return (
     <div className="app-container bg-gradient-to-b from-white to-blue-50/30 pb-20">
       <div className="sticky top-0 z-50 bg-app-teal shadow-sm animate-fade-in">
-        <div className="flex items-center justify-between h-12 px-4">
+        <div className="flex items-center h-12 px-4">
           <button onClick={() => navigate('/')} className="text-white">
             <ChevronLeft size={24} />
           </button>
-          <div className="text-white font-medium text-base">教育学习</div>
+          <div className="text-white font-medium text-base ml-2">教育学习</div>
+          <div className="flex-1"></div>
           <button className="text-white">
             <Bell size={20} />
           </button>
@@ -263,12 +272,6 @@ const EducationLearning = () => {
       </div>
       
       <div className="px-4 py-6 bg-app-light-bg animate-fade-in">
-        <div className="flex items-center space-x-2 mb-4">
-          <Users size={22} className="text-app-blue" />
-          <h1 className="text-xl font-bold text-gray-800">找人问问</h1>
-          <p className="text-gray-600 text-sm">AI无法回答的，就找人问问！</p>
-        </div>
-        
         <SearchBar placeholder="搜索问题/达人/话题" />
       </div>
       
@@ -375,18 +378,23 @@ const EducationLearning = () => {
             ) : (
               <div className="space-y-4">
                 {filteredQuestions.map((question, index) => (
-                  <QuestionCard
-                    key={question.id}
-                    id={question.id}
-                    title={question.title}
-                    description={question.description}
-                    asker={question.asker}
-                    time={question.time}
-                    tags={question.tags}
-                    points={question.points}
-                    viewCount={question.viewCount}
-                    delay={0.3 + index * 0.1}
-                  />
+                  <div 
+                    key={question.id} 
+                    className="cursor-pointer"
+                    onClick={() => handleViewQuestionDetail(question.id)}
+                  >
+                    <QuestionCard
+                      id={question.id}
+                      title={question.title}
+                      description={question.description}
+                      asker={question.asker}
+                      time={question.time}
+                      tags={question.tags}
+                      points={question.points}
+                      viewCount={question.viewCount}
+                      delay={0.3 + index * 0.1}
+                    />
+                  </div>
                 ))}
               </div>
             )}
@@ -411,73 +419,64 @@ const EducationLearning = () => {
             ) : (
               <div className="space-y-3">
                 {filteredExperts.map((expert) => (
-                  <ExpertDetailDialog
+                  <div 
                     key={expert.id}
-                    id={expert.id}
-                    name={expert.name}
-                    avatar={expert.avatar}
-                    title={expert.title}
-                    description={expert.description}
-                    tags={expert.tags}
-                    rating={expert.rating}
-                    responseRate={expert.responseRate}
-                    orderCount={expert.orderCount}
+                    className="bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
+                    onClick={() => handleViewExpertDetail(expert.id)}
                   >
-                    <div className="bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer">
-                      <div className="flex justify-between items-start">
-                        <div className="flex items-center gap-2">
-                          <Avatar className="w-10 h-10 border border-green-50">
-                            <AvatarImage src={expert.avatar} alt={expert.name} className="object-cover" />
-                            <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <h3 className="text-sm font-semibold text-gray-800">{expert.name}</h3>
-                            <p className="text-xs text-green-600">{expert.title}</p>
-                          </div>
+                    <div className="flex justify-between items-start">
+                      <div className="flex items-center gap-2">
+                        <Avatar className="w-10 h-10 border border-green-50">
+                          <AvatarImage src={expert.avatar} alt={expert.name} className="object-cover" />
+                          <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <h3 className="text-sm font-semibold text-gray-800">{expert.name}</h3>
+                          <p className="text-xs text-green-600">{expert.title}</p>
                         </div>
-                        
-                        <div className="flex flex-col items-end">
-                          <div className="flex items-center text-yellow-500 gap-1">
-                            <Award size={12} />
-                            <span className="text-xs font-medium">{expert.rating}</span>
-                          </div>
-                          <div className="flex items-center text-blue-500 gap-1 text-xs">
-                            <Clock size={10} />
-                            <span>{expert.responseRate}</span>
-                          </div>
-                          <div className="flex items-center text-green-500 gap-1 text-xs">
-                            <Package size={10} />
-                            <span>{expert.orderCount}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="flex mt-2">
-                        <p className="text-xs text-gray-700 border-l-2 border-green-200 pl-2 py-0.5 bg-green-50/50 rounded-r-md flex-1 mr-2 line-clamp-2">
-                          {expert.description}
-                        </p>
-                        
-                        <button 
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleAskMe(expert.name);
-                          }}
-                          className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-2.5 py-1 rounded-full text-xs flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 h-auto"
-                        >
-                          <MessageSquare size={10} />
-                          找我问问
-                        </button>
                       </div>
                       
-                      <div className="flex flex-wrap gap-1.5 mt-2">
-                        {expert.tags.map((tag, index) => (
-                          <span key={index} className="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full">
-                            #{tag}
-                          </span>
-                        ))}
+                      <div className="flex flex-col items-end">
+                        <div className="flex items-center text-yellow-500 gap-1">
+                          <Award size={12} />
+                          <span className="text-xs font-medium">{expert.rating}</span>
+                        </div>
+                        <div className="flex items-center text-blue-500 gap-1 text-xs">
+                          <Clock size={10} />
+                          <span>{expert.responseRate}</span>
+                        </div>
+                        <div className="flex items-center text-green-500 gap-1 text-xs">
+                          <Package size={10} />
+                          <span>{expert.orderCount}</span>
+                        </div>
                       </div>
                     </div>
-                  </ExpertDetailDialog>
+
+                    <div className="flex mt-2">
+                      <p className="text-xs text-gray-700 border-l-2 border-green-200 pl-2 py-0.5 bg-green-50/50 rounded-r-md flex-1 mr-2 line-clamp-2">
+                        {expert.description}
+                      </p>
+                      
+                      <button 
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleAskMe(expert.name);
+                        }}
+                        className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-2.5 py-1 rounded-full text-xs flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 h-auto"
+                      >
+                        <MessageSquare size={10} />
+                        找我问问
+                      </button>
+                    </div>
+                    
+                    <div className="flex flex-wrap gap-1.5 mt-2">
+                      {expert.tags.map((tag, index) => (
+                        <span key={index} className="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full">
+                          #{tag}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                 ))}
               </div>
             )}

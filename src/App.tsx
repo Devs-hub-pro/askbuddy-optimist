@@ -10,6 +10,8 @@ import HobbiesSkills from "./pages/HobbiesSkills";
 import CitySelector from "./pages/CitySelector";
 import NotFound from "./pages/NotFound";
 import IconsPreview from "./components/IconsPreview";
+import QuestionDetail from "./pages/QuestionDetail";
+import ExpertDetail from "./pages/ExpertDetail";
 import { Toaster } from "@/components/ui/toaster";
 import "./App.css";
 
@@ -28,6 +30,8 @@ function App() {
             <Route path="/hobbies" element={<HobbiesSkills />} />
             <Route path="/city-selector" element={<CitySelector />} />
             <Route path="/icons" element={<IconsPreview />} />
+            <Route path="/question/:id" element={<QuestionDetail />} />
+            <Route path="/expert/:id" element={<ExpertDetail />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

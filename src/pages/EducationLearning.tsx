@@ -19,12 +19,10 @@ import {
   Eye
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import SearchBar from "@/components/SearchBar";
 import QuestionCard from '@/components/QuestionCard';
-import ExpertDetailDialog from '@/components/ExpertDetailDialog';
 
 const EducationLearning = () => {
   const navigate = useNavigate();
@@ -244,16 +242,12 @@ const EducationLearning = () => {
     console.log('Adding custom date');
   };
 
-  const handleAskMe = (expertName: string) => {
-    console.log(`Opening chat with ${expertName}`);
-  };
-
-  const handleViewExpertDetail = (expertId: string) => {
-    navigate(`/expert/${expertId}`);
-  };
-
   const handleViewQuestionDetail = (questionId: string) => {
     navigate(`/question/${questionId}`);
+  };
+
+  const handleViewExpertProfile = (expertId: string) => {
+    navigate(`/expert-profile/${expertId}`);
   };
 
   return (
@@ -271,7 +265,7 @@ const EducationLearning = () => {
         </div>
       </div>
       
-      <div className="px-4 py-6 bg-app-light-bg animate-fade-in">
+      <div className="px-4 py-3 bg-app-light-bg">
         <SearchBar placeholder="搜索问题/达人/话题" />
       </div>
       
@@ -380,7 +374,7 @@ const EducationLearning = () => {
                 {filteredQuestions.map((question, index) => (
                   <div 
                     key={question.id} 
-                    className="cursor-pointer"
+                    className="cursor-pointer" 
                     onClick={() => handleViewQuestionDetail(question.id)}
                   >
                     <QuestionCard
@@ -422,7 +416,7 @@ const EducationLearning = () => {
                   <div 
                     key={expert.id}
                     className="bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
-                    onClick={() => handleViewExpertDetail(expert.id)}
+                    onClick={() => handleViewExpertProfile(expert.id)}
                   >
                     <div className="flex justify-between items-start">
                       <div className="flex items-center gap-2">
@@ -457,16 +451,16 @@ const EducationLearning = () => {
                         {expert.description}
                       </p>
                       
-                      <button 
+                      <Button 
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleAskMe(expert.name);
+                          navigate(`/expert-profile/${expert.id}`);
                         }}
                         className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-2.5 py-1 rounded-full text-xs flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 h-auto"
                       >
                         <MessageSquare size={10} />
                         找我问问
-                      </button>
+                      </Button>
                     </div>
                     
                     <div className="flex flex-wrap gap-1.5 mt-2">

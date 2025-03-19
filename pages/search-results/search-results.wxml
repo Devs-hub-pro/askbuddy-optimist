@@ -1,0 +1,96 @@
+
+<view class="container">
+  <!-- Navbar -->
+  <view class="sticky top-0 z-50 bg-app-teal animate-fade-in">
+    <view class="flex items-center h-12 px-4">
+      <view bindtap="handleBack" class="flex items-center">
+        <image src="/assets/icons/arrow-left.png" style="width: 24px; height: 24px;" />
+      </view>
+      <view class="text-white font-medium text-base ml-2">找人问问 - 搜索</view>
+    </view>
+  </view>
+  
+  <!-- Search Bar -->
+  <view class="px-4 py-3 bg-app-light-bg">
+    <view class="relative">
+      <input
+        type="text"
+        placeholder="搜索问题/达人/话题"
+        class="search-input pr-10"
+        bindinput="onSearchInput"
+        focus="{{true}}"
+        value="{{searchQuery}}"
+      />
+      <image 
+        src="/assets/icons/search.png" 
+        style="width: 20px; height: 20px; position: absolute; right: 16px; top: 50%; transform: translateY(-50%);" 
+      />
+    </view>
+  </view>
+
+  <!-- Popular Topics -->
+  <block wx:if="{{!searchQuery}}">
+    <view class="px-4 py-4 bg-white">
+      <view class="flex items-center justify-between mb-4">
+        <text class="font-bold">热门话题</text>
+        <text class="text-sm text-gray-500">查看更多</text>
+      </view>
+      <view class="flex flex-wrap gap-2">
+        <view 
+          wx:for="{{popularTopics}}" 
+          wx:key="index" 
+          class="px-3 py-1.5 bg-gray-100 rounded-full text-sm"
+          bindtap="onSelectTopic"
+          data-topic="{{item}}"
+        >
+          {{item}}
+        </view>
+      </view>
+    </view>
+  </block>
+
+  <!-- Search Results -->
+  <block wx:if="{{searchQuery}}">
+    <!-- Recommended Answerers -->
+    <view class="px-4 py-4 bg-white">
+      <view class="flex items-center justify-between mb-4">
+        <text class="font-bold">推荐回答者</text>
+      </view>
+      <view class="space-y-4">
+        <view wx:for="{{recommendedAnswerers}}" wx:key="id" class="flex items-start space-x-3 pb-3 border-b border-gray-100" bindtap="onSelectExpert" data-id="{{item.id}}">
+          <image src="{{item.avatar}}" class="w-12 h-12 rounded-full" />
+          <view class="flex-1">
+            <view class="flex items-center space-x-2">
+              <text class="font-medium">{{item.name}}</text>
+              <view class="px-1.5 py-0.5 bg-green-50 text-green-700 text-xs rounded-full">{{item.title}}</view>
+            </view>
+            <text class="text-sm text-gray-600 block">{{item.expertise}}</text>
+            <view class="flex flex-wrap gap-1 mt-1">
+              <view wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this" class="px-2 py-0.5 bg-blue-50 text-blue-600 text-xs rounded-full">
+                #{{tag}}
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- Related Questions -->
+    <view class="px-4 py-4 bg-white mt-2">
+      <view class="flex items-center justify-between mb-4">
+        <text class="font-bold">相关问题</text>
+      </view>
+      <view class="space-y-3">
+        <view wx:for="{{relatedQuestions}}" wx:key="id" class="pb-3 border-b border-gray-100" bindtap="onSelectQuestion" data-id="{{item.id}}">
+          <text class="font-medium">{{item.title}}</text>
+          <text class="text-sm text-gray-600 block mt-1">{{item.asker.name}} · {{item.time}}</text>
+          <view class="flex flex-wrap gap-1 mt-1">
+            <view wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this" class="px-2 py-0.5 bg-green-50 text-green-600 text-xs rounded-full">
+              #{{tag}}
+            </view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

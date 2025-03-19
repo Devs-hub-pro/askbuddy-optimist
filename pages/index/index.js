@@ -95,6 +95,35 @@ Page({
         points: 40
       }
     ],
+    experts: [
+      {
+        id: '1',
+        name: '张同学',
+        avatar: 'https://randomuser.me/api/portraits/women/22.jpg',
+        title: '北大硕士 | 出国党',
+        description: '专注留学申请文书指导，斯坦福offer获得者',
+        tags: ['留学', '文书', '面试'],
+        category: 'study-abroad'
+      },
+      {
+        id: '2',
+        name: '刘导师',
+        avatar: 'https://randomuser.me/api/portraits/men/55.jpg',
+        title: '清华博士 | 考研规划',
+        description: '5年考研辅导经验，擅长数学与专业课',
+        tags: ['考研', '数学', '规划'],
+        category: 'kaoyan'
+      },
+      {
+        id: '3',
+        name: '王老师',
+        avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+        title: '高考志愿规划师',
+        description: '10年高考志愿填报指导经验，专精各省份政策',
+        tags: ['高考', '志愿填报', '专业选择'],
+        category: 'gaokao'
+      }
+    ],
     activeTab: 'topics'  // 'topics' or 'experts'
   },
 
@@ -161,11 +190,9 @@ Page({
 
   handleAnswer: function(e) {
     const questionId = e.detail.id;
-    wx.showToast({
-      title: '即将跳转到回答页面',
-      icon: 'none'
+    wx.navigateTo({
+      url: `/pages/question-detail/question-detail?id=${questionId}`
     });
-    // Implementation for answering would go here
   },
 
   onSearch: function(e) {

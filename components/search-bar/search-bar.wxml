@@ -7,7 +7,7 @@
     <text class="text-gray-600 text-sm">AI无法回答的，人来回答！</text>
   </view>
   
-  <view class="relative">
+  <view class="relative" bindtap="onTapSearch">
     <input
       type="text"
       placeholder="搜索问题/达人/话题"

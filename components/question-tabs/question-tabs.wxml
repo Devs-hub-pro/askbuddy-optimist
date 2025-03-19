@@ -43,7 +43,7 @@
     <block wx:if="{{activeTab === 'topics'}}">
       <view class="space-y-3">
         <block wx:for="{{questions}}" wx:key="id">
-          <view class="question-card bg-white rounded-lg p-4 animate-fade-in" style="animation-delay: {{0.4 + index * 0.1}}s">
+          <view class="question-card bg-white rounded-lg p-4 animate-fade-in" style="animation-delay: {{0.4 + index * 0.1}}s" bindtap="viewQuestionDetail" data-id="{{item.id}}">
             <!-- Question header with avatar and title -->
             <view class="flex items-start mb-3">
               <view class="flex-shrink-0 mr-3">
@@ -76,14 +76,14 @@
             <view class="flex items-center justify-between">
               <view class="flex items-center">
                 <image class="w-5 h-5 rounded-full" src="{{item.answerAvatar || '/assets/icons/user-avatar.png'}}" mode="aspectFill"/>
-                <text class="text-sm text-gray-700 ml-1">{{item.answerName || '张老师'}}已回答</text>
+                <text class="text-sm text-gray-700 ml-1">{{item.answerName || '待回答'}}</text>
                 <view class="flex items-center ml-2">
                   <image src="/assets/icons/sun.png" class="w-4 h-4 text-yellow-500" />
                   <text class="text-sm text-green-500 ml-1">{{item.points}}</text>
                 </view>
               </view>
               
-              <view bindtap="handleAnswer" data-id="{{item.id}}" class="answer-btn">
+              <view catchtap="handleAnswer" data-id="{{item.id}}" class="answer-btn">
                 我来回答
               </view>
             </view>
@@ -94,37 +94,29 @@
     
     <block wx:else>
       <view class="space-y-3">
-        <block wx:for="{{questions}}" wx:key="id">
-          <view class="question-card bg-white rounded-lg p-4 mb-3 animate-fade-in" style="animation-delay: {{0.4 + index * 0.1}}s">
-            <text class="font-semibold text-base mb-3 block">{{item.title}}</text>
-            
-            <view class="flex items-center justify-between">
-              <view class="flex items-center space-x-2">
-                <view class="w-8 h-8 rounded-full overflow-hidden bg-gray-200">
-                  <image 
-                    src="{{item.asker.avatar}}" 
-                    mode="aspectFill"
-                    style="width: 100%; height: 100%;"
-                  />
-                </view>
-                <view>
-                  <text class="text-xs text-gray-700 block">提问者: {{item.asker.name}}</text>
-                  <text class="text-xs text-gray-500 block">提问时间: {{item.time}}</text>
-                </view>
-              </view>
-              
-              <view class="flex items-center">
-                <view class="w-6 h-6 bg-yellow-100 rounded-full flex items-center justify-center mr-1">
-                  <image src="/assets/icons/sun.png" style="width: 14px; height: 14px;" />
-                </view>
-                <text class="text-yellow-500 font-medium">{{item.points}}</text>
+        <block wx:for="{{experts || questions}}" wx:key="id">
+          <view class="expert-card bg-white rounded-lg p-4 mb-3 animate-fade-in" style="animation-delay: {{0.4 + index * 0.1}}s" bindtap="viewExpertProfile" data-id="{{item.id}}">
+            <view class="flex items-center mb-3">
+              <image class="w-10 h-10 rounded-full" src="{{item.avatar || item.asker.avatar}}" mode="aspectFill" />
+              <view class="ml-3">
+                <text class="font-semibold block">{{item.name || item.asker.name}}</text>
+                <text class="text-xs text-green-600 block">{{item.title || ''}}</text>
               </view>
             </view>
             
-            <view class="mt-3 flex flex-wrap gap-2">
+            <text class="text-sm text-gray-700 block mb-3">{{item.description || item.title}}</text>
+            
+            <view class="flex flex-wrap gap-1 mb-3">
               <block wx:for="{{item.tags}}" wx:for-item="tag" wx:key="*this">
                 <text class="tag">#{{tag}}</text>
               </block>
+            </view>
+            
+            <view class="flex justify-end">
+              <view class="px-3 py-1 bg-gradient-to-r from-green-500 to-teal-400 text-white rounded-full text-xs flex items-center">
+                <image src="/assets/icons/message.png" class="w-3 h-3 mr-1" />
+                找我问问
+              </view>
             </view>
           </view>
         </block>

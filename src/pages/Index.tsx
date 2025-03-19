@@ -80,7 +80,7 @@ const Index = () => {
       
       <div className="px-4 mb-6">
         <h2 className="text-lg font-bold mb-4 animate-fade-in animate-delay-2">
-          热点热门活动
+          问问热榜
         </h2>
         
         <div className="grid grid-cols-2 gap-4">
@@ -97,8 +97,8 @@ const Index = () => {
       
       <div className="px-4 mb-6">
         <div className="flex items-center justify-between mb-4">
-          <button className="font-bold text-lg animate-fade-in animate-delay-3 text-app-text border-b-2 border-app-blue pb-1">推荐话题</button>
-          <button className="font-bold text-lg animate-fade-in animate-delay-3 text-gray-400 pb-1">推荐达人</button>
+          <button className="font-bold text-lg animate-fade-in animate-delay-3 text-app-text border-b-2 border-app-blue pb-1">大家都在问</button>
+          <button className="font-bold text-lg animate-fade-in animate-delay-3 text-gray-400 pb-1">找TA问问</button>
         </div>
         
         {isLoading ? (

@@ -25,7 +25,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
 }) => {
   return (
     <div 
-      className="bg-white rounded-xl p-4 shadow-md card-animate animate-fade-in hover:shadow-lg transition-all duration-300"
+      className="bg-gradient-to-br from-white to-blue-50/30 rounded-xl p-4 shadow-md card-animate animate-fade-in hover:shadow-lg transition-all duration-300"
       style={{ animationDelay: `${delay}s` }}
     >
       <h3 className="font-semibold text-base mb-2 text-app-text">{title}</h3>

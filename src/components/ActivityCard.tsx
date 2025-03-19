@@ -15,7 +15,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
 }) => {
   return (
     <div 
-      className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg card-animate animate-fade-in transform hover:-translate-y-1 transition-all duration-300"
+      className="bg-gradient-to-br from-white to-blue-50/30 rounded-xl overflow-hidden shadow-md hover:shadow-lg card-animate animate-fade-in transform hover:-translate-y-1 transition-all duration-300"
       style={{ animationDelay: `${delay}s` }}
     >
       <div className="relative aspect-w-16 aspect-h-9 bg-gray-100 overflow-hidden">
@@ -28,7 +28,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
             (e.target as HTMLImageElement).classList.add('animate-fade-in');
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent opacity-0 hover:opacity-100 transition-opacity duration-300">
           <div className="absolute bottom-3 left-3 text-white font-medium text-sm">
             查看详情
           </div>
@@ -39,7 +39,7 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
         <h3 className="font-semibold text-sm leading-tight mb-2">{title}</h3>
         <div className="flex justify-between items-center">
           <div className="text-xs text-gray-500">参与讨论</div>
-          <ArrowUpRight size={14} className="text-gray-400" />
+          <ArrowUpRight size={14} className="text-gray-400 transition-colors group-hover:text-app-teal" />
         </div>
       </div>
     </div>

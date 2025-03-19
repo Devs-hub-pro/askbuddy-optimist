@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
 import SearchBar from '../components/SearchBar';
@@ -73,7 +72,7 @@ const Index = () => {
   ];
 
   return (
-    <div className="app-container bg-gradient-to-b from-white to-blue-50">
+    <div className="app-container bg-gradient-to-b from-white to-blue-50/30">
       <Navbar />
       
       <SearchBar />
@@ -106,10 +105,6 @@ const Index = () => {
             <button 
               className={`font-bold text-lg pb-2 relative ${activeTab === 'everyone' ? 'text-app-text' : 'text-gray-400'}`}
               onClick={() => setActiveTab('everyone')}
-              style={{
-                transform: activeTab === 'everyone' ? 'translateY(0)' : 'translateY(0)',
-                transition: 'all 0.3s ease'
-              }}
             >
               大家都在问
               {activeTab === 'everyone' && (
@@ -119,10 +114,6 @@ const Index = () => {
             <button 
               className={`font-bold text-lg pb-2 relative ${activeTab === 'experts' ? 'text-app-text' : 'text-gray-400'}`}
               onClick={() => setActiveTab('experts')}
-              style={{
-                transform: activeTab === 'experts' ? 'translateY(0)' : 'translateY(0)',
-                transition: 'all 0.3s ease'
-              }}
             >
               找TA问问
               {activeTab === 'experts' && (

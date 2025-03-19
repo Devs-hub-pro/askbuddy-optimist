@@ -51,7 +51,7 @@ const CategorySection: React.FC = () => {
             className="flex flex-col items-center animate-slide-up"
             style={{ animationDelay: `${index * 0.1 + 0.2}s` }}
           >
-            <div className={`category-icon mb-2 bg-gradient-to-br ${category.gradient} shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300`}>
+            <div className={`category-icon mb-2 bg-gradient-to-br ${category.gradient} shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 rounded-xl`}>
               {category.icon}
             </div>
             <span className="text-xs text-center font-medium">{category.name}</span>

@@ -6,7 +6,7 @@ import CategorySection from '../components/CategorySection';
 import ActivityCard from '../components/ActivityCard';
 import QuestionCard from '../components/QuestionCard';
 import BottomNav from '../components/BottomNav';
-import { Sparkles, MessageSquare, Award, Clock, CheckCircle } from 'lucide-react';
+import { Sparkles, MessageSquare, Award, Clock } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 interface LocationState {
@@ -234,7 +234,7 @@ const Index = () => {
               </div>
 
               <div className="flex mt-2">
-                <p className="text-xs text-gray-700 border-l-2 border-green-200 pl-2 py-0.5 bg-green-50/50 rounded-r-md flex-1 mr-2">
+                <p className="text-xs text-gray-700 border-l-2 border-green-200 pl-2 py-1.5 bg-green-50/50 rounded-r-md flex-1 mr-2 line-clamp-2">
                   {featuredExpert.description}
                 </p>
                 

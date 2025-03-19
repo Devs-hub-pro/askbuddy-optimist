@@ -12,16 +12,27 @@ import {
   ChevronDown,
   ChevronUp,
   Mail,
-  User
+  User,
+  ExternalLink,
+  Clock,
+  Calendar
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog';
 
 const QuestionDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [showShareDialog, setShowShareDialog] = useState(false);
   
   // Mocked question data - in a real app, this would be fetched based on the ID
   const question = {
@@ -30,7 +41,8 @@ const QuestionDetail = () => {
     description: '我是23届考研生，感觉每天都很忙但效率不高，有没有好的时间管理方法？我尝试过番茄钟，但好像不是很有效。如何分配各科目的时间？要不要制定详细的计划表？如何避免学习倦怠？希望有过来人分享一下经验。除了管理时间外，如何克服复习中的焦虑也是我很困扰的问题。平衡好考研和生活的边界似乎很难。',
     asker: {
       name: '小李',
-      avatar: 'https://randomuser.me/api/portraits/women/68.jpg'
+      avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+      id: '101'
     },
     time: '2小时前',
     tags: ['考研', '时间管理', '学习方法', '焦虑'],
@@ -38,6 +50,10 @@ const QuestionDetail = () => {
     viewCount: '3.8k',
     points: 30,
     category: 'kaoyan'
+  };
+
+  const handleViewUserProfile = (userId: string) => {
+    navigate(`/expert-profile/${userId}`);
   };
 
   return (
@@ -59,11 +75,14 @@ const QuestionDetail = () => {
         <h1 className="text-xl font-bold text-gray-800 mb-3 text-left">{question.title}</h1>
         
         <div className="flex items-center mb-4">
-          <Avatar className="w-8 h-8 mr-2">
+          <Avatar 
+            className="w-8 h-8 mr-2 cursor-pointer" 
+            onClick={() => handleViewUserProfile(question.asker.id)}
+          >
             <AvatarImage src={question.asker.avatar} alt={question.asker.name} />
             <AvatarFallback>{question.asker.name.charAt(0)}</AvatarFallback>
           </Avatar>
-          <div>
+          <div className="cursor-pointer" onClick={() => handleViewUserProfile(question.asker.id)}>
             <p className="text-sm font-medium">{question.asker.name}</p>
             <p className="text-xs text-gray-500">{question.time}</p>
           </div>
@@ -82,9 +101,9 @@ const QuestionDetail = () => {
         <Collapsible
           open={isDescriptionExpanded}
           onOpenChange={setIsDescriptionExpanded}
-          className="mb-4"
+          className="mb-4 text-left"
         >
-          <div className="text-sm text-gray-700 leading-relaxed text-left">
+          <div className="text-sm text-gray-700 leading-relaxed">
             {question.description.length > 100 && !isDescriptionExpanded ? (
               <>
                 <p>{question.description.substring(0, 100)}...</p>
@@ -98,7 +117,7 @@ const QuestionDetail = () => {
           </div>
           
           <CollapsibleContent>
-            <p className="text-sm text-gray-700 leading-relaxed text-left">{question.description}</p>
+            <p className="text-sm text-gray-700 leading-relaxed">{question.description}</p>
             <CollapsibleTrigger className="text-blue-500 text-xs mt-2 hover:underline flex items-center">
               收起 <ChevronUp size={12} className="ml-1" />
             </CollapsibleTrigger>
@@ -141,7 +160,10 @@ const QuestionDetail = () => {
           {[1, 2, 3].map(index => (
             <div key={index} className="bg-white p-4 rounded-lg shadow-sm">
               <div className="flex justify-between mb-3">
-                <div className="flex items-center">
+                <div 
+                  className="flex items-center cursor-pointer" 
+                  onClick={() => handleViewUserProfile(`expert-${index}`)}
+                >
                   <Avatar className="w-8 h-8 mr-2">
                     <AvatarImage src={`https://randomuser.me/api/portraits/${index % 2 ? 'women' : 'men'}/${20 + index}.jpg`} />
                     <AvatarFallback>A{index}</AvatarFallback>
@@ -186,15 +208,103 @@ const QuestionDetail = () => {
         </div>
       </div>
       
+      {/* Share Dialog */}
+      <Dialog open={showShareDialog} onOpenChange={setShowShareDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>邀请回答</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="flex justify-center gap-4">
+              <div className="flex flex-col items-center">
+                <button className="bg-blue-50 rounded-full p-3 text-blue-500">
+                  <MessageSquare size={24} />
+                </button>
+                <span className="text-xs mt-1">站内好友</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <button className="bg-green-50 rounded-full p-3 text-green-500">
+                  <ExternalLink size={24} />
+                </button>
+                <span className="text-xs mt-1">微信</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <button className="bg-blue-50 rounded-full p-3 text-blue-500">
+                  <Mail size={24} />
+                </button>
+                <span className="text-xs mt-1">QQ</span>
+              </div>
+              <div className="flex flex-col items-center">
+                <button className="bg-red-50 rounded-full p-3 text-red-500">
+                  <User size={24} />
+                </button>
+                <span className="text-xs mt-1">抖音</span>
+              </div>
+            </div>
+            <div className="bg-yellow-50 p-3 rounded-lg text-center text-sm">
+              <p className="text-yellow-700">邀请好友回答，可获得<span className="font-bold">10积分</span>奖励</p>
+              <p className="text-yellow-600 text-xs mt-1">好友回答被采纳，额外获得<span className="font-bold">20积分</span></p>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Appointment Dialog */}
+      <Dialog>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>回答问题</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium">可选时间段</h3>
+              <div className="grid grid-cols-3 gap-2">
+                <button className="border border-gray-200 rounded-md py-2 text-sm hover:bg-gray-50">今天 15:00</button>
+                <button className="border border-gray-200 rounded-md py-2 text-sm hover:bg-gray-50">今天 18:00</button>
+                <button className="border border-gray-200 rounded-md py-2 text-sm hover:bg-gray-50">今天 20:00</button>
+                <button className="border border-gray-200 rounded-md py-2 text-sm hover:bg-gray-50">明天 10:00</button>
+                <button className="border border-gray-200 rounded-md py-2 text-sm hover:bg-gray-50">明天 14:00</button>
+                <button className="border border-gray-200 rounded-md py-2 text-sm hover:bg-gray-50">明天 16:00</button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <h3 className="text-sm font-medium">咨询方式</h3>
+              <div className="flex gap-2">
+                <button className="flex-1 border border-gray-200 rounded-md py-2 text-sm hover:bg-gray-50 flex items-center justify-center">
+                  <MessageSquare size={14} className="mr-1" />
+                  文字
+                </button>
+                <button className="flex-1 border border-gray-200 rounded-md py-2 text-sm hover:bg-gray-50 flex items-center justify-center">
+                  语音
+                </button>
+                <button className="flex-1 border border-gray-200 rounded-md py-2 text-sm hover:bg-gray-50 flex items-center justify-center">
+                  视频
+                </button>
+              </div>
+            </div>
+            <Button className="w-full">确认</Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex gap-3">
-        <Button variant="outline" className="flex-1 flex items-center justify-center">
-          <Mail size={16} className="mr-2" />
-          邀请回答
-        </Button>
-        <Button className="flex-1 bg-gradient-to-r from-blue-500 to-app-blue">
-          <MessageSquare size={16} className="mr-2" />
-          我来回答
-        </Button>
+        <DialogTrigger asChild>
+          <Button 
+            variant="outline" 
+            className="flex-1 flex items-center justify-center"
+            onClick={() => setShowShareDialog(true)}
+          >
+            <Mail size={16} className="mr-2" />
+            邀请回答
+          </Button>
+        </DialogTrigger>
+        
+        <DialogTrigger asChild>
+          <Button className="flex-1 bg-gradient-to-r from-blue-500 to-app-blue">
+            <MessageSquare size={16} className="mr-2" />
+            我来回答
+          </Button>
+        </DialogTrigger>
       </div>
     </div>
   );

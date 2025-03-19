@@ -3,7 +3,6 @@ import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ChevronLeft, 
-  Camera, 
   MapPin, 
   Award, 
   MessageSquare, 
@@ -18,12 +17,20 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronUp,
-  User
+  User,
+  Mail
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger
+} from '@/components/ui/dialog';
 
 interface Education {
   school: string;
@@ -49,6 +56,10 @@ const ExpertProfile = () => {
   const [isBioExpanded, setIsBioExpanded] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
   const [backgroundImage, setBackgroundImage] = useState('https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1200&h=400');
+  const [selectedConsultType, setSelectedConsultType] = useState<'text' | 'voice' | 'video'>('text');
+  const [showMessageDialog, setShowMessageDialog] = useState(false);
+  const [showBookingDialog, setShowBookingDialog] = useState(false);
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
   const topicsScrollRef = useRef<HTMLDivElement>(null);
   
   const expert = {
@@ -84,20 +95,12 @@ const ExpertProfile = () => {
     experience: [
       { company: '某知名留学机构', position: '高级顾问', years: '2021-至今' },
       { company: '斯坦福大学', position: '校友面试官', years: '2022-至今' }
+    ],
+    availableTimes: [
+      { date: '今天', times: ['14:00', '16:00', '20:00'] },
+      { date: '明天', times: ['10:00', '15:00', '18:00'] },
+      { date: '后天', times: ['09:00', '13:00', '19:00'] }
     ]
-  };
-
-  const handleBackgroundChange = () => {
-    const backgrounds = [
-      'https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1200&h=400',
-      'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&h=400',
-      'https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?auto=format&fit=crop&w=1200&h=400',
-      'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1200&h=400'
-    ];
-    
-    const currentIndex = backgrounds.indexOf(backgroundImage);
-    const nextIndex = (currentIndex + 1) % backgrounds.length;
-    setBackgroundImage(backgrounds[nextIndex]);
   };
 
   const scrollTopics = (direction: 'left' | 'right') => {
@@ -115,6 +118,14 @@ const ExpertProfile = () => {
     setIsFollowing(!isFollowing);
   };
 
+  const handleConsultTypeSelect = (type: 'text' | 'voice' | 'video') => {
+    setSelectedConsultType(type);
+  };
+
+  const handleTopicSelect = (topicId: string) => {
+    setSelectedTopic(topicId === selectedTopic ? null : topicId);
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       <div className="sticky top-0 z-50 bg-app-teal shadow-sm animate-fade-in">
@@ -128,16 +139,10 @@ const ExpertProfile = () => {
       
       <div className="relative">
         <div 
-          className="w-full h-48 bg-cover bg-center"
+          className="w-full h-32 bg-cover bg-center"
           style={{ backgroundImage: `url(${backgroundImage})` }}
         >
           <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent"></div>
-          <button 
-            onClick={handleBackgroundChange}
-            className="absolute right-4 top-4 bg-white/20 backdrop-blur-sm text-white rounded-full p-2 z-10"
-          >
-            <Camera size={18} />
-          </button>
         </div>
         
         <div className="relative px-4 pb-4 -mt-16 pt-20">
@@ -265,7 +270,7 @@ const ExpertProfile = () => {
           open={isBioExpanded}
           onOpenChange={setIsBioExpanded}
         >
-          <div className="text-sm text-gray-700 leading-relaxed">
+          <div className="text-sm text-gray-700 leading-relaxed text-left">
             {!isBioExpanded ? (
               <div className="line-clamp-6">
                 {expert.bio}
@@ -451,14 +456,132 @@ const ExpertProfile = () => {
         </Tabs>
       </div>
       
+      {/* Message Dialog */}
+      <Dialog open={showMessageDialog} onOpenChange={setShowMessageDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>给TA留言</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="text-sm text-gray-600 mb-2">
+              发送消息给 {expert.name}
+            </div>
+            <textarea 
+              className="w-full p-3 border border-gray-200 rounded-md text-sm min-h-[120px]" 
+              placeholder="请输入您想咨询的问题或留言内容..."
+            ></textarea>
+            <div className="flex justify-end">
+              <Button>发送</Button>
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
+      {/* Booking Dialog */}
+      <Dialog open={showBookingDialog} onOpenChange={setShowBookingDialog}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>预约问问</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-5 py-4">
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium">选择话题</h3>
+              <div className="space-y-2">
+                {expert.topics.map((topic) => (
+                  <div 
+                    key={topic.id}
+                    className={`p-3 rounded-md text-sm cursor-pointer border ${
+                      selectedTopic === topic.id
+                        ? 'border-blue-400 bg-blue-50'
+                        : 'border-gray-200 hover:bg-gray-50'
+                    }`}
+                    onClick={() => handleTopicSelect(topic.id)}
+                  >
+                    {topic.title}
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium">咨询方式</h3>
+              <div className="flex gap-2">
+                <button 
+                  className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+                    selectedConsultType === 'text' 
+                      ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' 
+                      : 'bg-gray-100 text-gray-700 border border-gray-200'
+                  }`}
+                  onClick={() => handleConsultTypeSelect('text')}
+                >
+                  文本咨询
+                </button>
+                <button 
+                  className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+                    selectedConsultType === 'voice' 
+                      ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' 
+                      : 'bg-gray-100 text-gray-700 border border-gray-200'
+                  }`}
+                  onClick={() => handleConsultTypeSelect('voice')}
+                >
+                  语音咨询
+                </button>
+                <button 
+                  className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${
+                    selectedConsultType === 'video' 
+                      ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' 
+                      : 'bg-gray-100 text-gray-700 border border-gray-200'
+                  }`}
+                  onClick={() => handleConsultTypeSelect('video')}
+                >
+                  视频咨询
+                </button>
+              </div>
+            </div>
+            
+            <div className="space-y-3">
+              <h3 className="text-sm font-medium">可选时间段</h3>
+              <div className="space-y-3">
+                {expert.availableTimes.map((daySchedule, dayIndex) => (
+                  <div key={dayIndex} className="space-y-2">
+                    <p className="text-xs text-gray-500">{daySchedule.date}</p>
+                    <div className="grid grid-cols-3 gap-2">
+                      {daySchedule.times.map((time, timeIndex) => (
+                        <button 
+                          key={timeIndex}
+                          className="border border-gray-200 rounded-md py-1.5 text-sm hover:bg-gray-50"
+                        >
+                          {time}
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <Button className="w-full bg-gradient-to-r from-blue-500 to-app-blue">
+              确认预约
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+      
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex gap-3">
-        <Button variant="outline" className="flex-1 flex items-center justify-center">
-          <MessageSquare size={16} className="mr-2" />
-          私聊
+        <Button 
+          variant="outline" 
+          className="flex-1 flex items-center justify-center"
+          onClick={() => setShowMessageDialog(true)}
+        >
+          <Mail size={16} className="mr-2" />
+          给TA留言
         </Button>
-        <Button className="flex-1 bg-gradient-to-r from-blue-500 to-app-blue flex items-center justify-center">
+        <Button 
+          className="flex-1 bg-gradient-to-r from-blue-500 to-app-blue flex items-center justify-center"
+          onClick={() => setShowBookingDialog(true)}
+        >
           <Calendar size={16} className="mr-2" />
-          预约咨询
+          预约问问
         </Button>
       </div>
     </div>

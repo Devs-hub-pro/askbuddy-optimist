@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -18,12 +17,31 @@ import {
   ChevronRight,
   ChevronDown,
   ChevronUp,
-  User
+  User,
+  Send,
+  X,
+  CalendarCheck,
+  Clock3,
+  VideoIcon,
+  MessageCircle,
+  Phone
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription,
+  DialogFooter,
+  DialogClose
+} from '@/components/ui/dialog';
+import { Textarea } from '@/components/ui/textarea';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 interface Education {
   school: string;
@@ -48,8 +66,14 @@ const ExpertProfile = () => {
   const navigate = useNavigate();
   const [isBioExpanded, setIsBioExpanded] = useState(false);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [backgroundImage, setBackgroundImage] = useState('https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1200&h=400');
   const topicsScrollRef = useRef<HTMLDivElement>(null);
+  
+  const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
+  const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
+  const [messageText, setMessageText] = useState('');
+  const [selectedTopic, setSelectedTopic] = useState('');
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
+  const [consultType, setConsultType] = useState<'text' | 'voice' | 'video'>('text');
   
   const expert = {
     id: id || '1',
@@ -84,20 +108,14 @@ const ExpertProfile = () => {
     experience: [
       { company: '某知名留学机构', position: '高级顾问', years: '2021-至今' },
       { company: '斯坦福大学', position: '校友面试官', years: '2022-至今' }
+    ],
+    availableTimeSlots: [
+      { id: '1', day: '今天', time: '14:00-15:00' },
+      { id: '2', day: '今天', time: '16:00-17:00' },
+      { id: '3', day: '明天', time: '10:00-11:00' },
+      { id: '4', day: '明天', time: '15:00-16:00' },
+      { id: '5', day: '后天', time: '14:00-15:00' },
     ]
-  };
-
-  const handleBackgroundChange = () => {
-    const backgrounds = [
-      'https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1200&h=400',
-      'https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&h=400',
-      'https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?auto=format&fit=crop&w=1200&h=400',
-      'https://images.unsplash.com/photo-1518495973542-4542c06a5843?auto=format&fit=crop&w=1200&h=400'
-    ];
-    
-    const currentIndex = backgrounds.indexOf(backgroundImage);
-    const nextIndex = (currentIndex + 1) % backgrounds.length;
-    setBackgroundImage(backgrounds[nextIndex]);
   };
 
   const scrollTopics = (direction: 'left' | 'right') => {
@@ -114,6 +132,17 @@ const ExpertProfile = () => {
   const handleFollowToggle = () => {
     setIsFollowing(!isFollowing);
   };
+  
+  const handleMessageSubmit = () => {
+    console.log('Message sent:', messageText);
+    setMessageText('');
+    setIsMessageDialogOpen(false);
+  };
+  
+  const handleBookingSubmit = () => {
+    console.log('Booking submitted:', { selectedTopic, selectedTimeSlot, consultType });
+    setIsBookingDialogOpen(false);
+  };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
@@ -128,19 +157,16 @@ const ExpertProfile = () => {
       
       <div className="relative">
         <div 
-          className="w-full h-48 bg-cover bg-center"
-          style={{ backgroundImage: `url(${backgroundImage})` }}
+          className="w-full pt-6 pb-20 bg-cover bg-center"
+          style={{ 
+            backgroundImage: `url(https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1200&h=400)`,
+            backgroundPosition: 'center top'
+          }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/30 to-transparent"></div>
-          <button 
-            onClick={handleBackgroundChange}
-            className="absolute right-4 top-4 bg-white/20 backdrop-blur-sm text-white rounded-full p-2 z-10"
-          >
-            <Camera size={18} />
-          </button>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent"></div>
         </div>
         
-        <div className="relative px-4 pb-4 -mt-16 pt-20">
+        <div className="relative px-4 pb-4 -mt-16">
           <div className="flex justify-between items-end">
             <Avatar className="w-20 h-20 border-4 border-white shadow-md">
               <AvatarImage src={expert.avatar} alt={expert.name} />
@@ -452,15 +478,177 @@ const ExpertProfile = () => {
       </div>
       
       <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex gap-3">
-        <Button variant="outline" className="flex-1 flex items-center justify-center">
+        <Button 
+          variant="outline" 
+          className="flex-1 flex items-center justify-center"
+          onClick={() => setIsMessageDialogOpen(true)}
+        >
           <MessageSquare size={16} className="mr-2" />
-          私聊
+          给TA留言
         </Button>
-        <Button className="flex-1 bg-gradient-to-r from-blue-500 to-app-blue flex items-center justify-center">
+        <Button 
+          className="flex-1 bg-gradient-to-r from-blue-500 to-app-blue flex items-center justify-center"
+          onClick={() => setIsBookingDialogOpen(true)}
+        >
           <Calendar size={16} className="mr-2" />
-          预约咨询
+          预约问问
         </Button>
       </div>
+      
+      <Dialog open={isMessageDialogOpen} onOpenChange={setIsMessageDialogOpen}>
+        <DialogContent className="sm:max-w-[500px]">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <span>发送消息给 </span>
+              <span className="text-app-teal ml-1">{expert.name}</span>
+            </DialogTitle>
+            <DialogDescription>
+              发送消息后，{expert.name}会尽快回复您的留言
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="flex items-start gap-3 my-4">
+            <Avatar className="w-10 h-10">
+              <AvatarImage src={expert.avatar} alt={expert.name} />
+              <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
+            </Avatar>
+            
+            <div className="flex-1">
+              <Textarea
+                placeholder={`请输入您想对${expert.name}说的话...`}
+                value={messageText}
+                onChange={(e) => setMessageText(e.target.value)}
+                rows={5}
+                className="resize-none focus-visible:ring-app-teal"
+              />
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">取消</Button>
+            </DialogClose>
+            <Button 
+              onClick={handleMessageSubmit} 
+              disabled={!messageText.trim()}
+              className="bg-gradient-to-r from-blue-500 to-app-blue"
+            >
+              <Send size={16} className="mr-2" />
+              发送留言
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+      
+      <Dialog open={isBookingDialogOpen} onOpenChange={setIsBookingDialogOpen}>
+        <DialogContent className="sm:max-w-[500px] max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center">
+              <span>预约 </span>
+              <span className="text-app-teal ml-1">{expert.name}</span>
+              <span> 问问</span>
+            </DialogTitle>
+            <DialogDescription>
+              选择您感兴趣的话题和合适的时间
+            </DialogDescription>
+          </DialogHeader>
+          
+          <div className="space-y-6 my-4">
+            <div>
+              <h3 className="text-sm font-medium mb-3">选择话题</h3>
+              <div className="grid grid-cols-2 gap-2">
+                {expert.topics.map((topic) => (
+                  <div
+                    key={topic.id}
+                    className={`border rounded-lg p-3 cursor-pointer transition-all ${
+                      selectedTopic === topic.id 
+                        ? 'border-app-teal bg-blue-50 shadow-sm' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setSelectedTopic(topic.id)}
+                  >
+                    <p className="text-sm font-medium line-clamp-2">{topic.title}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-sm font-medium mb-3">选择时间</h3>
+              <div className="grid grid-cols-3 gap-2">
+                {expert.availableTimeSlots.map((slot) => (
+                  <div
+                    key={slot.id}
+                    className={`border rounded-lg p-2 flex flex-col items-center cursor-pointer transition-all ${
+                      selectedTimeSlot === slot.id 
+                        ? 'border-app-teal bg-blue-50 shadow-sm' 
+                        : 'border-gray-200 hover:border-gray-300'
+                    }`}
+                    onClick={() => setSelectedTimeSlot(slot.id)}
+                  >
+                    <span className="text-xs text-gray-500">{slot.day}</span>
+                    <span className="text-sm font-medium">{slot.time}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+            
+            <div>
+              <h3 className="text-sm font-medium mb-3">选择咨询方式</h3>
+              <div className="grid grid-cols-3 gap-3">
+                <RadioGroup value={consultType} onValueChange={(value) => setConsultType(value as 'text' | 'voice' | 'video')}>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="text" id="text" className="text-app-teal" />
+                    <Label 
+                      htmlFor="text" 
+                      className="flex items-center cursor-pointer"
+                    >
+                      <MessageCircle size={16} className="mr-1 text-blue-500" />
+                      <span>文字</span>
+                    </Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="voice" id="voice" className="text-app-teal" />
+                    <Label 
+                      htmlFor="voice" 
+                      className="flex items-center cursor-pointer"
+                    >
+                      <Phone size={16} className="mr-1 text-green-500" />
+                      <span>语音</span>
+                    </Label>
+                  </div>
+                  
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="video" id="video" className="text-app-teal" />
+                    <Label 
+                      htmlFor="video" 
+                      className="flex items-center cursor-pointer"
+                    >
+                      <VideoIcon size={16} className="mr-1 text-purple-500" />
+                      <span>视频</span>
+                    </Label>
+                  </div>
+                </RadioGroup>
+              </div>
+            </div>
+          </div>
+          
+          <DialogFooter>
+            <DialogClose asChild>
+              <Button variant="outline">取消</Button>
+            </DialogClose>
+            <Button 
+              onClick={handleBookingSubmit} 
+              disabled={!selectedTopic || !selectedTimeSlot}
+              className="bg-gradient-to-r from-blue-500 to-app-blue"
+            >
+              <CalendarCheck size={16} className="mr-2" />
+              确认预约
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

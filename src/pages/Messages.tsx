@@ -21,7 +21,6 @@ const Messages = () => {
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{ id: string; type: 'chat' | 'notification' } | null>(null);
 
-  // Mock data for demonstration
   const [pinnedChats, setPinnedChats] = useState([
     {
       id: 'chat-001',
@@ -33,7 +32,8 @@ const Messages = () => {
       unreadCount: 2,
       unread: true,
       online: true,
-      pinned: true
+      pinned: true,
+      swipeOffset: 0
     }
   ]);
 
@@ -123,31 +123,26 @@ const Messages = () => {
     }
   ]);
 
-  // Track touch for swipe actions
   const touchStartX = useRef(0);
   const touchStartTime = useRef(0);
   const activeSwipeItemId = useRef<string | null>(null);
 
-  // Calculate unread notifications count
   const unreadNotifications = 
     transactionNotifications.filter(n => !n.read).length +
     activityNotifications.filter(n => !n.read).length +
     interactionNotifications.filter(n => !n.read).length +
     systemNotifications.filter(n => !n.read).length;
 
-  // Filter chats based on search query
   const filteredChats = searchQuery 
     ? regularChats.filter(chat => 
         chat.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
         chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()))
     : regularChats;
 
-  // Context menu handlers
   const handleContextMenu = (e: React.MouseEvent, data: any) => {
     e.preventDefault();
     e.stopPropagation();
     
-    // Position the context menu
     const rect = e.currentTarget.getBoundingClientRect();
     setContextMenuPosition({
       top: e.clientY,
@@ -163,11 +158,10 @@ const Messages = () => {
     setContextMenuData(null);
   };
 
-  // Chat actions
   const pinChat = (id: string) => {
     const chatToPin = regularChats.find(chat => chat.id === id);
     if (chatToPin) {
-      const updatedChat = { ...chatToPin, pinned: true };
+      const updatedChat = { ...chatToPin, pinned: true, swipeOffset: 0 };
       setPinnedChats([...pinnedChats, updatedChat]);
       setRegularChats(regularChats.filter(chat => chat.id !== id));
       toast({
@@ -214,10 +208,7 @@ const Messages = () => {
     closeContextMenu();
   };
 
-  // Archive function
   const archiveChat = (id: string) => {
-    // In a real app, move the chat to an archive collection
-    // For this demo, we'll just remove it with a toast notification
     const chatToArchive = [...pinnedChats, ...regularChats].find(chat => chat.id === id);
     setPinnedChats(pinnedChats.filter(chat => chat.id !== id));
     setRegularChats(regularChats.filter(chat => chat.id !== id));
@@ -229,7 +220,6 @@ const Messages = () => {
     closeContextMenu();
   };
 
-  // Delete functions
   const confirmDelete = () => {
     if (!itemToDelete) return;
     
@@ -243,7 +233,6 @@ const Messages = () => {
         description: "会话已被永久删除",
       });
     } else if (type === 'notification') {
-      // Remove from appropriate notification array
       if (id.startsWith('notif-00')) {
         setTransactionNotifications(transactionNotifications.filter(n => n.id !== id));
       } else if (id.startsWith('notif-0')) {
@@ -263,14 +252,12 @@ const Messages = () => {
     setItemToDelete(null);
   };
 
-  // Open delete confirmation
   const showDeleteConfirmation = (id: string, type: 'chat' | 'notification') => {
     setItemToDelete({ id, type });
     setShowDeleteConfirm(true);
     closeContextMenu();
   };
 
-  // Notification actions
   const markNotificationAsRead = (id: string) => {
     const updateNotifications = (notifications: any[]) => 
       notifications.map(notif => 
@@ -312,7 +299,6 @@ const Messages = () => {
     });
   };
 
-  // Touch handlers for swipe actions
   const handleTouchStart = (e: React.TouchEvent, id: string) => {
     touchStartX.current = e.touches[0].clientX;
     touchStartTime.current = Date.now();
@@ -326,8 +312,7 @@ const Messages = () => {
     const moveDistance = touchStartX.current - touchMoveX;
     
     if (moveDistance > 0) {
-      // Only allow swipe left
-      const maxSwipe = 160; // Width of action buttons
+      const maxSwipe = 160;
       const swipeOffset = Math.min(moveDistance, maxSwipe);
       
       setRegularChats(regularChats.map(chat => 
@@ -347,7 +332,6 @@ const Messages = () => {
     const touchEndTime = Date.now();
     const timeDiff = touchEndTime - touchStartTime.current;
     
-    // If swiped more than 80px or quick swipe, snap to full open
     if (chat.swipeOffset > 80 || (chat.swipeOffset > 20 && timeDiff < 200)) {
       setRegularChats(regularChats.map(c => 
         c.id === activeSwipeItemId.current
@@ -355,7 +339,6 @@ const Messages = () => {
           : c
       ));
     } else {
-      // Otherwise close
       setRegularChats(regularChats.map(c => 
         c.id === activeSwipeItemId.current
           ? { ...c, swipeOffset: 0 }
@@ -366,27 +349,18 @@ const Messages = () => {
     activeSwipeItemId.current = null;
   };
 
-  // Handler for chat item click
   const handleChatClick = (id: string) => {
-    // In a real app, navigate to chat detail
     console.log(`Navigate to chat ${id}`);
-    
-    // Mark as read when opening
     markChatAsRead(id);
   };
 
-  // Handler for notification click
   const handleNotificationClick = (notification: any) => {
-    // In a real app, navigate based on notification type
     console.log(`Open notification ${notification.id} of type ${notification.type}`);
-    
-    // Mark as read
     markNotificationAsRead(notification.id);
   };
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Header with tabs */}
       <div className="fixed top-0 left-0 right-0 z-10 bg-white shadow-sm">
         <div className="pt-12 pb-2">
           <div className="flex justify-between items-center px-4">
@@ -437,7 +411,6 @@ const Messages = () => {
           </div>
         </div>
         
-        {/* Search bar */}
         <div className={`overflow-hidden transition-all duration-300 ${showSearch ? 'max-h-16' : 'max-h-0'}`}>
           <div className="p-3 bg-white border-t border-gray-100">
             <div className="flex items-center">
@@ -464,9 +437,7 @@ const Messages = () => {
         </div>
       </div>
       
-      {/* Content container */}
       <div className={`pt-${showSearch ? '32' : '20'}`}>
-        {/* Chats tab */}
         {activeTab === 'chats' && (
           <div className="px-0">
             {pinnedChats.length > 0 && (
@@ -571,7 +542,6 @@ const Messages = () => {
                     </div>
                   )}
                   
-                  {/* Swipe action buttons */}
                   <div 
                     className="absolute top-0 right-0 bottom-0 flex items-center transform transition-transform"
                     style={{ 
@@ -611,7 +581,6 @@ const Messages = () => {
           </div>
         )}
         
-        {/* Notifications tab */}
         {activeTab === 'notifications' && (
           <div className="px-0">
             <div className="p-3 px-4 flex justify-end bg-white border-b border-gray-100">
@@ -624,7 +593,6 @@ const Messages = () => {
               </button>
             </div>
             
-            {/* Empty state */}
             {transactionNotifications.length === 0 && 
              activityNotifications.length === 0 &&
              interactionNotifications.length === 0 &&
@@ -637,7 +605,6 @@ const Messages = () => {
               </div>
             )}
             
-            {/* Transaction notifications */}
             {transactionNotifications.length > 0 && (
               <>
                 <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50">交易通知</div>
@@ -668,7 +635,6 @@ const Messages = () => {
               </>
             )}
             
-            {/* Activity notifications */}
             {activityNotifications.length > 0 && (
               <>
                 <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50">活动通知</div>
@@ -699,7 +665,6 @@ const Messages = () => {
               </>
             )}
             
-            {/* Interaction notifications */}
             {interactionNotifications.length > 0 && (
               <>
                 <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50">互动通知</div>
@@ -730,7 +695,6 @@ const Messages = () => {
               </>
             )}
             
-            {/* System notifications */}
             {systemNotifications.length > 0 && (
               <>
                 <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50">系统公告</div>
@@ -764,7 +728,6 @@ const Messages = () => {
         )}
       </div>
       
-      {/* Context menu */}
       {showContextMenu && (
         <div 
           className="fixed inset-0 z-50 bg-black bg-opacity-10"
@@ -861,7 +824,6 @@ const Messages = () => {
         </div>
       )}
       
-      {/* Delete confirmation dialog */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center">
           <div className="bg-white rounded-lg w-[85%] max-w-xs overflow-hidden">

@@ -1,5 +1,7 @@
+
 import React, { useState, useRef } from 'react';
-import { ArrowLeft, Search, Settings, Check, Pin, Archive, Trash2, MessageCircle, Bell } from 'lucide-react';
+import { ArrowLeft, Search, Settings, Check, Pin, Archive, Trash2, MessageCircle, Bell, Clock, SendHorizontal, Image, Mic, Paperclip } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
@@ -361,12 +363,17 @@ const Messages = () => {
 
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="fixed top-0 left-0 right-0 z-10 bg-white shadow-sm">
-        <div className="pt-12 pb-2">
+      {/* Modern Header with Tabs */}
+      <div className="fixed top-0 left-0 right-0 z-10 bg-white shadow-sm rounded-b-xl">
+        <div className="pt-12 pb-3">
           <div className="flex justify-between items-center px-4">
-            <div className="flex space-x-6">
+            <Link to="/" className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100">
+              <ArrowLeft size={20} className="text-gray-600" />
+            </Link>
+            
+            <div className="flex space-x-8">
               <div 
-                className={`relative pb-2 cursor-pointer ${activeTab === 'chats' ? 'text-app-teal font-medium' : 'text-gray-500'}`}
+                className={`relative pb-2 cursor-pointer ${activeTab === 'chats' ? 'text-app-blue font-medium' : 'text-gray-500'}`}
                 onClick={() => setActiveTab('chats')}
               >
                 <div className="flex items-center gap-1.5">
@@ -374,12 +381,12 @@ const Messages = () => {
                   <span className="text-lg">私信</span>
                 </div>
                 {activeTab === 'chats' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-app-teal rounded-full"></div>
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-app-blue rounded-full"></div>
                 )}
               </div>
               
               <div 
-                className={`relative pb-2 cursor-pointer ${activeTab === 'notifications' ? 'text-app-teal font-medium' : 'text-gray-500'}`}
+                className={`relative pb-2 cursor-pointer ${activeTab === 'notifications' ? 'text-app-blue font-medium' : 'text-gray-500'}`}
                 onClick={() => setActiveTab('notifications')}
               >
                 <div className="flex items-center gap-1.5">
@@ -387,12 +394,12 @@ const Messages = () => {
                   <span className="text-lg">通知</span>
                 </div>
                 {unreadNotifications > 0 && (
-                  <div className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center bg-red-500 text-white text-xs rounded-full">
+                  <div className="absolute -top-2 -right-2 w-5 h-5 flex items-center justify-center bg-app-red text-white text-xs rounded-full">
                     {unreadNotifications > 99 ? '99+' : unreadNotifications}
                   </div>
                 )}
                 {activeTab === 'notifications' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-app-teal rounded-full"></div>
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-app-blue rounded-full"></div>
                 )}
               </div>
             </div>
@@ -411,20 +418,21 @@ const Messages = () => {
           </div>
         </div>
         
+        {/* Modern search bar with animation */}
         <div className={`overflow-hidden transition-all duration-300 ${showSearch ? 'max-h-16' : 'max-h-0'}`}>
           <div className="p-3 bg-white border-t border-gray-100">
             <div className="flex items-center">
               <div className="flex-1 relative">
                 <Search size={16} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
                 <input 
-                  className="w-full bg-gray-100 h-10 pl-10 pr-4 rounded-lg text-sm focus:outline-none"
+                  className="w-full bg-gray-100 h-10 pl-10 pr-4 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-app-blue/20"
                   placeholder="搜索联系人或消息内容"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </div>
               <button 
-                className="ml-3 text-app-teal text-sm"
+                className="ml-3 text-app-blue text-sm"
                 onClick={() => {
                   setShowSearch(false);
                   setSearchQuery('');
@@ -437,7 +445,8 @@ const Messages = () => {
         </div>
       </div>
       
-      <div className={`pt-${showSearch ? '32' : '20'}`}>
+      {/* Content area with proper padding */}
+      <div className={`pt-${showSearch ? '32' : '24'}`}>
         {activeTab === 'chats' && (
           <div className="px-0">
             {pinnedChats.length > 0 && (
@@ -450,7 +459,7 @@ const Messages = () => {
                   {pinnedChats.map(chat => (
                     <div 
                       key={chat.id} 
-                      className={`flex items-center p-4 border-b border-gray-100 ${chat.unread ? 'bg-blue-50/30' : ''}`}
+                      className={`flex items-center p-4 border-b border-gray-100 ${chat.unread ? 'bg-blue-50/30' : ''} transition-all duration-200 active:bg-gray-100`}
                       onClick={() => handleChatClick(chat.id)}
                       onContextMenu={(e) => handleContextMenu(e, {
                         id: chat.id,
@@ -460,17 +469,20 @@ const Messages = () => {
                       })}
                     >
                       <div className="relative mr-3">
-                        <img src={chat.avatar} alt={chat.name} className="w-12 h-12 rounded-full object-cover" />
+                        <img src={chat.avatar} alt={chat.name} className="w-12 h-12 rounded-full object-cover shadow-sm" />
                         {chat.online && <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <div className="flex justify-between">
+                        <div className="flex justify-between items-center">
                           <div className="font-medium text-gray-900">{chat.name}</div>
-                          <div className="text-xs text-gray-500">{chat.lastMessageTime}</div>
+                          <div className="text-xs text-gray-500 flex items-center">
+                            <Clock size={12} className="mr-1" />
+                            {chat.lastMessageTime}
+                          </div>
                         </div>
-                        <div className="text-sm text-gray-600 truncate">
+                        <div className="text-sm text-gray-600 truncate mt-0.5">
                           {chat.lastMessageType !== 'text' && (
-                            <span className="text-blue-500 mr-1">
+                            <span className="text-app-blue mr-1">
                               [{chat.lastMessageType === 'image' ? '图片' : 
                                 chat.lastMessageType === 'voice' ? '语音' : 
                                 chat.lastMessageType === 'file' ? '文件' : '消息'}]
@@ -480,12 +492,12 @@ const Messages = () => {
                         </div>
                       </div>
                       {chat.unreadCount > 0 && (
-                        <div className="ml-2 min-w-[20px] h-5 flex items-center justify-center bg-red-500 text-white text-xs rounded-full px-1.5">
+                        <div className="ml-2 min-w-[20px] h-5 flex items-center justify-center bg-app-red text-white text-xs rounded-full px-1.5 animate-pulse">
                           {chat.unreadCount > 99 ? '99+' : chat.unreadCount}
                         </div>
                       )}
                       <div className="ml-1 text-gray-400">
-                        <Pin size={16} className="text-gray-400" />
+                        <Pin size={16} className="text-app-blue" />
                       </div>
                     </div>
                   ))}
@@ -494,7 +506,7 @@ const Messages = () => {
             )}
             
             <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50">最近会话</div>
-            <div className="bg-white">
+            <div className="bg-white rounded-md shadow-sm mx-2 mt-1 overflow-hidden">
               {filteredChats.length === 0 && searchQuery && (
                 <div className="py-8 text-center text-gray-500">
                   未找到与 "{searchQuery}" 相关的会话
@@ -504,7 +516,7 @@ const Messages = () => {
               {filteredChats.map(chat => (
                 <div 
                   key={chat.id} 
-                  className={`flex items-center p-4 border-b border-gray-100 ${chat.unread ? 'bg-blue-50/30' : ''} relative`}
+                  className={`flex items-center p-4 border-b border-gray-100 last:border-none ${chat.unread ? 'bg-blue-50/20' : ''} relative transition-all duration-200 active:bg-gray-100`}
                   onClick={() => handleChatClick(chat.id)}
                   onContextMenu={(e) => handleContextMenu(e, {
                     id: chat.id,
@@ -515,19 +527,25 @@ const Messages = () => {
                   onTouchStart={(e) => handleTouchStart(e, chat.id)}
                   onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
+                  style={{
+                    transform: `translateX(-${chat.swipeOffset}px)`
+                  }}
                 >
                   <div className="relative mr-3">
-                    <img src={chat.avatar} alt={chat.name} className="w-12 h-12 rounded-full object-cover" />
+                    <img src={chat.avatar} alt={chat.name} className="w-12 h-12 rounded-full object-cover shadow-sm" />
                     {chat.online && <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>}
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="flex justify-between">
+                    <div className="flex justify-between items-center">
                       <div className="font-medium text-gray-900">{chat.name}</div>
-                      <div className="text-xs text-gray-500">{chat.lastMessageTime}</div>
+                      <div className="text-xs text-gray-500 flex items-center">
+                        <Clock size={12} className="mr-1" />
+                        {chat.lastMessageTime}
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600 truncate">
+                    <div className="text-sm text-gray-600 truncate mt-0.5">
                       {chat.lastMessageType !== 'text' && (
-                        <span className="text-blue-500 mr-1">
+                        <span className="text-app-blue mr-1">
                           [{chat.lastMessageType === 'image' ? '图片' : 
                             chat.lastMessageType === 'voice' ? '语音' : 
                             chat.lastMessageType === 'file' ? '文件' : '消息'}]
@@ -537,46 +555,52 @@ const Messages = () => {
                     </div>
                   </div>
                   {chat.unreadCount > 0 && (
-                    <div className="ml-2 min-w-[20px] h-5 flex items-center justify-center bg-red-500 text-white text-xs rounded-full px-1.5">
+                    <div className="ml-2 min-w-[20px] h-5 flex items-center justify-center bg-app-red text-white text-xs rounded-full px-1.5 animate-pulse">
                       {chat.unreadCount > 99 ? '99+' : chat.unreadCount}
                     </div>
                   )}
                   
                   <div 
-                    className="absolute top-0 right-0 bottom-0 flex items-center transform transition-transform"
+                    className="absolute top-0 right-0 bottom-0 flex items-center"
                     style={{ 
-                      transform: `translateX(${chat.swipeOffset > 0 ? 0 : 100}%)`,
-                      width: '160px', 
-                      right: `-160px` 
+                      right: `-160px`,
+                      width: '160px'
                     }}
                   >
                     <div 
-                      className="h-full w-[80px] bg-blue-500 flex items-center justify-center text-white"
+                      className="h-full w-[80px] bg-app-blue flex items-center justify-center text-white"
                       onClick={(e) => {
                         e.stopPropagation();
                         archiveChat(chat.id);
                       }}
                     >
                       <div className="flex flex-col items-center">
-                        <Archive size={20} />
+                        <Archive size={18} />
                         <span className="text-xs mt-1">归档</span>
                       </div>
                     </div>
                     <div 
-                      className="h-full w-[80px] bg-red-500 flex items-center justify-center text-white"
+                      className="h-full w-[80px] bg-app-red flex items-center justify-center text-white"
                       onClick={(e) => {
                         e.stopPropagation();
                         showDeleteConfirmation(chat.id, 'chat');
                       }}
                     >
                       <div className="flex flex-col items-center">
-                        <Trash2 size={20} />
+                        <Trash2 size={18} />
                         <span className="text-xs mt-1">删除</span>
                       </div>
                     </div>
                   </div>
                 </div>
               ))}
+
+              {/* Quick action button */}
+              <div className="fixed bottom-24 right-5">
+                <button className="w-12 h-12 rounded-full bg-app-blue text-white flex items-center justify-center shadow-lg transform transition-transform hover:scale-105 active:scale-95">
+                  <SendHorizontal size={20} />
+                </button>
+              </div>
             </div>
           </div>
         )}
@@ -585,10 +609,10 @@ const Messages = () => {
           <div className="px-0">
             <div className="p-3 px-4 flex justify-end bg-white border-b border-gray-100">
               <button 
-                className="text-app-teal text-sm flex items-center gap-1"
+                className="text-app-blue text-sm flex items-center gap-1 rounded-full px-3 py-1 bg-blue-50"
                 onClick={markAllNotificationsAsRead}
               >
-                <Check size={14} className="text-app-teal" />
+                <Check size={14} className="text-app-blue" />
                 <span>全部标为已读</span>
               </button>
             </div>
@@ -608,11 +632,11 @@ const Messages = () => {
             {transactionNotifications.length > 0 && (
               <>
                 <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50">交易通知</div>
-                <div className="bg-white">
+                <div className="bg-white mx-2 mt-1 rounded-md shadow-sm overflow-hidden">
                   {transactionNotifications.map(notification => (
                     <div 
                       key={notification.id} 
-                      className={`flex p-4 border-b border-gray-100 ${!notification.read ? 'bg-blue-50/30' : ''}`}
+                      className={`flex p-4 border-b border-gray-100 last:border-none ${!notification.read ? 'bg-blue-50/20' : ''} transition-all duration-200 active:bg-gray-100`}
                       onClick={() => handleNotificationClick(notification)}
                       onContextMenu={(e) => handleContextMenu(e, {
                         id: notification.id,
@@ -620,15 +644,18 @@ const Messages = () => {
                         isRead: notification.read
                       })}
                     >
-                      <div className="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center mr-3">
+                      <div className="w-10 h-10 rounded-full bg-soft-yellow flex items-center justify-center mr-3 shadow-sm">
                         <span className="text-yellow-600">💰</span>
                       </div>
                       <div className="flex-1">
                         <div className="font-medium text-gray-900">{notification.title}</div>
                         <div className="text-sm text-gray-600 mb-1">{notification.message}</div>
-                        <div className="text-xs text-gray-500">{notification.time}</div>
+                        <div className="text-xs text-gray-500 flex items-center">
+                          <Clock size={12} className="mr-1" />
+                          {notification.time}
+                        </div>
                       </div>
-                      {!notification.read && <div className="w-2 h-2 bg-app-teal rounded-full mt-2"></div>}
+                      {!notification.read && <div className="w-2 h-2 bg-app-blue rounded-full mt-2"></div>}
                     </div>
                   ))}
                 </div>
@@ -638,11 +665,11 @@ const Messages = () => {
             {activityNotifications.length > 0 && (
               <>
                 <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50">活动通知</div>
-                <div className="bg-white">
+                <div className="bg-white mx-2 mt-1 rounded-md shadow-sm overflow-hidden">
                   {activityNotifications.map(notification => (
                     <div 
                       key={notification.id} 
-                      className={`flex p-4 border-b border-gray-100 ${!notification.read ? 'bg-blue-50/30' : ''}`}
+                      className={`flex p-4 border-b border-gray-100 last:border-none ${!notification.read ? 'bg-blue-50/20' : ''} transition-all duration-200 active:bg-gray-100`}
                       onClick={() => handleNotificationClick(notification)}
                       onContextMenu={(e) => handleContextMenu(e, {
                         id: notification.id,
@@ -650,15 +677,18 @@ const Messages = () => {
                         isRead: notification.read
                       })}
                     >
-                      <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center mr-3">
+                      <div className="w-10 h-10 rounded-full bg-soft-green flex items-center justify-center mr-3 shadow-sm">
                         <span className="text-green-600">🎉</span>
                       </div>
                       <div className="flex-1">
                         <div className="font-medium text-gray-900">{notification.title}</div>
                         <div className="text-sm text-gray-600 mb-1">{notification.message}</div>
-                        <div className="text-xs text-gray-500">{notification.time}</div>
+                        <div className="text-xs text-gray-500 flex items-center">
+                          <Clock size={12} className="mr-1" />
+                          {notification.time}
+                        </div>
                       </div>
-                      {!notification.read && <div className="w-2 h-2 bg-app-teal rounded-full mt-2"></div>}
+                      {!notification.read && <div className="w-2 h-2 bg-app-blue rounded-full mt-2"></div>}
                     </div>
                   ))}
                 </div>
@@ -668,11 +698,11 @@ const Messages = () => {
             {interactionNotifications.length > 0 && (
               <>
                 <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50">互动通知</div>
-                <div className="bg-white">
+                <div className="bg-white mx-2 mt-1 rounded-md shadow-sm overflow-hidden">
                   {interactionNotifications.map(notification => (
                     <div 
                       key={notification.id} 
-                      className={`flex p-4 border-b border-gray-100 ${!notification.read ? 'bg-blue-50/30' : ''}`}
+                      className={`flex p-4 border-b border-gray-100 last:border-none ${!notification.read ? 'bg-blue-50/20' : ''} transition-all duration-200 active:bg-gray-100`}
                       onClick={() => handleNotificationClick(notification)}
                       onContextMenu={(e) => handleContextMenu(e, {
                         id: notification.id,
@@ -680,15 +710,18 @@ const Messages = () => {
                         isRead: notification.read
                       })}
                     >
-                      <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mr-3">
+                      <div className="w-10 h-10 rounded-full bg-soft-blue flex items-center justify-center mr-3 shadow-sm">
                         <span className="text-blue-600">💬</span>
                       </div>
                       <div className="flex-1">
                         <div className="font-medium text-gray-900">{notification.title}</div>
                         <div className="text-sm text-gray-600 mb-1">{notification.message}</div>
-                        <div className="text-xs text-gray-500">{notification.time}</div>
+                        <div className="text-xs text-gray-500 flex items-center">
+                          <Clock size={12} className="mr-1" />
+                          {notification.time}
+                        </div>
                       </div>
-                      {!notification.read && <div className="w-2 h-2 bg-app-teal rounded-full mt-2"></div>}
+                      {!notification.read && <div className="w-2 h-2 bg-app-blue rounded-full mt-2"></div>}
                     </div>
                   ))}
                 </div>
@@ -698,11 +731,11 @@ const Messages = () => {
             {systemNotifications.length > 0 && (
               <>
                 <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50">系统公告</div>
-                <div className="bg-white">
+                <div className="bg-white mx-2 mt-1 rounded-md shadow-sm overflow-hidden">
                   {systemNotifications.map(notification => (
                     <div 
                       key={notification.id} 
-                      className={`flex p-4 border-b border-gray-100 ${!notification.read ? 'bg-blue-50/30' : ''}`}
+                      className={`flex p-4 border-b border-gray-100 last:border-none ${!notification.read ? 'bg-blue-50/20' : ''} transition-all duration-200 active:bg-gray-100`}
                       onClick={() => handleNotificationClick(notification)}
                       onContextMenu={(e) => handleContextMenu(e, {
                         id: notification.id,
@@ -710,15 +743,18 @@ const Messages = () => {
                         isRead: notification.read
                       })}
                     >
-                      <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center mr-3">
+                      <div className="w-10 h-10 rounded-full bg-soft-purple flex items-center justify-center mr-3 shadow-sm">
                         <span className="text-purple-600">🔔</span>
                       </div>
                       <div className="flex-1">
                         <div className="font-medium text-gray-900">{notification.title}</div>
                         <div className="text-sm text-gray-600 mb-1">{notification.message}</div>
-                        <div className="text-xs text-gray-500">{notification.time}</div>
+                        <div className="text-xs text-gray-500 flex items-center">
+                          <Clock size={12} className="mr-1" />
+                          {notification.time}
+                        </div>
                       </div>
-                      {!notification.read && <div className="w-2 h-2 bg-app-teal rounded-full mt-2"></div>}
+                      {!notification.read && <div className="w-2 h-2 bg-app-blue rounded-full mt-2"></div>}
                     </div>
                   ))}
                 </div>
@@ -728,18 +764,19 @@ const Messages = () => {
         )}
       </div>
       
+      {/* Context menu with improved design */}
       {showContextMenu && (
         <div 
-          className="fixed inset-0 z-50 bg-black bg-opacity-10"
+          className="fixed inset-0 z-50 bg-black bg-opacity-10 backdrop-blur-sm"
           onClick={closeContextMenu}
         >
           <div 
-            className="absolute z-50 bg-white rounded-md shadow-lg overflow-hidden"
+            className="absolute z-50 bg-white rounded-xl shadow-lg overflow-hidden"
             style={{
               top: `${contextMenuPosition.top}px`,
               left: `${contextMenuPosition.left}px`,
               transform: 'translate(-50%, -50%)',
-              minWidth: '140px'
+              minWidth: '160px'
             }}
             onClick={(e) => e.stopPropagation()}
           >
@@ -747,45 +784,45 @@ const Messages = () => {
               <>
                 {contextMenuData.isPinned ? (
                   <div 
-                    className="px-4 py-3 hover:bg-gray-100 cursor-pointer flex items-center"
+                    className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center"
                     onClick={() => unpinChat(contextMenuData.id)}
                   >
-                    <Pin size={16} className="mr-2" />
+                    <Pin size={16} className="mr-3 text-gray-500" />
                     <span>取消置顶</span>
                   </div>
                 ) : (
                   <div 
-                    className="px-4 py-3 hover:bg-gray-100 cursor-pointer flex items-center"
+                    className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center"
                     onClick={() => pinChat(contextMenuData.id)}
                   >
-                    <Pin size={16} className="mr-2" />
+                    <Pin size={16} className="mr-3 text-gray-500" />
                     <span>置顶会话</span>
                   </div>
                 )}
                 
                 {contextMenuData.isUnread ? (
                   <div 
-                    className="px-4 py-3 hover:bg-gray-100 cursor-pointer flex items-center"
+                    className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center"
                     onClick={() => markChatAsRead(contextMenuData.id)}
                   >
-                    <Check size={16} className="mr-2" />
+                    <Check size={16} className="mr-3 text-gray-500" />
                     <span>标为已读</span>
                   </div>
                 ) : (
                   <div 
-                    className="px-4 py-3 hover:bg-gray-100 cursor-pointer flex items-center"
+                    className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center"
                     onClick={() => markChatAsUnread(contextMenuData.id)}
                   >
-                    <div className="w-4 h-4 mr-2 rounded-full border-2 border-gray-500"></div>
+                    <div className="w-4 h-4 mr-3 rounded-full border-2 border-gray-500"></div>
                     <span>标为未读</span>
                   </div>
                 )}
                 
                 <div 
-                  className="px-4 py-3 hover:bg-gray-100 cursor-pointer flex items-center"
+                  className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center"
                   onClick={() => archiveChat(contextMenuData.id)}
                 >
-                  <Archive size={16} className="mr-2" />
+                  <Archive size={16} className="mr-3 text-gray-500" />
                   <span>归档会话</span>
                 </div>
               </>
@@ -795,18 +832,18 @@ const Messages = () => {
               <>
                 {contextMenuData.isRead ? (
                   <div 
-                    className="px-4 py-3 hover:bg-gray-100 cursor-pointer flex items-center"
+                    className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center"
                     onClick={() => markNotificationAsUnread(contextMenuData.id)}
                   >
-                    <div className="w-4 h-4 mr-2 rounded-full border-2 border-gray-500"></div>
+                    <div className="w-4 h-4 mr-3 rounded-full border-2 border-gray-500"></div>
                     <span>标为未读</span>
                   </div>
                 ) : (
                   <div 
-                    className="px-4 py-3 hover:bg-gray-100 cursor-pointer flex items-center"
+                    className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center"
                     onClick={() => markNotificationAsRead(contextMenuData.id)}
                   >
-                    <Check size={16} className="mr-2" />
+                    <Check size={16} className="mr-3 text-gray-500" />
                     <span>标为已读</span>
                   </div>
                 )}
@@ -814,19 +851,20 @@ const Messages = () => {
             )}
             
             <div 
-              className="px-4 py-3 hover:bg-gray-100 cursor-pointer flex items-center text-red-500"
+              className="px-4 py-3 hover:bg-gray-50 cursor-pointer flex items-center text-app-red"
               onClick={() => showDeleteConfirmation(contextMenuData.id, contextMenuData.type)}
             >
-              <Trash2 size={16} className="mr-2" />
+              <Trash2 size={16} className="mr-3" />
               <span>删除</span>
             </div>
           </div>
         </div>
       )}
       
+      {/* Modern delete confirmation modal */}
       {showDeleteConfirm && (
-        <div className="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center">
-          <div className="bg-white rounded-lg w-[85%] max-w-xs overflow-hidden">
+        <div className="fixed inset-0 z-50 bg-black bg-opacity-30 backdrop-blur-sm flex items-center justify-center">
+          <div className="bg-white rounded-2xl w-[85%] max-w-xs overflow-hidden animate-scale">
             <div className="p-5 text-center">
               <h3 className="font-medium text-lg mb-2">确认删除</h3>
               <p className="text-gray-600 text-sm">
@@ -835,7 +873,7 @@ const Messages = () => {
             </div>
             <div className="flex border-t border-gray-100">
               <button 
-                className="flex-1 p-3 text-gray-500 text-center"
+                className="flex-1 p-3 text-gray-500 text-center hover:bg-gray-50 transition-colors"
                 onClick={() => {
                   setShowDeleteConfirm(false);
                   setItemToDelete(null);
@@ -844,12 +882,41 @@ const Messages = () => {
                 取消
               </button>
               <button 
-                className="flex-1 p-3 text-red-500 text-center font-medium border-l border-gray-100"
+                className="flex-1 p-3 text-app-red text-center font-medium border-l border-gray-100 hover:bg-red-50 transition-colors"
                 onClick={confirmDelete}
               >
                 删除
               </button>
             </div>
+          </div>
+        </div>
+      )}
+      
+      {/* New Chat Input UI (Preview only) */}
+      {activeTab === 'chats' && false && (
+        <div className="fixed bottom-20 left-0 right-0 bg-white border-t border-gray-200 p-3">
+          <div className="flex items-center">
+            <button className="p-2 text-gray-500">
+              <Paperclip size={20} />
+            </button>
+            <div className="flex-1 mx-2 bg-gray-100 rounded-full flex items-center px-4 py-2">
+              <input 
+                type="text" 
+                placeholder="输入消息..."
+                className="flex-1 bg-transparent border-none focus:outline-none text-sm"
+              />
+              <div className="flex space-x-2">
+                <button className="p-1 text-gray-500">
+                  <Mic size={18} />
+                </button>
+                <button className="p-1 text-gray-500">
+                  <Image size={18} />
+                </button>
+              </div>
+            </div>
+            <button className="p-2 text-white bg-app-blue rounded-full">
+              <SendHorizontal size={20} />
+            </button>
           </div>
         </div>
       )}

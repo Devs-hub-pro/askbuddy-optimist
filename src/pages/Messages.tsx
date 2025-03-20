@@ -1,8 +1,10 @@
+
 import React, { useState, useRef } from 'react';
-import { ArrowLeft, Search, Settings, Check, Pin, Archive, Trash2, MessageCircle, Bell } from 'lucide-react';
+import { ArrowLeft, Search, Settings, Check, Pin, Archive, Trash2, MessageCircle, Bell, CheckCircle, ChevronRight } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
+import { cn } from '@/lib/utils';
 
 const Messages = () => {
   const { toast } = useToast();
@@ -20,6 +22,8 @@ const Messages = () => {
   } | null>(null);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<{ id: string; type: 'chat' | 'notification' } | null>(null);
+  const [showBatchActions, setShowBatchActions] = useState(false);
+  const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
   // Mock data for demonstration
   const [pinnedChats, setPinnedChats] = useState([
@@ -33,7 +37,8 @@ const Messages = () => {
       unreadCount: 2,
       unread: true,
       online: true,
-      pinned: true
+      pinned: true,
+      swipeOffset: 0
     }
   ]);
 
@@ -79,6 +84,7 @@ const Messages = () => {
     }
   ]);
 
+  // Transaction notifications
   const [transactionNotifications, setTransactionNotifications] = useState([
     {
       id: 'notif-001',
@@ -86,10 +92,25 @@ const Messages = () => {
       message: '您与王医生的咨询订单已完成，请及时评价',
       time: '今天 14:30',
       type: 'transaction',
-      read: false
+      read: false,
+      icon: '💰',
+      iconBg: 'bg-amber-50',
+      iconColor: 'text-amber-600'
+    },
+    {
+      id: 'notif-006',
+      title: '退款已处理',
+      message: '您申请的退款已成功处理，资金将在1-3个工作日内返还',
+      time: '3天前',
+      type: 'transaction',
+      read: true,
+      icon: '💸',
+      iconBg: 'bg-amber-50',
+      iconColor: 'text-amber-600'
     }
   ]);
 
+  // Activity notifications
   const [activityNotifications, setActivityNotifications] = useState([
     {
       id: 'notif-002',
@@ -97,10 +118,14 @@ const Messages = () => {
       message: '双11优惠：所有专家咨询享8折优惠，立即查看',
       time: '昨天',
       type: 'activity',
-      read: true
+      read: true,
+      icon: '🎉',
+      iconBg: 'bg-green-50',
+      iconColor: 'text-green-600'
     }
   ]);
 
+  // Interaction notifications
   const [interactionNotifications, setInteractionNotifications] = useState([
     {
       id: 'notif-003',
@@ -108,10 +133,25 @@ const Messages = () => {
       message: '李教授回答了您的问题"如何提高英语口语水平？"',
       time: '昨天',
       type: 'interaction',
-      read: false
+      read: false,
+      icon: '💬',
+      iconBg: 'bg-blue-50',
+      iconColor: 'text-blue-600'
+    },
+    {
+      id: 'notif-007',
+      title: '新关注',
+      message: '张三开始关注你了',
+      time: '5天前',
+      type: 'interaction',
+      read: true,
+      icon: '👤',
+      iconBg: 'bg-blue-50',
+      iconColor: 'text-blue-600'
     }
   ]);
 
+  // System notifications
   const [systemNotifications, setSystemNotifications] = useState([
     {
       id: 'notif-005',
@@ -119,7 +159,10 @@ const Messages = () => {
       message: '找人问问小程序已更新至v2.1.0，新增语音识别功能',
       time: '1周前',
       type: 'system',
-      read: true
+      read: true,
+      icon: '🔔',
+      iconBg: 'bg-purple-50',
+      iconColor: 'text-purple-600'
     }
   ]);
 
@@ -141,6 +184,46 @@ const Messages = () => {
         chat.name.toLowerCase().includes(searchQuery.toLowerCase()) || 
         chat.lastMessage.toLowerCase().includes(searchQuery.toLowerCase()))
     : regularChats;
+
+  // Organize notifications for display with collapsible categories
+  const allNotifications = [
+    {
+      type: 'transaction',
+      title: '交易通知',
+      icon: '💰',
+      iconBg: 'bg-amber-50',
+      iconColor: 'text-amber-600',
+      items: transactionNotifications,
+      expanded: true
+    },
+    {
+      type: 'interaction',
+      title: '互动通知',
+      icon: '💬',
+      iconBg: 'bg-blue-50',
+      iconColor: 'text-blue-600',
+      items: interactionNotifications,
+      expanded: true
+    },
+    {
+      type: 'activity',
+      title: '活动通知',
+      icon: '🎉',
+      iconBg: 'bg-green-50',
+      iconColor: 'text-green-600',
+      items: activityNotifications,
+      expanded: true
+    },
+    {
+      type: 'system',
+      title: '系统公告',
+      icon: '🔔',
+      iconBg: 'bg-purple-50',
+      iconColor: 'text-purple-600',
+      items: systemNotifications,
+      expanded: true
+    }
+  ].filter(category => category.items.length > 0);
 
   // Context menu handlers
   const handleContextMenu = (e: React.MouseEvent, data: any) => {
@@ -167,7 +250,7 @@ const Messages = () => {
   const pinChat = (id: string) => {
     const chatToPin = regularChats.find(chat => chat.id === id);
     if (chatToPin) {
-      const updatedChat = { ...chatToPin, pinned: true };
+      const updatedChat = { ...chatToPin, pinned: true, swipeOffset: 0 };
       setPinnedChats([...pinnedChats, updatedChat]);
       setRegularChats(regularChats.filter(chat => chat.id !== id));
       toast({
@@ -384,13 +467,92 @@ const Messages = () => {
     markNotificationAsRead(notification.id);
   };
 
+  // Toggle batch selection mode
+  const toggleBatchMode = () => {
+    setShowBatchActions(!showBatchActions);
+    setSelectedItems([]);
+  };
+
+  // Toggle selection of an item
+  const toggleItemSelection = (id: string) => {
+    if (selectedItems.includes(id)) {
+      setSelectedItems(selectedItems.filter(itemId => itemId !== id));
+    } else {
+      setSelectedItems([...selectedItems, id]);
+    }
+  };
+
+  // Batch delete selected items
+  const batchDeleteItems = () => {
+    if (activeTab === 'chats') {
+      setPinnedChats(pinnedChats.filter(chat => !selectedItems.includes(chat.id)));
+      setRegularChats(regularChats.filter(chat => !selectedItems.includes(chat.id)));
+    } else {
+      setTransactionNotifications(transactionNotifications.filter(n => !selectedItems.includes(n.id)));
+      setActivityNotifications(activityNotifications.filter(n => !selectedItems.includes(n.id)));
+      setInteractionNotifications(interactionNotifications.filter(n => !selectedItems.includes(n.id)));
+      setSystemNotifications(systemNotifications.filter(n => !selectedItems.includes(n.id)));
+    }
+    
+    toast({
+      title: `已删除 ${selectedItems.length} 项`,
+      description: activeTab === 'chats' ? "已删除所选会话" : "已删除所选通知",
+    });
+    
+    setShowBatchActions(false);
+    setSelectedItems([]);
+  };
+
+  // Batch mark as read
+  const batchMarkAsRead = () => {
+    if (activeTab === 'chats') {
+      setPinnedChats(pinnedChats.map(chat => 
+        selectedItems.includes(chat.id) ? { ...chat, unread: false, unreadCount: 0 } : chat
+      ));
+      setRegularChats(regularChats.map(chat => 
+        selectedItems.includes(chat.id) ? { ...chat, unread: false, unreadCount: 0 } : chat
+      ));
+    } else {
+      const markSelected = (notifications: any[]) =>
+        notifications.map(notif => 
+          selectedItems.includes(notif.id) ? { ...notif, read: true } : notif
+        );
+      
+      setTransactionNotifications(markSelected(transactionNotifications));
+      setActivityNotifications(markSelected(activityNotifications));
+      setInteractionNotifications(markSelected(interactionNotifications));
+      setSystemNotifications(markSelected(systemNotifications));
+    }
+    
+    toast({
+      title: `已标记 ${selectedItems.length} 项为已读`,
+      description: "所选项目已标记为已读",
+    });
+    
+    setShowBatchActions(false);
+    setSelectedItems([]);
+  };
+
+  // Format time string based on 24h threshold
+  const formatMessageTime = (timeStr: string) => {
+    if (timeStr.includes('上午') || timeStr.includes('下午') || 
+        timeStr === '昨天' || timeStr === '今天' || 
+        timeStr.includes('周') || timeStr.includes('天前') || 
+        timeStr.includes('小时前') || timeStr.includes('分钟前')) {
+      return timeStr;
+    }
+    
+    // For demo, we'll just return the string as-is
+    return timeStr;
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header with tabs */}
       <div className="fixed top-0 left-0 right-0 z-10 bg-white shadow-sm">
         <div className="pt-12 pb-2">
           <div className="flex justify-between items-center px-4">
-            <div className="flex space-x-6">
+            <div className="flex space-x-8">
               <div 
                 className={`relative pb-2 cursor-pointer ${activeTab === 'chats' ? 'text-app-teal font-medium' : 'text-gray-500'}`}
                 onClick={() => setActiveTab('chats')}
@@ -462,67 +624,132 @@ const Messages = () => {
             </div>
           </div>
         </div>
+
+        {/* Batch action bar */}
+        {showBatchActions && (
+          <div className="bg-white border-t border-gray-100 px-4 py-2 flex justify-between items-center">
+            <div className="text-sm">
+              已选择 <span className="text-app-teal font-medium">{selectedItems.length}</span> 项
+            </div>
+            <div className="flex space-x-4">
+              <button 
+                className="text-sm text-app-teal flex items-center"
+                onClick={batchMarkAsRead}
+              >
+                <CheckCircle size={16} className="mr-1" />
+                标为已读
+              </button>
+              <button 
+                className="text-sm text-red-500 flex items-center"
+                onClick={batchDeleteItems}
+              >
+                <Trash2 size={16} className="mr-1" />
+                删除
+              </button>
+              <button 
+                className="text-sm text-gray-500"
+                onClick={toggleBatchMode}
+              >
+                取消
+              </button>
+            </div>
+          </div>
+        )}
       </div>
       
       {/* Content container */}
-      <div className={`pt-${showSearch ? '32' : '20'}`}>
+      <div className={`pt-${showSearch ? '32' : '20'} ${showBatchActions ? 'pt-40' : ''}`}>
         {/* Chats tab */}
         {activeTab === 'chats' && (
           <div className="px-0">
+            <div className="p-2 px-4 flex justify-between items-center bg-gray-50">
+              <div className="text-xs text-gray-500 flex items-center">
+                {!showBatchActions && pinnedChats.length > 0 && (
+                  <>
+                    <Pin size={12} className="mr-1" />
+                    <span>置顶会话</span>
+                  </>
+                )}
+              </div>
+              {!showBatchActions && (
+                <button 
+                  className="text-xs text-app-teal"
+                  onClick={toggleBatchMode}
+                >
+                  管理
+                </button>
+              )}
+            </div>
+
+            {/* Pinned chats */}
             {pinnedChats.length > 0 && (
-              <>
-                <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50 flex items-center">
-                  <Pin size={12} className="mr-1" />
-                  <span>置顶会话</span>
-                </div>
-                <div className="bg-white">
-                  {pinnedChats.map(chat => (
-                    <div 
-                      key={chat.id} 
-                      className={`flex items-center p-4 border-b border-gray-100 ${chat.unread ? 'bg-blue-50/30' : ''}`}
-                      onClick={() => handleChatClick(chat.id)}
-                      onContextMenu={(e) => handleContextMenu(e, {
-                        id: chat.id,
-                        type: 'chat',
-                        isPinned: true,
-                        isUnread: chat.unreadCount > 0
-                      })}
-                    >
-                      <div className="relative mr-3">
-                        <img src={chat.avatar} alt={chat.name} className="w-12 h-12 rounded-full object-cover" />
-                        {chat.online && <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>}
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex justify-between">
-                          <div className="font-medium text-gray-900">{chat.name}</div>
-                          <div className="text-xs text-gray-500">{chat.lastMessageTime}</div>
-                        </div>
-                        <div className="text-sm text-gray-600 truncate">
-                          {chat.lastMessageType !== 'text' && (
-                            <span className="text-blue-500 mr-1">
-                              [{chat.lastMessageType === 'image' ? '图片' : 
-                                chat.lastMessageType === 'voice' ? '语音' : 
-                                chat.lastMessageType === 'file' ? '文件' : '消息'}]
-                            </span>
+              <div className="bg-white">
+                {pinnedChats.map(chat => (
+                  <div 
+                    key={chat.id} 
+                    className={cn(
+                      "flex items-center p-4 border-b border-gray-100",
+                      chat.unread ? 'bg-blue-50/30' : '',
+                      showBatchActions ? 'pr-2' : ''
+                    )}
+                    onClick={() => showBatchActions ? toggleItemSelection(chat.id) : handleChatClick(chat.id)}
+                    onContextMenu={(e) => handleContextMenu(e, {
+                      id: chat.id,
+                      type: 'chat',
+                      isPinned: true,
+                      isUnread: chat.unreadCount > 0
+                    })}
+                  >
+                    {showBatchActions && (
+                      <div className="pr-3">
+                        <div 
+                          className={cn(
+                            "w-5 h-5 rounded-full border flex items-center justify-center",
+                            selectedItems.includes(chat.id) 
+                              ? "bg-app-teal border-app-teal text-white" 
+                              : "border-gray-300"
                           )}
-                          {chat.lastMessage}
+                        >
+                          {selectedItems.includes(chat.id) && <Check size={12} />}
                         </div>
                       </div>
-                      {chat.unreadCount > 0 && (
-                        <div className="ml-2 min-w-[20px] h-5 flex items-center justify-center bg-red-500 text-white text-xs rounded-full px-1.5">
-                          {chat.unreadCount > 99 ? '99+' : chat.unreadCount}
-                        </div>
-                      )}
-                      <div className="ml-1 text-gray-400">
-                        <Pin size={16} className="text-gray-400" />
+                    )}
+                    <div className="relative mr-3">
+                      <img src={chat.avatar} alt={chat.name} className="w-12 h-12 rounded-full object-cover" />
+                      {chat.online && <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex justify-between">
+                        <div className="font-medium text-gray-900">{chat.name}</div>
+                        <div className="text-xs text-gray-500">{formatMessageTime(chat.lastMessageTime)}</div>
+                      </div>
+                      <div className="text-sm text-gray-600 truncate">
+                        {chat.lastMessageType !== 'text' && (
+                          <span className="text-blue-500 mr-1">
+                            [{chat.lastMessageType === 'image' ? '图片' : 
+                              chat.lastMessageType === 'voice' ? '语音' : 
+                              chat.lastMessageType === 'file' ? '文件' : '消息'}]
+                          </span>
+                        )}
+                        {chat.lastMessage}
                       </div>
                     </div>
-                  ))}
-                </div>
-              </>
+                    {chat.unreadCount > 0 && (
+                      <div className="ml-2 min-w-[20px] h-5 flex items-center justify-center bg-red-500 text-white text-xs rounded-full px-1.5">
+                        {chat.unreadCount > 9 ? '9+' : chat.unreadCount}
+                      </div>
+                    )}
+                    <div className="ml-1 text-gray-400">
+                      <Pin size={16} className="text-gray-400" />
+                    </div>
+                  </div>
+                ))}
+              </div>
             )}
             
-            <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50">最近会话</div>
+            <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50 flex justify-between items-center">
+              <span>最近会话</span>
+            </div>
             <div className="bg-white">
               {filteredChats.length === 0 && searchQuery && (
                 <div className="py-8 text-center text-gray-500">
@@ -533,18 +760,36 @@ const Messages = () => {
               {filteredChats.map(chat => (
                 <div 
                   key={chat.id} 
-                  className={`flex items-center p-4 border-b border-gray-100 ${chat.unread ? 'bg-blue-50/30' : ''} relative`}
-                  onClick={() => handleChatClick(chat.id)}
+                  className={cn(
+                    "flex items-center p-4 border-b border-gray-100 relative",
+                    chat.unread ? 'bg-blue-50/30' : '',
+                    showBatchActions ? 'pr-2' : ''
+                  )}
+                  onClick={() => showBatchActions ? toggleItemSelection(chat.id) : handleChatClick(chat.id)}
                   onContextMenu={(e) => handleContextMenu(e, {
                     id: chat.id,
                     type: 'chat',
                     isPinned: false,
                     isUnread: chat.unreadCount > 0
                   })}
-                  onTouchStart={(e) => handleTouchStart(e, chat.id)}
-                  onTouchMove={handleTouchMove}
-                  onTouchEnd={handleTouchEnd}
+                  onTouchStart={(e) => !showBatchActions && handleTouchStart(e, chat.id)}
+                  onTouchMove={(e) => !showBatchActions && handleTouchMove(e)}
+                  onTouchEnd={() => !showBatchActions && handleTouchEnd()}
                 >
+                  {showBatchActions && (
+                    <div className="pr-3">
+                      <div 
+                        className={cn(
+                          "w-5 h-5 rounded-full border flex items-center justify-center",
+                          selectedItems.includes(chat.id) 
+                            ? "bg-app-teal border-app-teal text-white" 
+                            : "border-gray-300"
+                        )}
+                      >
+                        {selectedItems.includes(chat.id) && <Check size={12} />}
+                      </div>
+                    </div>
+                  )}
                   <div className="relative mr-3">
                     <img src={chat.avatar} alt={chat.name} className="w-12 h-12 rounded-full object-cover" />
                     {chat.online && <div className="absolute bottom-0 right-0 w-3 h-3 bg-green-500 border-2 border-white rounded-full"></div>}
@@ -552,7 +797,7 @@ const Messages = () => {
                   <div className="flex-1 min-w-0">
                     <div className="flex justify-between">
                       <div className="font-medium text-gray-900">{chat.name}</div>
-                      <div className="text-xs text-gray-500">{chat.lastMessageTime}</div>
+                      <div className="text-xs text-gray-500">{formatMessageTime(chat.lastMessageTime)}</div>
                     </div>
                     <div className="text-sm text-gray-600 truncate">
                       {chat.lastMessageType !== 'text' && (
@@ -567,7 +812,7 @@ const Messages = () => {
                   </div>
                   {chat.unreadCount > 0 && (
                     <div className="ml-2 min-w-[20px] h-5 flex items-center justify-center bg-red-500 text-white text-xs rounded-full px-1.5">
-                      {chat.unreadCount > 99 ? '99+' : chat.unreadCount}
+                      {chat.unreadCount > 9 ? '9+' : chat.unreadCount}
                     </div>
                   )}
                   
@@ -607,6 +852,13 @@ const Messages = () => {
                   </div>
                 </div>
               ))}
+
+              {filteredChats.length === 0 && !searchQuery && (
+                <div className="py-16 text-center">
+                  <div className="text-gray-400 mb-2">暂无私信</div>
+                  <button className="text-app-teal text-sm">开始新的私信</button>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -614,21 +866,33 @@ const Messages = () => {
         {/* Notifications tab */}
         {activeTab === 'notifications' && (
           <div className="px-0">
-            <div className="p-3 px-4 flex justify-end bg-white border-b border-gray-100">
-              <button 
-                className="text-app-teal text-sm flex items-center gap-1"
-                onClick={markAllNotificationsAsRead}
-              >
-                <Check size={14} className="text-app-teal" />
-                <span>全部标为已读</span>
-              </button>
+            <div className="p-3 px-4 flex justify-between items-center bg-white border-b border-gray-100">
+              <div className="text-xs text-gray-500">
+                {unreadNotifications > 0 && `${unreadNotifications} 条未读通知`}
+              </div>
+              <div className="flex space-x-4">
+                {!showBatchActions && (
+                  <>
+                    <button 
+                      className="text-sm text-app-teal flex items-center"
+                      onClick={markAllNotificationsAsRead}
+                    >
+                      <Check size={14} className="mr-1" />
+                      <span>全部已读</span>
+                    </button>
+                    <button 
+                      className="text-sm text-app-teal"
+                      onClick={toggleBatchMode}
+                    >
+                      管理
+                    </button>
+                  </>
+                )}
+              </div>
             </div>
             
             {/* Empty state */}
-            {transactionNotifications.length === 0 && 
-             activityNotifications.length === 0 &&
-             interactionNotifications.length === 0 &&
-             systemNotifications.length === 0 && (
+            {allNotifications.length === 0 && (
               <div className="py-20 text-center">
                 <div className="flex justify-center mb-4">
                   <Bell size={48} className="text-gray-300" />
@@ -637,24 +901,53 @@ const Messages = () => {
               </div>
             )}
             
-            {/* Transaction notifications */}
-            {transactionNotifications.length > 0 && (
-              <>
-                <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50">交易通知</div>
+            {/* Notification categories */}
+            {allNotifications.map((category, idx) => (
+              <div key={category.type} className="mb-2">
+                <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50 flex items-center">
+                  <span className="mr-1">{category.icon}</span>
+                  <span>{category.title}</span>
+                  {category.items.filter(item => !item.read).length > 0 && (
+                    <span className="ml-2 text-app-teal">
+                      {category.items.filter(item => !item.read).length} 条未读
+                    </span>
+                  )}
+                </div>
                 <div className="bg-white">
-                  {transactionNotifications.map(notification => (
+                  {category.items.map(notification => (
                     <div 
                       key={notification.id} 
-                      className={`flex p-4 border-b border-gray-100 ${!notification.read ? 'bg-blue-50/30' : ''}`}
-                      onClick={() => handleNotificationClick(notification)}
+                      className={cn(
+                        "flex p-4 border-b border-gray-100",
+                        !notification.read ? 'bg-blue-50/30' : '',
+                        showBatchActions ? 'pr-2' : ''
+                      )}
+                      onClick={() => showBatchActions ? toggleItemSelection(notification.id) : handleNotificationClick(notification)}
                       onContextMenu={(e) => handleContextMenu(e, {
                         id: notification.id,
                         type: 'notification',
                         isRead: notification.read
                       })}
                     >
-                      <div className="w-10 h-10 rounded-full bg-yellow-50 flex items-center justify-center mr-3">
-                        <span className="text-yellow-600">💰</span>
+                      {showBatchActions && (
+                        <div className="pr-3">
+                          <div 
+                            className={cn(
+                              "w-5 h-5 rounded-full border flex items-center justify-center",
+                              selectedItems.includes(notification.id) 
+                                ? "bg-app-teal border-app-teal text-white" 
+                                : "border-gray-300"
+                            )}
+                          >
+                            {selectedItems.includes(notification.id) && <Check size={12} />}
+                          </div>
+                        </div>
+                      )}
+                      <div className={cn(
+                        "w-10 h-10 rounded-full flex items-center justify-center mr-3",
+                        notification.iconBg
+                      )}>
+                        <span className={notification.iconColor}>{notification.icon}</span>
                       </div>
                       <div className="flex-1">
                         <div className="font-medium text-gray-900">{notification.title}</div>
@@ -665,101 +958,8 @@ const Messages = () => {
                     </div>
                   ))}
                 </div>
-              </>
-            )}
-            
-            {/* Activity notifications */}
-            {activityNotifications.length > 0 && (
-              <>
-                <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50">活动通知</div>
-                <div className="bg-white">
-                  {activityNotifications.map(notification => (
-                    <div 
-                      key={notification.id} 
-                      className={`flex p-4 border-b border-gray-100 ${!notification.read ? 'bg-blue-50/30' : ''}`}
-                      onClick={() => handleNotificationClick(notification)}
-                      onContextMenu={(e) => handleContextMenu(e, {
-                        id: notification.id,
-                        type: 'notification',
-                        isRead: notification.read
-                      })}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-green-50 flex items-center justify-center mr-3">
-                        <span className="text-green-600">🎉</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900">{notification.title}</div>
-                        <div className="text-sm text-gray-600 mb-1">{notification.message}</div>
-                        <div className="text-xs text-gray-500">{notification.time}</div>
-                      </div>
-                      {!notification.read && <div className="w-2 h-2 bg-app-teal rounded-full mt-2"></div>}
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-            
-            {/* Interaction notifications */}
-            {interactionNotifications.length > 0 && (
-              <>
-                <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50">互动通知</div>
-                <div className="bg-white">
-                  {interactionNotifications.map(notification => (
-                    <div 
-                      key={notification.id} 
-                      className={`flex p-4 border-b border-gray-100 ${!notification.read ? 'bg-blue-50/30' : ''}`}
-                      onClick={() => handleNotificationClick(notification)}
-                      onContextMenu={(e) => handleContextMenu(e, {
-                        id: notification.id,
-                        type: 'notification',
-                        isRead: notification.read
-                      })}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-blue-50 flex items-center justify-center mr-3">
-                        <span className="text-blue-600">💬</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900">{notification.title}</div>
-                        <div className="text-sm text-gray-600 mb-1">{notification.message}</div>
-                        <div className="text-xs text-gray-500">{notification.time}</div>
-                      </div>
-                      {!notification.read && <div className="w-2 h-2 bg-app-teal rounded-full mt-2"></div>}
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
-            
-            {/* System notifications */}
-            {systemNotifications.length > 0 && (
-              <>
-                <div className="p-2 px-4 text-xs text-gray-500 bg-gray-50">系统公告</div>
-                <div className="bg-white">
-                  {systemNotifications.map(notification => (
-                    <div 
-                      key={notification.id} 
-                      className={`flex p-4 border-b border-gray-100 ${!notification.read ? 'bg-blue-50/30' : ''}`}
-                      onClick={() => handleNotificationClick(notification)}
-                      onContextMenu={(e) => handleContextMenu(e, {
-                        id: notification.id,
-                        type: 'notification',
-                        isRead: notification.read
-                      })}
-                    >
-                      <div className="w-10 h-10 rounded-full bg-purple-50 flex items-center justify-center mr-3">
-                        <span className="text-purple-600">🔔</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="font-medium text-gray-900">{notification.title}</div>
-                        <div className="text-sm text-gray-600 mb-1">{notification.message}</div>
-                        <div className="text-xs text-gray-500">{notification.time}</div>
-                      </div>
-                      {!notification.read && <div className="w-2 h-2 bg-app-teal rounded-full mt-2"></div>}
-                    </div>
-                  ))}
-                </div>
-              </>
-            )}
+              </div>
+            ))}
           </div>
         )}
       </div>
@@ -771,7 +971,7 @@ const Messages = () => {
           onClick={closeContextMenu}
         >
           <div 
-            className="absolute z-50 bg-white rounded-md shadow-lg overflow-hidden"
+            className="absolute z-50 bg-white rounded-lg shadow-lg overflow-hidden"
             style={{
               top: `${contextMenuPosition.top}px`,
               left: `${contextMenuPosition.left}px`,
@@ -864,7 +1064,7 @@ const Messages = () => {
       {/* Delete confirmation dialog */}
       {showDeleteConfirm && (
         <div className="fixed inset-0 z-50 bg-black bg-opacity-30 flex items-center justify-center">
-          <div className="bg-white rounded-lg w-[85%] max-w-xs overflow-hidden">
+          <div className="bg-white rounded-lg w-[85%] max-w-xs overflow-hidden animate-fade-in">
             <div className="p-5 text-center">
               <h3 className="font-medium text-lg mb-2">确认删除</h3>
               <p className="text-gray-600 text-sm">

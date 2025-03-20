@@ -167,7 +167,7 @@ const Discover: React.FC = () => {
   return (
     <div className="pb-20 bg-gray-50 min-h-screen">
       {/* Header with Search */}
-      <div className="sticky top-0 z-10 bg-white shadow-sm">
+      <div className="sticky top-0 z-10 bg-app-teal shadow-sm">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex-1">
             <Tabs 
@@ -178,19 +178,19 @@ const Discover: React.FC = () => {
               <TabsList className="w-full justify-start bg-transparent h-10 p-0">
                 <TabsTrigger 
                   value="following" 
-                  className="text-base font-medium data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600 rounded-none px-3 py-1"
+                  className="text-base font-medium data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-white rounded-none px-3 py-1 text-white/80"
                 >
                   关注
                 </TabsTrigger>
                 <TabsTrigger 
                   value="recommended" 
-                  className="text-base font-medium data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600 rounded-none px-3 py-1"
+                  className="text-base font-medium data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-white rounded-none px-3 py-1 text-white/80"
                 >
                   推荐
                 </TabsTrigger>
                 <TabsTrigger 
                   value="local" 
-                  className="text-base font-medium data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600 rounded-none px-3 py-1"
+                  className="text-base font-medium data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-white rounded-none px-3 py-1 text-white/80"
                 >
                   同城
                 </TabsTrigger>
@@ -199,14 +199,14 @@ const Discover: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-2">
-            <button className="p-2 rounded-full bg-gray-100">
-              <Search size={18} className="text-gray-600" />
+            <button className="p-2 rounded-full bg-white/20">
+              <Search size={18} className="text-white" />
             </button>
             <button 
               className="relative p-2"
               onClick={handleNotificationClick}
             >
-              <Bell size={18} className="text-gray-600" />
+              <Bell size={18} className="text-white" />
               {showNotification && (
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               )}
@@ -215,23 +215,23 @@ const Discover: React.FC = () => {
         </div>
         
         {/* Filters */}
-        <div className="px-4 py-2 overflow-x-auto scrollbar-hide flex space-x-2 border-b">
-          <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200 border-none py-1 px-3 rounded-full">
+        <div className="px-4 py-2 overflow-x-auto scrollbar-hide flex space-x-2 border-b border-white/20">
+          <Badge className="bg-white text-app-teal hover:bg-white/90 border-none py-1 px-3 rounded-full">
             全部
           </Badge>
-          <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-none py-1 px-3 rounded-full">
+          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full">
             热门话题
           </Badge>
-          <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-none py-1 px-3 rounded-full">
+          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full">
             学习分享
           </Badge>
-          <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-none py-1 px-3 rounded-full">
+          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full">
             职场攻略
           </Badge>
-          <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-none py-1 px-3 rounded-full">
+          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full">
             生活百科
           </Badge>
-          <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-none py-1 px-3 rounded-full">
+          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full">
             兴趣爱好
           </Badge>
         </div>
@@ -271,7 +271,7 @@ const Discover: React.FC = () => {
         <DialogTrigger asChild>
           <Button 
             onClick={handleNewQuestionClick}
-            className="fixed bottom-20 right-5 w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+            className="fixed bottom-20 right-5 w-14 h-14 rounded-full bg-app-teal shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
           >
             <Plus className="h-6 w-6 text-white" />
           </Button>
@@ -283,7 +283,7 @@ const Discover: React.FC = () => {
           <div className="space-y-4 pt-4">
             <Textarea 
               placeholder="分享你的想法..." 
-              className="w-full h-32 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300"
+              className="w-full h-32 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-teal/50"
             />
             <div className="flex gap-2">
               <Button variant="outline" size="sm" className="flex gap-1 rounded-full">
@@ -294,7 +294,7 @@ const Discover: React.FC = () => {
               </Button>
             </div>
             <div className="pt-2 flex justify-end">
-              <Button className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90 rounded-full">发布</Button>
+              <Button className="bg-app-teal hover:bg-app-teal/90 rounded-full">发布</Button>
             </div>
           </div>
         </DialogContent>
@@ -305,7 +305,7 @@ const Discover: React.FC = () => {
   );
 };
 
-// DiscoverFeed component to avoid repetition
+// DiscoverFeed component with updated colors
 interface DiscoverFeedProps {
   recommendationCards: RecommendationCard[];
   posts: Post[];
@@ -340,13 +340,13 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
         </div>
       </div>
       
-      {/* Posts Feed - Enhanced styling */}
+      {/* Posts Feed - Updated colors */}
       <div className="space-y-3 mt-3 px-3">
         {posts.map(post => (
           <div key={post.id} className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
             {/* Author info */}
             <div className="flex items-center space-x-3 mb-3">
-              <Avatar className="h-10 w-10 ring-2 ring-purple-100">
+              <Avatar className="h-10 w-10 ring-2 ring-app-teal/10">
                 <AvatarImage src={post.author.avatar} alt={post.author.name} />
                 <AvatarFallback>{post.author.name.slice(0, 2)}</AvatarFallback>
               </Avatar>
@@ -400,7 +400,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
               {post.topics && post.topics.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
                   {post.topics.map(topic => (
-                    <Badge key={topic} variant="secondary" className="bg-indigo-50 text-indigo-600 border-none rounded-full text-xs">
+                    <Badge key={topic} variant="secondary" className="bg-app-teal/10 text-app-teal border-none rounded-full text-xs">
                       #{topic}
                     </Badge>
                   ))}
@@ -418,12 +418,12 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
                 <span>{post.likes + (likedPosts[post.id] ? 1 : 0)}</span>
               </button>
               
-              <button className="flex items-center space-x-1 text-sm text-gray-500 transition-colors hover:text-indigo-500">
+              <button className="flex items-center space-x-1 text-sm text-gray-500 transition-colors hover:text-app-teal">
                 <MessageCircle className="h-5 w-5" />
                 <span>{post.comments}</span>
               </button>
               
-              <button className="flex items-center space-x-1 text-sm text-gray-500 transition-colors hover:text-green-500">
+              <button className="flex items-center space-x-1 text-sm text-gray-500 transition-colors hover:text-app-teal">
                 <Share2 className="h-5 w-5" />
                 <span>{post.shares}</span>
               </button>

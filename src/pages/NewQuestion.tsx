@@ -253,18 +253,18 @@ const NewQuestion: React.FC = () => {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white px-4 py-3 border-b flex items-center justify-between">
+      <div className="sticky top-0 z-10 bg-app-teal px-4 py-3 border-b flex items-center justify-between">
         <button 
           onClick={() => navigate(-1)} 
-          className="flex items-center text-gray-700"
+          className="flex items-center text-white"
         >
           <ArrowLeft size={20} />
           <span className="ml-2">返回</span>
         </button>
-        <h1 className="text-lg font-medium text-center flex-1">发布问题</h1>
+        <h1 className="text-lg font-medium text-center flex-1 text-white">发布问题</h1>
         <button 
           onClick={saveDraft}
-          className="text-gray-500 text-sm"
+          className="text-white/80 text-sm"
         >
           存草稿
         </button>
@@ -441,7 +441,7 @@ const NewQuestion: React.FC = () => {
         <div className="bg-white rounded-xl p-4 shadow-sm">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-lg font-medium">悬赏积分</h2>
-            <button className="text-sm text-indigo-500 flex items-center">
+            <button className="text-sm text-app-teal flex items-center">
               <Coins size={14} className="mr-1" />
               我的积分: 100
             </button>
@@ -456,7 +456,7 @@ const NewQuestion: React.FC = () => {
                 value={pointReward}
                 onChange={(e) => setPointReward(e.target.value)}
                 placeholder="输入积分数量"
-                className="w-full border-gray-300 focus:border-purple-400 rounded-xl text-lg p-3"
+                className="w-full border-gray-300 focus:border-app-teal rounded-xl text-lg p-3"
               />
             </div>
             <span className="text-lg font-medium text-gray-700">积分</span>
@@ -470,7 +470,7 @@ const NewQuestion: React.FC = () => {
                 onClick={() => setPointReward(rec.value.toString())}
                 className={`p-2 rounded-lg border text-left ${
                   parseInt(pointReward) === rec.value 
-                    ? 'border-orange-300 bg-orange-50' 
+                    ? 'border-app-teal/30 bg-app-teal/10' 
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
@@ -481,8 +481,8 @@ const NewQuestion: React.FC = () => {
           </div>
           
           {/* Response time estimate */}
-          <div className="mt-4 bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-100 p-3 rounded-lg">
-            <p className="text-sm text-orange-700">
+          <div className="mt-4 bg-gradient-to-r from-app-teal/10 to-app-teal/5 border border-app-teal/20 p-3 rounded-lg">
+            <p className="text-sm text-app-teal">
               💡 提示：悬赏 {pointReward} 积分的问题平均在
               {parseInt(pointReward) >= 30 ? ' 2 小时内 ' : ' 12 小时内 '}
               获得首次回答
@@ -490,7 +490,7 @@ const NewQuestion: React.FC = () => {
           </div>
         </div>
         
-        {/* 5-6. Consultation & Attachments - Redesigned to be side by side */}
+        {/* 5-6. Consultation & Attachments - SIDE BY SIDE layout */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {/* 5. Schedule Consultation */}
           <div className="bg-white rounded-xl p-4 shadow-sm">
@@ -507,7 +507,7 @@ const NewQuestion: React.FC = () => {
                   }
                 }}
                 id="flexible-time"
-                className="mr-2"
+                className="mr-2 text-app-teal"
               />
               <Label htmlFor="flexible-time" className="cursor-pointer">
                 时间可商量（回答者可自由解答）
@@ -523,7 +523,7 @@ const NewQuestion: React.FC = () => {
                       key={slot.id}
                       className={`border rounded-lg p-3 flex items-center ${
                         selectedTimeSlots.includes(slot.value)
-                          ? 'border-green-300 bg-green-50'
+                          ? 'border-app-teal/30 bg-app-teal/10'
                           : 'border-gray-200'
                       }`}
                       onClick={() => toggleTimeSlot(slot.value)}
@@ -532,7 +532,7 @@ const NewQuestion: React.FC = () => {
                         checked={selectedTimeSlots.includes(slot.value)}
                         onCheckedChange={() => toggleTimeSlot(slot.value)}
                         id={`time-${slot.id}`}
-                        className="mr-2"
+                        className="mr-2 text-app-teal"
                       />
                       <Label htmlFor={`time-${slot.id}`} className="flex-1 cursor-pointer flex items-center">
                         <Clock size={16} className="mr-2 text-gray-500" />
@@ -552,9 +552,9 @@ const NewQuestion: React.FC = () => {
             
             <Tabs defaultValue="image" className="w-full">
               <TabsList className="grid grid-cols-3 mb-4">
-                <TabsTrigger value="image" className="text-sm">图片</TabsTrigger>
-                <TabsTrigger value="file" className="text-sm">文件</TabsTrigger>
-                <TabsTrigger value="audio" className="text-sm">语音</TabsTrigger>
+                <TabsTrigger value="image" className="text-sm data-[state=active]:bg-app-teal data-[state=active]:text-white">图片</TabsTrigger>
+                <TabsTrigger value="file" className="text-sm data-[state=active]:bg-app-teal data-[state=active]:text-white">文件</TabsTrigger>
+                <TabsTrigger value="audio" className="text-sm data-[state=active]:bg-app-teal data-[state=active]:text-white">语音</TabsTrigger>
               </TabsList>
               
               <TabsContent value="image" className="mt-0">
@@ -639,7 +639,7 @@ const NewQuestion: React.FC = () => {
         <Button 
           onClick={handleSubmit}
           disabled={submitted}
-          className="w-full bg-gradient-to-r from-purple-500 to-indigo-500 text-white font-medium py-5 rounded-full flex items-center justify-center shadow-lg"
+          className="w-full bg-app-teal hover:bg-app-teal/90 text-white font-medium py-5 rounded-full flex items-center justify-center shadow-lg"
         >
           {submitted ? '发布中...' : '立即发布问题'}
         </Button>

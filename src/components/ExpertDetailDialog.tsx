@@ -73,7 +73,7 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
       
       <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="sr-only">专家详情 - {name}</DialogTitle>
+          <DialogTitle className="sr-only">专家详情</DialogTitle>
         </DialogHeader>
         
         <div className="mt-2 space-y-6">

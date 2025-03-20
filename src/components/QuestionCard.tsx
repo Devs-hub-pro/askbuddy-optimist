@@ -50,13 +50,13 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
 }) => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   
-  // Create unique expert data for the asker based on their properties
+  // Mock expert data for the asker - in a real app, this would be fetched from API
   const askerExpertData = {
     id: id + '-asker',
     name: asker.name,
     avatar: asker.avatar,
     title: '提问者',
-    description: `这位用户 ${asker.name} 经常在平台上提出高质量的问题，帮助社区成长。`,
+    description: '这位用户经常在平台上提出高质量的问题，帮助社区成长。',
     tags: tags,
     rating: 4.5,
     responseRate: '90%',

@@ -43,12 +43,6 @@ import CommunityGuidelines from "./pages/settings/CommunityGuidelines";
 import ProductFeedback from "./pages/settings/ProductFeedback";
 import AboutUs from "./pages/settings/AboutUs";
 
-// New pages
-import PopularQuestions from "./pages/PopularQuestions";
-import KaoyanCategory from "./pages/KaoyanCategory";
-import KaoyanSubcategory from "./pages/KaoyanSubcategory";
-import CategorySearch from "./pages/CategorySearch";
-
 function App() {
   return (
     <Router>
@@ -94,12 +88,6 @@ function App() {
             <Route path="/settings/guidelines" element={<CommunityGuidelines />} />
             <Route path="/settings/feedback" element={<ProductFeedback />} />
             <Route path="/settings/about" element={<AboutUs />} />
-            
-            {/* New pages for question categories and search */}
-            <Route path="/popular-questions" element={<PopularQuestions />} />
-            <Route path="/kaoyan" element={<KaoyanCategory />} />
-            <Route path="/kaoyan/subcategory/:id" element={<KaoyanSubcategory />} />
-            <Route path="/category/:category" element={<CategorySearch />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

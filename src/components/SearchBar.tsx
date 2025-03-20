@@ -1,57 +1,110 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { Search } from 'lucide-react';
+import { Input } from '@/components/ui/input';
 
 interface SearchBarProps {
-  onSearch: (value: string) => void;
+  onSearch?: (value: string) => void;
   placeholder?: string;
+  className?: string;
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  isEducation?: boolean;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ 
   onSearch, 
   placeholder = "搜索问题/达人/话题", 
+  className = "",
   value,
-  onChange
+  onChange,
+  isEducation = false
 }) => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [searchValue, setSearchValue] = useState(value || '');
-  
-  const isControlled = value !== undefined;
-  const currentValue = isControlled ? value : searchValue;
+  const [isFocused, setIsFocused] = useState(false);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (!isControlled) {
-      setSearchValue(e.target.value);
+  useEffect(() => {
+    if (value !== undefined) {
+      setSearchValue(value);
     }
-    onChange && onChange(e);
+  }, [value]);
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newValue = e.target.value;
+    setSearchValue(newValue);
+    
+    if (onChange) {
+      onChange(e);
+    }
+    
+    if (onSearch) {
+      onSearch(newValue);
+    }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    onSearch(currentValue);
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      handleSearch();
+    }
+  };
+
+  const handleSearch = () => {
+    if (searchValue.trim() === '') return;
+    
+    // If we're already on a search page, use the provided onSearch function
+    if (location.pathname.includes('/search')) {
+      if (onSearch) {
+        onSearch(searchValue);
+      }
+    } else {
+      // Navigate to the appropriate search page
+      if (isEducation) {
+        navigate(`/education/search?q=${encodeURIComponent(searchValue)}`);
+      } else {
+        // Global search
+        navigate(`/search?q=${encodeURIComponent(searchValue)}`);
+      }
+    }
+  };
+
+  const handleFocus = () => {
+    setIsFocused(true);
+    // Navigate directly to search page when focusing on the search bar
+    if (!location.pathname.includes('/search')) {
+      if (isEducation) {
+        navigate('/education/search');
+      } else {
+        navigate('/search');
+      }
+    }
+  };
+
+  const handleBlur = () => {
+    setIsFocused(false);
   };
 
   return (
-    <div className="px-4 py-3">
-      <form 
-        className="relative w-full"
-        onSubmit={handleSubmit}
-      >
-        <input
+    <div className={`px-4 py-3 ${className}`}>
+      <div className={`relative ${isFocused ? 'ring-2 ring-app-teal/30 rounded-md' : ''}`}>
+        <Input
           type="text"
-          className="w-full pl-10 pr-4 py-2 bg-gray-100 border border-gray-200 rounded-full text-sm focus:outline-none focus:border-app-teal focus:ring-1 focus:ring-app-teal"
+          value={value !== undefined ? value : searchValue}
+          onChange={handleInputChange}
+          onKeyDown={handleKeyDown}
+          onFocus={handleFocus}
+          onBlur={handleBlur}
           placeholder={placeholder}
-          value={currentValue}
-          onChange={handleChange}
+          className="search-input pr-10 focus:ring-2 focus:ring-app-teal/30 shadow-sm"
         />
-        <button 
-          type="submit"
-          className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500"
-        >
-          <Search size={18} />
-        </button>
-      </form>
+        <Search 
+          size={18} 
+          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer" 
+          onClick={handleSearch}
+        />
+      </div>
     </div>
   );
 };

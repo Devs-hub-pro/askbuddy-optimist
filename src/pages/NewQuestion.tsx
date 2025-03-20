@@ -1,6 +1,5 @@
-
 import React, { useState, useEffect } from 'react';
-import { ArrowLeft, BookQuestion, MessageSquare, Tag, Coins, Calendar, Clock, Check, X, Lightbulb } from 'lucide-react';
+import { ArrowLeft, BookOpen, MessageSquare, Tag, Coins, Calendar, Clock, Check, X, Lightbulb } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -20,12 +19,10 @@ const NewQuestion: React.FC = () => {
   const [showExampleDialog, setShowExampleDialog] = useState(false);
   const [similarQuestions, setSimilarQuestions] = useState<string[]>([]);
   
-  // Character count for title
   const maxTitleLength = 20;
   const titleLength = title.length;
   const titlePercentage = Math.min((titleLength / maxTitleLength) * 100, 100);
 
-  // Suggested categories based on content
   const allCategories = [
     { id: 'career', name: '职业发展', icon: '💼' },
     { id: 'education', name: '教育学习', icon: '📚' },
@@ -37,7 +34,6 @@ const NewQuestion: React.FC = () => {
     { id: 'entertainment', name: '娱乐休闲', icon: '🎮' }
   ];
   
-  // Suggested times for consultation
   const timeSlots = [
     { id: 'morning', name: '上午 (9:00-12:00)', icon: '🌤️' },
     { id: 'afternoon', name: '下午 (14:00-18:00)', icon: '☀️' },
@@ -45,7 +41,6 @@ const NewQuestion: React.FC = () => {
     { id: 'weekend', name: '周末', icon: '📅' }
   ];
   
-  // Examples of good questions
   const questionExamples = [
     {
       title: "如何申请英国留学？",
@@ -57,10 +52,8 @@ const NewQuestion: React.FC = () => {
     }
   ];
   
-  // Generate similar questions based on title input
   useEffect(() => {
     if (title.length > 5) {
-      // Simulate AI suggestion (in a real app, this would be an API call)
       const suggestions = [
         `${title}需要注意哪些问题？`,
         `如何高效解决${title.substring(0, 5)}相关问题？`,
@@ -72,7 +65,6 @@ const NewQuestion: React.FC = () => {
     }
   }, [title]);
   
-  // Handle category selection
   const toggleCategory = (categoryId: string) => {
     if (selectedCategories.includes(categoryId)) {
       setSelectedCategories(selectedCategories.filter(id => id !== categoryId));
@@ -83,16 +75,13 @@ const NewQuestion: React.FC = () => {
     }
   };
   
-  // Handle points selection
   const handlePointsSelect = (amount: number) => {
     setPoints(amount);
     setCustomPoints('');
   };
   
-  // Handle custom points input
   const handleCustomPointsChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
-    // Only allow numbers
     if (/^\d*$/.test(value)) {
       setCustomPoints(value);
       if (value) {
@@ -103,9 +92,7 @@ const NewQuestion: React.FC = () => {
     }
   };
   
-  // Handle form submission
   const handleSubmit = () => {
-    // Here you would typically send the data to your backend
     console.log({
       title,
       description,
@@ -114,11 +101,9 @@ const NewQuestion: React.FC = () => {
       timeFlexible
     });
     
-    // Navigate back to the discover page or wherever appropriate
     navigate('/discover');
   };
   
-  // Fill with example question
   const fillExampleQuestion = (example: typeof questionExamples[0]) => {
     setTitle(example.title);
     setDescription(example.description);
@@ -127,7 +112,6 @@ const NewQuestion: React.FC = () => {
 
   return (
     <div className="pb-20 bg-gray-50 min-h-screen">
-      {/* Header */}
       <div className="bg-white p-4 flex items-center shadow-sm">
         <Button 
           variant="ghost" 
@@ -141,11 +125,10 @@ const NewQuestion: React.FC = () => {
       </div>
       
       <div className="p-4 space-y-6">
-        {/* Question Title */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <label className="font-medium flex items-center gap-1">
-              <BookQuestion size={16} className="text-app-teal" />
+              <BookOpen size={16} className="text-app-teal" />
               问题标题
             </label>
             <span className={`text-xs ${titleLength > maxTitleLength ? 'text-red-500' : 'text-gray-500'}`}>
@@ -171,7 +154,6 @@ const NewQuestion: React.FC = () => {
             )}
           </div>
           
-          {/* Progress bar for character count */}
           <div className="h-1 w-full bg-gray-200 rounded-full overflow-hidden">
             <div 
               className={`h-full ${titlePercentage > 90 ? 'bg-red-500' : 'bg-app-teal'}`} 
@@ -179,7 +161,6 @@ const NewQuestion: React.FC = () => {
             ></div>
           </div>
           
-          {/* Similar Questions */}
           {similarQuestions.length > 0 && (
             <div className="mt-2 space-y-2">
               <p className="text-xs text-gray-500 flex items-center gap-1">
@@ -201,7 +182,6 @@ const NewQuestion: React.FC = () => {
           )}
         </div>
         
-        {/* Detailed Description */}
         <div className="space-y-2">
           <div className="flex justify-between items-center">
             <label className="font-medium flex items-center gap-1">
@@ -235,7 +215,6 @@ const NewQuestion: React.FC = () => {
           </Button>
         </div>
         
-        {/* Categories */}
         <div className="space-y-3">
           <label className="font-medium flex items-center gap-1">
             <Tag size={16} className="text-app-teal" />
@@ -265,7 +244,6 @@ const NewQuestion: React.FC = () => {
           </div>
         </div>
         
-        {/* Reward Points */}
         <div className="space-y-3">
           <label className="font-medium flex items-center gap-1">
             <Coins size={16} className="text-app-teal" />
@@ -308,7 +286,6 @@ const NewQuestion: React.FC = () => {
           </div>
         </div>
         
-        {/* Consultation Time */}
         <div className="space-y-3">
           <label className="font-medium flex items-center gap-1">
             <Calendar size={16} className="text-app-teal" />
@@ -345,7 +322,6 @@ const NewQuestion: React.FC = () => {
           </div>
         </div>
         
-        {/* Submit Button */}
         <div className="pt-4">
           <Button 
             className="w-full bg-gradient-to-r from-app-teal to-app-blue hover:opacity-90 py-6"
@@ -357,7 +333,6 @@ const NewQuestion: React.FC = () => {
         </div>
       </div>
       
-      {/* Question Example Dialog */}
       <Dialog open={showExampleDialog} onOpenChange={setShowExampleDialog}>
         <DialogContent className="max-w-md">
           <DialogHeader>

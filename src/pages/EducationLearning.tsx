@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -306,6 +307,7 @@ const EducationLearning = () => {
         </div>
       </div>
       
+      {/* Updated category tags to match Career Development page */}
       <div className="px-4 mb-4 overflow-x-auto hide-scrollbar">
         <div className="flex space-x-2">
           {categories.map((category) => (

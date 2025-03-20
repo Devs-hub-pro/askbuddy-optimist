@@ -1,12 +1,14 @@
 
 import React, { useState } from 'react';
-import { Image, Video, Heart, MessageCircle, Share2, Plus, Bell } from 'lucide-react';
+import { Image, Video, Heart, MessageCircle, Share2, Plus, Bell, SmilePlus, Hash } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Input } from '@/components/ui/input';
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select';
 import BottomNav from '../components/BottomNav';
 
 // Feed post type definition
@@ -15,6 +17,7 @@ interface Post {
   author: {
     name: string;
     avatar: string;
+    tags?: string[]; // Added user tags
   };
   time: string;
   content: string;
@@ -40,7 +43,7 @@ const Discover: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'following' | 'recommended' | 'local'>('recommended');
   const [showNotification, setShowNotification] = useState(true);
   
-  // Sample recommendation cards with youth-oriented styling
+  // Sample recommendation cards with youth-oriented styling (same data, will adjust styling)
   const recommendationCards: RecommendationCard[] = [
     {
       id: '1',
@@ -72,13 +75,14 @@ const Discover: React.FC = () => {
     }
   ];
   
-  // Sample posts data
+  // Enhanced sample posts data with author tags
   const posts: Post[] = [
     {
       id: '1',
       author: {
         name: '李明',
-        avatar: 'https://randomuser.me/api/portraits/men/32.jpg'
+        avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+        tags: ['应届生', '求职中']
       },
       time: '10分钟前',
       content: '今天去面试了一家科技公司，面试官问了我很多关于算法的问题，感觉挺难的。有没有大佬分享一下面试经验？',
@@ -96,7 +100,8 @@ const Discover: React.FC = () => {
       id: '2',
       author: {
         name: '张小方',
-        avatar: 'https://randomuser.me/api/portraits/women/44.jpg'
+        avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+        tags: ['租房专家', '生活博主']
       },
       time: '2小时前',
       content: '分享一个租房小技巧：签合同前一定要检查水电煤气表的读数，拍照存档，避免后期纠纷。',
@@ -110,7 +115,8 @@ const Discover: React.FC = () => {
       id: '3',
       author: {
         name: '摄影师王强',
-        avatar: 'https://randomuser.me/api/portraits/men/67.jpg'
+        avatar: 'https://randomuser.me/api/portraits/men/67.jpg',
+        tags: ['摄影师', '创意总监']
       },
       time: '昨天',
       content: '分享一组今天在深圳湾拍摄的日落照片，光线真的太美了！',
@@ -129,7 +135,8 @@ const Discover: React.FC = () => {
       id: '4',
       author: {
         name: '学习达人',
-        avatar: 'https://randomuser.me/api/portraits/women/22.jpg'
+        avatar: 'https://randomuser.me/api/portraits/women/22.jpg',
+        tags: ['研究生', '学霸']
       },
       time: '3天前',
       content: '考研英语复习经验分享：每天背10个单词，坚持100天，词汇量能提升1000+。大家有什么更好的学习方法吗？',
@@ -157,19 +164,45 @@ const Discover: React.FC = () => {
     setShowNotification(false);
   };
   
-  // Changed function: Now creates a post instead of navigating to question page
+  // Enhanced post creation dialog state
   const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
   const [newPostContent, setNewPostContent] = useState('');
+  const [newPostTags, setNewPostTags] = useState<string[]>([]);
+  const [newTagInput, setNewTagInput] = useState('');
   
   const handleCreatePost = () => {
     setIsPostDialogOpen(false);
     setNewPostContent('');
+    setNewPostTags([]);
+    setNewTagInput('');
     // Would normally send the post to the backend here
+  };
+  
+  const handleAddTag = () => {
+    if (newTagInput.trim() && !newPostTags.includes(newTagInput.trim())) {
+      setNewPostTags([...newPostTags, newTagInput.trim()]);
+      setNewTagInput('');
+    }
+  };
+  
+  const handleRemoveTag = (tag: string) => {
+    setNewPostTags(newPostTags.filter(t => t !== tag));
+  };
+  
+  // Emoji picker visibility state
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  
+  // Sample emojis for the picker
+  const sampleEmojis = ['😊', '😂', '😍', '🤔', '👍', '🎉', '❤️', '😭', '🔥', '✨', '🙏', '👏', '🌹', '🤗', '😁'];
+  
+  const insertEmoji = (emoji: string) => {
+    setNewPostContent(prev => prev + emoji);
+    setShowEmojiPicker(false);
   };
   
   return (
     <div className="pb-20 bg-gray-50 min-h-screen">
-      {/* Header with improved styling - Removed search button */}
+      {/* Redesigned Header with improved tab styling */}
       <div className="sticky top-0 z-10 bg-app-teal shadow-md">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex-1">
@@ -181,19 +214,19 @@ const Discover: React.FC = () => {
               <TabsList className="w-full justify-start bg-transparent h-10 p-0">
                 <TabsTrigger 
                   value="following" 
-                  className="text-base font-medium data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-white rounded-none px-3 py-1 text-white/80"
+                  className="text-base font-medium data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:bg-transparent rounded-none px-3 py-1 text-white/80"
                 >
                   关注
                 </TabsTrigger>
                 <TabsTrigger 
                   value="recommended" 
-                  className="text-base font-medium data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-white rounded-none px-3 py-1 text-white/80"
+                  className="text-base font-medium data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:bg-transparent rounded-none px-3 py-1 text-white/80"
                 >
                   推荐
                 </TabsTrigger>
                 <TabsTrigger 
                   value="local" 
-                  className="text-base font-medium data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-white rounded-none px-3 py-1 text-white/80"
+                  className="text-base font-medium data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:bg-transparent rounded-none px-3 py-1 text-white/80"
                 >
                   同城
                 </TabsTrigger>
@@ -244,7 +277,7 @@ const Discover: React.FC = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Updated Floating Action Button for Post Creation */}
+      {/* Enhanced Post Creation Dialog with tags and emoji support */}
       <Dialog open={isPostDialogOpen} onOpenChange={setIsPostDialogOpen}>
         <DialogTrigger asChild>
           <Button 
@@ -253,7 +286,7 @@ const Discover: React.FC = () => {
             <Plus className="h-6 w-6 text-white" />
           </Button>
         </DialogTrigger>
-        <DialogContent className="bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl">
+        <DialogContent className="bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl max-w-md w-full mx-auto">
           <DialogHeader>
             <DialogTitle className="text-center text-lg font-bold">发布动态</DialogTitle>
           </DialogHeader>
@@ -264,6 +297,79 @@ const Discover: React.FC = () => {
               value={newPostContent}
               onChange={(e) => setNewPostContent(e.target.value)}
             />
+            
+            {/* Emoji Selector */}
+            <div className="relative">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex gap-1 rounded-full"
+                onClick={() => setShowEmojiPicker(!showEmojiPicker)}
+              >
+                <SmilePlus size={18} /> 添加表情
+              </Button>
+              
+              {showEmojiPicker && (
+                <div className="absolute top-full left-0 mt-2 p-2 bg-white rounded-lg shadow-lg border border-gray-100 grid grid-cols-5 gap-2 z-10">
+                  {sampleEmojis.map((emoji, index) => (
+                    <button 
+                      key={index} 
+                      className="w-8 h-8 flex items-center justify-center text-xl hover:bg-gray-100 rounded transition-colors"
+                      onClick={() => insertEmoji(emoji)}
+                    >
+                      {emoji}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+            
+            {/* Tag Management */}
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <Hash size={18} className="text-gray-500" />
+                <Input
+                  placeholder="添加标签"
+                  value={newTagInput}
+                  onChange={(e) => setNewTagInput(e.target.value)}
+                  className="flex-1"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter') {
+                      e.preventDefault();
+                      handleAddTag();
+                    }
+                  }}
+                />
+                <Button 
+                  variant="outline" 
+                  size="sm" 
+                  onClick={handleAddTag}
+                >
+                  添加
+                </Button>
+              </div>
+              
+              {newPostTags.length > 0 && (
+                <div className="flex flex-wrap gap-2 mt-2">
+                  {newPostTags.map((tag, idx) => (
+                    <Badge 
+                      key={idx} 
+                      variant="secondary" 
+                      className="bg-app-teal/10 text-app-teal border-none rounded-full text-xs py-1 px-3 flex items-center gap-1"
+                    >
+                      #{tag}
+                      <button 
+                        className="ml-1 text-app-teal hover:text-app-teal/80"
+                        onClick={() => handleRemoveTag(tag)}
+                      >
+                        ×
+                      </button>
+                    </Badge>
+                  ))}
+                </div>
+              )}
+            </div>
+            
             <div className="flex gap-2">
               <Button variant="outline" size="sm" className="flex gap-1 rounded-full">
                 <Image size={18} /> 添加图片
@@ -289,7 +395,7 @@ const Discover: React.FC = () => {
   );
 };
 
-// DiscoverFeed component with updated styling
+// DiscoverFeed component with updated styling for smaller cards and user tags
 interface DiscoverFeedProps {
   recommendationCards: RecommendationCard[];
   posts: Post[];
@@ -300,21 +406,21 @@ interface DiscoverFeedProps {
 const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts, likedPosts, onLike }) => {
   return (
     <div className="pb-4">
-      {/* Youth-oriented Recommendation Cards - Enhanced design */}
+      {/* Smaller recommendation cards with enhanced design */}
       <div className="px-4 py-3 bg-white">
         <div className="overflow-x-auto flex space-x-3 pb-2 scrollbar-hide">
           {recommendationCards.map(card => (
             <div 
               key={card.id} 
-              className={`flex-shrink-0 w-32 h-32 rounded-xl overflow-hidden shadow-md ${card.bgColor} relative hover:scale-105 transition-transform duration-200 animate-fade-in`}
+              className={`flex-shrink-0 w-28 h-28 rounded-xl overflow-hidden shadow-md ${card.bgColor} relative hover:scale-105 transition-transform duration-200 animate-fade-in`}
             >
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-              <div className="h-full flex flex-col justify-between p-3 relative z-10">
+              <div className="h-full flex flex-col justify-between p-2 relative z-10">
                 <div className="text-sm font-bold text-white">
                   {card.title}
                 </div>
                 <div className="mt-auto">
-                  <p className="text-xs line-clamp-3 text-white">
+                  <p className="text-xs line-clamp-2 text-white">
                     {card.description}
                   </p>
                 </div>
@@ -324,22 +430,37 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
         </div>
       </div>
       
-      {/* Posts Feed - Enhanced styling */}
+      {/* Posts Feed with user tags */}
       <div className="space-y-3 mt-3 px-3">
         {posts.map(post => (
           <div 
             key={post.id} 
             className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in"
           >
-            {/* Author info - Updated styling */}
-            <div className="flex items-center space-x-3 mb-3">
-              <Avatar className="h-10 w-10 ring-2 ring-app-teal/10">
+            {/* Author info with user tags */}
+            <div className="flex items-start mb-3">
+              <Avatar className="h-10 w-10 ring-2 ring-app-teal/10 mt-1">
                 <AvatarImage src={post.author.avatar} alt={post.author.name} />
                 <AvatarFallback>{post.author.name.slice(0, 2)}</AvatarFallback>
               </Avatar>
-              <div>
+              <div className="ml-3 flex-1">
                 <div className="font-medium">{post.author.name}</div>
                 <div className="text-xs text-gray-500">{post.time}</div>
+                
+                {/* User tags */}
+                {post.author.tags && post.author.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {post.author.tags.map((tag, idx) => (
+                      <Badge 
+                        key={idx} 
+                        variant="secondary" 
+                        className="bg-gray-100 text-gray-600 text-xs px-2 py-0 rounded-full"
+                      >
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
             

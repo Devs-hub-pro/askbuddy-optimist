@@ -42,6 +42,25 @@ function App() {
             <Route path="/new" element={<NewQuestion />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/profile" element={<Profile />} />
+            
+            {/* Profile related routes will redirect to main Profile page for now */}
+            <Route path="/settings" element={<Profile />} />
+            <Route path="/edit-profile" element={<Profile />} />
+            <Route path="/my-orders" element={<Profile />} />
+            <Route path="/my-appointments" element={<Profile />} />
+            <Route path="/my-wallet" element={<Profile />} />
+            <Route path="/my-coupons" element={<Profile />} />
+            <Route path="/learning-progress" element={<Profile />} />
+            <Route path="/my-questions" element={<Profile />} />
+            <Route path="/my-answers" element={<Profile />} />
+            <Route path="/my-favorites" element={<Profile />} />
+            <Route path="/my-history" element={<Profile />} />
+            <Route path="/privacy-settings" element={<Profile />} />
+            <Route path="/verify-identity" element={<Profile />} />
+            <Route path="/notifications-settings" element={<Profile />} />
+            <Route path="/help-center" element={<Profile />} />
+            <Route path="/experts" element={<Profile />} />
+            
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

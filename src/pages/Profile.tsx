@@ -1,26 +1,20 @@
-
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import {
   User,
   Settings,
-  CreditCard,
-  ShoppingBag,
-  Heart,
-  MessageSquare,
-  Calendar,
-  HelpCircle,
-  Bell,
-  ChevronRight,
-  Award,
-  Ticket,
-  Gift,
-  MapPin,
-  Shield,
-  Wallet,
-  Star,
   FileText,
-  BookOpen,
-  Clock
+  MessageSquare,
+  BookmarkCheck,
+  Star,
+  PieChart,
+  Users,
+  FileEdit,
+  Award,
+  HelpCircle,
+  Info,
+  Book,
+  Inbox
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -28,248 +22,159 @@ import { Card, CardContent } from '@/components/ui/card';
 import BottomNav from '@/components/BottomNav';
 
 const Profile = () => {
+  const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   
   // Mock user data
   const userData = {
-    name: '张小明',
-    avatar: 'https://randomuser.me/api/portraits/men/44.jpg',
-    level: '3',
-    points: '520',
-    questions: 12,
-    answers: 5,
-    favorites: 23
+    name: '用户昵称',
+    avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+    points: '1200',
+    tags: ['普通用户', '学生', '某某大学']
   };
 
-  // Define menu sections
-  const myServices = [
-    { icon: <ShoppingBag size={20} className="text-blue-500" />, label: '我的订单', route: '/my-orders' },
-    { icon: <Calendar size={20} className="text-green-500" />, label: '我的预约', route: '/my-appointments' },
-    { icon: <Wallet size={20} className="text-purple-500" />, label: '我的钱包', route: '/my-wallet' },
-    { icon: <Ticket size={20} className="text-orange-500" />, label: '我的优惠券', route: '/my-coupons' }
+  // Main features section
+  const mainFeatures = [
+    { icon: <FileText className="text-blue-500 w-7 h-7" />, label: '我的订单', route: '/my-orders' },
+    { icon: <MessageSquare className="text-orange-500 w-7 h-7" />, label: '我的回答', route: '/my-answers' },
+    { icon: <BookmarkCheck className="text-green-500 w-7 h-7" />, label: '我的收藏', route: '/my-favorites' },
+    { icon: <Star className="text-pink-500 w-7 h-7" />, label: '我的关注', route: '/my-follows' }
   ];
   
-  const myContent = [
-    { icon: <FileText size={20} className="text-indigo-500" />, label: '我的提问', route: '/my-questions' },
-    { icon: <MessageSquare size={20} className="text-cyan-500" />, label: '我的回答', route: '/my-answers' },
-    { icon: <Heart size={20} className="text-pink-500" />, label: '我的收藏', route: '/my-favorites' },
-    { icon: <Clock size={20} className="text-amber-500" />, label: '浏览历史', route: '/my-history' }
+  // Frequently used features
+  const frequentFeatures = [
+    { icon: <PieChart className="text-indigo-600 w-6 h-6" />, label: '我的收益', route: '/my-earnings' },
+    { icon: <Users className="text-orange-500 w-6 h-6" />, label: '我的社群', route: '/my-communities' },
+    { icon: <FileEdit className="text-teal-500 w-6 h-6" />, label: '草稿箱', route: '/my-drafts' },
+    { icon: <Award className="text-cyan-500 w-6 h-6" />, label: '达人认证', route: '/verification' }
   ];
-  
-  const settings = [
-    { icon: <Shield size={20} className="text-blue-600" />, label: '账号安全', route: '/account-security' },
-    { icon: <Bell size={20} className="text-yellow-500" />, label: '消息通知', route: '/notifications-settings' },
-    { icon: <HelpCircle size={20} className="text-teal-500" />, label: '帮助中心', route: '/help-center' },
-    { icon: <Settings size={20} className="text-gray-500" />, label: '设置', route: '/settings' }
+
+  // Other features
+  const otherFeatures = [
+    { icon: <HelpCircle className="text-yellow-500 w-6 h-6" />, label: '帮助中心', route: '/help-center' },
+    { icon: <Book className="text-green-500 w-6 h-6" />, label: '平台规范', route: '/platform-rules' },
+    { icon: <Inbox className="text-red-500 w-6 h-6" />, label: '产品反馈', route: '/feedback' },
+    { icon: <Info className="text-blue-500 w-6 h-6" />, label: '关于我们', route: '/about-us' }
   ];
+
+  const navigateToSettings = () => {
+    // Navigate to settings page
+    // For now, we'll just log this action
+    console.log('Navigate to settings');
+  };
+
+  const navigateToEditProfile = () => {
+    navigate('/profile/edit');
+  };
 
   return (
     <div className="pb-20 min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="bg-gradient-to-r from-blue-500 to-teal-500 text-white pt-12 pb-6 px-4 rounded-b-3xl shadow-md">
-        {isLoggedIn ? (
-          <div className="flex items-center">
-            <Avatar className="h-16 w-16 border-2 border-white">
-              <AvatarImage src={userData.avatar} alt={userData.name} />
-              <AvatarFallback>{userData.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <div className="ml-4 flex-1">
-              <div className="flex items-center justify-between">
-                <h2 className="text-xl font-bold">{userData.name}</h2>
-                <div 
-                  className="bg-white/20 backdrop-blur-sm px-2 py-1 rounded-full flex items-center text-xs"
-                  onClick={() => {/* Navigate to edit profile */}}
-                >
-                  <span>编辑资料</span>
-                  <ChevronRight size={14} className="ml-1" />
+      {/* Header with Settings button in the top-right corner */}
+      <div className="relative pt-6 pb-4 px-4 bg-gradient-to-r from-teal-400 to-cyan-400">
+        <button 
+          className="absolute top-6 right-4 w-10 h-10 rounded-full bg-white/20 flex items-center justify-center"
+          onClick={navigateToSettings}
+        >
+          <Settings className="text-white" size={20} />
+        </button>
+        
+        {/* Profile Card */}
+        <Card className="mt-6 bg-white rounded-xl shadow-sm">
+          <CardContent className="p-5">
+            <div className="flex items-start">
+              <Avatar className="h-20 w-20 border-2 border-teal-100">
+                <AvatarImage src={userData.avatar} alt={userData.name} />
+                <AvatarFallback>{userData.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              
+              <div className="ml-4 flex-1">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-xl font-bold">{userData.name}</h2>
                 </div>
-              </div>
-              <div className="mt-1 text-sm flex items-center">
-                <div className="flex items-center bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full">
-                  <Award size={14} className="mr-1" />
-                  <span>等级 {userData.level}</span>
-                </div>
-                <div className="flex items-center ml-3 bg-white/20 backdrop-blur-sm px-2 py-0.5 rounded-full">
-                  <Star size={14} className="mr-1" />
-                  <span>{userData.points} 积分</span>
-                </div>
-              </div>
-              <div className="mt-3 flex justify-between text-center">
-                <div className="flex-1">
-                  <div className="text-lg font-medium">{userData.questions}</div>
-                  <div className="text-xs text-white/80">我的提问</div>
-                </div>
-                <div className="flex-1">
-                  <div className="text-lg font-medium">{userData.answers}</div>
-                  <div className="text-xs text-white/80">我的回答</div>
-                </div>
-                <div className="flex-1">
-                  <div className="text-lg font-medium">{userData.favorites}</div>
-                  <div className="text-xs text-white/80">我的收藏</div>
+                <div className="text-gray-500 mt-1">积分: {userData.points}</div>
+                
+                <div className="flex flex-wrap gap-2 mt-3">
+                  {userData.tags.map((tag, index) => (
+                    <div key={index} className="px-3 py-1 rounded-full bg-teal-500 text-white text-xs">
+                      {tag}
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center">
-            <Avatar className="h-20 w-20 mb-3">
-              <AvatarFallback>
-                <User size={32} />
-              </AvatarFallback>
-            </Avatar>
-            <Button className="bg-white text-blue-500 hover:bg-blue-50 px-8">
-              登录 / 注册
+            
+            <Button 
+              onClick={navigateToEditProfile}
+              className="w-full mt-4 bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white"
+            >
+              编辑个人资料
             </Button>
-          </div>
-        )}
+          </CardContent>
+        </Card>
       </div>
 
-      {/* Main Content */}
-      <div className="px-4 mt-5 space-y-5">
-        {/* My Services Section */}
-        <Card className="border-none shadow-sm">
-          <CardContent className="p-4">
-            <h3 className="text-base font-medium mb-3 text-left">我的服务</h3>
-            <div className="grid grid-cols-4 gap-3">
-              {myServices.map((item, index) => (
-                <div 
-                  key={`service-${index}`} 
-                  className="flex flex-col items-center justify-center py-2 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors"
-                  onClick={() => {/* Navigate to route */}}
-                >
-                  <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mb-1">
-                    {item.icon}
-                  </div>
-                  <span className="text-xs text-gray-700">{item.label}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* My Content Section */}
-        <Card className="border-none shadow-sm">
-          <CardContent className="p-4">
-            <h3 className="text-base font-medium mb-3 text-left">我的内容</h3>
-            <div className="grid grid-cols-4 gap-3">
-              {myContent.map((item, index) => (
-                <div 
-                  key={`content-${index}`} 
-                  className="flex flex-col items-center justify-center py-2 cursor-pointer hover:bg-gray-50 rounded-lg transition-colors"
-                  onClick={() => {/* Navigate to route */}}
-                >
-                  <div className="w-10 h-10 rounded-full bg-gray-50 flex items-center justify-center mb-1">
-                    {item.icon}
-                  </div>
-                  <span className="text-xs text-gray-700">{item.label}</span>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Learning Progress Section */}
-        <Card className="border-none shadow-sm bg-gradient-to-r from-blue-50 to-teal-50">
-          <CardContent className="p-4">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-base font-medium text-left">学习进度</h3>
-              <Button variant="link" size="sm" className="text-blue-500 p-0">
-                查看全部
-                <ChevronRight size={16} />
-              </Button>
-            </div>
-            
-            <div className="space-y-3">
-              {/* Course Progress Cards */}
-              <div className="bg-white rounded-xl p-3 shadow-sm flex items-center">
-                <div className="w-12 h-12 rounded-lg bg-indigo-100 flex items-center justify-center mr-3">
-                  <BookOpen size={24} className="text-indigo-500" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">托福备考全攻略</span>
-                    <span className="text-xs text-gray-500">75%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-gray-100 rounded-full mt-1.5">
-                    <div className="h-full bg-indigo-500 rounded-full" style={{width: '75%'}}></div>
-                  </div>
-                </div>
+      {/* Main Features */}
+      <Card className="mx-4 mt-4 border-none shadow-sm">
+        <CardContent className="grid grid-cols-4 gap-2 p-4">
+          {mainFeatures.map((feature, index) => (
+            <div 
+              key={`main-${index}`} 
+              className="flex flex-col items-center justify-center py-3 cursor-pointer"
+              onClick={() => navigate(feature.route)}
+            >
+              <div className="mb-2">
+                {feature.icon}
               </div>
-              
-              <div className="bg-white rounded-xl p-3 shadow-sm flex items-center">
-                <div className="w-12 h-12 rounded-lg bg-green-100 flex items-center justify-center mr-3">
-                  <BookOpen size={24} className="text-green-500" />
-                </div>
-                <div className="flex-1">
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm font-medium">出国留学申请指南</span>
-                    <span className="text-xs text-gray-500">40%</span>
-                  </div>
-                  <div className="w-full h-1.5 bg-gray-100 rounded-full mt-1.5">
-                    <div className="h-full bg-green-500 rounded-full" style={{width: '40%'}}></div>
-                  </div>
-                </div>
-              </div>
+              <span className="text-sm">{feature.label}</span>
             </div>
-          </CardContent>
-        </Card>
+          ))}
+        </CardContent>
+      </Card>
 
-        {/* Expert Recommendations */}
-        <Card className="border-none shadow-sm">
-          <CardContent className="p-4">
-            <div className="flex justify-between items-center mb-3">
-              <h3 className="text-base font-medium text-left">推荐导师</h3>
-              <Button variant="link" size="sm" className="text-blue-500 p-0">
-                更多
-                <ChevronRight size={16} />
-              </Button>
-            </div>
-            
-            <div className="space-y-3">
-              {[1, 2].map((item) => (
-                <div key={`expert-${item}`} className="flex items-center p-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors">
-                  <Avatar className="h-12 w-12 mr-3">
-                    <AvatarImage src={`https://randomuser.me/api/portraits/${item % 2 ? 'women' : 'men'}/${20 + item}.jpg`} />
-                    <AvatarFallback>E{item}</AvatarFallback>
-                  </Avatar>
-                  <div className="flex-1">
-                    <div className="flex justify-between">
-                      <span className="font-medium">王教授</span>
-                      <span className="text-xs text-yellow-500 flex items-center">
-                        <Star size={12} fill="currentColor" className="mr-0.5" />
-                        4.9
-                      </span>
-                    </div>
-                    <p className="text-xs text-gray-500">北大硕士 | 留学规划师</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </CardContent>
-        </Card>
+      {/* New User Benefits Banner */}
+      <div className="mx-4 mt-4 relative overflow-hidden rounded-lg">
+        <div className="bg-gradient-to-r from-teal-500 to-cyan-600 px-5 py-4 text-white">
+          <h3 className="text-lg font-semibold">点击新用户福利</h3>
+        </div>
+        <img 
+          src="/lovable-uploads/2ec9ee9d-73e0-45e2-98fe-2c7d695c7b22.png" 
+          alt="New User Benefits"
+          className="w-full h-20 object-cover"
+        />
+      </div>
 
-        {/* Settings Section */}
-        <Card className="border-none shadow-sm mb-20">
-          <CardContent className="p-4">
-            <h3 className="text-base font-medium mb-3 text-left">设置</h3>
-            
-            <div className="space-y-1">
-              {settings.map((item, index) => (
-                <div 
-                  key={`setting-${index}`}
-                  className="flex items-center justify-between py-3 px-2 hover:bg-gray-50 rounded-lg cursor-pointer transition-colors"
-                  onClick={() => {/* Navigate to route */}}
-                >
-                  <div className="flex items-center">
-                    {item.icon}
-                    <span className="ml-3 text-sm">{item.label}</span>
-                  </div>
-                  <ChevronRight size={18} className="text-gray-400" />
-                </div>
-              ))}
+      {/* Frequently Used Features Section */}
+      <div className="mx-4 mt-6">
+        <h3 className="text-base font-medium mb-3 px-1">常用功能</h3>
+        <div className="grid grid-cols-4 gap-3">
+          {frequentFeatures.map((feature, index) => (
+            <div 
+              key={`frequent-${index}`}
+              className="bg-white rounded-lg shadow-sm p-4 flex flex-col items-center justify-center cursor-pointer"
+              onClick={() => navigate(feature.route)}
+            >
+              <div className="mb-2">{feature.icon}</div>
+              <span className="text-xs text-center">{feature.label}</span>
             </div>
-          </CardContent>
-        </Card>
+          ))}
+        </div>
+      </div>
+
+      {/* Other Features Section */}
+      <div className="mx-4 mt-6 mb-20">
+        <h3 className="text-base font-medium mb-3 px-1">其他功能</h3>
+        <div className="grid grid-cols-4 gap-3">
+          {otherFeatures.map((feature, index) => (
+            <div 
+              key={`other-${index}`}
+              className="bg-white rounded-lg shadow-sm p-4 flex flex-col items-center justify-center cursor-pointer" 
+              onClick={() => navigate(feature.route)}
+            >
+              <div className="mb-2">{feature.icon}</div>
+              <span className="text-xs text-center">{feature.label}</span>
+            </div>
+          ))}
+        </div>
       </div>
       
       {/* Bottom Navigation */}

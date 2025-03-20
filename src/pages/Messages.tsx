@@ -1,4 +1,3 @@
-
 import React, { useState, useRef } from 'react';
 import { ArrowLeft, Search, Settings, Check, Pin, Archive, Trash2, MessageCircle, Bell, CheckCircle, ChevronRight } from 'lucide-react';
 import BottomNav from '../components/BottomNav';
@@ -549,12 +548,12 @@ const Messages = () => {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header with tabs */}
-      <div className="fixed top-0 left-0 right-0 z-10 bg-white shadow-sm">
+      <div className="fixed top-0 left-0 right-0 z-10 bg-app-blue shadow-sm">
         <div className="pt-12 pb-2">
           <div className="flex justify-between items-center px-4">
             <div className="flex space-x-8">
               <div 
-                className={`relative pb-2 cursor-pointer ${activeTab === 'chats' ? 'text-app-teal font-medium' : 'text-gray-500'}`}
+                className={`relative pb-2 cursor-pointer ${activeTab === 'chats' ? 'text-white font-medium' : 'text-white/70'}`}
                 onClick={() => setActiveTab('chats')}
               >
                 <div className="flex items-center gap-1.5">
@@ -562,12 +561,12 @@ const Messages = () => {
                   <span className="text-lg">私信</span>
                 </div>
                 {activeTab === 'chats' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-app-teal rounded-full"></div>
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full"></div>
                 )}
               </div>
               
               <div 
-                className={`relative pb-2 cursor-pointer ${activeTab === 'notifications' ? 'text-app-teal font-medium' : 'text-gray-500'}`}
+                className={`relative pb-2 cursor-pointer ${activeTab === 'notifications' ? 'text-white font-medium' : 'text-white/70'}`}
                 onClick={() => setActiveTab('notifications')}
               >
                 <div className="flex items-center gap-1.5">
@@ -580,20 +579,20 @@ const Messages = () => {
                   </div>
                 )}
                 {activeTab === 'notifications' && (
-                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-app-teal rounded-full"></div>
+                  <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full"></div>
                 )}
               </div>
             </div>
             
             <div className="flex items-center space-x-2">
               <button 
-                className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100"
+                className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10"
                 onClick={() => setShowSearch(!showSearch)}
               >
-                <Search size={20} className="text-gray-600" />
+                <Search size={20} className="text-white" />
               </button>
-              <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-gray-100">
-                <Settings size={20} className="text-gray-600" />
+              <button className="w-9 h-9 flex items-center justify-center rounded-full hover:bg-white/10">
+                <Settings size={20} className="text-white" />
               </button>
             </div>
           </div>
@@ -613,7 +612,7 @@ const Messages = () => {
                 />
               </div>
               <button 
-                className="ml-3 text-app-teal text-sm"
+                className="ml-3 text-app-blue text-sm"
                 onClick={() => {
                   setShowSearch(false);
                   setSearchQuery('');
@@ -629,11 +628,11 @@ const Messages = () => {
         {showBatchActions && (
           <div className="bg-white border-t border-gray-100 px-4 py-2 flex justify-between items-center">
             <div className="text-sm">
-              已选择 <span className="text-app-teal font-medium">{selectedItems.length}</span> 项
+              已选择 <span className="text-app-blue font-medium">{selectedItems.length}</span> 项
             </div>
             <div className="flex space-x-4">
               <button 
-                className="text-sm text-app-teal flex items-center"
+                className="text-sm text-app-blue flex items-center"
                 onClick={batchMarkAsRead}
               >
                 <CheckCircle size={16} className="mr-1" />
@@ -867,21 +866,21 @@ const Messages = () => {
         {activeTab === 'notifications' && (
           <div className="px-0">
             <div className="p-3 px-4 flex justify-between items-center bg-white border-b border-gray-100">
-              <div className="text-xs text-gray-500">
+              <div className="text-xs text-gray-500 text-left">
                 {unreadNotifications > 0 && `${unreadNotifications} 条未读通知`}
               </div>
               <div className="flex space-x-4">
                 {!showBatchActions && (
                   <>
                     <button 
-                      className="text-sm text-app-teal flex items-center"
+                      className="text-sm text-app-blue flex items-center"
                       onClick={markAllNotificationsAsRead}
                     >
                       <Check size={14} className="mr-1" />
                       <span>全部已读</span>
                     </button>
                     <button 
-                      className="text-sm text-app-teal"
+                      className="text-sm text-app-blue"
                       onClick={toggleBatchMode}
                     >
                       管理
@@ -908,7 +907,7 @@ const Messages = () => {
                   <span className="mr-1">{category.icon}</span>
                   <span>{category.title}</span>
                   {category.items.filter(item => !item.read).length > 0 && (
-                    <span className="ml-2 text-app-teal">
+                    <span className="ml-2 text-app-blue">
                       {category.items.filter(item => !item.read).length} 条未读
                     </span>
                   )}
@@ -935,7 +934,7 @@ const Messages = () => {
                             className={cn(
                               "w-5 h-5 rounded-full border flex items-center justify-center",
                               selectedItems.includes(notification.id) 
-                                ? "bg-app-teal border-app-teal text-white" 
+                                ? "bg-app-blue border-app-blue text-white" 
                                 : "border-gray-300"
                             )}
                           >
@@ -949,12 +948,12 @@ const Messages = () => {
                       )}>
                         <span className={notification.iconColor}>{notification.icon}</span>
                       </div>
-                      <div className="flex-1">
+                      <div className="flex-1 text-left">
                         <div className="font-medium text-gray-900">{notification.title}</div>
                         <div className="text-sm text-gray-600 mb-1">{notification.message}</div>
                         <div className="text-xs text-gray-500">{notification.time}</div>
                       </div>
-                      {!notification.read && <div className="w-2 h-2 bg-app-teal rounded-full mt-2"></div>}
+                      {!notification.read && <div className="w-2 h-2 bg-app-blue rounded-full mt-2"></div>}
                     </div>
                   ))}
                 </div>

@@ -14,6 +14,7 @@ import IconsPreview from "./components/IconsPreview";
 import QuestionDetail from "./pages/QuestionDetail";
 import ExpertDetail from "./pages/ExpertDetail";
 import ExpertProfile from "./pages/ExpertProfile";
+import NewQuestion from "./pages/NewQuestion";
 import { Toaster } from "@/components/ui/toaster";
 import "./App.css";
 
@@ -36,6 +37,7 @@ function App() {
             <Route path="/question/:id" element={<QuestionDetail />} />
             <Route path="/expert/:id" element={<ExpertDetail />} />
             <Route path="/expert-profile/:id" element={<ExpertProfile />} />
+            <Route path="/new-question" element={<NewQuestion />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </div>

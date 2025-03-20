@@ -1,3 +1,4 @@
+
 // messages.js
 Page({
   data: {
@@ -14,7 +15,8 @@ Page({
         lastMessageTime: '14:30',
         unread: true,
         unreadCount: 1,
-        rightValue: 0
+        rightValue: 0,
+        lastMessageStatus: 'unread'
       },
       {
         id: '2',
@@ -24,7 +26,8 @@ Page({
         lastMessageTime: '昨天',
         unread: false,
         unreadCount: 0,
-        rightValue: 0
+        rightValue: 0,
+        lastMessageStatus: 'read'
       },
       {
         id: '3',
@@ -34,7 +37,8 @@ Page({
         lastMessageTime: '周二',
         unread: false,
         unreadCount: 0,
-        rightValue: 0
+        rightValue: 0,
+        lastMessageStatus: 'read'
       }
     ],
     pinnedConversations: [
@@ -46,7 +50,8 @@ Page({
         lastMessageTime: '10:15',
         unread: true,
         unreadCount: 2,
-        pinned: true
+        pinned: true,
+        lastMessageStatus: 'unread'
       }
     ],
     notifications: [
@@ -93,6 +98,15 @@ Page({
   
   onLoad: function() {
     // Initialize data when the page loads
+    this.checkUnreadNotifications();
+  },
+  
+  // Check if there are any unread notifications
+  checkUnreadNotifications: function() {
+    const hasUnread = this.data.notifications.some(item => item.unread);
+    this.setData({
+      hasUnreadNotifications: hasUnread
+    });
   },
   
   switchTab: function(e) {
@@ -118,6 +132,22 @@ Page({
     const keyword = e.detail.value;
     // Filter conversations or notifications based on keyword
     // Implementation would depend on backend search functionality
+    console.log('Searching for:', keyword);
+    
+    // Example of client-side filtering (in a real app, this would likely be server-side)
+    if (keyword && keyword.trim().length > 0) {
+      const filteredConversations = this.data.conversations.filter(conv => {
+        return conv.name.includes(keyword) || conv.lastMessage.includes(keyword);
+      });
+      
+      const filteredPinnedConversations = this.data.pinnedConversations.filter(conv => {
+        return conv.name.includes(keyword) || conv.lastMessage.includes(keyword);
+      });
+      
+      // For demo purposes, we're not actually setting the data to maintain original state
+      console.log('Filtered conversations:', filteredConversations);
+      console.log('Filtered pinned conversations:', filteredPinnedConversations);
+    }
   },
   
   openConversation: function(e) {
@@ -135,14 +165,14 @@ Page({
     
     let updatedConversations = conversations.map(conv => {
       if (conv.id === id) {
-        return { ...conv, unread: false, unreadCount: 0 };
+        return { ...conv, unread: false, unreadCount: 0, lastMessageStatus: 'read' };
       }
       return conv;
     });
     
     let updatedPinnedConversations = pinnedConversations.map(conv => {
       if (conv.id === id) {
-        return { ...conv, unread: false, unreadCount: 0 };
+        return { ...conv, unread: false, unreadCount: 0, lastMessageStatus: 'read' };
       }
       return conv;
     });
@@ -153,6 +183,11 @@ Page({
     });
     
     // API call to update server state would go here
+    wx.showToast({
+      title: '标记为已读',
+      icon: 'success',
+      duration: 1500
+    });
   },
   
   showActionSheet: function(e) {
@@ -194,6 +229,12 @@ Page({
         pinnedConversations: updatedPinnedConversations,
         conversations: updatedConversations
       });
+      
+      wx.showToast({
+        title: '已取消置顶',
+        icon: 'success',
+        duration: 1500
+      });
     } 
     // Otherwise, pin the conversation
     else {
@@ -207,6 +248,12 @@ Page({
       this.setData({
         pinnedConversations: updatedPinnedConversations,
         conversations: updatedConversations
+      });
+      
+      wx.showToast({
+        title: '已置顶',
+        icon: 'success',
+        duration: 1500
       });
     }
     
@@ -271,7 +318,9 @@ Page({
     });
     
     // Filter notifications based on category
-    // Implementation would depend on backend functionality
+    // In a real app, this would filter the notifications based on category
+    // For demo purposes, we're not actually filtering the data
+    console.log('Selected category:', category);
   },
   
   openNotification: function(e) {

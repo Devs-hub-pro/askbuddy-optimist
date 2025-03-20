@@ -6,10 +6,10 @@
       <view class="flex items-center space-x-6">
         <view class="text-white font-medium text-base">消息</view>
         <view class="tab-container">
-          <view class="tab-item active">
+          <view class="tab-item {{activeTab === 'privateMessages' ? 'active' : ''}}" bindtap="switchTab" data-tab="privateMessages">
             <text>私信</text>
           </view>
-          <view class="tab-item">
+          <view class="tab-item {{activeTab === 'notifications' ? 'active' : ''}}" bindtap="switchTab" data-tab="notifications">
             <text>通知</text>
           </view>
         </view>
@@ -76,6 +76,9 @@
             </view>
             <view class="preview {{item.unread ? 'unread' : ''}}">
               <text>{{item.lastMessage}}</text>
+              <view class="message-status" wx:if="{{item.lastMessageStatus}}">
+                <text class="{{item.lastMessageStatus === 'read' ? 'read' : ''}}">{{item.lastMessageStatus === 'read' ? '已读' : '未读'}}</text>
+              </view>
             </view>
           </view>
           <!-- Swipe actions -->
@@ -147,4 +150,3 @@
     </view>
   </view>
 </view>
-

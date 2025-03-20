@@ -1,12 +1,15 @@
 
 import React, { useState } from 'react';
-import { Image, Video, Heart, MessageCircle, Share2, Plus, Bell } from 'lucide-react';
+import { Image, Video, Heart, MessageCircle, Share2, Plus, Bell, Search, Filter } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import BottomNav from '../components/BottomNav';
+import { useNavigate } from 'react-router-dom';
 
 // Feed post type definition
 interface Post {
@@ -36,6 +39,7 @@ interface RecommendationCard {
 }
 
 const Discover: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'following' | 'recommended' | 'local'>('recommended');
   const [showNotification, setShowNotification] = useState(true);
   
@@ -156,82 +160,119 @@ const Discover: React.FC = () => {
     setShowNotification(false);
   };
   
+  const handleNewQuestionClick = () => {
+    navigate('/new');
+  };
+  
   return (
     <div className="pb-20 bg-gray-50 min-h-screen">
-      {/* Tabs with horizontal layout but left-aligned, directly at the top */}
-      <div className="w-full">
-        <Tabs 
-          defaultValue="recommended" 
-          className="w-full" 
-          onValueChange={(value) => setActiveTab(value as 'following' | 'recommended' | 'local')}
-        >
-          <TabsList className="w-full justify-start bg-white border-b px-2 h-14">
-            <TabsTrigger 
-              value="following" 
-              className="text-lg font-medium data-[state=active]:border-b-2 data-[state=active]:border-app-teal data-[state=active]:text-app-teal rounded-none px-6 py-4"
+      {/* Header with Search */}
+      <div className="sticky top-0 z-10 bg-white shadow-sm">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="flex-1">
+            <Tabs 
+              defaultValue="recommended" 
+              className="w-full" 
+              onValueChange={(value) => setActiveTab(value as 'following' | 'recommended' | 'local')}
             >
-              关注
-            </TabsTrigger>
-            <TabsTrigger 
-              value="recommended" 
-              className="text-lg font-medium data-[state=active]:border-b-2 data-[state=active]:border-app-teal data-[state=active]:text-app-teal rounded-none px-6 py-4"
-            >
-              推荐
-            </TabsTrigger>
-            <TabsTrigger 
-              value="local" 
-              className="text-lg font-medium data-[state=active]:border-b-2 data-[state=active]:border-app-teal data-[state=active]:text-app-teal rounded-none px-6 py-4"
-            >
-              同城
-            </TabsTrigger>
-          </TabsList>
+              <TabsList className="w-full justify-start bg-transparent h-10 p-0">
+                <TabsTrigger 
+                  value="following" 
+                  className="text-base font-medium data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600 rounded-none px-3 py-1"
+                >
+                  关注
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="recommended" 
+                  className="text-base font-medium data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600 rounded-none px-3 py-1"
+                >
+                  推荐
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="local" 
+                  className="text-base font-medium data-[state=active]:text-purple-600 data-[state=active]:border-b-2 data-[state=active]:border-purple-600 rounded-none px-3 py-1"
+                >
+                  同城
+                </TabsTrigger>
+              </TabsList>
+            </Tabs>
+          </div>
           
-          {/* Notification bell moved to the right side of the tabs */}
-          <div className="absolute top-4 right-4 z-10">
+          <div className="flex items-center gap-2">
+            <button className="p-2 rounded-full bg-gray-100">
+              <Search size={18} className="text-gray-600" />
+            </button>
             <button 
               className="relative p-2"
               onClick={handleNotificationClick}
             >
-              <Bell size={22} className="text-gray-700" />
+              <Bell size={18} className="text-gray-600" />
               {showNotification && (
                 <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
               )}
             </button>
           </div>
-          
-          <TabsContent value="following" className="m-0 outline-none">
-            <DiscoverFeed 
-              recommendationCards={recommendationCards} 
-              posts={posts.filter((_, index) => index % 2 === 0)} 
-              likedPosts={likedPosts}
-              onLike={handleLike}
-            />
-          </TabsContent>
-          
-          <TabsContent value="recommended" className="m-0 outline-none">
-            <DiscoverFeed 
-              recommendationCards={recommendationCards} 
-              posts={posts} 
-              likedPosts={likedPosts}
-              onLike={handleLike}
-            />
-          </TabsContent>
-          
-          <TabsContent value="local" className="m-0 outline-none">
-            <DiscoverFeed 
-              recommendationCards={recommendationCards.filter((_, index) => index % 2 === 1)} 
-              posts={posts.filter(post => post.topics?.includes('深圳'))} 
-              likedPosts={likedPosts}
-              onLike={handleLike}
-            />
-          </TabsContent>
-        </Tabs>
+        </div>
+        
+        {/* Filters */}
+        <div className="px-4 py-2 overflow-x-auto scrollbar-hide flex space-x-2 border-b">
+          <Badge className="bg-purple-100 text-purple-700 hover:bg-purple-200 border-none py-1 px-3 rounded-full">
+            全部
+          </Badge>
+          <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-none py-1 px-3 rounded-full">
+            热门话题
+          </Badge>
+          <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-none py-1 px-3 rounded-full">
+            学习分享
+          </Badge>
+          <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-none py-1 px-3 rounded-full">
+            职场攻略
+          </Badge>
+          <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-none py-1 px-3 rounded-full">
+            生活百科
+          </Badge>
+          <Badge className="bg-gray-100 text-gray-700 hover:bg-gray-200 border-none py-1 px-3 rounded-full">
+            兴趣爱好
+          </Badge>
+        </div>
       </div>
+      
+      <Tabs defaultValue="recommended" className="w-full">
+        <TabsContent value="following" className="mt-0 p-0">
+          <DiscoverFeed 
+            recommendationCards={recommendationCards} 
+            posts={posts.filter((_, index) => index % 2 === 0)} 
+            likedPosts={likedPosts}
+            onLike={handleLike}
+          />
+        </TabsContent>
+        
+        <TabsContent value="recommended" className="mt-0 p-0">
+          <DiscoverFeed 
+            recommendationCards={recommendationCards} 
+            posts={posts} 
+            likedPosts={likedPosts}
+            onLike={handleLike}
+          />
+        </TabsContent>
+        
+        <TabsContent value="local" className="mt-0 p-0">
+          <DiscoverFeed 
+            recommendationCards={recommendationCards.filter((_, index) => index % 2 === 1)} 
+            posts={posts.filter(post => post.topics?.includes('深圳'))} 
+            likedPosts={likedPosts}
+            onLike={handleLike}
+          />
+        </TabsContent>
+      </Tabs>
       
       {/* Enhanced Floating Action Button for Creating Posts */}
       <Dialog>
         <DialogTrigger asChild>
-          <Button className="fixed bottom-20 right-5 w-14 h-14 rounded-full bg-gradient-to-r from-pink-500 to-purple-500 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center">
+          <Button 
+            onClick={handleNewQuestionClick}
+            className="fixed bottom-20 right-5 w-14 h-14 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+          >
             <Plus className="h-6 w-6 text-white" />
           </Button>
         </DialogTrigger>
@@ -242,7 +283,7 @@ const Discover: React.FC = () => {
           <div className="space-y-4 pt-4">
             <Textarea 
               placeholder="分享你的想法..." 
-              className="w-full h-32 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-teal/30"
+              className="w-full h-32 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-300"
             />
             <div className="flex gap-2">
               <Button variant="outline" size="sm" className="flex gap-1 rounded-full">
@@ -253,7 +294,7 @@ const Discover: React.FC = () => {
               </Button>
             </div>
             <div className="pt-2 flex justify-end">
-              <Button className="bg-gradient-to-r from-app-teal to-app-blue hover:opacity-90 rounded-full">发布</Button>
+              <Button className="bg-gradient-to-r from-purple-500 to-indigo-500 hover:opacity-90 rounded-full">发布</Button>
             </div>
           </div>
         </DialogContent>
@@ -275,21 +316,21 @@ interface DiscoverFeedProps {
 const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts, likedPosts, onLike }) => {
   return (
     <div className="pb-4">
-      {/* Youth-oriented Recommendation Cards (horizontal scroll) - Redesigned as small squares with gradient backgrounds */}
+      {/* Youth-oriented Recommendation Cards - Redesigned */}
       <div className="px-4 py-3 bg-white">
         <div className="overflow-x-auto flex space-x-3 pb-2 scrollbar-hide">
           {recommendationCards.map(card => (
             <div 
               key={card.id} 
-              className={`flex-shrink-0 w-20 h-20 rounded-2xl overflow-hidden shadow-md ${card.bgColor} relative hover:scale-105 transition-transform duration-200`}
+              className={`flex-shrink-0 w-28 h-28 rounded-xl overflow-hidden shadow-md ${card.bgColor} relative hover:scale-105 transition-transform duration-200`}
             >
-              <div className="absolute inset-0 bg-black/10"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
               <div className="h-full flex flex-col justify-between p-2 relative z-10">
-                <div className="text-xs font-bold text-white">
+                <div className="text-sm font-bold text-white">
                   {card.title}
                 </div>
                 <div className="mt-auto">
-                  <p className="text-xs line-clamp-2 text-white">
+                  <p className="text-xs line-clamp-3 text-white">
                     {card.description}
                   </p>
                 </div>
@@ -305,7 +346,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
           <div key={post.id} className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
             {/* Author info */}
             <div className="flex items-center space-x-3 mb-3">
-              <Avatar className="h-10 w-10 ring-2 ring-gray-100">
+              <Avatar className="h-10 w-10 ring-2 ring-purple-100">
                 <AvatarImage src={post.author.avatar} alt={post.author.name} />
                 <AvatarFallback>{post.author.name.slice(0, 2)}</AvatarFallback>
               </Avatar>
@@ -359,9 +400,9 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
               {post.topics && post.topics.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
                   {post.topics.map(topic => (
-                    <span key={topic} className="bg-blue-50 text-blue-600 px-2 py-1 rounded-full text-xs">
+                    <Badge key={topic} variant="secondary" className="bg-indigo-50 text-indigo-600 border-none rounded-full text-xs">
                       #{topic}
-                    </span>
+                    </Badge>
                   ))}
                 </div>
               )}
@@ -377,7 +418,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
                 <span>{post.likes + (likedPosts[post.id] ? 1 : 0)}</span>
               </button>
               
-              <button className="flex items-center space-x-1 text-sm text-gray-500 transition-colors hover:text-blue-500">
+              <button className="flex items-center space-x-1 text-sm text-gray-500 transition-colors hover:text-indigo-500">
                 <MessageCircle className="h-5 w-5" />
                 <span>{post.comments}</span>
               </button>

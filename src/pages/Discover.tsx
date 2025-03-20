@@ -1,15 +1,13 @@
 
 import React, { useState } from 'react';
-import { Image, Video, Heart, MessageCircle, Share2, Plus, Bell, Search, Filter } from 'lucide-react';
+import { Image, Video, Heart, MessageCircle, Share2, Plus, Bell } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import BottomNav from '../components/BottomNav';
-import { useNavigate } from 'react-router-dom';
 
 // Feed post type definition
 interface Post {
@@ -39,7 +37,6 @@ interface RecommendationCard {
 }
 
 const Discover: React.FC = () => {
-  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'following' | 'recommended' | 'local'>('recommended');
   const [showNotification, setShowNotification] = useState(true);
   
@@ -160,13 +157,19 @@ const Discover: React.FC = () => {
     setShowNotification(false);
   };
   
-  const handleNewQuestionClick = () => {
-    navigate('/new');
+  // Changed function: Now creates a post instead of navigating to question page
+  const [isPostDialogOpen, setIsPostDialogOpen] = useState(false);
+  const [newPostContent, setNewPostContent] = useState('');
+  
+  const handleCreatePost = () => {
+    setIsPostDialogOpen(false);
+    setNewPostContent('');
+    // Would normally send the post to the backend here
   };
   
   return (
     <div className="pb-20 bg-gray-50 min-h-screen">
-      {/* Header with Search - Updated styling */}
+      {/* Header with improved styling - Removed search button */}
       <div className="sticky top-0 z-10 bg-app-teal shadow-md">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex-1">
@@ -198,10 +201,7 @@ const Discover: React.FC = () => {
             </Tabs>
           </div>
           
-          <div className="flex items-center gap-2">
-            <button className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
-              <Search size={18} className="text-white" />
-            </button>
+          <div className="flex items-center">
             <button 
               className="relative p-2 hover:bg-white/10 rounded-full transition-colors"
               onClick={handleNotificationClick}
@@ -212,28 +212,6 @@ const Discover: React.FC = () => {
               )}
             </button>
           </div>
-        </div>
-        
-        {/* Filters - Updated styling */}
-        <div className="px-4 py-2 overflow-x-auto scrollbar-hide flex space-x-2 border-b border-white/20">
-          <Badge className="bg-white text-app-teal hover:bg-white/90 border-none py-1 px-3 rounded-full shadow-sm">
-            全部
-          </Badge>
-          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full shadow-sm">
-            热门话题
-          </Badge>
-          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full shadow-sm">
-            学习分享
-          </Badge>
-          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full shadow-sm">
-            职场攻略
-          </Badge>
-          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full shadow-sm">
-            生活百科
-          </Badge>
-          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full shadow-sm">
-            兴趣爱好
-          </Badge>
         </div>
       </div>
       
@@ -266,11 +244,10 @@ const Discover: React.FC = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Enhanced Floating Action Button with updated styling */}
-      <Dialog>
+      {/* Updated Floating Action Button for Post Creation */}
+      <Dialog open={isPostDialogOpen} onOpenChange={setIsPostDialogOpen}>
         <DialogTrigger asChild>
           <Button 
-            onClick={handleNewQuestionClick}
             className="fixed bottom-20 right-5 w-14 h-14 rounded-full bg-app-teal shadow-lg hover:bg-app-teal/90 hover:shadow-xl transition-all duration-300 flex items-center justify-center transform hover:scale-105"
           >
             <Plus className="h-6 w-6 text-white" />
@@ -278,12 +255,14 @@ const Discover: React.FC = () => {
         </DialogTrigger>
         <DialogContent className="bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl">
           <DialogHeader>
-            <DialogTitle className="text-center text-lg font-bold">分享动态</DialogTitle>
+            <DialogTitle className="text-center text-lg font-bold">发布动态</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 pt-4">
             <Textarea 
               placeholder="分享你的想法..." 
               className="w-full h-32 p-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-app-teal/50"
+              value={newPostContent}
+              onChange={(e) => setNewPostContent(e.target.value)}
             />
             <div className="flex gap-2">
               <Button variant="outline" size="sm" className="flex gap-1 rounded-full">
@@ -294,7 +273,12 @@ const Discover: React.FC = () => {
               </Button>
             </div>
             <div className="pt-2 flex justify-end">
-              <Button className="bg-app-teal hover:bg-app-teal/90 rounded-full">发布</Button>
+              <Button 
+                className="bg-app-teal hover:bg-app-teal/90 rounded-full"
+                onClick={handleCreatePost}
+              >
+                发布
+              </Button>
             </div>
           </div>
         </DialogContent>

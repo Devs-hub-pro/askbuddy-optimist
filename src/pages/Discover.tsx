@@ -166,8 +166,8 @@ const Discover: React.FC = () => {
   
   return (
     <div className="pb-20 bg-gray-50 min-h-screen">
-      {/* Header with Search */}
-      <div className="sticky top-0 z-10 bg-app-teal shadow-sm">
+      {/* Header with Search - Updated styling */}
+      <div className="sticky top-0 z-10 bg-app-teal shadow-md">
         <div className="flex items-center justify-between px-4 py-3">
           <div className="flex-1">
             <Tabs 
@@ -199,39 +199,39 @@ const Discover: React.FC = () => {
           </div>
           
           <div className="flex items-center gap-2">
-            <button className="p-2 rounded-full bg-white/20">
+            <button className="p-2 rounded-full bg-white/20 hover:bg-white/30 transition-colors">
               <Search size={18} className="text-white" />
             </button>
             <button 
-              className="relative p-2"
+              className="relative p-2 hover:bg-white/10 rounded-full transition-colors"
               onClick={handleNotificationClick}
             >
               <Bell size={18} className="text-white" />
               {showNotification && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
               )}
             </button>
           </div>
         </div>
         
-        {/* Filters */}
+        {/* Filters - Updated styling */}
         <div className="px-4 py-2 overflow-x-auto scrollbar-hide flex space-x-2 border-b border-white/20">
-          <Badge className="bg-white text-app-teal hover:bg-white/90 border-none py-1 px-3 rounded-full">
+          <Badge className="bg-white text-app-teal hover:bg-white/90 border-none py-1 px-3 rounded-full shadow-sm">
             全部
           </Badge>
-          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full">
+          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full shadow-sm">
             热门话题
           </Badge>
-          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full">
+          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full shadow-sm">
             学习分享
           </Badge>
-          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full">
+          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full shadow-sm">
             职场攻略
           </Badge>
-          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full">
+          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full shadow-sm">
             生活百科
           </Badge>
-          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full">
+          <Badge className="bg-white/20 text-white hover:bg-white/30 border-none py-1 px-3 rounded-full shadow-sm">
             兴趣爱好
           </Badge>
         </div>
@@ -266,17 +266,17 @@ const Discover: React.FC = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Enhanced Floating Action Button for Creating Posts */}
+      {/* Enhanced Floating Action Button with updated styling */}
       <Dialog>
         <DialogTrigger asChild>
           <Button 
             onClick={handleNewQuestionClick}
-            className="fixed bottom-20 right-5 w-14 h-14 rounded-full bg-app-teal shadow-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center"
+            className="fixed bottom-20 right-5 w-14 h-14 rounded-full bg-app-teal shadow-lg hover:bg-app-teal/90 hover:shadow-xl transition-all duration-300 flex items-center justify-center transform hover:scale-105"
           >
             <Plus className="h-6 w-6 text-white" />
           </Button>
         </DialogTrigger>
-        <DialogContent className="bg-white/95 backdrop-blur-md border border-gray-200">
+        <DialogContent className="bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl">
           <DialogHeader>
             <DialogTitle className="text-center text-lg font-bold">分享动态</DialogTitle>
           </DialogHeader>
@@ -305,7 +305,7 @@ const Discover: React.FC = () => {
   );
 };
 
-// DiscoverFeed component with updated colors
+// DiscoverFeed component with updated styling
 interface DiscoverFeedProps {
   recommendationCards: RecommendationCard[];
   posts: Post[];
@@ -316,16 +316,16 @@ interface DiscoverFeedProps {
 const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts, likedPosts, onLike }) => {
   return (
     <div className="pb-4">
-      {/* Youth-oriented Recommendation Cards - Redesigned */}
+      {/* Youth-oriented Recommendation Cards - Enhanced design */}
       <div className="px-4 py-3 bg-white">
         <div className="overflow-x-auto flex space-x-3 pb-2 scrollbar-hide">
           {recommendationCards.map(card => (
             <div 
               key={card.id} 
-              className={`flex-shrink-0 w-28 h-28 rounded-xl overflow-hidden shadow-md ${card.bgColor} relative hover:scale-105 transition-transform duration-200`}
+              className={`flex-shrink-0 w-32 h-32 rounded-xl overflow-hidden shadow-md ${card.bgColor} relative hover:scale-105 transition-transform duration-200 animate-fade-in`}
             >
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
-              <div className="h-full flex flex-col justify-between p-2 relative z-10">
+              <div className="h-full flex flex-col justify-between p-3 relative z-10">
                 <div className="text-sm font-bold text-white">
                   {card.title}
                 </div>
@@ -340,11 +340,14 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
         </div>
       </div>
       
-      {/* Posts Feed - Updated colors */}
+      {/* Posts Feed - Enhanced styling */}
       <div className="space-y-3 mt-3 px-3">
         {posts.map(post => (
-          <div key={post.id} className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200">
-            {/* Author info */}
+          <div 
+            key={post.id} 
+            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in"
+          >
+            {/* Author info - Updated styling */}
             <div className="flex items-center space-x-3 mb-3">
               <Avatar className="h-10 w-10 ring-2 ring-app-teal/10">
                 <AvatarImage src={post.author.avatar} alt={post.author.name} />
@@ -356,13 +359,13 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
               </div>
             </div>
             
-            {/* Post content */}
+            {/* Post content - Enhanced styling */}
             <div className="mb-3">
-              <p className="text-gray-800 mb-3">{post.content}</p>
+              <p className="text-gray-800 mb-3 leading-relaxed">{post.content}</p>
               
-              {/* Images grid */}
+              {/* Images grid - Enhanced styling */}
               {post.images && post.images.length > 0 && (
-                <div className={`grid gap-1 mb-3 ${
+                <div className={`grid gap-2 mb-3 ${
                   post.images.length === 1 ? 'grid-cols-1' : 
                   post.images.length === 2 ? 'grid-cols-2' : 
                   'grid-cols-3'
@@ -371,13 +374,13 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
                     <div key={index} className={`${
                       post.images && post.images.length === 1 ? 'aspect-w-16 aspect-h-9' : 'aspect-square'
                     } bg-gray-100 rounded-lg overflow-hidden`}>
-                      <img src={img} alt="" className="w-full h-full object-cover" />
+                      <img src={img} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" />
                     </div>
                   ))}
                 </div>
               )}
               
-              {/* Video */}
+              {/* Video - Enhanced styling */}
               {post.video && (
                 <div className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden mb-3">
                   <video 
@@ -389,18 +392,18 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
                     loop
                   />
                   <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-12 h-12 bg-black/30 rounded-full flex items-center justify-center">
+                    <div className="w-12 h-12 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/40 transition-colors">
                       <div className="w-0 h-0 border-t-8 border-t-transparent border-l-12 border-l-white border-b-8 border-b-transparent ml-1"></div>
                     </div>
                   </div>
                 </div>
               )}
               
-              {/* Topics */}
+              {/* Topics - Enhanced styling */}
               {post.topics && post.topics.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
                   {post.topics.map(topic => (
-                    <Badge key={topic} variant="secondary" className="bg-app-teal/10 text-app-teal border-none rounded-full text-xs">
+                    <Badge key={topic} variant="secondary" className="bg-app-teal/10 text-app-teal border-none rounded-full text-xs hover:bg-app-teal/20 transition-colors">
                       #{topic}
                     </Badge>
                   ))}
@@ -408,13 +411,13 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
               )}
             </div>
             
-            {/* Interaction buttons */}
+            {/* Interaction buttons - Enhanced styling */}
             <div className="flex justify-between border-t pt-3">
               <button 
                 className="flex items-center space-x-1 text-sm text-gray-500 transition-colors hover:text-pink-500"
                 onClick={() => onLike(post.id)}
               >
-                <Heart className={`h-5 w-5 ${likedPosts[post.id] ? 'fill-pink-500 text-pink-500' : 'text-current'}`} />
+                <Heart className={`h-5 w-5 transition-transform duration-200 ${likedPosts[post.id] ? 'fill-pink-500 text-pink-500 scale-110' : 'text-current'}`} />
                 <span>{post.likes + (likedPosts[post.id] ? 1 : 0)}</span>
               </button>
               

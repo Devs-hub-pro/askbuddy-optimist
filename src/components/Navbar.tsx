@@ -16,20 +16,13 @@ const Navbar: React.FC<NavbarProps> = ({ location = "深圳" }) => {
     navigate('/city-selector');
   };
   
-  const handleNotificationsClick = () => {
-    navigate('/notifications');
-  };
-  
   return (
     <header className="sticky top-0 z-50 bg-app-teal animate-fade-in shadow-sm">
       <div className="flex items-center justify-between h-12 px-4">
         <div className="text-white font-medium text-sm">问问</div>
         
         <div className="flex items-center gap-3">
-          <button 
-            className="relative"
-            onClick={handleNotificationsClick}
-          >
+          <button className="relative">
             <Bell size={18} className="text-white" />
             <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>

@@ -16,8 +16,6 @@ import ExpertDetail from "./pages/ExpertDetail";
 import ExpertProfile from "./pages/ExpertProfile";
 import NewQuestion from "./pages/NewQuestion";
 import Messages from "./pages/Messages";
-import Notifications from "./pages/Notifications";
-import Calendar from "./pages/Calendar";
 import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
 import { Toaster } from "@/components/ui/toaster";
@@ -66,8 +64,6 @@ function App() {
             <Route path="/expert-profile/:id" element={<ExpertProfile />} />
             <Route path="/new" element={<NewQuestion />} />
             <Route path="/messages" element={<Messages />} />
-            <Route path="/notifications" element={<Notifications />} />
-            <Route path="/calendar" element={<Calendar />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/edit-profile" element={<EditProfile />} />
             

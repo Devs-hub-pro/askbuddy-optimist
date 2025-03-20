@@ -24,7 +24,6 @@ const Index = () => {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>('everyone');
   const [currentLocation, setCurrentLocation] = useState<string>('深圳');
-  const [searchQuery, setSearchQuery] = useState('');
   
   useEffect(() => {
     const storedLocation = localStorage.getItem('currentLocation') || '深圳';
@@ -143,13 +142,6 @@ const Index = () => {
     }
   ];
 
-  const handleSearch = (query: string) => {
-    setSearchQuery(query);
-    if (query.trim() !== '') {
-      navigate(`/search?q=${encodeURIComponent(query)}`);
-    }
-  };
-
   const handleViewQuestionDetail = (questionId: string) => {
     navigate(`/question/${questionId}`);
   };
@@ -169,7 +161,7 @@ const Index = () => {
           <p className="text-gray-600 text-sm">AI无法回答的，就找人问问！</p>
         </div>
         
-        <SearchBar onSearch={handleSearch} />
+        <SearchBar />
       </div>
       
       <CategorySection />

@@ -1,4 +1,178 @@
 
-<view class="container flex items-center justify-center" style="height: 100vh;">
-  <text>消息页面正在开发中</text>
+<view class="container">
+  <!-- Top Navigation Bar -->
+  <view class="header">
+    <view class="nav-tabs">
+      <view class="tab {{activeTab === 'chats' ? 'active' : ''}}" bindtap="switchTab" data-tab="chats">
+        <text>私信</text>
+      </view>
+      <view class="tab {{activeTab === 'notifications' ? 'active' : ''}}" bindtap="switchTab" data-tab="notifications">
+        <text>通知</text>
+      </view>
+    </view>
+    
+    <view class="header-actions">
+      <view class="search-icon" bindtap="toggleSearch">
+        <text class="icon">🔍</text>
+      </view>
+      <view class="settings-icon" bindtap="openSettings">
+        <text class="icon">⚙️</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- Search Bar (Hidden by default) -->
+  <view class="search-container {{isSearchVisible ? 'visible' : 'hidden'}}">
+    <input type="text" placeholder="搜索联系人或关键词" bindinput="onSearchInput" focus="{{isSearchVisible}}" />
+    <text class="cancel-search" bindtap="toggleSearch">取消</text>
+  </view>
+  
+  <!-- Content Area -->
+  <view class="content-area">
+    <!-- Chats Tab Content -->
+    <view class="tab-content {{activeTab === 'chats' ? 'visible' : 'hidden'}}">
+      <!-- Pinned Conversations -->
+      <block wx:if="{{pinnedConversations.length > 0}}">
+        <view class="section-title">置顶会话</view>
+        <view class="conversations-list">
+          <view wx:for="{{pinnedConversations}}" wx:key="id" class="conversation-item {{item.unread ? 'unread' : ''}}" 
+                bindtap="openChat" data-id="{{item.id}}" 
+                bindlongpress="showConversationActions" data-id="{{item.id}}">
+            <view class="avatar">
+              <image src="{{item.avatar}}" mode="aspectFill"></image>
+              <view wx:if="{{item.online}}" class="online-indicator"></view>
+            </view>
+            <view class="conversation-content">
+              <view class="conversation-header">
+                <text class="name">{{item.name}}</text>
+                <text class="time">{{item.lastMessageTime}}</text>
+              </view>
+              <view class="conversation-footer">
+                <text class="preview">{{item.lastMessage}}</text>
+                <view wx:if="{{item.unreadCount > 0}}" class="unread-badge">
+                  {{item.unreadCount > 9 ? '9+' : item.unreadCount}}
+                </view>
+              </view>
+            </view>
+            <view class="pinned-indicator">📌</view>
+          </view>
+        </view>
+      </block>
+      
+      <!-- Regular Conversations -->
+      <view class="section-title">最近会话</view>
+      <view class="conversations-list">
+        <view wx:for="{{conversations}}" wx:key="id" class="conversation-item {{item.unread ? 'unread' : ''}}" 
+              bindtap="openChat" data-id="{{item.id}}" 
+              bindlongpress="showConversationActions" data-id="{{item.id}}">
+          <view class="avatar">
+            <image src="{{item.avatar}}" mode="aspectFill"></image>
+            <view wx:if="{{item.online}}" class="online-indicator"></view>
+          </view>
+          <view class="conversation-content">
+            <view class="conversation-header">
+              <text class="name">{{item.name}}</text>
+              <text class="time">{{item.lastMessageTime}}</text>
+            </view>
+            <view class="conversation-footer">
+              <text class="preview">{{item.lastMessage}}</text>
+              <view wx:if="{{item.unreadCount > 0}}" class="unread-badge">
+                {{item.unreadCount > 9 ? '9+' : item.unreadCount}}
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+      
+      <!-- Empty State -->
+      <view wx:if="{{conversations.length === 0 && pinnedConversations.length === 0}}" class="empty-state">
+        <image src="/assets/images/empty-chat.png" mode="aspectFit"></image>
+        <text>暂无会话，开始新对话吧</text>
+      </view>
+    </view>
+    
+    <!-- Notifications Tab Content -->
+    <view class="tab-content {{activeTab === 'notifications' ? 'visible' : 'hidden'}}">
+      <!-- Mark All as Read Button -->
+      <view class="mark-all-read" bindtap="markAllNotificationsRead">
+        <text>全部标为已读</text>
+      </view>
+      
+      <!-- Notification Categories -->
+      <view class="notification-categories">
+        <view class="category-tab {{notificationCategory === 'all' ? 'active' : ''}}" bindtap="changeNotificationCategory" data-category="all">全部</view>
+        <view class="category-tab {{notificationCategory === 'transaction' ? 'active' : ''}}" bindtap="changeNotificationCategory" data-category="transaction">交易</view>
+        <view class="category-tab {{notificationCategory === 'activity' ? 'active' : ''}}" bindtap="changeNotificationCategory" data-category="activity">活动</view>
+        <view class="category-tab {{notificationCategory === 'interaction' ? 'active' : ''}}" bindtap="changeNotificationCategory" data-category="interaction">互动</view>
+        <view class="category-tab {{notificationCategory === 'system' ? 'active' : ''}}" bindtap="changeNotificationCategory" data-category="system">系统</view>
+      </view>
+      
+      <!-- Notifications List -->
+      <view class="notifications-list">
+        <view wx:for="{{filteredNotifications}}" wx:key="id" class="notification-item {{item.read ? '' : 'unread'}}" 
+              bindtap="openNotification" data-id="{{item.id}}" 
+              bindlongpress="showNotificationActions" data-id="{{item.id}}">
+          <view class="notification-icon {{item.type}}">
+            <text wx:if="{{item.type === 'transaction'}}">🎯</text>
+            <text wx:elif="{{item.type === 'activity'}}">📢</text>
+            <text wx:elif="{{item.type === 'interaction'}}">💌</text>
+            <text wx:elif="{{item.type === 'system'}}">🔔</text>
+          </view>
+          <view class="notification-content">
+            <view class="notification-header">
+              <text class="title">{{item.title}}</text>
+              <text class="time">{{item.time}}</text>
+            </view>
+            <text class="message">{{item.message}}</text>
+          </view>
+          <view wx:if="{{!item.read}}" class="unread-indicator"></view>
+        </view>
+      </view>
+      
+      <!-- Empty State for Notifications -->
+      <view wx:if="{{filteredNotifications.length === 0}}" class="empty-state">
+        <image src="/assets/images/empty-notification.png" mode="aspectFit"></image>
+        <text>暂无通知</text>
+      </view>
+    </view>
+  </view>
+  
+  <!-- Context Menus (Hidden by default) -->
+  <view class="context-menu {{showConversationMenu ? 'visible' : 'hidden'}}" style="top: {{menuPosition.y}}px; left: {{menuPosition.x}}px;">
+    <view class="menu-item" bindtap="togglePinConversation">
+      <text>{{selectedConversation.pinned ? '取消置顶' : '置顶会话'}}</text>
+    </view>
+    <view class="menu-item" bindtap="markConversationRead">
+      <text>{{selectedConversation.unread ? '标记已读' : '标记未读'}}</text>
+    </view>
+    <view class="menu-item" bindtap="archiveConversation">
+      <text>归档会话</text>
+    </view>
+    <view class="menu-item delete" bindtap="confirmDeleteConversation">
+      <text>删除会话</text>
+    </view>
+  </view>
+  
+  <view class="context-menu {{showNotificationMenu ? 'visible' : 'hidden'}}" style="top: {{menuPosition.y}}px; left: {{menuPosition.x}}px;">
+    <view class="menu-item" bindtap="toggleNotificationRead">
+      <text>{{selectedNotification.read ? '标记未读' : '标记已读'}}</text>
+    </view>
+    <view class="menu-item delete" bindtap="deleteNotification">
+      <text>删除通知</text>
+    </view>
+  </view>
+  
+  <!-- Confirmation Dialog -->
+  <view class="dialog-overlay {{showDeleteDialog ? 'visible' : 'hidden'}}" bindtap="cancelDelete">
+    <view class="dialog-container" catchtap="preventBubble">
+      <view class="dialog-title">确认删除</view>
+      <view class="dialog-content">
+        <text>删除后将无法恢复，是否确认删除？</text>
+      </view>
+      <view class="dialog-buttons">
+        <button class="cancel-button" bindtap="cancelDelete">取消</button>
+        <button class="confirm-button" bindtap="confirmDelete">删除</button>
+      </view>
+    </view>
+  </view>
 </view>

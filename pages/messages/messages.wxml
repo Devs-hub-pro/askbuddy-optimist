@@ -1,4 +1,150 @@
 
-<view class="container flex items-center justify-center" style="height: 100vh;">
-  <text>消息页面正在开发中</text>
+<view class="messages-container">
+  <!-- Header Navigation -->
+  <view class="header-nav">
+    <view class="flex items-center justify-between px-4 py-3 bg-app-teal shadow-sm">
+      <view class="flex items-center space-x-6">
+        <view class="text-white font-medium text-base">消息</view>
+        <view class="tab-container">
+          <view class="tab-item active">
+            <text>私信</text>
+          </view>
+          <view class="tab-item">
+            <text>通知</text>
+          </view>
+        </view>
+      </view>
+      <view class="flex items-center space-x-4">
+        <view class="search-icon" bindtap="toggleSearch">
+          <view class="icon-search"></view>
+        </view>
+        <view class="settings-icon" bindtap="goToSettings">
+          <view class="icon-settings"></view>
+        </view>
+      </view>
+    </view>
+    
+    <!-- Search Bar (Hidden by default) -->
+    <view class="search-container {{isSearchVisible ? 'active' : ''}}">
+      <input class="search-input" type="text" placeholder="搜索联系人或关键词" bindinput="onSearch" />
+    </view>
+  </view>
+
+  <!-- Main Content - Private Messages Tab -->
+  <view class="message-content" hidden="{{activeTab !== 'privateMessages'}}">
+    <!-- Pinned Conversations -->
+    <block wx:if="{{pinnedConversations.length > 0}}">
+      <view class="section-title">
+        <text>置顶会话</text>
+      </view>
+      <view class="conversation-list">
+        <block wx:for="{{pinnedConversations}}" wx:key="id">
+          <view class="conversation-item pinned" bindtap="openConversation" data-id="{{item.id}}" bindlongpress="showActionSheet" data-conversation="{{item}}">
+            <view class="avatar-container">
+              <image class="avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+              <view class="badge" wx:if="{{item.unreadCount > 0}}">{{item.unreadCount > 9 ? '9+' : item.unreadCount}}</view>
+            </view>
+            <view class="conversation-details">
+              <view class="name-time">
+                <text class="name">{{item.name}}</text>
+                <text class="time">{{item.lastMessageTime}}</text>
+              </view>
+              <view class="preview {{item.unread ? 'unread' : ''}}">
+                <text>{{item.lastMessage}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+    </block>
+
+    <!-- Regular Conversations -->
+    <view class="section-title">
+      <text>最近消息</text>
+    </view>
+    <view class="conversation-list">
+      <block wx:for="{{conversations}}" wx:key="id">
+        <view class="conversation-item {{item.unread ? 'unread' : ''}}" bindtap="openConversation" data-id="{{item.id}}" bindlongpress="showActionSheet" data-conversation="{{item}}" catch:touchstart="touchStart" catch:touchmove="touchMove" catch:touchend="touchEnd" data-index="{{index}}">
+          <view class="avatar-container">
+            <image class="avatar" src="{{item.avatar}}" mode="aspectFill"></image>
+            <view class="badge" wx:if="{{item.unreadCount > 0}}">{{item.unreadCount > 9 ? '9+' : item.unreadCount}}</view>
+          </view>
+          <view class="conversation-details">
+            <view class="name-time">
+              <text class="name">{{item.name}}</text>
+              <text class="time">{{item.lastMessageTime}}</text>
+            </view>
+            <view class="preview {{item.unread ? 'unread' : ''}}">
+              <text>{{item.lastMessage}}</text>
+            </view>
+          </view>
+          <!-- Swipe actions -->
+          <view class="swipe-actions" style="right: {{item.rightValue}}rpx">
+            <view class="archive-action" catchtap="archiveConversation" data-id="{{item.id}}">归档</view>
+            <view class="delete-action" catchtap="deleteConversation" data-id="{{item.id}}">删除</view>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- Empty State -->
+    <view class="empty-state" wx:if="{{conversations.length === 0 && pinnedConversations.length === 0}}">
+      <image src="/assets/icons/empty-message.png" mode="aspectFit"></image>
+      <text>还没有消息，去找人聊聊吧</text>
+    </view>
+  </view>
+
+  <!-- Notifications Tab -->
+  <view class="notification-content" hidden="{{activeTab !== 'notifications'}}">
+    <!-- Notification Categories -->
+    <view class="category-tabs">
+      <view class="category-tab {{notificationCategory === 'all' ? 'active' : ''}}" bindtap="changeNotificationCategory" data-category="all">
+        <text>全部</text>
+      </view>
+      <view class="category-tab {{notificationCategory === 'transaction' ? 'active' : ''}}" bindtap="changeNotificationCategory" data-category="transaction">
+        <text>交易</text>
+      </view>
+      <view class="category-tab {{notificationCategory === 'activity' ? 'active' : ''}}" bindtap="changeNotificationCategory" data-category="activity">
+        <text>活动</text>
+      </view>
+      <view class="category-tab {{notificationCategory === 'interaction' ? 'active' : ''}}" bindtap="changeNotificationCategory" data-category="interaction">
+        <text>互动</text>
+      </view>
+      <view class="category-tab {{notificationCategory === 'system' ? 'active' : ''}}" bindtap="changeNotificationCategory" data-category="system">
+        <text>系统</text>
+      </view>
+    </view>
+
+    <!-- Notification List -->
+    <view class="notification-list">
+      <block wx:for="{{notifications}}" wx:key="id">
+        <view class="notification-item {{item.unread ? 'unread' : ''}}" bindtap="openNotification" data-id="{{item.id}}" data-type="{{item.type}}" bindlongpress="showNotificationActions" data-notification="{{item}}">
+          <view class="notification-icon {{item.type}}">
+            <view class="icon-{{item.icon}}"></view>
+          </view>
+          <view class="notification-details">
+            <view class="notification-title">
+              <text>{{item.title}}</text>
+              <text class="time">{{item.time}}</text>
+            </view>
+            <view class="notification-content">
+              <text>{{item.content}}</text>
+            </view>
+          </view>
+        </view>
+      </block>
+    </view>
+
+    <!-- Empty Notification State -->
+    <view class="empty-state" wx:if="{{notifications.length === 0}}">
+      <image src="/assets/icons/empty-notification.png" mode="aspectFit"></image>
+      <text>暂无通知</text>
+    </view>
+
+    <!-- Mark All as Read Button -->
+    <view class="action-button" wx:if="{{hasUnreadNotifications}}" bindtap="markAllAsRead">
+      <text>全部标为已读</text>
+    </view>
+  </view>
 </view>
+

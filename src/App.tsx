@@ -17,6 +17,7 @@ import ExpertProfile from "./pages/ExpertProfile";
 import NewQuestion from "./pages/NewQuestion";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
+import EditProfile from "./pages/EditProfile";
 import { Toaster } from "@/components/ui/toaster";
 import "./App.css";
 
@@ -42,10 +43,10 @@ function App() {
             <Route path="/new" element={<NewQuestion />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/profile" element={<Profile />} />
+            <Route path="/edit-profile" element={<EditProfile />} />
             
             {/* Profile related routes will redirect to main Profile page for now */}
             <Route path="/settings" element={<Profile />} />
-            <Route path="/edit-profile" element={<Profile />} />
             <Route path="/my-orders" element={<Profile />} />
             <Route path="/my-appointments" element={<Profile />} />
             <Route path="/my-wallet" element={<Profile />} />

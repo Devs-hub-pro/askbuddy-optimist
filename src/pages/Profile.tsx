@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -20,7 +19,7 @@ import {
   List,
   MessageSquareText,
   UserPlus,
-  Coin,
+  Coins,
   Eye,
   Folder,
   Lock,
@@ -59,7 +58,7 @@ const Profile = () => {
   ];
   
   const commonFeatures = [
-    { icon: <Coin size={20} className="text-amber-500" />, label: '我的收益', route: '/profile/earnings' },
+    { icon: <Coins size={20} className="text-amber-500" />, label: '我的收益', route: '/profile/earnings' },
     { icon: <UserPlus size={20} className="text-indigo-500" />, label: '我的社群', route: '/profile/community' },
     { icon: <FileText size={20} className="text-app-teal" />, label: '草稿箱', route: '/profile/drafts' },
     { icon: <Award size={20} className="text-orange-500" />, label: '达人认证', route: '/profile/talent-certification' },

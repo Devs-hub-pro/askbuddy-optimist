@@ -1,11 +1,11 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Lock } from 'lucide-react';
+import { ArrowLeft, Settings } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import BottomNav from '@/components/BottomNav';
 
-const AccountSecurity = () => {
+const GeneralSettings = () => {
   const navigate = useNavigate();
 
   return (
@@ -20,13 +20,13 @@ const AccountSecurity = () => {
         >
           <ArrowLeft size={24} />
         </Button>
-        <h1 className="text-xl font-semibold">账号与安全</h1>
+        <h1 className="text-xl font-semibold">通用设置</h1>
       </div>
 
       {/* Empty state */}
       <div className="flex flex-col items-center justify-center p-8 mt-20">
-        <Lock size={64} className="text-gray-300 mb-4" />
-        <p className="text-gray-500 mb-2">账号与安全功能开发中</p>
+        <Settings size={64} className="text-gray-300 mb-4" />
+        <p className="text-gray-500 mb-2">通用设置功能开发中</p>
       </div>
 
       <BottomNav />
@@ -34,4 +34,4 @@ const AccountSecurity = () => {
   );
 };
 
-export default AccountSecurity;
+export default GeneralSettings;

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -551,7 +550,7 @@ const LifestyleServices = () => {
                       <Button 
                         onClick={(e) => {
                           e.stopPropagation();
-                          navigate(`/expert-profile/${expert.id}`);
+                          navigate(`/expert-profile/${expert.id.toString()}`);
                         }}
                         className="bg-gradient-to-r from-orange-500 to-amber-400 text-white px-2.5 py-1 rounded-full text-xs flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 h-auto"
                       >

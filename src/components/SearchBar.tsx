@@ -3,10 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
-import Logo from './logo/Logo';
 
 interface SearchBarProps {
-  onSearch?: (value: string) => void;
+  onSearch: (value: string) => void;
   placeholder?: string;
   className?: string;
   value?: string;
@@ -89,10 +88,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   return (
     <div className={`px-4 py-3 ${className}`}>
-      <div className="flex items-center mb-4">
-        <Logo size="sm" />
-      </div>
-      
       <div className={`relative ${isFocused ? 'ring-2 ring-app-teal/30 rounded-md' : ''}`}>
         <Input
           type="text"

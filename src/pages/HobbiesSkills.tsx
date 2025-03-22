@@ -1,522 +1,455 @@
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState } from 'react';
+import Navbar from '../components/Navbar';
+import BottomNav from '../components/BottomNav';
+import { Button } from '@/components/ui/button';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Search, ArrowRight, Bell, Calendar as CalendarIcon } from 'lucide-react';
+import SearchBar from '../components/SearchBar';
 import { useNavigate } from 'react-router-dom';
-import { 
-  Calendar, 
-  ChevronLeft, 
-  Camera, 
-  Music, 
-  Palette, 
-  Dumbbell, 
-  Utensils,
-  Bell,
-  CalendarPlus,
-  MessageSquare,
-  MessageCircle,
-  Plus,
-  Clock,
-  Award,
-  User,
-  Users,
-  Eye,
-  ChevronRight
-} from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { Button } from "@/components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import SearchBar from "@/components/SearchBar";
-import QuestionCard from '@/components/QuestionCard';
+
+const categories = [
+  { id: 'arts', name: '艺术创作', icon: '🎨' },
+  { id: 'music', name: '音乐乐器', icon: '🎸' },
+  { id: 'sports', name: '运动技能', icon: '⚽' },
+  { id: 'cooking', name: '烹饪美食', icon: '🍳' },
+  { id: 'crafts', name: '手工制作', icon: '✂️' },
+  { id: 'photography', name: '摄影摄像', icon: '📷' },
+  { id: 'dance', name: '舞蹈表演', icon: '💃' },
+  { id: 'writing', name: '写作创作', icon: '✍️' },
+];
+
+const popularQuestions = [
+  {
+    id: '1',
+    title: '初学者如何学习钢琴？有什么好的入门方法？',
+    answers: 48,
+    views: 2100,
+  },
+  {
+    id: '2',
+    title: '摄影构图有哪些基本原则？',
+    answers: 52,
+    views: 3400,
+  },
+  {
+    id: '3',
+    title: '如何提高自己的绘画技巧？',
+    answers: 39,
+    views: 1800,
+  },
+  {
+    id: '4',
+    title: '学习街舞需要具备哪些基础条件？',
+    answers: 28,
+    views: 1200,
+  },
+];
+
+const experts = [
+  {
+    id: '1',
+    name: '王老师',
+    avatar: 'https://randomuser.me/api/portraits/men/75.jpg',
+    title: '钢琴演奏家',
+    institution: '音乐学院',
+    rating: 4.9,
+    reviewCount: 143,
+    price: 200,
+  },
+  {
+    id: '2',
+    name: '李摄影师',
+    avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+    title: '专业摄影师',
+    institution: '视觉艺术工作室',
+    rating: 4.8,
+    reviewCount: 89,
+    price: 180,
+  },
+  {
+    id: '3',
+    name: '张画家',
+    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+    title: '插画艺术家',
+    institution: '艺术创作中心',
+    rating: 4.7,
+    reviewCount: 95,
+    price: 150,
+  },
+];
+
+const courses = [
+  {
+    id: '1',
+    title: '零基础钢琴入门课程',
+    instructor: '王老师',
+    level: '初级',
+    duration: '10周',
+    students: 876,
+    rating: 4.8,
+    price: 1299,
+    originalPrice: 1599,
+    image: 'https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60',
+  },
+  {
+    id: '2',
+    title: '手机摄影进阶课程',
+    instructor: '李摄影师',
+    level: '中级',
+    duration: '6周',
+    students: 654,
+    rating: 4.9,
+    price: 899,
+    originalPrice: 1199,
+    image: 'https://images.unsplash.com/photo-1542038784456-1ea8e935640e?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60',
+  },
+  {
+    id: '3',
+    title: '数字插画创作指南',
+    instructor: '张画家',
+    level: '全部',
+    duration: '8周',
+    students: 543,
+    rating: 4.7,
+    price: 999,
+    originalPrice: 1299,
+    image: 'https://images.unsplash.com/photo-1547333726-b2b3c3663be6?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=60',
+  },
+];
 
 const HobbiesSkills = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeCategory, setActiveCategory] = useState('all');
-  const categoryRef = useRef<HTMLDivElement>(null);
-  const [showRightIndicator, setShowRightIndicator] = useState(false);
-  
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  const [activeTab, setActiveTab] = useState('recommend');
 
-  useEffect(() => {
-    const checkScroll = () => {
-      if (categoryRef.current) {
-        const { scrollWidth, clientWidth } = categoryRef.current;
-        setShowRightIndicator(scrollWidth > clientWidth);
-      }
-    };
-
-    checkScroll();
-    window.addEventListener('resize', checkScroll);
-    return () => window.removeEventListener('resize', checkScroll);
-  }, []);
-
-  const scrollCategories = (direction: 'left' | 'right') => {
-    if (categoryRef.current) {
-      const scrollAmount = direction === 'left' ? -200 : 200;
-      categoryRef.current.scrollBy({
-        left: scrollAmount,
-        behavior: 'smooth'
-      });
-    }
+  const handleCategoryClick = (categoryId: string) => {
+    navigate(`/search?category=${categoryId}`);
   };
 
-  const importantDates = [
-    { date: '2024-11-10', event: '冬季摄影大赛报名开始', countdown: 40, type: 'photography' },
-    { date: '2024-12-05', event: '年度音乐人颁奖典礼', countdown: 65, type: 'music' },
-    { date: '2024-12-25', event: '烹饪技巧大师课程', countdown: 85, type: 'cooking' },
-    { date: '2025-01-15', event: '健身训练营开营', countdown: 105, type: 'fitness' }
-  ];
-
-  const filteredDates = activeCategory === 'all' 
-    ? importantDates 
-    : importantDates.filter(date => date.type === activeCategory);
-
-  const categories = [
-    { id: 'all', name: '全部', icon: <Calendar size={16} /> },
-    { id: 'photography', name: '摄影', icon: <Camera size={16} /> },
-    { id: 'music', name: '音乐', icon: <Music size={16} /> },
-    { id: 'art', name: '艺术', icon: <Palette size={16} /> },
-    { id: 'fitness', name: '健身', icon: <Dumbbell size={16} /> },
-    { id: 'cooking', name: '烹饪', icon: <Utensils size={16} /> }
-  ];
-
-  const allExperts = [
-    {
-      id: '1',
-      name: '张摄影',
-      avatar: 'https://randomuser.me/api/portraits/men/22.jpg',
-      title: '专业摄影师',
-      description: '10年摄影经验，曾获多项国际摄影奖项',
-      tags: ['风光摄影', '人像', '后期修图'],
-      category: 'photography',
-      rating: 4.9,
-      responseRate: '98%',
-      orderCount: '156单'
-    },
-    {
-      id: '2',
-      name: '王音乐',
-      avatar: 'https://randomuser.me/api/portraits/women/23.jpg',
-      title: '音乐制作人',
-      description: '专注电子音乐制作，多首作品登上热门榜单',
-      tags: ['电子音乐', '混音', '编曲'],
-      category: 'music',
-      rating: 4.8,
-      responseRate: '95%',
-      orderCount: '132单'
-    },
-    {
-      id: '3',
-      name: '林画家',
-      avatar: 'https://randomuser.me/api/portraits/women/24.jpg',
-      title: '当代艺术家',
-      description: '擅长水彩与油画创作，个人作品在多个画廊展出',
-      tags: ['水彩', '油画', '素描'],
-      category: 'art',
-      rating: 4.7,
-      responseRate: '92%',
-      orderCount: '98单'
-    },
-    {
-      id: '4',
-      name: '李教练',
-      avatar: 'https://randomuser.me/api/portraits/men/25.jpg',
-      title: '健身教练',
-      description: '国家认证健身教练，专注力量训练与体态改善',
-      tags: ['力量训练', '体态矫正', '减脂'],
-      category: 'fitness',
-      rating: 4.9,
-      responseRate: '97%',
-      orderCount: '203单'
-    },
-    {
-      id: '5',
-      name: '陈大厨',
-      avatar: 'https://randomuser.me/api/portraits/men/26.jpg',
-      title: '米其林星级厨师',
-      description: '曾在多家星级餐厅任职，擅长中西融合料理',
-      tags: ['料理', '烘焙', '中餐'],
-      category: 'cooking',
-      rating: 4.8,
-      responseRate: '94%',
-      orderCount: '176单'
-    },
-    {
-      id: '6',
-      name: '赵作曲',
-      avatar: 'https://randomuser.me/api/portraits/men/27.jpg',
-      title: '音乐老师',
-      description: '古典音乐专业，钢琴演奏家，擅长教学与作曲',
-      tags: ['钢琴', '作曲', '乐理'],
-      category: 'music',
-      rating: 4.6,
-      responseRate: '90%',
-      orderCount: '87单'
-    }
-  ];
-
-  const filteredExperts = activeCategory === 'all' 
-    ? allExperts 
-    : allExperts.filter(expert => expert.category === activeCategory);
-
-  const communityQuestions = [
-    {
-      id: '1',
-      title: '如何拍出高质量的夜景照片？',
-      description: '初学摄影，想拍出星空和城市夜景，需要哪些设备和技巧？',
-      asker: {
-        name: '摄影新手',
-        avatar: 'https://randomuser.me/api/portraits/men/41.jpg'
-      },
-      time: '2小时前',
-      tags: ['摄影', '夜景', '器材'],
-      answers: 8,
-      viewCount: '967',
-      points: 30,
-      category: 'photography'
-    },
-    {
-      id: '2',
-      title: '如何制作一首电子音乐，从哪里开始？',
-      description: '对电子音乐制作感兴趣，但不知道需要什么软件和基础知识，求指导...',
-      asker: {
-        name: '音乐爱好者',
-        avatar: 'https://randomuser.me/api/portraits/women/42.jpg'
-      },
-      time: '4小时前',
-      tags: ['音乐', '电子音乐', '制作'],
-      answers: 12,
-      viewCount: '1243',
-      points: 45,
-      category: 'music',
-      answerName: '王音乐',
-      answerAvatar: 'https://randomuser.me/api/portraits/women/23.jpg'
-    },
-    {
-      id: '3',
-      title: '零基础如何学习素描？有推荐的书籍或课程吗？',
-      description: '想学习素描但完全没有基础，不知道从哪里入手，有什么推荐的学习路径？',
-      asker: {
-        name: '艺术小白',
-        avatar: 'https://randomuser.me/api/portraits/women/43.jpg'
-      },
-      time: '昨天',
-      tags: ['艺术', '素描', '入门'],
-      answers: 10,
-      viewCount: '876',
-      points: 35,
-      category: 'art'
-    },
-    {
-      id: '4',
-      title: '如何在家高效健身？不去健身房有什么器材推荐？',
-      description: '因为工作原因没时间去健身房，想了解在家健身的有效方法和必备器材...',
-      asker: {
-        name: '健身爱好者',
-        avatar: 'https://randomuser.me/api/portraits/men/44.jpg'
-      },
-      time: '2天前',
-      tags: ['健身', '家庭健身', '器材'],
-      answers: 15,
-      viewCount: '1576',
-      points: 40,
-      category: 'fitness'
-    },
-    {
-      id: '5',
-      title: '如何提高家常菜的口感和颜值？',
-      description: '做的菜味道还行但看起来很一般，有哪些简单的技巧可以提升家常菜的档次？',
-      asker: {
-        name: '美食达人',
-        avatar: 'https://randomuser.me/api/portraits/women/45.jpg'
-      },
-      time: '3天前',
-      tags: ['烹饪', '家常菜', '摆盘'],
-      answers: 9,
-      viewCount: '1098',
-      points: 30,
-      category: 'cooking'
-    }
-  ];
-
-  const filteredQuestions = activeCategory === 'all'
-    ? communityQuestions
-    : communityQuestions.filter(question => question.category === activeCategory);
-
-  const handleSearch = () => {
-    console.log('Search initiated');
-  };
-
-  const handleCategorySelect = (categoryId: string) => {
-    setActiveCategory(categoryId);
-    console.log(`Selected category: ${categoryId}`);
-  };
-
-  const handleAddDate = () => {
-    console.log('Adding custom date');
-  };
-
-  const handleViewQuestionDetail = (questionId: string) => {
+  const handleQuestionClick = (questionId: string) => {
     navigate(`/question/${questionId}`);
   };
 
-  const handleViewExpertProfile = (expertId: string) => {
-    navigate(`/expert-profile/${expertId}`);
+  const handleExpertClick = (expertId: string) => {
+    navigate(`/expert/${expertId}`);
+  };
+
+  const handleCourseClick = (courseId: string) => {
+    // For demonstration purposes, navigate to question detail
+    navigate(`/question/${courseId}`);
+  };
+
+  const handleSeeAll = (section: string) => {
+    navigate(`/search?section=${section}`);
   };
 
   return (
-    <div className="app-container bg-gradient-to-b from-white to-rose-50/30 pb-20">
-      <div className="sticky top-0 z-50 bg-app-red shadow-sm animate-fade-in">
-        <div className="flex items-center h-12 px-4">
-          <button onClick={() => navigate('/')} className="text-white">
-            <ChevronLeft size={24} />
-          </button>
-          <div className="text-white font-medium text-base ml-2">兴趣技能</div>
-          <div className="flex-1"></div>
-          <button className="text-white">
-            <Bell size={20} />
-          </button>
-        </div>
-      </div>
+    <div className="min-h-screen bg-gray-50 pb-20">
+      <Navbar />
       
-      <div className="px-4 py-3 bg-app-light-bg">
-        <SearchBar placeholder="搜索问题/达人/话题" />
-      </div>
-      
-      <div className="px-4 mb-6">
-        <div className="bg-gradient-to-r from-rose-50 to-pink-50 rounded-lg p-3 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center">
-              <Calendar size={18} className="text-rose-600 mr-2" />
-              <h3 className="font-medium text-sm">重要日期日历</h3>
-            </div>
-            <button 
-              className="flex items-center text-xs text-rose-600 bg-white rounded-full px-2 py-1 shadow-sm"
-              onClick={handleAddDate}
+      <div className="pt-12">
+        {/* Header with search and notifications */}
+        <div className="bg-white p-4 flex justify-between items-center shadow-sm">
+          <h1 className="text-xl font-bold">兴趣技能</h1>
+          <div className="flex space-x-3">
+            <Button 
+              variant="ghost" 
+              size="icon"
+              onClick={() => navigate('/calendar')}
+              className="text-gray-600"
             >
-              <CalendarPlus size={12} className="mr-1" />
-              <span>添加日程</span>
-            </button>
-          </div>
-          
-          <div className="space-y-2">
-            {filteredDates.map((item, index) => {
-              const eventDate = new Date(item.date);
-              const formattedDate = `${eventDate.getMonth() + 1}月${eventDate.getDate()}日`;
-              
-              return (
-                <div key={index} className="flex items-center justify-between bg-white rounded-md p-2">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-medium">{item.event}</span>
-                    <span className="text-xs text-gray-500">{formattedDate}</span>
-                  </div>
-                  <div className="bg-rose-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                    {item.countdown}天
-                  </div>
-                </div>
-              );
-            })}
+              <CalendarIcon size={24} />
+            </Button>
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={() => navigate('/notifications')}
+              className="text-gray-600"
+            >
+              <Bell size={24} />
+            </Button>
           </div>
         </div>
-      </div>
-      
-      <div className="px-4 mb-4 relative">
-        <div className="relative">
-          {showRightIndicator && (
-            <button 
-              onClick={() => scrollCategories('right')} 
-              className="absolute right-0 top-1/2 -translate-y-1/2 bg-white bg-opacity-90 rounded-full shadow-md z-10 p-1 hover:bg-gray-100 transition-colors"
-            >
-              <ChevronRight size={16} className="text-gray-600" />
-            </button>
-          )}
-          
-          <ScrollArea className="w-full" orientation="horizontal">
-            <div 
-              ref={categoryRef}
-              className="flex space-x-2 pb-2 pr-4"
-              style={{ minWidth: "100%" }}
-            >
-              {categories.map((category) => (
-                <div 
-                  key={category.id} 
-                  className={`flex-shrink-0 ${activeCategory === category.id ? 'bg-rose-500 text-white' : 'bg-white shadow-sm'} rounded-full px-3 py-1.5 flex items-center gap-1 cursor-pointer transition-colors`}
-                  onClick={() => handleCategorySelect(category.id)}
-                >
-                  {category.icon}
-                  <span className="text-xs font-medium whitespace-nowrap">{category.name}</span>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-      </div>
-      
-      <div className="px-4 mb-6">
-        <Tabs defaultValue="everyone" className="w-full">
-          <div className="relative mb-6 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:bg-gray-100">
-            <TabsList className="w-full bg-transparent p-0 h-auto">
-              <TabsTrigger 
-                value="everyone" 
-                className="font-bold text-lg pb-2 relative data-[state=active]:text-app-text data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=inactive]:text-gray-400"
+        
+        {/* Search bar */}
+        <SearchBar 
+          placeholder="搜索兴趣爱好或技能..." 
+          onSearch={(value) => navigate(`/search?q=${encodeURIComponent(value)}`)}
+        />
+        
+        {/* Categories grid */}
+        <div className="bg-white p-4 mb-2">
+          <div className="grid grid-cols-4 gap-3">
+            {categories.map(category => (
+              <div 
+                key={category.id}
+                className="flex flex-col items-center justify-center p-2 cursor-pointer"
+                onClick={() => handleCategoryClick(category.id)}
               >
-                大家都在问
-                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-rose-500 to-pink-500 z-10 opacity-0 data-[state=active]:opacity-100 transition-opacity"></span>
+                <div className="w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center text-xl mb-1">
+                  {category.icon}
+                </div>
+                <span className="text-xs text-gray-700">{category.name}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+        
+        {/* Tabs for content sections */}
+        <div className="bg-white mb-2">
+          <Tabs defaultValue="recommend" onValueChange={setActiveTab} className="w-full">
+            <TabsList className="w-full justify-start px-2 h-12 bg-transparent border-b border-gray-200">
+              <TabsTrigger 
+                value="recommend" 
+                className="data-[state=active]:text-app-blue data-[state=active]:border-b-2 data-[state=active]:border-app-blue rounded-none px-4"
+              >
+                推荐
+              </TabsTrigger>
+              <TabsTrigger 
+                value="questions" 
+                className="data-[state=active]:text-app-blue data-[state=active]:border-b-2 data-[state=active]:border-app-blue rounded-none px-4"
+              >
+                问题
               </TabsTrigger>
               <TabsTrigger 
                 value="experts" 
-                className="font-bold text-lg pb-2 relative data-[state=active]:text-app-text data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=inactive]:text-gray-400"
+                className="data-[state=active]:text-app-blue data-[state=active]:border-b-2 data-[state=active]:border-app-blue rounded-none px-4"
               >
-                找TA问问
-                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-rose-500 to-pink-500 z-10 opacity-0 data-[state=active]:opacity-100 transition-opacity"></span>
+                专家
+              </TabsTrigger>
+              <TabsTrigger 
+                value="courses" 
+                className="data-[state=active]:text-app-blue data-[state=active]:border-b-2 data-[state=active]:border-app-blue rounded-none px-4"
+              >
+                课程
               </TabsTrigger>
             </TabsList>
-          </div>
-          
-          <TabsContent value="everyone" className="mt-0">
-            {isLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map((item) => (
-                  <div key={item} className="bg-white rounded-lg p-4 animate-pulse-soft shadow-sm">
-                    <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
-                    <div className="h-10 bg-gray-200 rounded w-full mb-3"></div>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                        <div>
-                          <div className="h-3 bg-gray-200 rounded w-20"></div>
-                          <div className="h-3 bg-gray-200 rounded w-16 mt-1"></div>
+            
+            {/* Recommend Tab Content */}
+            <TabsContent value="recommend" className="m-0">
+              {/* Popular Questions Section */}
+              <div className="p-4">
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="text-lg font-medium">热门问题</h2>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-gray-500"
+                    onClick={() => handleSeeAll('questions')}
+                  >
+                    查看全部 <ArrowRight size={16} className="ml-1" />
+                  </Button>
+                </div>
+                
+                <div className="space-y-3">
+                  {popularQuestions.slice(0, 2).map(question => (
+                    <div 
+                      key={question.id}
+                      className="bg-gray-50 p-3 rounded-lg cursor-pointer"
+                      onClick={() => handleQuestionClick(question.id)}
+                    >
+                      <h3 className="text-gray-800 font-medium">{question.title}</h3>
+                      <div className="flex items-center mt-2 text-xs text-gray-500">
+                        <span>{question.answers} 回答</span>
+                        <span className="mx-2">•</span>
+                        <span>{question.views} 浏览</span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Featured Experts Section */}
+              <div className="p-4 border-t border-gray-100">
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="text-lg font-medium">推荐专家</h2>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-gray-500"
+                    onClick={() => handleSeeAll('experts')}
+                  >
+                    查看全部 <ArrowRight size={16} className="ml-1" />
+                  </Button>
+                </div>
+                
+                <div className="space-y-3">
+                  {experts.slice(0, 2).map(expert => (
+                    <div 
+                      key={expert.id}
+                      className="flex items-center p-3 bg-gray-50 rounded-lg cursor-pointer"
+                      onClick={() => handleExpertClick(expert.id)}
+                    >
+                      <img 
+                        src={expert.avatar} 
+                        alt={expert.name} 
+                        className="w-12 h-12 rounded-full object-cover"
+                      />
+                      <div className="ml-3">
+                        <h3 className="text-gray-800 font-medium">{expert.name}</h3>
+                        <p className="text-xs text-gray-500">{expert.title}</p>
+                        <div className="flex items-center mt-1">
+                          <span className="text-yellow-500 text-xs">★</span>
+                          <span className="text-xs text-gray-700 ml-1">{expert.rating}</span>
+                          <span className="text-xs text-gray-500 ml-2">{expert.reviewCount} 评价</span>
                         </div>
                       </div>
-                      <div className="h-5 bg-gray-200 rounded-full w-16"></div>
-                    </div>
-                    <div className="flex justify-between">
-                      <div className="flex gap-1">
-                        <div className="h-4 bg-gray-200 rounded-full w-12"></div>
-                        <div className="h-4 bg-gray-200 rounded-full w-12"></div>
+                      <div className="ml-auto text-app-blue font-medium">
+                        ¥{expert.price}/次
                       </div>
-                      <div className="h-6 bg-gray-200 rounded-full w-16"></div>
                     </div>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
-            ) : (
-              <div className="space-y-4">
-                {filteredQuestions.map((question, index) => (
-                  <div 
-                    key={question.id} 
-                    className="cursor-pointer" 
-                    onClick={() => handleViewQuestionDetail(question.id)}
+              
+              {/* Hobbies Courses Section */}
+              <div className="p-4 border-t border-gray-100">
+                <div className="flex justify-between items-center mb-3">
+                  <h2 className="text-lg font-medium">兴趣课程</h2>
+                  <Button 
+                    variant="ghost" 
+                    size="sm" 
+                    className="text-gray-500"
+                    onClick={() => handleSeeAll('courses')}
                   >
-                    <QuestionCard
-                      id={question.id}
-                      title={question.title}
-                      description={question.description}
-                      asker={question.asker}
-                      time={question.time}
-                      tags={question.tags}
-                      points={question.points}
-                      viewCount={question.viewCount}
-                      delay={0.3 + index * 0.1}
-                    />
-                  </div>
-                ))}
-              </div>
-            )}
-          </TabsContent>
-          
-          <TabsContent value="experts" className="mt-0">
-            {isLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3, 4].map((item) => (
-                  <div key={item} className="bg-white rounded-lg p-3 animate-pulse-soft shadow-sm">
-                    <div className="flex items-center mb-2">
-                      <div className="w-10 h-10 bg-gray-200 rounded-full mr-2"></div>
-                      <div>
-                        <div className="h-3 bg-gray-200 rounded w-16 mb-1"></div>
-                        <div className="h-2 bg-gray-200 rounded w-24"></div>
+                    查看全部 <ArrowRight size={16} className="ml-1" />
+                  </Button>
+                </div>
+                
+                <div className="space-y-4">
+                  {courses.slice(0, 2).map(course => (
+                    <div 
+                      key={course.id}
+                      className="bg-gray-50 rounded-lg overflow-hidden cursor-pointer"
+                      onClick={() => handleCourseClick(course.id)}
+                    >
+                      <div className="h-32 bg-gray-200 relative">
+                        <img 
+                          src={course.image} 
+                          alt={course.title} 
+                          className="w-full h-full object-cover"
+                        />
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+                          <h3 className="text-white font-medium">{course.title}</h3>
+                        </div>
+                      </div>
+                      <div className="p-3">
+                        <div className="flex justify-between items-center">
+                          <span className="text-xs text-gray-500">{course.instructor} • {course.level}</span>
+                          <div className="flex items-center">
+                            <span className="text-yellow-500 text-xs">★</span>
+                            <span className="text-xs text-gray-700 ml-1">{course.rating}</span>
+                          </div>
+                        </div>
+                        <div className="flex justify-between items-center mt-2">
+                          <div>
+                            <span className="text-app-blue font-medium">¥{course.price}</span>
+                            <span className="text-xs text-gray-500 line-through ml-1">¥{course.originalPrice}</span>
+                          </div>
+                          <span className="text-xs text-gray-500">{course.students} 学员</span>
+                        </div>
                       </div>
                     </div>
-                    <div className="h-10 bg-gray-200 rounded w-full"></div>
+                  ))}
+                </div>
+              </div>
+            </TabsContent>
+            
+            {/* Questions Tab Content */}
+            <TabsContent value="questions" className="m-0 p-4">
+              <div className="space-y-3">
+                {popularQuestions.map(question => (
+                  <div 
+                    key={question.id}
+                    className="bg-gray-50 p-3 rounded-lg cursor-pointer"
+                    onClick={() => handleQuestionClick(question.id)}
+                  >
+                    <h3 className="text-gray-800 font-medium">{question.title}</h3>
+                    <div className="flex items-center mt-2 text-xs text-gray-500">
+                      <span>{question.answers} 回答</span>
+                      <span className="mx-2">•</span>
+                      <span>{question.views} 浏览</span>
+                    </div>
                   </div>
                 ))}
               </div>
-            ) : (
+            </TabsContent>
+            
+            {/* Experts Tab Content */}
+            <TabsContent value="experts" className="m-0 p-4">
               <div className="space-y-3">
-                {filteredExperts.map((expert) => (
+                {experts.map(expert => (
                   <div 
                     key={expert.id}
-                    className="bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
-                    onClick={() => handleViewExpertProfile(expert.id)}
+                    className="flex items-center p-3 bg-gray-50 rounded-lg cursor-pointer"
+                    onClick={() => handleExpertClick(expert.id)}
                   >
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="w-10 h-10 border border-rose-50">
-                          <AvatarImage src={expert.avatar} alt={expert.name} className="object-cover" />
-                          <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="text-sm font-semibold text-gray-800">{expert.name}</h3>
-                          <p className="text-xs text-rose-600">{expert.title}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col items-end">
-                        <div className="flex items-center text-yellow-500 gap-1">
-                          <Award size={12} />
-                          <span className="text-xs font-medium">{expert.rating}</span>
-                        </div>
-                        <div className="flex items-center text-blue-500 gap-1 text-xs">
-                          <Clock size={10} />
-                          <span>{expert.responseRate}</span>
-                        </div>
-                        <div className="flex items-center text-green-500 gap-1 text-xs">
-                          <Users size={10} />
-                          <span>{expert.orderCount}</span>
-                        </div>
+                    <img 
+                      src={expert.avatar} 
+                      alt={expert.name} 
+                      className="w-12 h-12 rounded-full object-cover"
+                    />
+                    <div className="ml-3">
+                      <h3 className="text-gray-800 font-medium">{expert.name}</h3>
+                      <p className="text-xs text-gray-500">{expert.title}</p>
+                      <div className="flex items-center mt-1">
+                        <span className="text-yellow-500 text-xs">★</span>
+                        <span className="text-xs text-gray-700 ml-1">{expert.rating}</span>
+                        <span className="text-xs text-gray-500 ml-2">{expert.reviewCount} 评价</span>
                       </div>
                     </div>
-
-                    <div className="flex mt-2">
-                      <p className="text-xs text-gray-700 border-l-2 border-rose-200 pl-2 py-0.5 bg-rose-50/50 rounded-r-md flex-1 mr-2 line-clamp-2">
-                        {expert.description}
-                      </p>
-                      
-                      <Button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/expert-profile/${expert.id}`);
-                        }}
-                        className="bg-gradient-to-r from-rose-500 to-pink-400 text-white px-2.5 py-1 rounded-full text-xs flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 h-auto"
-                      >
-                        <MessageSquare size={10} />
-                        找我问问
-                      </Button>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {expert.tags.map((tag, index) => (
-                        <span key={index} className="bg-rose-50 text-rose-600 text-xs px-2 py-0.5 rounded-full">
-                          #{tag}
-                        </span>
-                      ))}
+                    <div className="ml-auto text-app-blue font-medium">
+                      ¥{expert.price}/次
                     </div>
                   </div>
                 ))}
               </div>
-            )}
-          </TabsContent>
-        </Tabs>
+            </TabsContent>
+            
+            {/* Courses Tab Content */}
+            <TabsContent value="courses" className="m-0 p-4">
+              <div className="space-y-4">
+                {courses.map(course => (
+                  <div 
+                    key={course.id}
+                    className="bg-gray-50 rounded-lg overflow-hidden cursor-pointer"
+                    onClick={() => handleCourseClick(course.id)}
+                  >
+                    <div className="h-32 bg-gray-200 relative">
+                      <img 
+                        src={course.image} 
+                        alt={course.title} 
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3">
+                        <h3 className="text-white font-medium">{course.title}</h3>
+                      </div>
+                    </div>
+                    <div className="p-3">
+                      <div className="flex justify-between items-center">
+                        <span className="text-xs text-gray-500">{course.instructor} • {course.level}</span>
+                        <div className="flex items-center">
+                          <span className="text-yellow-500 text-xs">★</span>
+                          <span className="text-xs text-gray-700 ml-1">{course.rating}</span>
+                        </div>
+                      </div>
+                      <div className="flex justify-between items-center mt-2">
+                        <div>
+                          <span className="text-app-blue font-medium">¥{course.price}</span>
+                          <span className="text-xs text-gray-500 line-through ml-1">¥{course.originalPrice}</span>
+                        </div>
+                        <span className="text-xs text-gray-500">{course.students} 学员</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </TabsContent>
+          </Tabs>
+        </div>
       </div>
       
-      <button className="fixed bottom-20 right-4 bg-gradient-to-r from-rose-500 to-pink-500 text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg">
-        <Plus size={24} />
-      </button>
+      <BottomNav />
     </div>
   );
 };

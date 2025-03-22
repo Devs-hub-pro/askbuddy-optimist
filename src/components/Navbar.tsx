@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { MapPin, ChevronDown, Bell, Calendar } from 'lucide-react';
+import { MapPin, ChevronDown, Bell } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
 interface NavbarProps {
@@ -16,39 +16,20 @@ const Navbar: React.FC<NavbarProps> = ({ location = "深圳" }) => {
     navigate('/city-selector');
   };
   
-  const handleNotifications = () => {
+  const handleNotificationsClick = () => {
     navigate('/notifications');
-  };
-  
-  const handleCalendar = () => {
-    navigate('/calendar');
-  };
-  
-  const handleLogoClick = () => {
-    // For development, navigate to icons preview
-    if (process.env.NODE_ENV === 'development') {
-      navigate('/icons');
-    } else {
-      navigate('/');
-    }
   };
   
   return (
     <header className="sticky top-0 z-50 bg-app-teal animate-fade-in shadow-sm">
       <div className="flex items-center justify-between h-12 px-4">
-        <div 
-          className="text-white font-medium text-sm cursor-pointer"
-          onClick={handleLogoClick}
-        >
-          问问
-        </div>
+        <div className="text-white font-medium text-sm">问问</div>
         
         <div className="flex items-center gap-3">
-          <button className="relative" onClick={handleCalendar}>
-            <Calendar size={18} className="text-white" />
-          </button>
-          
-          <button className="relative" onClick={handleNotifications}>
+          <button 
+            className="relative"
+            onClick={handleNotificationsClick}
+          >
             <Bell size={18} className="text-white" />
             <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-red-500 rounded-full"></span>
           </button>

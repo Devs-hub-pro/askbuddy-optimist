@@ -5,7 +5,7 @@ import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 interface SearchBarProps {
-  onSearch: (value: string) => void;
+  onSearch?: (value: string) => void;
   placeholder?: string;
   className?: string;
   value?: string;

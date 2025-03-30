@@ -1,138 +1,104 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-@layer base {
-  :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+:root {
+  --app-teal: #4FD1C5;
+  --app-blue: #4299E1;
+  --app-green: #48BB78;
+  --app-orange: #ED8936;
+  --app-red: #F56565;
+}
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+body {
+  margin: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+    sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  max-width: 500px;
+  margin: 0 auto;
+  background-color: #f5f5f5;
+}
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+code {
+  font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+    monospace;
+}
 
-    --primary: 195 100% 50%;
-    --primary-foreground: 0 0% 100%;
+.bg-app-teal {
+  background-color: var(--app-teal);
+}
 
-    --secondary: 168 100% 75%;
-    --secondary-foreground: 222.2 84% 4.9%;
+.text-app-teal {
+  color: var(--app-teal);
+}
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+.bg-app-blue {
+  background-color: var(--app-blue);
+}
 
-    --accent: 168 100% 75%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+.text-app-blue {
+  color: var(--app-blue);
+}
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+.bg-app-green {
+  background-color: var(--app-green);
+}
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 195 100% 50%;
+.text-app-green {
+  color: var(--app-green);
+}
 
-    --radius: 0.75rem;
+.bg-app-orange {
+  background-color: var(--app-orange);
+}
+
+.text-app-orange {
+  color: var(--app-orange);
+}
+
+.bg-app-red {
+  background-color: var(--app-red);
+}
+
+.text-app-red {
+  color: var(--app-red);
+}
+
+/* Animations */
+.animate-fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+.animate-slide-up {
+  animation: slideUp 0.5s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(10px);
   }
-  
-  * {
-    @apply border-border;
-    scroll-behavior: smooth;
-  }
-
-  body {
-    @apply bg-background text-foreground antialiased;
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial,
-      sans-serif;
-    margin: 0;
-    padding: 0;
-    min-height: 100vh;
-    width: 100%;
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-@layer components {
-  .app-container {
-    @apply max-w-md mx-auto bg-white min-h-screen overflow-hidden relative pb-16;
-    width: 100%;
-  }
-  
-  .glass-effect {
-    @apply backdrop-blur-sm bg-white/70 border border-white/20;
-  }
-  
-  .nav-item {
-    @apply flex flex-col items-center justify-center space-y-1 text-gray-500 transition-colors;
-  }
-  
-  .nav-item.active {
-    @apply text-app-blue;
-  }
-  
-  .category-icon {
-    @apply w-12 h-12 flex items-center justify-center rounded-full text-white;
-  }
-  
-  .search-input {
-    @apply w-full px-4 py-3 bg-white/80 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-app-blue/30 transition-all shadow-soft placeholder:text-gray-400;
-  }
-  
-  .card-animate {
-    @apply transition-all duration-300 hover:translate-y-[-2px] hover:shadow-card;
-  }
-  
-  .tag {
-    @apply inline-block text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600 font-medium;
-  }
-  
-  .hide-scrollbar {
-    @apply scrollbar-hide;
-  }
-
-  .responsive-container {
-    @apply w-full px-4 md:px-0;
-  }
-
-  .content-wrapper {
-    @apply w-full max-w-md mx-auto;
-  }
-}
-
-/* Animation utilities */
-@layer utilities {
-  .animate-delay-1 {
-    animation-delay: 0.1s;
-  }
-  
-  .animate-delay-2 {
-    animation-delay: 0.2s;
-  }
-  
-  .animate-delay-3 {
-    animation-delay: 0.3s;
-  }
-  
-  .animate-delay-4 {
-    animation-delay: 0.4s;
-  }
-  
-  .animate-delay-5 {
-    animation-delay: 0.5s;
-  }
-  
-  .scrollbar-hide {
-    -ms-overflow-style: none;  /* IE and Edge */
-    scrollbar-width: none;  /* Firefox */
-  }
-  
-  .scrollbar-hide::-webkit-scrollbar {
-    display: none;  /* Chrome, Safari and Opera */
-  }
-  
-  .line-clamp-2 {
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
-    overflow: hidden;
-  }
+/* Category icons */
+.category-icon {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
 }

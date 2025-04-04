@@ -74,3 +74,30 @@ export const downloadSvgFixed = (iconName: string, color: string = '#000000') =>
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
 };
+
+// Function to download all icons
+export const downloadAllIcons = (color: string = '#000000') => {
+  const iconNames = Object.keys(iconComponents);
+  
+  // Notify the user about the download
+  alert(`将依次下载 ${iconNames.length} 个图标，请稍等...`);
+  
+  // Download each icon with a small delay to avoid browser limitations
+  iconNames.forEach((iconName, index) => {
+    setTimeout(() => {
+      try {
+        downloadSvgFixed(iconName, color);
+      } catch (error) {
+        console.error(`下载图标 ${iconName} 失败:`, error);
+      }
+    }, index * 300); // Add a delay between downloads
+  });
+};
+
+// Function to create a ZIP file with all icons (requires JSZip library)
+// This is a placeholder for future implementation if needed
+export const downloadIconsAsZip = (iconNames: string[], color: string = '#000000') => {
+  // Requires JSZip library to be installed
+  // This would create a single ZIP file with all selected icons
+  alert('批量下载功能需要安装额外的依赖库，目前使用的是逐个下载的方式。');
+};

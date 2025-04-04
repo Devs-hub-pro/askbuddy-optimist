@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { allIcons } from '../utils/iconsList';
-import { downloadSvgFixed } from '../utils/iconOperations';
+import { downloadSvgFixed, downloadAllIcons } from '../utils/iconOperations';
 import IconCard from './icons/IconCard';
 import IconsControls from './icons/IconsControls';
 import IconsInstructions from './icons/IconsInstructions';
@@ -55,6 +55,11 @@ const IconsPreview: React.FC = () => {
     });
   };
 
+  // Function to download all icons
+  const handleDownloadAll = () => {
+    downloadAllIcons(downloadColor);
+  };
+
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Icons for WeChat Mini Program</h1>
@@ -68,6 +73,7 @@ const IconsPreview: React.FC = () => {
         onColorChange={setDownloadColor}
         onToggleSelectAll={toggleSelectAll}
         onDownloadSelected={downloadSelectedIcons}
+        onDownloadAll={handleDownloadAll}
         isAllSelected={selectedIcons.size === allIcons.length}
       />
       

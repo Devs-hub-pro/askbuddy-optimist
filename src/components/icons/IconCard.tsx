@@ -27,7 +27,7 @@ const IconCard: React.FC<IconCardProps> = ({
       onClick={() => onToggleSelection(icon.name)}
     >
       <div className="p-4 bg-gray-100 rounded-full mb-2">
-        <IconComponent size={24} className="text-gray-700" />
+        <IconComponent size={24} style={{color: downloadColor}} className="transition-colors" />
       </div>
       <div className="text-center">
         <p className="font-medium text-sm">{icon.name}</p>

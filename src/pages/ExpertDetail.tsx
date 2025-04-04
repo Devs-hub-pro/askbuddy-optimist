@@ -17,15 +17,10 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
 
-const ExpertDetail = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  const [selectedConsultType, setSelectedConsultType] = useState<'text' | 'voice' | 'video'>('text');
-  
-  // Mocked expert data - in a real app, this would be fetched based on the ID
-  const expert = {
-    id: id || '1',
+// Mock expert data for different experts
+const expertsData = [
+  {
+    id: '1',
     name: '张同学',
     avatar: 'https://randomuser.me/api/portraits/women/22.jpg',
     title: '北大硕士 | 出国党',
@@ -40,7 +35,51 @@ const ExpertDetail = () => {
     education: ['北京大学 | 英语专业硕士', '中国人民大学 | 英语文学学士'],
     experience: ['某知名教育机构 | 留学顾问 3年', '自由职业文书顾问 | 2年'],
     verified: true
-  };
+  },
+  {
+    id: '2',
+    name: '刘导师',
+    avatar: 'https://randomuser.me/api/portraits/men/55.jpg',
+    title: '清华博士 | 考研规划',
+    description: '5年考研辅导经验，擅长数学与专业课。我曾帮助上百名考生成功上岸，针对考研数学和计算机专业课有独到的教学和复习方法。我深知考研的艰辛，会尽力为每一位考生提供个性化的学习计划和复习方案。如果你在考研路上遇到困难，欢迎随时向我咨询。',
+    tags: ['考研', '数学', '规划', '计算机', '专业课'],
+    keywords: ['考研', '数学', '专业课', '计算机', '高分', '复习方法'],
+    category: 'kaoyan',
+    rating: 4.8,
+    responseRate: '95%',
+    orderCount: '210单',
+    location: '北京',
+    education: ['清华大学 | 计算机科学博士', '清华大学 | 计算机科学硕士'],
+    experience: ['某培训机构 | 考研数学老师 5年', '某高校 | 助教 2年'],
+    verified: true
+  },
+  {
+    id: '3',
+    name: '王老师',
+    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+    title: '高考志愿规划师',
+    description: '10年高考志愿填报指导经验，专精各省份政策。我深入研究过全国各省份的高考政策和各大高校的招生情况，能够根据考生的分数、兴趣特长和家庭意愿，制定最优的志愿填报方案，提高理想院校的录取概率。如果你对填报志愿有困惑，欢迎随时咨询我。',
+    tags: ['高考', '志愿填报', '专业选择', '院校推荐', '政策解读'],
+    keywords: ['高考', '志愿填报', '专业选择', '大学排名', '录取概率'],
+    category: 'gaokao',
+    rating: 4.7,
+    responseRate: '92%',
+    orderCount: '185单',
+    location: '上海',
+    education: ['复旦大学 | 教育学硕士', '华东师范大学 | 教育学学士'],
+    experience: ['某教育局 | 教研员 5年', '某高考志愿填报平台 | 高级顾问 7年'],
+    verified: true
+  }
+];
+
+const ExpertDetail = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
+  const [selectedConsultType, setSelectedConsultType] = useState<'text' | 'voice' | 'video'>('text');
+  
+  // Find the expert by ID from our mock data
+  const expert = expertsData.find(e => e.id === id) || expertsData[0];
 
   const handleConsultTypeSelect = (type: 'text' | 'voice' | 'video') => {
     setSelectedConsultType(type);

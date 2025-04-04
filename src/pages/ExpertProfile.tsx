@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
   ChevronLeft, 
@@ -42,7 +42,6 @@ import {
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
 
 interface Education {
   school: string;
@@ -62,40 +61,22 @@ interface Topic {
   tags: string[];
 }
 
-interface TimeSlot {
-  id: string;
-  day: string;
-  time: string;
-}
-
-interface ExpertData {
-  id: string;
-  name: string;
-  avatar: string;
-  title: string;
-  location: string;
-  bio: string;
-  topics: Topic[];
-  tags: string[];
-  verifiedInfo: {
-    education: boolean;
-    workplace: boolean;
-  };
-  stats: {
-    rating: number;
-    responseRate: string;
-    orderCount: string;
-    consultationCount: number;
-    followers: number;
-  };
-  education: Education[];
-  experience: Experience[];
-  availableTimeSlots: TimeSlot[];
-}
-
-const expertsData: ExpertData[] = [
-  {
-    id: '1',
+const ExpertProfile = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+  const [isBioExpanded, setIsBioExpanded] = useState(false);
+  const [isFollowing, setIsFollowing] = useState(false);
+  const topicsScrollRef = useRef<HTMLDivElement>(null);
+  
+  const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
+  const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
+  const [messageText, setMessageText] = useState('');
+  const [selectedTopic, setSelectedTopic] = useState('');
+  const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
+  const [consultType, setConsultType] = useState<'text' | 'voice' | 'video'>('text');
+  
+  const expert = {
+    id: id || '1',
     name: '张同学',
     avatar: 'https://randomuser.me/api/portraits/women/22.jpg',
     title: '北大硕士 | 出国党',
@@ -135,157 +116,7 @@ const expertsData: ExpertData[] = [
       { id: '4', day: '明天', time: '15:00-16:00' },
       { id: '5', day: '后天', time: '14:00-15:00' },
     ]
-  },
-  {
-    id: '2',
-    name: '李教授',
-    avatar: 'https://randomuser.me/api/portraits/men/42.jpg',
-    title: '清华博士 | 科研专家',
-    location: '上海',
-    bio: '清华大学计算机博士，专注AI领域研究和教学。在顶级期刊发表多篇论文，拥有丰富的教学经验。热衷于将复杂的AI概念简化，使学生能够轻松理解。我相信每个人都有潜力掌握AI技术，只需要正确的指导和方法。欢迎对AI和计算机科学感兴趣的同学咨询，我会根据你的基础提供个性化的建议。',
-    topics: [
-      { id: '1', title: '人工智能入门指南', tags: ['AI', '入门', '学习路径'] },
-      { id: '2', title: '如何准备计算机研究生考试？', tags: ['考研', '计算机', '备考'] },
-      { id: '3', title: '深度学习框架选择', tags: ['深度学习', '框架', 'AI'] },
-      { id: '4', title: '数据结构与算法学习方法', tags: ['算法', '数据结构', '编程'] },
-      { id: '5', title: '本科生如何参与科研项目？', tags: ['科研', '本科生', '项目'] },
-    ],
-    tags: ['人工智能', '机器学习', '算法', '编程', '科研', '考研'],
-    verifiedInfo: {
-      education: true,
-      workplace: true
-    },
-    stats: {
-      rating: 4.8,
-      responseRate: '95%',
-      orderCount: '178单',
-      consultationCount: 320,
-      followers: 423
-    },
-    education: [
-      { school: '清华大学', degree: '计算机博士', years: '2015-2019' },
-      { school: '北京大学', degree: '计算机硕士', years: '2012-2015' },
-      { school: '浙江大学', degree: '计算机学士', years: '2008-2012' }
-    ],
-    experience: [
-      { company: '某知名科技公司', position: '首席AI科学家', years: '2019-至今' },
-      { company: '清华大学', position: '客座教授', years: '2020-至今' }
-    ],
-    availableTimeSlots: [
-      { id: '1', day: '今天', time: '19:00-20:00' },
-      { id: '2', day: '明天', time: '09:00-10:00' },
-      { id: '3', day: '明天', time: '20:00-21:00' },
-      { id: '4', day: '后天', time: '16:00-17:00' },
-      { id: '5', day: '后天', time: '21:00-22:00' },
-    ]
-  },
-  {
-    id: '3',
-    name: '王心理',
-    avatar: 'https://randomuser.me/api/portraits/women/56.jpg',
-    title: '心理咨询师 | 青少年成长专家',
-    location: '广州',
-    bio: '资深心理咨询师，擅长青少年成长和学业压力疏导。拥有国家二级心理咨询师资格，多年来帮助无数青少年走出心理困境。我相信每个孩子都有自己的成长节奏，重要的是找到适合他们的方式。除了一对一咨询，我也提供家庭教育指导，帮助父母更好地理解和支持孩子。',
-    topics: [
-      { id: '1', title: '如何缓解考试焦虑？', tags: ['焦虑', '考试', '情绪管理'] },
-      { id: '2', title: '亲子沟通的有效方法', tags: ['亲子', '沟通', '家庭教育'] },
-      { id: '3', title: '青春期行为问题解析', tags: ['青春期', '行为', '心理'] },
-      { id: '4', title: '学习动力不足怎么办？', tags: ['学习', '动力', '心理'] },
-      { id: '5', title: '如何提高专注力？', tags: ['专注力', '学习', '训练'] },
-    ],
-    tags: ['心理疏导', '青少年心理', '学习压力', '家庭教育', '情绪管理'],
-    verifiedInfo: {
-      education: true,
-      workplace: true
-    },
-    stats: {
-      rating: 4.9,
-      responseRate: '97%',
-      orderCount: '215单',
-      consultationCount: 386,
-      followers: 478
-    },
-    education: [
-      { school: '中国人民大学', degree: '心理学硕士', years: '2010-2013' },
-      { school: '武汉大学', degree: '心理学学士', years: '2006-2010' }
-    ],
-    experience: [
-      { company: '某知名心理咨询中心', position: '高级咨询师', years: '2013-至今' },
-      { company: '某中学', position: '心理顾问', years: '2015-至今' }
-    ],
-    availableTimeSlots: [
-      { id: '1', day: '今天', time: '18:00-19:00' },
-      { id: '2', day: '明天', time: '10:00-11:00' },
-      { id: '3', day: '明天', time: '14:00-15:00' },
-      { id: '4', day: '后天', time: '11:00-12:00' },
-      { id: '5', day: '后天', time: '19:00-20:00' },
-    ]
-  },
-  {
-    id: '4',
-    name: '陈老师',
-    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-    title: '高考数学名师 | 教育规划专家',
-    location: '成都',
-    bio: '20年高中数学教学经验，擅长高考数学提分和解题技巧。曾培养数十名数学竞赛获奖学生，教授的班级多次获得市级最高平均分。我善于发现每个学生的数学思维特点，因材施教，让学生在轻松的氛围中掌握解题方法。数学不是难题，找对方法和老师很重要。欢迎有数学困扰的学生随时咨询，我会竭诚为���答疑解惑。',
-    topics: [
-      { id: '1', title: '高考数学关键考点解析', tags: ['高考', '数学', '考点'] },
-      { id: '2', title: '如何突破数学思维瓶颈？', tags: ['数学', '思维', '方法'] },
-      { id: '3', title: '数学竞赛备考攻略', tags: ['数学', '竞赛', '备考'] },
-      { id: '4', title: '初高中数学衔接技巧', tags: ['数学', '衔接', '初高中'] },
-      { id: '5', title: '理科生如何选择大学专业？', tags: ['专业选择', '理科', '高考'] },
-    ],
-    tags: ['数学', '高考', '竞赛', '教育规划', '提分技巧'],
-    verifiedInfo: {
-      education: true,
-      workplace: true
-    },
-    stats: {
-      rating: 4.9,
-      responseRate: '99%',
-      orderCount: '267单',
-      consultationCount: 456,
-      followers: 534
-    },
-    education: [
-      { school: '四川大学', degree: '教育学硕士', years: '1998-2001' },
-      { school: '四川师范大学', degree: '数学教育学士', years: '1994-1998' }
-    ],
-    experience: [
-      { company: '某重点中学', position: '高级数学教师', years: '2001-至今' },
-      { company: '某教育机构', position: '数学教研组长', years: '2010-至今' }
-    ],
-    availableTimeSlots: [
-      { id: '1', day: '今天', time: '19:30-20:30' },
-      { id: '2', day: '明天', time: '17:00-18:00' },
-      { id: '3', day: '明天', time: '20:30-21:30' },
-      { id: '4', day: '后天', time: '18:00-19:00' },
-      { id: '5', day: '后天', time: '20:00-21:00' },
-    ]
-  }
-];
-
-const ExpertProfile = () => {
-  const { id } = useParams();
-  const navigate = useNavigate();
-  const [isBioExpanded, setIsBioExpanded] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const topicsScrollRef = useRef<HTMLDivElement>(null);
-  
-  const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
-  const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
-  const [messageText, setMessageText] = useState('');
-  const [selectedTopic, setSelectedTopic] = useState('');
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
-  const [consultType, setConsultType] = useState<'text' | 'voice' | 'video'>('text');
-  
-  const expert = expertsData.find(e => e.id === id) || expertsData[0];
-  
-  useEffect(() => {
-    if (!expertsData.find(e => e.id === id) && id !== undefined) {
-      toast.error('未找到该专家信息，已显示默认专家');
-    }
-  }, [id]);
+  };
 
   const scrollTopics = (direction: 'left' | 'right') => {
     if (topicsScrollRef.current) {
@@ -300,35 +131,16 @@ const ExpertProfile = () => {
 
   const handleFollowToggle = () => {
     setIsFollowing(!isFollowing);
-    toast.success(!isFollowing ? `已成功关注${expert.name}` : `已取消关注${expert.name}`);
   };
   
   const handleMessageSubmit = () => {
-    if (!messageText.trim()) {
-      toast.error('请输入留言内容');
-      return;
-    }
-    
-    toast.success(`留言已发送给${expert.name}`);
+    console.log('Message sent:', messageText);
     setMessageText('');
     setIsMessageDialogOpen(false);
   };
   
   const handleBookingSubmit = () => {
-    if (!selectedTopic) {
-      toast.error('请选择一个话题');
-      return;
-    }
-    
-    if (!selectedTimeSlot) {
-      toast.error('请选择一个时间段');
-      return;
-    }
-    
-    const topicObj = expert.topics.find(t => t.id === selectedTopic);
-    const timeSlotObj = expert.availableTimeSlots.find(s => s.id === selectedTimeSlot);
-    
-    toast.success(`已成功预约${expert.name}，话题：${topicObj?.title}，时间：${timeSlotObj?.day} ${timeSlotObj?.time}`);
+    console.log('Booking submitted:', { selectedTopic, selectedTimeSlot, consultType });
     setIsBookingDialogOpen(false);
   };
 

@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { MessageCircle, Award, Eye } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { 
@@ -16,7 +16,6 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import ExpertDetailDialog from './ExpertDetailDialog';
 
 interface QuestionCardProps {
   id: string;
@@ -44,28 +43,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   tags, 
   points,
   viewCount,
-  delay = 0,
-  answerName,
-  answerAvatar
+  delay = 0 
 }) => {
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
-  
-  // Create unique expert data for the asker based on their properties
-  const askerExpertData = {
-    id: id + '-asker',
-    name: asker.name,
-    avatar: asker.avatar,
-    title: '提问者',
-    description: `这位用户 ${asker.name} 经常在平台上提出高质量的问题，帮助社区成长。`,
-    tags: tags,
-    rating: 4.5,
-    responseRate: '90%',
-    orderCount: '10单',
-    education: ['未知'],
-    experience: ['活跃社区成员'],
-    verified: false
-  };
-
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -88,18 +67,16 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           )}
           
           <div className="flex items-center justify-between mb-3">
-            <ExpertDetailDialog {...askerExpertData}>
-              <div className="flex items-center gap-2 cursor-pointer">
-                <Avatar className="w-8 h-8 border border-gray-100">
-                  <AvatarImage src={asker.avatar} alt={asker.name} className="object-cover" />
-                  <AvatarFallback>{asker.name.charAt(0)}</AvatarFallback>
-                </Avatar>
-                <div className="text-left">
-                  <div className="text-xs font-medium text-gray-700">{asker.name}</div>
-                  <div className="text-xs text-gray-500">{time}</div>
-                </div>
+            <div className="flex items-center gap-2">
+              <Avatar className="w-8 h-8 border border-gray-100">
+                <AvatarImage src={asker.avatar} alt={asker.name} className="object-cover" />
+                <AvatarFallback>{asker.name.charAt(0)}</AvatarFallback>
+              </Avatar>
+              <div className="text-left">
+                <div className="text-xs font-medium text-gray-700">{asker.name}</div>
+                <div className="text-xs text-gray-500">{time}</div>
               </div>
-            </ExpertDetailDialog>
+            </div>
             
             <span className="flex items-center gap-1 bg-gradient-to-r from-yellow-50 to-orange-50 text-amber-600 text-xs px-2.5 py-1 rounded-full font-medium border border-amber-100">
               <Award size={14} className="text-amber-500" />
@@ -138,18 +115,16 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           {/* Question Details */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <ExpertDetailDialog {...askerExpertData}>
-                <div className="flex items-center gap-3 cursor-pointer">
-                  <Avatar className="w-10 h-10 border border-gray-100">
-                    <AvatarImage src={asker.avatar} alt={asker.name} className="object-cover" />
-                    <AvatarFallback>{asker.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <div className="font-medium text-gray-800">{asker.name}</div>
-                    <div className="text-xs text-gray-500">{time}</div>
-                  </div>
+              <div className="flex items-center gap-3">
+                <Avatar className="w-10 h-10 border border-gray-100">
+                  <AvatarImage src={asker.avatar} alt={asker.name} className="object-cover" />
+                  <AvatarFallback>{asker.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div>
+                  <div className="font-medium text-gray-800">{asker.name}</div>
+                  <div className="text-xs text-gray-500">{time}</div>
                 </div>
-              </ExpertDetailDialog>
+              </div>
               
               <Badge variant="outline" className="flex items-center gap-1 bg-gradient-to-r from-yellow-50 to-orange-50 text-amber-600 border-amber-100 px-3 py-1.5">
                 <Award size={16} className="text-amber-500" />
@@ -157,13 +132,9 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
               </Badge>
             </div>
             
-            <Collapsible 
-              className="w-full"
-              open={isDescriptionExpanded}
-              onOpenChange={setIsDescriptionExpanded}
-            >
+            <Collapsible className="w-full">
               <div className="bg-gray-50 p-4 rounded-lg text-gray-800 text-sm leading-relaxed">
-                {description && description.length > 200 && !isDescriptionExpanded ? (
+                {description && description.length > 200 ? (
                   <>
                     <p>{description.substring(0, 200)}...</p>
                     <CollapsibleTrigger className="text-blue-500 text-xs mt-2 hover:underline">

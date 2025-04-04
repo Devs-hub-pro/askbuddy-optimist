@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { Button } from '../ui/button';
-import { Download, FileDown } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 interface IconsControlsProps {
   selectedCount: number;
@@ -9,7 +9,6 @@ interface IconsControlsProps {
   onColorChange: (color: string) => void;
   onToggleSelectAll: () => void;
   onDownloadSelected: () => void;
-  onDownloadAll: () => void;
   isAllSelected: boolean;
 }
 
@@ -19,7 +18,6 @@ const IconsControls: React.FC<IconsControlsProps> = ({
   onColorChange,
   onToggleSelectAll,
   onDownloadSelected,
-  onDownloadAll,
   isAllSelected
 }) => {
   return (
@@ -36,15 +34,6 @@ const IconsControls: React.FC<IconsControlsProps> = ({
         >
           <Download size={16} />
           下载选中的图标 ({selectedCount})
-        </Button>
-        
-        <Button 
-          onClick={onDownloadAll} 
-          variant="outline" 
-          className="flex items-center gap-2"
-        >
-          <FileDown size={16} />
-          下载所有图标
         </Button>
         
         <div className="flex items-center gap-2 ml-2">

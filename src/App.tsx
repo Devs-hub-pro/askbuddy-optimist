@@ -17,31 +17,8 @@ import ExpertProfile from "./pages/ExpertProfile";
 import NewQuestion from "./pages/NewQuestion";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
-import EditProfile from "./pages/EditProfile";
 import { Toaster } from "@/components/ui/toaster";
 import "./App.css";
-
-// Profile sub-pages
-import MyOrders from "./pages/profile/MyOrders";
-import MyAnswers from "./pages/profile/MyAnswers";
-import MyFavorites from "./pages/profile/MyFavorites";
-import MyFollowing from "./pages/profile/MyFollowing";
-import MyEarnings from "./pages/profile/MyEarnings";
-import MyCommunity from "./pages/profile/MyCommunity";
-import MyDrafts from "./pages/profile/MyDrafts";
-import TalentCertification from "./pages/profile/TalentCertification";
-
-// Settings sub-pages
-import AccountSecurity from "./pages/settings/AccountSecurity";
-import GeneralSettings from "./pages/settings/GeneralSettings";
-import NotificationSettings from "./pages/settings/NotificationSettings";
-import PrivacySettings from "./pages/settings/PrivacySettings";
-import StorageSpace from "./pages/settings/StorageSpace";
-import ContentPreferences from "./pages/settings/ContentPreferences";
-import HelpCenter from "./pages/settings/HelpCenter";
-import CommunityGuidelines from "./pages/settings/CommunityGuidelines";
-import ProductFeedback from "./pages/settings/ProductFeedback";
-import AboutUs from "./pages/settings/AboutUs";
 
 function App() {
   return (
@@ -65,29 +42,24 @@ function App() {
             <Route path="/new" element={<NewQuestion />} />
             <Route path="/messages" element={<Messages />} />
             <Route path="/profile" element={<Profile />} />
-            <Route path="/edit-profile" element={<EditProfile />} />
             
-            {/* Profile sub-pages */}
-            <Route path="/profile/orders" element={<MyOrders />} />
-            <Route path="/profile/answers" element={<MyAnswers />} />
-            <Route path="/profile/favorites" element={<MyFavorites />} />
-            <Route path="/profile/following" element={<MyFollowing />} />
-            <Route path="/profile/earnings" element={<MyEarnings />} />
-            <Route path="/profile/community" element={<MyCommunity />} />
-            <Route path="/profile/drafts" element={<MyDrafts />} />
-            <Route path="/profile/talent-certification" element={<TalentCertification />} />
-            
-            {/* Settings sub-pages */}
-            <Route path="/settings/account" element={<AccountSecurity />} />
-            <Route path="/settings/general" element={<GeneralSettings />} />
-            <Route path="/settings/notifications" element={<NotificationSettings />} />
-            <Route path="/settings/privacy" element={<PrivacySettings />} />
-            <Route path="/settings/storage" element={<StorageSpace />} />
-            <Route path="/settings/content-preferences" element={<ContentPreferences />} />
-            <Route path="/settings/help" element={<HelpCenter />} />
-            <Route path="/settings/guidelines" element={<CommunityGuidelines />} />
-            <Route path="/settings/feedback" element={<ProductFeedback />} />
-            <Route path="/settings/about" element={<AboutUs />} />
+            {/* Profile related routes will redirect to main Profile page for now */}
+            <Route path="/settings" element={<Profile />} />
+            <Route path="/edit-profile" element={<Profile />} />
+            <Route path="/my-orders" element={<Profile />} />
+            <Route path="/my-appointments" element={<Profile />} />
+            <Route path="/my-wallet" element={<Profile />} />
+            <Route path="/my-coupons" element={<Profile />} />
+            <Route path="/learning-progress" element={<Profile />} />
+            <Route path="/my-questions" element={<Profile />} />
+            <Route path="/my-answers" element={<Profile />} />
+            <Route path="/my-favorites" element={<Profile />} />
+            <Route path="/my-history" element={<Profile />} />
+            <Route path="/privacy-settings" element={<Profile />} />
+            <Route path="/verify-identity" element={<Profile />} />
+            <Route path="/notifications-settings" element={<Profile />} />
+            <Route path="/help-center" element={<Profile />} />
+            <Route path="/experts" element={<Profile />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

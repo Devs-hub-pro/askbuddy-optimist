@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   Calendar, 
@@ -16,13 +16,11 @@ import {
   Clock,
   Package,
   Users,
-  Eye,
-  ChevronRight
+  Eye
 } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { ScrollArea } from "@/components/ui/scroll-area";
 import SearchBar from "@/components/SearchBar";
 import QuestionCard from '@/components/QuestionCard';
 
@@ -30,8 +28,6 @@ const EducationLearning = () => {
   const navigate = useNavigate();
   const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
-  const categoryRef = useRef<HTMLDivElement>(null);
-  const [showRightIndicator, setShowRightIndicator] = useState(false);
   
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -39,29 +35,6 @@ const EducationLearning = () => {
     }, 1000);
     return () => clearTimeout(timer);
   }, []);
-
-  useEffect(() => {
-    const checkScroll = () => {
-      if (categoryRef.current) {
-        const { scrollWidth, clientWidth } = categoryRef.current;
-        setShowRightIndicator(scrollWidth > clientWidth);
-      }
-    };
-
-    checkScroll();
-    window.addEventListener('resize', checkScroll);
-    return () => window.removeEventListener('resize', checkScroll);
-  }, []);
-
-  const scrollCategories = (direction: 'left' | 'right') => {
-    if (categoryRef.current) {
-      const scrollAmount = direction === 'left' ? -200 : 200;
-      categoryRef.current.scrollBy({
-        left: scrollAmount,
-        behavior: 'smooth'
-      });
-    }
-  };
 
   const importantDates = [
     { date: '2024-12-25', event: '全国研究生考试', countdown: 65, type: 'kaoyan' },
@@ -333,35 +306,18 @@ const EducationLearning = () => {
         </div>
       </div>
       
-      <div className="px-4 mb-4 relative">
-        <div className="relative">
-          {showRightIndicator && (
-            <button 
-              onClick={() => scrollCategories('right')} 
-              className="absolute right-0 top-1/2 -translate-y-1/2 bg-white bg-opacity-90 rounded-full shadow-md z-10 p-1 hover:bg-gray-100 transition-colors"
-            >
-              <ChevronRight size={16} className="text-gray-600" />
-            </button>
-          )}
-          
-          <ScrollArea className="w-full" orientation="horizontal">
+      <div className="px-4 mb-4 overflow-x-auto hide-scrollbar">
+        <div className="flex space-x-2">
+          {categories.map((category) => (
             <div 
-              ref={categoryRef}
-              className="flex space-x-2 pb-2 pr-4"
-              style={{ minWidth: "100%" }}
+              key={category.id} 
+              className={`flex-shrink-0 ${activeCategory === category.id ? 'bg-blue-500 text-white' : 'bg-white shadow-sm'} rounded-full px-3 py-1.5 flex items-center gap-1 cursor-pointer transition-colors`}
+              onClick={() => handleCategorySelect(category.id)}
             >
-              {categories.map((category) => (
-                <div 
-                  key={category.id} 
-                  className={`flex-shrink-0 ${activeCategory === category.id ? 'bg-blue-500 text-white' : 'bg-white shadow-sm'} rounded-full px-3 py-1.5 flex items-center gap-1 cursor-pointer transition-colors`}
-                  onClick={() => handleCategorySelect(category.id)}
-                >
-                  {category.icon}
-                  <span className="text-xs font-medium whitespace-nowrap">{category.name}</span>
-                </div>
-              ))}
+              {category.icon}
+              <span className="text-xs font-medium whitespace-nowrap">{category.name}</span>
             </div>
-          </ScrollArea>
+          ))}
         </div>
       </div>
       

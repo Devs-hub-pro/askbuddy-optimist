@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -17,7 +16,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
-import BottomNav from '@/components/BottomNav';
 
 const GeneralSettings = () => {
   const navigate = useNavigate();
@@ -44,7 +42,7 @@ const GeneralSettings = () => {
   };
 
   return (
-    <div className="pb-20 min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b">
         <Button 
           variant="ghost" 
@@ -174,8 +172,6 @@ const GeneralSettings = () => {
           </CardContent>
         </Card>
       </div>
-
-      <BottomNav />
     </div>
   );
 };

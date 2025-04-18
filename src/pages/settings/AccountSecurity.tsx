@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -26,7 +25,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import BottomNav from '@/components/BottomNav';
 
 const AccountSecurity = () => {
   const navigate = useNavigate();
@@ -38,8 +36,8 @@ const AccountSecurity = () => {
   ];
 
   return (
-    <div className="pb-20 min-h-screen bg-gray-50">
-      <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b">
+    <div className="min-h-screen bg-gray-50">
+      <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b shadow-sm">
         <Button 
           variant="ghost" 
           size="icon" 
@@ -164,8 +162,6 @@ const AccountSecurity = () => {
           </AlertDialogContent>
         </AlertDialog>
       </div>
-
-      <BottomNav />
     </div>
   );
 };

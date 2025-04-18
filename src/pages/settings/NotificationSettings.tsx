@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Bell, MessageSquare, Heart, Users, Award, FileText, BellRing, BellOff, Mail } from 'lucide-react';
@@ -14,7 +13,6 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import BottomNav from '@/components/BottomNav';
 
 const NotificationSettings = () => {
   const navigate = useNavigate();
@@ -61,7 +59,7 @@ const NotificationSettings = () => {
   };
 
   return (
-    <div className="pb-20 min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b shadow-sm">
         <Button 
@@ -288,8 +286,6 @@ const NotificationSettings = () => {
           <p>最后更新时间: 2023年10月1日</p>
         </div>
       </div>
-
-      <BottomNav />
     </div>
   );
 };

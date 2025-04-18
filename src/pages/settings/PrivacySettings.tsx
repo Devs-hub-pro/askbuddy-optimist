@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Eye, Lock, UserCheck, MessageSquare, Globe, Users } from 'lucide-react';
+import { ArrowLeft, Eye, Lock, UserCheck, MessageSquare, Globe, Users, Shield, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { 
   Card,
@@ -13,10 +13,14 @@ import {
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Separator } from '@/components/ui/separator';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { useToast } from '@/hooks/use-toast';
 import BottomNav from '@/components/BottomNav';
 
 const PrivacySettings = () => {
   const navigate = useNavigate();
+  const { toast } = useToast();
+  
   const [settings, setSettings] = useState({
     showEducation: true,
     showWorkHistory: true,
@@ -24,28 +28,53 @@ const PrivacySettings = () => {
     allowFollowers: true,
     allowMessages: true,
     publicProfile: true,
+    hideActivity: false,
+    hideOnline: false,
+    hideReadReceipts: false,
   });
 
-  const handleToggle = (setting) => {
+  const handleToggle = (setting: string) => {
     setSettings({
       ...settings,
       [setting]: !settings[setting]
+    });
+    
+    toast({
+      title: "设置已更新",
+      description: "您的隐私设置已保存",
     });
   };
 
   return (
     <div className="pb-20 min-h-screen bg-gray-50">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b shadow-sm">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => navigate('/profile')}
-          className="mr-2"
-        >
-          <ArrowLeft size={24} />
-        </Button>
-        <h1 className="text-xl font-semibold">隐私设置</h1>
+      <div className="sticky top-0 z-10 bg-white flex items-center justify-between p-4 border-b shadow-sm">
+        <div className="flex items-center">
+          <Button 
+            variant="ghost" 
+            size="icon" 
+            onClick={() => navigate('/profile')}
+            className="mr-2"
+          >
+            <ArrowLeft size={24} />
+          </Button>
+          <h1 className="text-xl font-semibold">隐私设置</h1>
+        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="ghost" size="icon">
+              <AlertTriangle size={20} className="text-amber-500" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-80">
+            <div className="space-y-2">
+              <h4 className="font-medium">隐私保护提示</h4>
+              <p className="text-sm text-muted-foreground">
+                定期检查您的隐私设置，确保个人信息安全。我们建议对陌生人限制信息可见性。
+              </p>
+            </div>
+          </PopoverContent>
+        </Popover>
       </div>
 
       <div className="p-4 space-y-4">
@@ -140,6 +169,54 @@ const PrivacySettings = () => {
               <Switch 
                 checked={settings.publicProfile}
                 onCheckedChange={() => handleToggle('publicProfile')}
+              />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="shadow-sm border-none rounded-xl overflow-hidden">
+          <CardHeader className="pb-2 pt-4">
+            <CardTitle className="text-lg flex items-center">
+              <Shield size={18} className="text-purple-500 mr-2" />
+              活动与状态
+            </CardTitle>
+            <CardDescription>控制您的在线状态和活动显示</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-base">隐藏活动状态</Label>
+                <p className="text-sm text-gray-500">不显示您最近的活动时间</p>
+              </div>
+              <Switch 
+                checked={settings.hideActivity}
+                onCheckedChange={() => handleToggle('hideActivity')}
+              />
+            </div>
+            
+            <Separator />
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-base">隐藏在线状态</Label>
+                <p className="text-sm text-gray-500">不显示您是否在线</p>
+              </div>
+              <Switch 
+                checked={settings.hideOnline}
+                onCheckedChange={() => handleToggle('hideOnline')}
+              />
+            </div>
+            
+            <Separator />
+            
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-base">隐藏已读回执</Label>
+                <p className="text-sm text-gray-500">不显示您是否已读消息</p>
+              </div>
+              <Switch 
+                checked={settings.hideReadReceipts}
+                onCheckedChange={() => handleToggle('hideReadReceipts')}
               />
             </div>
           </CardContent>

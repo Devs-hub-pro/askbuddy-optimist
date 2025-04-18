@@ -29,10 +29,12 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import BottomNav from '@/components/BottomNav';
+import SettingsMenu from '@/components/profile/SettingsMenu';
 
 const Profile = () => {
   const navigate = useNavigate();
   const [isLoggedIn, setIsLoggedIn] = useState(true);
+  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
   
   // Mock user data
   const userData = {
@@ -64,66 +66,13 @@ const Profile = () => {
     { icon: <Award size={22} className="text-orange-500" />, label: '达人认证', route: '/profile/talent-certification' },
   ];
 
-  // Settings menu items
-  const settingsMenuItems = [
-    { icon: <Lock size={20} className="text-gray-600" />, label: '账号与安全', route: '/settings/account' },
-    { icon: <Settings size={20} className="text-gray-600" />, label: '通用设置', route: '/settings/general' },
-    { icon: <Bell size={20} className="text-gray-600" />, label: '通知设置', route: '/settings/notifications' },
-    { icon: <Eye size={20} className="text-gray-600" />, label: '隐私设置', route: '/settings/privacy' },
-    { icon: <Folder size={20} className="text-gray-600" />, label: '存储空间', route: '/settings/storage' },
-    { icon: <User size={20} className="text-gray-600" />, label: '内容偏好与调节', route: '/settings/content-preferences' },
-    { icon: <HelpCircle size={20} className="text-gray-600" />, label: '帮助中心', route: '/settings/help' },
-    { icon: <Shield size={20} className="text-gray-600" />, label: '问问规范', route: '/settings/guidelines' },
-    { icon: <MessageSquare size={20} className="text-gray-600" />, label: '产品反馈', route: '/settings/feedback' },
-    { icon: <Info size={20} className="text-gray-600" />, label: '关于我们', route: '/settings/about' },
-  ];
-
-  const [showSettingsMenu, setShowSettingsMenu] = useState(false);
-
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
-      {/* Settings Menu Overlay */}
-      {showSettingsMenu && (
-        <div className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm" onClick={() => setShowSettingsMenu(false)}>
-          <div 
-            className="absolute right-0 top-0 h-full w-3/4 max-w-xs bg-white shadow-xl overflow-y-auto animate-slide-in-right"
-            onClick={e => e.stopPropagation()}
-          >
-            <div className="flex justify-between items-center p-5 border-b">
-              <h3 className="text-xl font-bold text-gray-800">设置</h3>
-              <Button 
-                variant="ghost" 
-                size="icon" 
-                onClick={() => setShowSettingsMenu(false)}
-                className="hover:bg-gray-100"
-              >
-                <ChevronRight />
-              </Button>
-            </div>
-            
-            <div className="p-3">
-              {settingsMenuItems.map((item, index) => (
-                <div 
-                  key={`setting-${index}`} 
-                  className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer transition-colors"
-                  onClick={() => {
-                    navigate(item.route);
-                    setShowSettingsMenu(false);
-                  }}
-                >
-                  <div className="flex items-center">
-                    <div className="w-9 h-9 flex items-center justify-center bg-gray-100 rounded-full mr-3">
-                      {item.icon}
-                    </div>
-                    <span className="text-gray-700">{item.label}</span>
-                  </div>
-                  <ChevronRight size={18} className="text-gray-400" />
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Settings Menu */}
+      <SettingsMenu 
+        isOpen={showSettingsMenu} 
+        onClose={() => setShowSettingsMenu(false)} 
+      />
 
       {/* Header with Settings Button */}
       <div className="bg-gradient-to-r from-app-blue to-app-teal text-white pt-14 pb-8 px-4 rounded-b-3xl shadow-md relative">

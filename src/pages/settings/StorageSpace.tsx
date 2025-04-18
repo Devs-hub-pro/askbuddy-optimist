@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, HardDrive, Image, FileText, Video, Trash2 } from 'lucide-react';
@@ -13,7 +12,6 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
-import BottomNav from '@/components/BottomNav';
 
 const StorageSpace = () => {
   const navigate = useNavigate();
@@ -44,7 +42,7 @@ const StorageSpace = () => {
   };
 
   return (
-    <div className="pb-20 min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b">
         <Button 
           variant="ghost" 
@@ -121,8 +119,6 @@ const StorageSpace = () => {
           </p>
         </div>
       </div>
-
-      <BottomNav />
     </div>
   );
 };

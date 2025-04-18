@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Info, ChevronRight, MessageSquare, Github, Twitter, Mail, Gift, Heart, Star } from 'lucide-react';
@@ -13,7 +12,6 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import BottomNav from '@/components/BottomNav';
 
 const AboutUs = () => {
   const navigate = useNavigate();
@@ -155,8 +153,6 @@ const AboutUs = () => {
           </CardFooter>
         </Card>
       </div>
-
-      <BottomNav />
     </div>
   );
 };

@@ -1,11 +1,9 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Heart, Compass, Tag, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import BottomNav from '@/components/BottomNav';
 
 const ContentPreferences = () => {
   const navigate = useNavigate();
@@ -18,7 +16,7 @@ const ContentPreferences = () => {
   ];
 
   return (
-    <div className="pb-20 min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b">
         <Button 
           variant="ghost" 
@@ -81,8 +79,6 @@ const ContentPreferences = () => {
           </CardContent>
         </Card>
       </div>
-
-      <BottomNav />
     </div>
   );
 };

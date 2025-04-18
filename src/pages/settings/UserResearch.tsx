@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Star, MessageSquare, Gift, Trophy, ThumbsUp } from 'lucide-react';
@@ -17,7 +16,7 @@ const UserResearch = () => {
   };
 
   return (
-    <div className="pb-20 min-h-screen bg-gradient-to-b from-purple-50 to-white">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
       <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md flex items-center p-4 border-b">
         <Button 
           variant="ghost" 

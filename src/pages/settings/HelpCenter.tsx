@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, HelpCircle, Search, ChevronDown, ChevronRight, MessageSquare, FileText, Users, AlertCircle } from 'lucide-react';
@@ -17,7 +16,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from '@/components/ui/badge';
-import BottomNav from '@/components/BottomNav';
 
 const HelpCenter = () => {
   const navigate = useNavigate();
@@ -75,7 +73,7 @@ const HelpCenter = () => {
       })).filter(category => category.questions.length > 0);
 
   return (
-    <div className="pb-20 min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gray-50">
       {/* Header */}
       <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b shadow-sm">
         <Button 
@@ -158,8 +156,6 @@ const HelpCenter = () => {
           </Button>
         </div>
       </div>
-
-      <BottomNav />
     </div>
   );
 };

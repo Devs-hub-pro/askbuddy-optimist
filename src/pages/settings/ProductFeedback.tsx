@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, MessageSquare, Star, Send, Image as ImageIcon } from 'lucide-react';
@@ -111,8 +110,6 @@ const ProductFeedback = () => {
           <p className="text-sm text-gray-500">如果觉得好用，请给我们好评</p>
         </div>
       </div>
-
-      <BottomNav />
     </div>
   );
 };

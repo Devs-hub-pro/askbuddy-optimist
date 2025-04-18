@@ -1,10 +1,8 @@
-
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Shield, MessageSquare, Flag, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import BottomNav from '@/components/BottomNav';
 
 const CommunityGuidelines = () => {
   const navigate = useNavigate();
@@ -108,8 +106,6 @@ const CommunityGuidelines = () => {
           </CardContent>
         </Card>
       </div>
-
-      <BottomNav />
     </div>
   );
 };

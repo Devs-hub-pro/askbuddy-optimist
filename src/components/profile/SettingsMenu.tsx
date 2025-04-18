@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Drawer, DrawerContent } from '@/components/ui/drawer';
-import { useMediaQuery } from '@/hooks/use-mobile';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SettingsMenuProps {
   isOpen: boolean;
@@ -24,7 +24,7 @@ interface SettingsMenuProps {
 
 const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
-  const isDesktop = useMediaQuery("(min-width: 768px)");
+  const isDesktop = !useIsMobile();
   
   // Settings menu items
   const menuItems = [

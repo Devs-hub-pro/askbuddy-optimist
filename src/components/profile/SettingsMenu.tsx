@@ -47,7 +47,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
 
   // Content for both dialog and drawer
   const content = (
-    <div className="p-3">
+    <div className="p-3 min-h-screen bg-gray-50">
       <div className="border-b pb-3 mb-3">
         <h3 className="text-xl font-bold text-gray-800 px-3">设置</h3>
       </div>
@@ -85,7 +85,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
 
   return (
     <Drawer open={isOpen} onOpenChange={onClose} direction="bottom">
-      <DrawerContent className="max-h-[85vh]">
+      <DrawerContent className="max-h-screen">
         <DrawerTitle className="sr-only">设置</DrawerTitle>
         <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
         {content}
@@ -95,3 +95,4 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
 };
 
 export default SettingsMenu;
+

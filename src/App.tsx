@@ -1,4 +1,3 @@
-
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Discover from "./pages/Discover";
@@ -42,6 +41,7 @@ import HelpCenter from "./pages/settings/HelpCenter";
 import CommunityGuidelines from "./pages/settings/CommunityGuidelines";
 import ProductFeedback from "./pages/settings/ProductFeedback";
 import AboutUs from "./pages/settings/AboutUs";
+import UserResearch from "./pages/settings/UserResearch";
 
 function App() {
   return (
@@ -88,6 +88,7 @@ function App() {
             <Route path="/settings/guidelines" element={<CommunityGuidelines />} />
             <Route path="/settings/feedback" element={<ProductFeedback />} />
             <Route path="/settings/about" element={<AboutUs />} />
+            <Route path="/settings/user-research" element={<UserResearch />} />
             
             <Route path="*" element={<NotFound />} />
           </Routes>

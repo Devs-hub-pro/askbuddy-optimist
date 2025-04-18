@@ -1,68 +1,24 @@
 
-import React, { useState } from 'react';
+import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, MessageSquare, Star, Send, Smile, ThumbsUp, Award, Gift } from 'lucide-react';
+import { ArrowLeft, Star, MessageSquare, Gift, Trophy, ThumbsUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { Badge } from '@/components/ui/badge';
-import BottomNav from '@/components/BottomNav';
+import { Card, CardContent } from '@/components/ui/card';
+import { toast } from '@/hooks/use-toast';
 
 const UserResearch = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
-  const [feedback, setFeedback] = useState('');
 
-  const handleSubmit = () => {
-    if (!feedback.trim()) {
-      toast({
-        title: "请输入反馈内容",
-        description: "反馈内容不能为空",
-      });
-      return;
-    }
-
+  const handleParticipate = (activity: string) => {
     toast({
-      title: "感谢您的参与！",
+      title: "感谢参与",
       description: "您的反馈对我们很重要",
     });
-    setFeedback('');
   };
 
-  const surveyCards = [
-    {
-      title: "新功能体验官",
-      description: "抢先体验新功能",
-      icon: <Star className="text-yellow-500" />,
-      reward: "专属徽章",
-      bg: "bg-gradient-to-r from-yellow-400/10 to-amber-300/10"
-    },
-    {
-      title: "产品调研访谈",
-      description: "深度交流",
-      icon: <MessageSquare className="text-blue-500" />,
-      reward: "¥50红包",
-      bg: "bg-gradient-to-r from-blue-400/10 to-cyan-300/10"
-    },
-    {
-      title: "问卷调研",
-      description: "3分钟快速反馈",
-      icon: <ThumbsUp className="text-green-500" />,
-      reward: "10积分",
-      bg: "bg-gradient-to-r from-green-400/10 to-emerald-300/10"
-    }
-  ];
-
   return (
-    <div className="pb-20 min-h-screen bg-gray-50">
-      <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b">
+    <div className="pb-20 min-h-screen bg-gradient-to-b from-purple-50 to-white">
+      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md flex items-center p-4 border-b">
         <Button 
           variant="ghost" 
           size="icon" 
@@ -74,81 +30,85 @@ const UserResearch = () => {
         <h1 className="text-xl font-semibold">用户体验调研</h1>
       </div>
 
-      <div className="p-4 space-y-6">
-        {/* Header Card */}
-        <Card className="border-none bg-gradient-to-r from-purple-500/90 to-pink-500/90 text-white">
-          <CardContent className="pt-6 pb-8">
-            <div className="flex items-center mb-4">
-              <Smile className="w-8 h-8 mr-3" />
-              <div>
-                <h3 className="text-xl font-bold">hi～参与体验调研</h3>
-                <p className="text-sm opacity-90">帮助我们变得更好</p>
+      <div className="p-4 space-y-4">
+        {/* 当前活动 */}
+        <div className="mb-6">
+          <h2 className="text-lg font-semibold mb-4 flex items-center">
+            <Star className="w-5 h-5 mr-2 text-yellow-500" />
+            当前活动
+          </h2>
+          <Card className="bg-gradient-to-r from-purple-100 to-pink-100 border-none shadow-sm">
+            <CardContent className="p-6">
+              <div className="flex items-center justify-between mb-4">
+                <span className="px-3 py-1 bg-purple-500 text-white text-sm rounded-full">
+                  限时活动
+                </span>
+                <span className="text-sm text-purple-600">奖励: 50积分</span>
               </div>
-            </div>
-            <div className="flex items-center space-x-2 text-sm">
-              <Award className="w-4 h-4" />
-              <span>参与即可获得积分奖励</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        {/* Survey Cards */}
-        <div className="grid gap-4">
-          {surveyCards.map((card, index) => (
-            <Card 
-              key={index} 
-              className={`border-none ${card.bg} cursor-pointer transform transition-transform hover:scale-[1.02]`}
-            >
-              <CardContent className="flex items-center justify-between p-4">
-                <div className="flex items-center space-x-4">
-                  <div className="p-2 bg-white rounded-lg">
-                    {card.icon}
-                  </div>
-                  <div>
-                    <h3 className="font-medium">{card.title}</h3>
-                    <p className="text-sm text-gray-600">{card.description}</p>
-                  </div>
-                </div>
-                <div className="flex items-center">
-                  <Badge variant="secondary" className="gap-1">
-                    <Gift size={14} />
-                    {card.reward}
-                  </Badge>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+              <h3 className="text-lg font-semibold mb-2">新版界面体验官招募</h3>
+              <p className="text-gray-600 text-sm mb-4">
+                参与新版界面测试，提供您的宝贵建议，助力产品优化升级！
+              </p>
+              <Button 
+                onClick={() => handleParticipate('interface')}
+                className="w-full bg-purple-500 hover:bg-purple-600"
+              >
+                立即参与
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Quick Feedback */}
-        <Card className="border-none shadow-sm">
-          <CardHeader className="pb-2">
-            <CardTitle className="text-lg">快速反馈</CardTitle>
-            <CardDescription>
-              分享您的想法和建议
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <Textarea
-                placeholder="请输入您的反馈..."
-                value={feedback}
-                onChange={(e) => setFeedback(e.target.value)}
-                className="min-h-[100px] resize-none"
-              />
-              <Button 
-                className="w-full bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600"
-                onClick={handleSubmit}
-              >
-                <Send size={16} className="mr-2" />
-                提交反馈
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+        {/* 其他参与方式 */}
+        <div className="space-y-4">
+          <h2 className="text-lg font-semibold mb-4 flex items-center">
+            <MessageSquare className="w-5 h-5 mr-2 text-blue-500" />
+            更多参与方式
+          </h2>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleParticipate('survey')}>
+              <CardContent className="p-4 text-center">
+                <div className="w-12 h-12 mx-auto mb-2 bg-blue-100 rounded-full flex items-center justify-center">
+                  <MessageSquare className="w-6 h-6 text-blue-500" />
+                </div>
+                <h3 className="font-medium mb-1">问卷调查</h3>
+                <p className="text-xs text-gray-500">获得20积分</p>
+              </CardContent>
+            </Card>
 
-      <BottomNav />
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleParticipate('interview')}>
+              <CardContent className="p-4 text-center">
+                <div className="w-12 h-12 mx-auto mb-2 bg-green-100 rounded-full flex items-center justify-center">
+                  <Gift className="w-6 h-6 text-green-500" />
+                </div>
+                <h3 className="font-medium mb-1">深度访谈</h3>
+                <p className="text-xs text-gray-500">获得100积分</p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleParticipate('testing')}>
+              <CardContent className="p-4 text-center">
+                <div className="w-12 h-12 mx-auto mb-2 bg-yellow-100 rounded-full flex items-center justify-center">
+                  <Trophy className="w-6 h-6 text-yellow-500" />
+                </div>
+                <h3 className="font-medium mb-1">功能测试</h3>
+                <p className="text-xs text-gray-500">获得50积分</p>
+              </CardContent>
+            </Card>
+
+            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleParticipate('feedback')}>
+              <CardContent className="p-4 text-center">
+                <div className="w-12 h-12 mx-auto mb-2 bg-red-100 rounded-full flex items-center justify-center">
+                  <ThumbsUp className="w-6 h-6 text-red-500" />
+                </div>
+                <h3 className="font-medium mb-1">意见反馈</h3>
+                <p className="text-xs text-gray-500">获得10积分</p>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };

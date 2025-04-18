@@ -43,11 +43,11 @@ const StorageSpace = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b">
+      <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b shadow-sm">
         <Button 
           variant="ghost" 
           size="icon" 
-          onClick={() => navigate('/profile')}
+          onClick={() => navigate('/settings')}
           className="mr-2"
         >
           <ArrowLeft size={24} />

@@ -21,7 +21,7 @@ const ContentPreferences = () => {
         <Button 
           variant="ghost" 
           size="icon" 
-          onClick={() => navigate('/profile')}
+          onClick={() => navigate('/settings')}
           className="mr-2"
         >
           <ArrowLeft size={24} />

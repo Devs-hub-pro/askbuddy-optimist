@@ -18,12 +18,11 @@ const AboutUs = () => {
 
   return (
     <div className="pb-20 min-h-screen bg-gray-50">
-      {/* Header */}
       <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b shadow-sm">
         <Button 
           variant="ghost" 
           size="icon" 
-          onClick={() => navigate('/profile')}
+          onClick={() => navigate('/settings')}
           className="mr-2"
         >
           <ArrowLeft size={24} />
@@ -31,7 +30,6 @@ const AboutUs = () => {
         <h1 className="text-xl font-semibold">关于我们</h1>
       </div>
 
-      {/* App Info */}
       <div className="p-4 bg-gradient-to-r from-app-blue to-app-teal text-center text-white rounded-b-3xl">
         <div className="py-8">
           <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">

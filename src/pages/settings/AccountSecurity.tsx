@@ -6,8 +6,6 @@ import {
   KeyRound, 
   Phone, 
   Trash2,
-  LifeBuoy,
-  AlertTriangle,
   ChevronRight
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';

@@ -13,8 +13,8 @@ import {
   MessageSquare,
   Info
 } from 'lucide-react';
-import { Dialog, DialogContent } from '@/components/ui/dialog';
-import { Drawer, DrawerContent } from '@/components/ui/drawer';
+import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
+import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SettingsMenuProps {
@@ -76,6 +76,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
         <DialogContent className="sm:max-w-md">
+          <DialogTitle className="sr-only">设置</DialogTitle>
           {content}
         </DialogContent>
       </Dialog>
@@ -83,8 +84,10 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
   }
 
   return (
-    <Drawer open={isOpen} onOpenChange={onClose}>
+    <Drawer open={isOpen} onOpenChange={onClose} direction="bottom">
       <DrawerContent className="max-h-[85vh]">
+        <DrawerTitle className="sr-only">设置</DrawerTitle>
+        <div className="mx-auto mt-4 h-2 w-[100px] rounded-full bg-muted" />
         {content}
       </DrawerContent>
     </Drawer>

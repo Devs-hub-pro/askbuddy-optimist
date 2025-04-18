@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, Eye, Lock, UserCheck, MessageSquare, Globe, Users, Shield, AlertTriangle } from 'lucide-react';
@@ -31,6 +30,8 @@ const PrivacySettings = () => {
     hideActivity: false,
     hideOnline: false,
     hideReadReceipts: false,
+    showRecommendations: true,
+    showBlacklist: false,
   });
 
   const handleToggle = (setting: string) => {
@@ -221,7 +222,44 @@ const PrivacySettings = () => {
             </div>
           </CardContent>
         </Card>
-        
+
+        <Card className="shadow-sm border-none rounded-xl overflow-hidden">
+          <CardHeader className="pb-2 pt-4">
+            <CardTitle className="text-lg flex items-center">
+              <Users size={18} className="text-indigo-500 mr-2" />
+              社交互动
+            </CardTitle>
+            <CardDescription>控制与其他用户的互动方式</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="space-y-0.5">
+                <Label className="text-base">推荐可能认识的人</Label>
+                <p className="text-sm text-gray-500">根据共同好友等推荐用户</p>
+              </div>
+              <Switch 
+                checked={settings.showRecommendations}
+                onCheckedChange={() => handleToggle('showRecommendations')}
+              />
+            </div>
+            
+            <Separator />
+            
+            <div 
+              className="flex justify-between items-center cursor-pointer"
+              onClick={() => navigate('/settings/blacklist')}
+            >
+              <div className="space-y-0.5">
+                <Label className="text-base">黑名单管理</Label>
+                <p className="text-sm text-gray-500">管理已屏蔽的用户</p>
+              </div>
+              <Button variant="outline" size="sm">
+                管理
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="p-4 text-center text-sm text-gray-500">
           <p>隐私设置将在您下次登录时生效</p>
           <p>最后更新时间: 2023年10月1日</p>

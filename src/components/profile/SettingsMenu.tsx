@@ -26,7 +26,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const isDesktop = !useIsMobile();
   
-  // Settings menu items
+  // Settings menu items with updated label
   const menuItems = [
     { icon: <Lock size={20} className="text-gray-600" />, label: '账号与安全', route: '/settings/account' },
     { icon: <Settings size={20} className="text-gray-600" />, label: '通用设置', route: '/settings/general' },
@@ -36,7 +36,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
     { icon: <User size={20} className="text-gray-600" />, label: '内容偏好与调节', route: '/settings/content-preferences' },
     { icon: <HelpCircle size={20} className="text-gray-600" />, label: '帮助中心', route: '/settings/help' },
     { icon: <Shield size={20} className="text-gray-600" />, label: '问问规范', route: '/settings/guidelines' },
-    { icon: <MessageSquare size={20} className="text-gray-600" />, label: '产品反馈', route: '/settings/feedback' },
+    { icon: <MessageSquare size={20} className="text-gray-600" />, label: '用户体验调研', route: '/settings/user-research' },
     { icon: <Info size={20} className="text-gray-600" />, label: '关于我们', route: '/settings/about' },
   ];
 

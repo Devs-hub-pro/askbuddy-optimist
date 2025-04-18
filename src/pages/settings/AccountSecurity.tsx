@@ -1,14 +1,41 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Shield, Key, UserRound, SmartphoneNfc } from 'lucide-react';
+import { 
+  ArrowLeft, 
+  Lock, 
+  KeyRound, 
+  Phone, 
+  Trash2,
+  LifeBuoy,
+  AlertTriangle,
+  ChevronRight
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import BottomNav from '@/components/BottomNav';
 
 const AccountSecurity = () => {
   const navigate = useNavigate();
+  
+  const socialAccounts = [
+    { name: 'WeChat', status: '未绑定', icon: '微信' },
+    { name: 'QQ', status: '未绑定', icon: 'QQ' },
+    { name: 'Apple', status: '已绑定', icon: '' },
+  ];
 
   return (
     <div className="pb-20 min-h-screen bg-gray-50">
@@ -25,67 +52,117 @@ const AccountSecurity = () => {
       </div>
 
       <div className="p-4 space-y-4">
-        <Card>
+        {/* 基本信息 */}
+        <Card className="border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <UserRound className="w-5 h-5 mr-2 text-blue-500" />
-              账号信息
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="flex justify-between items-center py-2">
-              <span className="text-sm">手机号码</span>
-              <span className="text-sm text-gray-500">183****5678</span>
-            </div>
-            <div className="flex justify-between items-center py-2">
-              <span className="text-sm">邮箱地址</span>
-              <span className="text-sm text-gray-500">未绑定</span>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader className="pb-3">
-            <CardTitle className="text-lg flex items-center">
-              <Key className="w-5 h-5 mr-2 text-green-500" />
-              登录安全
+              <Phone className="w-5 h-5 mr-2 text-blue-500" />
+              基本信息
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex justify-between items-center">
-              <div>
-                <div className="text-sm font-medium">登录密码</div>
-                <div className="text-xs text-gray-500">定期更换密码可以保护账号安全</div>
+              <div className="space-y-0.5">
+                <span className="text-sm font-medium">手机号</span>
+                <p className="text-xs text-gray-500">183****5678</p>
               </div>
-              <Button variant="outline" size="sm">修改</Button>
+              <Button variant="outline" size="sm" onClick={() => navigate('/settings/phone')}>
+                修改
+              </Button>
             </div>
+            
             <div className="flex justify-between items-center">
-              <div>
-                <div className="text-sm font-medium">二次验证</div>
-                <div className="text-xs text-gray-500">登录时需要额外验证</div>
+              <div className="space-y-0.5">
+                <span className="text-sm font-medium">登录密码</span>
+                <p className="text-xs text-gray-500">建议定期更换密码</p>
               </div>
-              <Switch />
+              <Button variant="outline" size="sm" onClick={() => navigate('/settings/password')}>
+                修改
+              </Button>
             </div>
           </CardContent>
         </Card>
 
-        <Card>
+        {/* 社交账号绑定 */}
+        <Card className="border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <SmartphoneNfc className="w-5 h-5 mr-2 text-purple-500" />
-              设备管理
+              <Lock className="w-5 h-5 mr-2 text-green-500" />
+              社交账号绑定
             </CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="flex justify-between items-center">
-              <div>
-                <div className="text-sm font-medium">已登录设备</div>
-                <div className="text-xs text-gray-500">查看和管理登录设备</div>
+          <CardContent className="space-y-4">
+            {socialAccounts.map((account, index) => (
+              <div key={index} className="flex justify-between items-center">
+                <div className="space-y-0.5">
+                  <span className="text-sm font-medium">{account.name}</span>
+                  <p className="text-xs text-gray-500">{account.status}</p>
+                </div>
+                <Switch checked={account.status === '已绑定'} />
               </div>
-              <Button variant="outline" size="sm">查看</Button>
+            ))}
+          </CardContent>
+        </Card>
+
+        {/* 账号安全 */}
+        <Card className="border-none shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-lg flex items-center">
+              <KeyRound className="w-5 h-5 mr-2 text-orange-500" />
+              账号安全
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div 
+              className="flex justify-between items-center cursor-pointer"
+              onClick={() => navigate('/settings/account-recovery')}
+            >
+              <div className="space-y-0.5">
+                <span className="text-sm font-medium">账号找回</span>
+                <p className="text-xs text-gray-500">设置账号找回方式</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
+            </div>
+            
+            <div 
+              className="flex justify-between items-center cursor-pointer"
+              onClick={() => navigate('/settings/login-activity')}
+            >
+              <div className="space-y-0.5">
+                <span className="text-sm font-medium">登录活动</span>
+                <p className="text-xs text-gray-500">查看登录设备和位置</p>
+              </div>
+              <ChevronRight className="w-5 h-5 text-gray-400" />
             </div>
           </CardContent>
         </Card>
+
+        {/* 账号注销 */}
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button 
+              variant="outline" 
+              className="w-full border-red-200 text-red-500 hover:bg-red-50"
+            >
+              <Trash2 className="w-4 h-4 mr-2" />
+              注销账号
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>确认注销账号？</AlertDialogTitle>
+              <AlertDialogDescription>
+                此操作不可撤销。注销后，您的所有数据将被永久删除。
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>取消</AlertDialogCancel>
+              <AlertDialogAction className="bg-red-500 hover:bg-red-600">
+                确认注销
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
       </div>
 
       <BottomNav />

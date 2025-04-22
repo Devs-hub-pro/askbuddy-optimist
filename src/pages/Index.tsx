@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -7,10 +6,7 @@ import CategorySection from '../components/CategorySection';
 import ActivityCard from '../components/ActivityCard';
 import QuestionCard from '../components/QuestionCard';
 import BottomNav from '../components/BottomNav';
-import { Sparkles, MessageSquare, Award, Clock, Package, Users } from 'lucide-react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import ExpertDetailDialog from '../components/ExpertDetailDialog';
+import { Sparkles, Users } from 'lucide-react';
 
 interface LocationState {
   location?: string;
@@ -99,7 +95,6 @@ const Index = () => {
     }
   ];
 
-  // Define multiple experts with different information
   const experts = [
     {
       id: '1',
@@ -155,12 +150,6 @@ const Index = () => {
       <Navbar location={currentLocation} />
       
       <div className="px-4 py-6 bg-app-light-bg animate-fade-in">
-        <div className="flex items-center space-x-2 mb-4">
-          <Users size={22} className="text-app-blue" />
-          <h1 className="text-xl font-bold text-gray-800">找人问问</h1>
-          <p className="text-gray-600 text-sm">AI无法回答的，就找人问问！</p>
-        </div>
-        
         <SearchBar />
       </div>
       

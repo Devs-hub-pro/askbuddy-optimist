@@ -1,3 +1,4 @@
+
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import Discover from "./pages/Discover";
@@ -17,6 +18,7 @@ import NewQuestion from "./pages/NewQuestion";
 import Messages from "./pages/Messages";
 import Profile from "./pages/Profile";
 import EditProfile from "./pages/EditProfile";
+import SkillPublish from "./pages/SkillPublish";
 import { Toaster } from "@/components/ui/toaster";
 import "./App.css";
 
@@ -66,6 +68,7 @@ function App() {
             <Route path="/messages" element={<Messages />} />
             <Route path="/profile" element={<Profile />} />
             <Route path="/edit-profile" element={<EditProfile />} />
+            <Route path="/skill-publish" element={<SkillPublish />} />
             
             {/* Profile sub-pages */}
             <Route path="/profile/orders" element={<MyOrders />} />

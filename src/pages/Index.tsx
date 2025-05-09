@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
@@ -106,7 +105,7 @@ const Index = () => {
       name: '张同学',
       avatar: 'https://randomuser.me/api/portraits/women/22.jpg',
       title: '北大硕士 | 出国党',
-      description: '专注留学申请文书指导，斯坦福offer获得者。我有多年指导经验，曾帮助超过50名学生申请到世界顶尖大学。擅长个人陈述、研究计划书撰写，精通面试技巧指导。我相信每个学生都有自己的闪光点，只要找到合适的表达方式，就能在激烈的申请中脱颖而出。我希望通过我的专业知识和经验，帮助每位学生实现留学梦想。',
+      description: '专注留学申请文书指导，斯坦福offer���得者。我有多年指导经验，曾帮助超过50名学生申请到世界顶尖大学。擅长个人陈述、研究计划书撰写，精通面试技巧指导。我相信每个学生都有自己的闪光点，只要找到合适的表达方式，就能在激烈的申请中脱颖而出。我希望通过我的专业知识和经验，帮助每位学生实现留学梦想。',
       tags: ['留学', '文书', '面试'],
       rating: 4.9,
       responseRate: '98%',
@@ -155,12 +154,6 @@ const Index = () => {
       <Navbar location={currentLocation} />
       
       <div className="px-4 py-6 bg-app-light-bg animate-fade-in">
-        <div className="flex items-center space-x-2 mb-4">
-          <Users size={22} className="text-app-blue" />
-          <h1 className="text-xl font-bold text-gray-800">找人问问</h1>
-          <p className="text-gray-600 text-sm">AI无法回答的，就找人问问！</p>
-        </div>
-        
         <SearchBar />
       </div>
       

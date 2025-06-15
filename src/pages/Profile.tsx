@@ -63,8 +63,7 @@ const Profile = () => {
     { icon: <Coins size={22} className="text-amber-500" />, label: '我的收益', route: '/profile/earnings' },
     { icon: <UserPlus size={22} className="text-indigo-500" />, label: '我的社群', route: '/profile/community' },
     { icon: <FileText size={22} className="text-app-teal" />, label: '草稿箱', route: '/profile/drafts' },
-    { icon: <Award size={22} className="text-orange-500" />, label: '达人认证', route: '/profile/talent-certification' },
-    { icon: <Headphones size={22} className="text-blue-600" />, label: '在线客服', route: '/settings/help' }, // 新增
+    { icon: <Award size={22} className="text-orange-500" />, label: '达人认证', route: '/profile/talent-certification' }
   ];
 
   return (

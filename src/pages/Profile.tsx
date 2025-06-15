@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
@@ -23,6 +22,7 @@ import {
   Folder,
   Lock,
   Edit3,
+  Headphones,
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -64,6 +64,7 @@ const Profile = () => {
     { icon: <UserPlus size={22} className="text-indigo-500" />, label: '我的社群', route: '/profile/community' },
     { icon: <FileText size={22} className="text-app-teal" />, label: '草稿箱', route: '/profile/drafts' },
     { icon: <Award size={22} className="text-orange-500" />, label: '达人认证', route: '/profile/talent-certification' },
+    { icon: <Headphones size={22} className="text-blue-600" />, label: '在线客服', route: '/settings/help' }, // 新增
   ];
 
   return (
@@ -170,7 +171,7 @@ const Profile = () => {
               </span>
               常用功能
             </h3>
-            <div className="grid grid-cols-4 gap-4">
+            <div className={`grid grid-cols-4 gap-4`}>
               {commonFeatures.map((item, index) => (
                 <div 
                   key={`common-${index}`} 

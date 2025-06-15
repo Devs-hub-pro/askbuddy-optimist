@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { allIcons } from '../utils/iconsList';
-import { downloadSvgFixed } from '../utils/iconOperations';
+import { downloadSvgFixed, batchDownloadPngFromIcons } from '../utils/iconOperations';
 import IconCard from './icons/IconCard';
 import IconsControls from './icons/IconsControls';
 import IconsInstructions from './icons/IconsInstructions';
@@ -55,6 +54,17 @@ const IconsPreview: React.FC = () => {
     });
   };
 
+  // 新增：批量下载PNG
+  const downloadSelectedPngIcons = async () => {
+    if (selectedIcons.size === 0) {
+      alert('请先选择要下载的图标');
+      return;
+    }
+    const selectedIconsList = Array.from(selectedIcons);
+    alert(`将依次下载 ${selectedIconsList.length} 个PNG图标，请稍等...`);
+    await batchDownloadPngFromIcons(selectedIconsList, downloadColor, 24);
+  };
+
   return (
     <div className="p-8 max-w-4xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Icons for WeChat Mini Program</h1>
@@ -68,6 +78,7 @@ const IconsPreview: React.FC = () => {
         onColorChange={setDownloadColor}
         onToggleSelectAll={toggleSelectAll}
         onDownloadSelected={downloadSelectedIcons}
+        onDownloadSelectedPng={downloadSelectedPngIcons}
         isAllSelected={selectedIcons.size === allIcons.length}
       />
       

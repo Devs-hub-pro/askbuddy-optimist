@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -73,4 +72,79 @@ export const downloadSvgFixed = (iconName: string, color: string = '#000000') =>
   a.click();
   document.body.removeChild(a);
   URL.revokeObjectURL(url);
+};
+
+// Add: Convert SVG string to PNG using a canvas.
+export const svgStringToPngBlob = async (svgString: string, size: number = 24): Promise<Blob> => {
+  return new Promise((resolve, reject) => {
+    const img = new window.Image();
+    const svg = new Blob([svgString], { type: 'image/svg+xml' });
+    const url = URL.createObjectURL(svg);
+
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        reject(new Error('Canvas not supported'));
+        return;
+      }
+      ctx.clearRect(0, 0, size, size);
+      ctx.drawImage(img, 0, 0, size, size);
+
+      canvas.toBlob((blob) => {
+        if (blob) resolve(blob);
+        else reject(new Error('Failed to create PNG'));
+      }, 'image/png');
+      URL.revokeObjectURL(url);
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('Failed to render SVG to PNG'));
+    };
+
+    img.src = url;
+  });
+};
+
+// 导出：下载指定icon的PNG
+export const downloadPngFromIcon = async (iconName: string, color: string = '#000000', size: number = 24) => {
+  const IconComponent = iconComponents[iconName];
+  if (!IconComponent) return;
+
+  // 生成SVG字符串
+  const svgString = `
+    <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-${iconName}">
+      ${require('react-dom/server').renderToStaticMarkup(React.createElement(IconComponent, { color }))
+        .replace(/<svg[^>]*>|<\/svg>/g, '')}
+    </svg>
+  `;
+
+  // 转PNG并下载
+  const pngBlob = await svgStringToPngBlob(svgString, size);
+  const url = URL.createObjectURL(pngBlob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${iconName}.png`;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  URL.revokeObjectURL(url);
+};
+
+// 批量下载
+export const batchDownloadPngFromIcons = async (iconNames: string[], color: string = '#000000', size: number = 24) => {
+  for (let i = 0; i < iconNames.length; i++) {
+    await downloadPngFromIcon(iconNames[i], color, size);
+  }
+};
+
+export {
+  iconComponents,
+  createSvgContent,
+  downloadSvgFixed,
+  downloadPngFromIcon,
+  batchDownloadPngFromIcons,
 };

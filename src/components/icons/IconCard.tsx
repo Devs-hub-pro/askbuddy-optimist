@@ -1,8 +1,7 @@
-
 import React from 'react';
 import { Button } from '../ui/button';
 import { Toggle } from '../ui/toggle';
-import { iconComponents, downloadSvgFixed } from '../../utils/iconOperations';
+import { iconComponents, downloadSvgFixed, downloadPngFromIcon } from '../../utils/iconOperations';
 
 interface IconCardProps {
   icon: { name: string; description: string };
@@ -11,18 +10,17 @@ interface IconCardProps {
   onToggleSelection: (iconName: string) => void;
 }
 
-const IconCard: React.FC<IconCardProps> = ({ 
-  icon, 
-  isSelected, 
-  downloadColor, 
-  onToggleSelection 
+const IconCard: React.FC<IconCardProps> = ({
+  icon,
+  isSelected,
+  downloadColor,
+  onToggleSelection,
 }) => {
   const IconComponent = iconComponents[icon.name];
-  
   if (!IconComponent) return null;
-  
+
   return (
-    <div 
+    <div
       className={`border rounded-lg p-4 flex flex-col items-center cursor-pointer transition-colors ${isSelected ? 'bg-blue-50 border-blue-300' : ''}`}
       onClick={() => onToggleSelection(icon.name)}
     >
@@ -32,17 +30,28 @@ const IconCard: React.FC<IconCardProps> = ({
       <div className="text-center">
         <p className="font-medium text-sm">{icon.name}</p>
         <p className="text-xs text-gray-500 mt-1">{icon.description}</p>
-        <Button 
-          variant="outline" 
-          size="sm" 
-          className="mt-2"
-          onClick={(e) => {
-            e.stopPropagation();
-            downloadSvgFixed(icon.name, downloadColor);
-          }}
-        >
-          下载SVG
-        </Button>
+        <div className="flex flex-col gap-2 mt-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={(e) => {
+              e.stopPropagation();
+              downloadSvgFixed(icon.name, downloadColor);
+            }}
+          >
+            下载SVG
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={async (e) => {
+              e.stopPropagation();
+              await downloadPngFromIcon(icon.name, downloadColor, 24);
+            }}
+          >
+            下载PNG
+          </Button>
+        </div>
         <Toggle
           pressed={isSelected}
           className="mt-2 w-full text-xs"

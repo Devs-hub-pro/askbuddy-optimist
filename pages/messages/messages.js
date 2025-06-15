@@ -1,7 +1,7 @@
 // messages.js
 Page({
   data: {
-    activeTab: 'chats', // 'chats' or 'notifications'
+    activeTab: 'chats', // 'chats' or 'notifications' or 'group'
     showSearch: false,
     searchQuery: '',
     
@@ -107,6 +107,32 @@ Page({
     ],
     filteredChats: [], // Will be populated based on search
     
+    // Group messages mock data
+    groupMessages: [
+      {
+        id: 'group-001',
+        name: '前端开发交流群',
+        avatar: 'https://randomuser.me/api/portraits/lego/3.jpg',
+        lastMessage: '【公告】本周五有主题分享，欢迎参加！',
+        lastMessageType: 'text',
+        lastMessageTime: '昨天',
+        unreadCount: 3,
+        unread: true,
+      },
+      {
+        id: 'group-002',
+        name: '考研交流社群',
+        avatar: 'https://randomuser.me/api/portraits/lego/6.jpg',
+        lastMessage: '张同学：大家最近有什么冲刺经验分享吗？',
+        lastMessageType: 'text',
+        lastMessageTime: '上午 09:40',
+        unreadCount: 0,
+        unread: false,
+      }
+    ],
+    filteredGroupMessages: [],
+    unreadGroupMessages: 0,
+    
     // Notification data
     transactionNotifications: [
       {
@@ -164,11 +190,9 @@ Page({
   },
   
   onLoad: function() {
-    // Initialize the filtered lists
     this.filterData();
-    
-    // Calculate unread notifications count
     this.calculateUnreadNotifications();
+    this.calculateUnreadGroupMessages();
   },
   
   calculateUnreadNotifications: function() {
@@ -180,6 +204,13 @@ Page({
     
     this.setData({
       unreadNotifications: unreadCount
+    });
+  },
+  
+  calculateUnreadGroupMessages: function() {
+    const unreadCount = this.data.groupMessages.filter(g => g.unreadCount > 0).reduce((sum, g) => sum + g.unreadCount, 0);
+    this.setData({
+      unreadGroupMessages: unreadCount
     });
   },
   
@@ -224,6 +255,14 @@ Page({
           chat.lastMessage.toLowerCase().includes(query))
       : allChats;
     
+    // Filter group messages
+    const allGroup = [...this.data.groupMessages];
+    const filteredGroupMessages = query
+      ? allGroup.filter(msg => 
+          msg.name.toLowerCase().includes(query) || 
+          msg.lastMessage.toLowerCase().includes(query))
+      : allGroup;
+    
     // Filter notifications
     const allNotifications = [
       ...this.data.transactionNotifications,
@@ -240,6 +279,7 @@ Page({
     
     this.setData({
       filteredChats,
+      filteredGroupMessages,
       filteredNotifications
     });
   },
@@ -322,29 +362,10 @@ Page({
     });
   },
   
-  showNotificationOptions: function(e) {
+  showGroupOptions: function(e) {
     const id = e.currentTarget.dataset.id;
-    
-    // Find notification to determine if it's read
-    const allNotifications = [
-      ...this.data.transactionNotifications,
-      ...this.data.activityNotifications,
-      ...this.data.interactionNotifications,
-      ...this.data.systemNotifications
-    ];
-    
-    const notification = allNotifications.find(n => n.id === id);
-    const isRead = notification && notification.read;
-    
-    this.setData({
-      showContextMenu: true,
-      contextMenuTop: e.touches[0].clientY,
-      contextMenuLeft: e.touches[0].clientX,
-      contextMenuType: 'notification',
-      contextMenuId: id,
-      contextMenuIsRead: isRead,
-      showOverlay: true
-    });
+    console.log('长按社群消息', id);
+    // 可补充更多context menu操作
   },
   
   hideOverlay: function() {
@@ -713,6 +734,30 @@ Page({
       if (this.data.searchQuery) {
         this.filterData();
       }
+    }
+  },
+  
+  openGroupMessage: function(e) {
+    const groupId = e.currentTarget.dataset.id;
+    // 可跳转到群聊详情，目前控制台输出
+    console.log('打开社群消息', groupId);
+    this.markGroupMessageAsReadById(groupId);
+  },
+  
+  markGroupMessageAsReadById: function(id) {
+    let groupMessages = [...this.data.groupMessages];
+    const groupIndex = groupMessages.findIndex(g => g.id === id);
+    if (groupIndex > -1) {
+      groupMessages[groupIndex] = {
+        ...groupMessages[groupIndex],
+        unreadCount: 0,
+        unread: false
+      };
+      this.setData({
+        groupMessages
+      });
+      this.filterData();
+      this.calculateUnreadGroupMessages();
     }
   }
 });

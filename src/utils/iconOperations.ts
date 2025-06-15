@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { createRoot } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
@@ -74,7 +75,7 @@ export const downloadSvgFixed = (iconName: string, color: string = '#000000') =>
   URL.revokeObjectURL(url);
 };
 
-// Add: Convert SVG string to PNG using a canvas.
+// Convert SVG string to PNG using a canvas.
 export const svgStringToPngBlob = async (svgString: string, size: number = 24): Promise<Blob> => {
   return new Promise((resolve, reject) => {
     const img = new window.Image();
@@ -109,7 +110,7 @@ export const svgStringToPngBlob = async (svgString: string, size: number = 24): 
   });
 };
 
-// 导出：下载指定icon的PNG
+// 下载指定icon的PNG
 export const downloadPngFromIcon = async (iconName: string, color: string = '#000000', size: number = 24) => {
   const IconComponent = iconComponents[iconName];
   if (!IconComponent) return;
@@ -117,8 +118,7 @@ export const downloadPngFromIcon = async (iconName: string, color: string = '#00
   // 生成SVG字符串
   const svgString = `
     <svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 24 24" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-${iconName}">
-      ${require('react-dom/server').renderToStaticMarkup(React.createElement(IconComponent, { color }))
-        .replace(/<svg[^>]*>|<\/svg>/g, '')}
+      ${renderToStaticMarkup(React.createElement(IconComponent, { color })).replace(/<svg[^>]*>|<\/svg>/g, '')}
     </svg>
   `;
 

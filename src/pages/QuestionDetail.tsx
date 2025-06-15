@@ -90,6 +90,12 @@ const QuestionDetail = () => {
     // 可在此调用toast等提示
   };
 
+  const handleShareQuestion = (optionId: string) => {
+    // Placeholder for actual share handling; can add toast
+    console.log(`Share via: ${optionId}`);
+    // Here you could close the dialog, show a toast, or integrate with sharing API
+  };
+
   return (
     <div className="app-container bg-gradient-to-b from-white to-blue-50/30 pb-20 min-h-screen">
       <div className="sticky top-0 z-50 bg-app-teal shadow-sm animate-fade-in">

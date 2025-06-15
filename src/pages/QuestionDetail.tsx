@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
@@ -40,6 +39,7 @@ import {
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import AnswerDialog from "@/components/AnswerDialog";
 
 const QuestionDetail = () => {
   const { id } = useParams();
@@ -49,8 +49,6 @@ const QuestionDetail = () => {
   // Dialog states
   const [isAnswerDialogOpen, setIsAnswerDialogOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
-  const [consultType, setConsultType] = useState<'text' | 'voice' | 'video'>('text');
   
   // Mocked question data - in a real app, this would be fetched based on the ID
   const question = {
@@ -69,11 +67,9 @@ const QuestionDetail = () => {
     points: 30,
     category: 'kaoyan',
     availableTimeSlots: [
-      { id: '1', day: '今天', time: '14:00-15:00' },
-      { id: '2', day: '今天', time: '16:00-17:00' },
-      { id: '3', day: '明天', time: '10:00-11:00' },
-      { id: '4', day: '明天', time: '15:00-16:00' },
-      { id: '5', day: '后天', time: '14:00-15:00' },
+      { id: 'today14', label: '今天 14:00-15:00' },
+      { id: 'today19', label: '今天 19:00-20:00' },
+      { id: 'weekend', label: '周末全天' }
     ]
   };
 
@@ -88,15 +84,10 @@ const QuestionDetail = () => {
     navigate(`/expert-profile/${userId}`);
   };
 
-  const handleAnswerSubmit = () => {
-    console.log('Answer submitted with:', { selectedTimeSlot, consultType });
+  const handleAnswerDialogSubmit = (payload: { timeSlots: string[]; message: string }) => {
+    console.log("回答者可回答时间段:", payload.timeSlots, "留言:", payload.message);
     setIsAnswerDialogOpen(false);
-  };
-
-  const handleShareQuestion = (platform: string) => {
-    console.log('Sharing question to platform:', platform);
-    // In a real app, implement the sharing functionality
-    setIsShareDialogOpen(false);
+    // 可在此调用toast等提示
   };
 
   return (
@@ -277,107 +268,13 @@ const QuestionDetail = () => {
         </Button>
       </div>
       
-      {/* Answer Dialog - Shows available time slots and consultation methods */}
-      <Dialog open={isAnswerDialogOpen} onOpenChange={setIsAnswerDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center">
-              <span>回答提问者的问题</span>
-            </DialogTitle>
-            <DialogDescription>
-              选择合适的时间和方式为提问者解答
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-6 my-4">
-            {/* Time Slots */}
-            <div>
-              <h3 className="text-sm font-medium mb-3">选择时间</h3>
-              <div className="grid grid-cols-3 gap-2">
-                {question.availableTimeSlots.map((slot) => (
-                  <div
-                    key={slot.id}
-                    className={`border rounded-lg p-2 flex flex-col items-center cursor-pointer transition-all ${
-                      selectedTimeSlot === slot.id 
-                        ? 'border-app-teal bg-blue-50 shadow-sm' 
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                    onClick={() => setSelectedTimeSlot(slot.id)}
-                  >
-                    <span className="text-xs text-gray-500">{slot.day}</span>
-                    <span className="text-sm font-medium">{slot.time}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            {/* Consultation Type */}
-            <div>
-              <h3 className="text-sm font-medium mb-3">选择回答方式</h3>
-              <div className="grid grid-cols-3 gap-3">
-                <RadioGroup value={consultType} onValueChange={(value) => setConsultType(value as 'text' | 'voice' | 'video')}>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="text" id="text-answer" className="text-app-teal" />
-                    <Label 
-                      htmlFor="text-answer" 
-                      className="flex items-center cursor-pointer"
-                    >
-                      <MessageCircle size={16} className="mr-1 text-blue-500" />
-                      <span>文字</span>
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="voice" id="voice-answer" className="text-app-teal" />
-                    <Label 
-                      htmlFor="voice-answer" 
-                      className="flex items-center cursor-pointer"
-                    >
-                      <Phone size={16} className="mr-1 text-green-500" />
-                      <span>语音</span>
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="video" id="video-answer" className="text-app-teal" />
-                    <Label 
-                      htmlFor="video-answer" 
-                      className="flex items-center cursor-pointer"
-                    >
-                      <VideoIcon size={16} className="mr-1 text-purple-500" />
-                      <span>视频</span>
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </div>
-            
-            {/* Add notes */}
-            <div>
-              <h3 className="text-sm font-medium mb-3">备注信息（选填）</h3>
-              <Textarea 
-                placeholder="可以添加备注信息，例如您的专长领域或解答方式..." 
-                className="resize-none focus-visible:ring-app-teal"
-                rows={3}
-              />
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">取消</Button>
-            </DialogClose>
-            <Button 
-              onClick={handleAnswerSubmit} 
-              disabled={!selectedTimeSlot}
-              className="bg-gradient-to-r from-blue-500 to-app-blue"
-            >
-              <CalendarCheck size={16} className="mr-2" />
-              确认回答
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      {/* 用统一的 AnswerDialog 弹窗组件 */}
+      <AnswerDialog
+        open={isAnswerDialogOpen}
+        onOpenChange={setIsAnswerDialogOpen}
+        askerTimeSlots={question.availableTimeSlots}
+        onSubmit={handleAnswerDialogSubmit}
+      />
       
       {/* Share Dialog - Shows sharing options with incentives */}
       <Dialog open={isShareDialogOpen} onOpenChange={setIsShareDialogOpen}>

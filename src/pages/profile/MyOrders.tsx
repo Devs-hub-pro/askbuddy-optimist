@@ -1,9 +1,10 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, ShoppingBag } from 'lucide-react';
+import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import BottomNav from '@/components/BottomNav';
+import OrderList from './OrderList';
 
 const MyOrders = () => {
   const navigate = useNavigate();
@@ -17,24 +18,15 @@ const MyOrders = () => {
           size="icon" 
           onClick={() => navigate('/profile')}
           className="mr-2"
+          aria-label="返回我的主页"
         >
           <ArrowLeft size={24} />
         </Button>
-        <h1 className="text-xl font-semibold">我的订单</h1>
+        <h1 className="text-xl font-semibold">我的提问订单</h1>
       </div>
 
-      {/* Empty state */}
-      <div className="flex flex-col items-center justify-center p-8 mt-20">
-        <ShoppingBag size={64} className="text-gray-300 mb-4" />
-        <p className="text-gray-500 mb-2">暂无订单信息</p>
-        <Button 
-          variant="outline" 
-          onClick={() => navigate('/discover')}
-          className="mt-2"
-        >
-          去发现服务
-        </Button>
-      </div>
+      {/* 内容主体 */}
+      <OrderList />
 
       <BottomNav />
     </div>

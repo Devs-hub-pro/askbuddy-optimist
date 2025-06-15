@@ -140,11 +140,3 @@ export const batchDownloadPngFromIcons = async (iconNames: string[], color: stri
     await downloadPngFromIcon(iconNames[i], color, size);
   }
 };
-
-export {
-  iconComponents,
-  createSvgContent,
-  downloadSvgFixed,
-  downloadPngFromIcon,
-  batchDownloadPngFromIcons,
-};

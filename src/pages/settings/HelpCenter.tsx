@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowLeft, HelpCircle, Search, ChevronDown, ChevronRight, MessageSquare, FileText, Users, AlertCircle } from 'lucide-react';
@@ -16,10 +17,12 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { Badge } from '@/components/ui/badge';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 
 const HelpCenter = () => {
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
+  const [isContactDialogOpen, setContactDialogOpen] = useState(false);
 
   // FAQ categories
   const helpCategories = [
@@ -139,7 +142,9 @@ const HelpCenter = () => {
             <HelpCircle size={48} className="text-gray-300 mb-3" />
             <p className="text-gray-500 mb-2">未找到匹配的问题</p>
             <p className="text-gray-400 text-sm mb-4">请尝试其他关键词或联系客服</p>
-            <Button variant="outline" className="mt-2">
+            <Button variant="outline" className="mt-2"
+              onClick={() => setContactDialogOpen(true)}
+            >
               <MessageSquare size={16} className="mr-2" />
               联系客服
             </Button>
@@ -150,12 +155,45 @@ const HelpCenter = () => {
         <div className="bg-gradient-to-r from-blue-50 to-teal-50 p-4 rounded-xl mt-6 text-center">
           <h3 className="font-medium mb-2">没有找到您需要的帮助？</h3>
           <p className="text-sm text-gray-600 mb-3">工作时间：周一至周日 9:00-22:00</p>
-          <Button className="bg-app-teal hover:bg-app-teal/90">
+          <Button className="bg-app-teal hover:bg-app-teal/90"
+            onClick={() => setContactDialogOpen(true)}
+          >
             <MessageSquare size={16} className="mr-2" />
             联系在线客服
           </Button>
         </div>
       </div>
+      
+      {/* 联系客服弹窗 */}
+      <Dialog open={isContactDialogOpen} onOpenChange={setContactDialogOpen}>
+        <DialogContent className="max-w-sm p-0">
+          <DialogHeader className="px-6 pt-6">
+            <DialogTitle className="text-xl text-center font-bold">联系客服</DialogTitle>
+            <DialogDescription className="text-center mt-1 text-gray-500">我们将竭诚为您服务</DialogDescription>
+          </DialogHeader>
+          <div className="px-6 pb-6 pt-2 space-y-4">
+            <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-3 text-[15px]">
+              <div className="flex items-center justify-between">
+                <span className="text-gray-700 font-medium">客服邮箱</span>
+                <span className="text-app-blue select-all">support@example.com</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-700 font-medium">微信客服</span>
+                <span className="text-app-blue select-all">vx-helpcenter</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-700 font-medium">QQ客服</span>
+                <span className="text-app-blue select-all">123456789</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-gray-700 font-medium">客服电话</span>
+                <span className="text-app-blue select-all">400-888-8888</span>
+              </div>
+            </div>
+            <div className="bg-blue-50 rounded-lg px-3 py-2 text-center text-sm text-gray-500">如遇到恶意信息或账户问题，也欢迎通过以上方式联系我们举报</div>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };

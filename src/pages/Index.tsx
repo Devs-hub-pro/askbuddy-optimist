@@ -54,6 +54,7 @@ const Index = () => {
     }
   ];
   
+  // 问题 mock 数据，增加更丰富的问题（以便测试弹窗内容多样性）
   const questions = [
     {
       id: '1',

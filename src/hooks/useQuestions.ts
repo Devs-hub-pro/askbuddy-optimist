@@ -35,18 +35,30 @@ export interface Answer {
   profile_avatar?: string | null;
 }
 
-// Fetch all questions
-export const useQuestions = (category?: string) => {
+export interface QuestionFilters {
+  category?: string;
+  search?: string;
+}
+
+// Fetch all questions with optional filters
+export const useQuestions = (filters?: QuestionFilters) => {
   return useQuery({
-    queryKey: ['questions', category],
+    queryKey: ['questions', filters?.category, filters?.search],
     queryFn: async () => {
       let query = supabase
         .from('questions')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (category) {
-        query = query.eq('category', category);
+      // Apply category filter
+      if (filters?.category) {
+        query = query.eq('category', filters.category);
+      }
+
+      // Apply search filter (title or content contains keyword)
+      if (filters?.search && filters.search.trim()) {
+        const searchTerm = `%${filters.search.trim()}%`;
+        query = query.or(`title.ilike.${searchTerm},content.ilike.${searchTerm}`);
       }
 
       const { data: questions, error } = await query;

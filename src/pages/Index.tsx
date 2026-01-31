@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import SearchBar from '../components/SearchBar';
@@ -6,17 +6,28 @@ import CategorySection from '../components/CategorySection';
 import ActivityCard from '../components/ActivityCard';
 import QuestionCard from '../components/QuestionCard';
 import BottomNav from '../components/BottomNav';
-import { Sparkles, MessageSquare, Award, Clock, Package, Users, Loader2 } from 'lucide-react';
+import { Sparkles, MessageSquare, Award, Clock, Package, Users, Loader2, X, Search } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import ExpertDetailDialog from '../components/ExpertDetailDialog';
-import { useQuestions } from '@/hooks/useQuestions';
+import { useQuestions, QuestionFilters } from '@/hooks/useQuestions';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 
 interface LocationState {
   location?: string;
 }
+
+// 分类定义
+const questionCategories = [
+  { id: '', name: '全部' },
+  { id: 'education', name: '教育学习' },
+  { id: 'career', name: '职业发展' },
+  { id: 'lifestyle', name: '生活服务' },
+  { id: 'hobbies', name: '兴趣技能' },
+];
 
 const Index = () => {
   const routeLocation = useLocation();
@@ -26,8 +37,19 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>('everyone');
   const [currentLocation, setCurrentLocation] = useState<string>('深圳');
   
+  // 筛选状态
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
+  const [searchKeyword, setSearchKeyword] = useState<string>('');
+  const [isSearching, setIsSearching] = useState<boolean>(false);
+  
+  // 构建筛选参数
+  const filters: QuestionFilters = useMemo(() => ({
+    category: selectedCategory || undefined,
+    search: searchKeyword || undefined,
+  }), [selectedCategory, searchKeyword]);
+  
   // 使用真实数据
-  const { data: questions, isLoading } = useQuestions();
+  const { data: questions, isLoading } = useQuestions(filters);
   
   useEffect(() => {
     const storedLocation = localStorage.getItem('currentLocation') || '深圳';
@@ -39,6 +61,26 @@ const Index = () => {
       setCurrentLocation(locationState.location);
     }
   }, [locationState]);
+  
+  // 处理搜索
+  const handleSearchSubmit = (value: string) => {
+    setSearchKeyword(value);
+  };
+  
+  // 清除搜索
+  const clearSearch = () => {
+    setSearchKeyword('');
+    setIsSearching(false);
+  };
+  
+  // 切换搜索模式
+  const toggleSearch = () => {
+    if (isSearching) {
+      clearSearch();
+    } else {
+      setIsSearching(true);
+    }
+  };
   
   const activities = [
     {
@@ -155,10 +197,11 @@ const Index = () => {
       </div>
       
       <div className="px-4 mb-20">
-        <div className="relative mb-6 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:bg-gray-100">
-          <div className="flex gap-6">
+        {/* 主 tabs */}
+        <div className="relative mb-4 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:bg-muted">
+          <div className="flex gap-6 items-center">
             <button 
-              className={`font-bold text-lg pb-2 relative ${activeTab === 'everyone' ? 'text-app-text' : 'text-gray-400'}`}
+              className={`font-bold text-lg pb-2 relative ${activeTab === 'everyone' ? 'text-foreground' : 'text-muted-foreground'}`}
               onClick={() => setActiveTab('everyone')}
             >
               大家都在问
@@ -167,7 +210,7 @@ const Index = () => {
               )}
             </button>
             <button 
-              className={`font-bold text-lg pb-2 relative ${activeTab === 'experts' ? 'text-app-text' : 'text-gray-400'}`}
+              className={`font-bold text-lg pb-2 relative ${activeTab === 'experts' ? 'text-foreground' : 'text-muted-foreground'}`}
               onClick={() => setActiveTab('experts')}
             >
               找TA问问
@@ -175,8 +218,63 @@ const Index = () => {
                 <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-app-teal to-app-blue z-10"></span>
               )}
             </button>
+            
+            {/* 搜索按钮 */}
+            {activeTab === 'everyone' && (
+              <button 
+                onClick={toggleSearch}
+                className="ml-auto p-2 rounded-full hover:bg-muted transition-colors"
+              >
+                {isSearching ? <X size={18} className="text-muted-foreground" /> : <Search size={18} className="text-muted-foreground" />}
+              </button>
+            )}
           </div>
         </div>
+        
+        {/* 搜索输入框 */}
+        {activeTab === 'everyone' && isSearching && (
+          <div className="mb-4 animate-fade-in">
+            <div className="relative">
+              <Input
+                type="text"
+                value={searchKeyword}
+                onChange={(e) => setSearchKeyword(e.target.value)}
+                placeholder="搜索问题标题或内容..."
+                className="pr-10"
+                autoFocus
+              />
+              <Search size={18} className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" />
+            </div>
+            {searchKeyword && (
+              <div className="mt-2 flex items-center gap-2 text-sm text-muted-foreground">
+                <span>搜索："{searchKeyword}"</span>
+                <button onClick={clearSearch} className="text-primary hover:underline">清除</button>
+              </div>
+            )}
+          </div>
+        )}
+        
+        {/* 分类筛选 tabs */}
+        {activeTab === 'everyone' && (
+          <div className="mb-4 overflow-x-auto scrollbar-hide">
+            <div className="flex gap-2 pb-2">
+              {questionCategories.map((cat) => (
+                <Badge
+                  key={cat.id}
+                  variant={selectedCategory === cat.id ? "default" : "outline"}
+                  className={`cursor-pointer whitespace-nowrap px-3 py-1.5 text-sm transition-all ${
+                    selectedCategory === cat.id 
+                      ? 'bg-primary text-primary-foreground hover:bg-primary/90' 
+                      : 'bg-background hover:bg-muted'
+                  }`}
+                  onClick={() => setSelectedCategory(cat.id)}
+                >
+                  {cat.name}
+                </Badge>
+              ))}
+            </div>
+          </div>
+        )}
         
         {isLoading ? (
           <div className="space-y-4">

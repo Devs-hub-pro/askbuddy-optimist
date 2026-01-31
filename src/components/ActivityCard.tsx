@@ -1,17 +1,19 @@
 
 import React from 'react';
-import { ArrowUpRight } from 'lucide-react';
+import { ArrowUpRight, MessageCircle } from 'lucide-react';
 
 interface ActivityCardProps {
   title: string;
   imageUrl: string;
   delay?: number;
+  discussionCount?: number;
 }
 
 const ActivityCard: React.FC<ActivityCardProps> = ({ 
   title, 
   imageUrl,
-  delay = 0 
+  delay = 0,
+  discussionCount
 }) => {
   return (
     <div 
@@ -38,8 +40,11 @@ const ActivityCard: React.FC<ActivityCardProps> = ({
       <div className="p-3">
         <h3 className="font-semibold text-sm leading-tight mb-2">{title}</h3>
         <div className="flex justify-between items-center">
-          <div className="text-xs text-gray-500">参与讨论</div>
-          <ArrowUpRight size={14} className="text-gray-400 transition-colors group-hover:text-app-teal" />
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
+            <MessageCircle size={12} />
+            <span>{discussionCount !== undefined ? `${discussionCount} 讨论` : '参与讨论'}</span>
+          </div>
+          <ArrowUpRight size={14} className="text-muted-foreground transition-colors group-hover:text-app-teal" />
         </div>
       </div>
     </div>

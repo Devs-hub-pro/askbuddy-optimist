@@ -11,6 +11,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import ExpertDetailDialog from '../components/ExpertDetailDialog';
 import { useQuestions } from '@/hooks/useQuestions';
+import { useHotTopics } from '@/hooks/useHotTopics';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 
@@ -28,6 +29,7 @@ const Index = () => {
   
   // 使用真实数据
   const { data: questions, isLoading } = useQuestions();
+  const { data: hotTopics, isLoading: isLoadingTopics } = useHotTopics();
   
   useEffect(() => {
     const storedLocation = localStorage.getItem('currentLocation') || '深圳';
@@ -142,16 +144,41 @@ const Index = () => {
           </h2>
         </div>
         
-        <div className="grid grid-cols-2 gap-4">
-          {activities.map((activity, index) => (
-            <ActivityCard
-              key={activity.id}
-              title={activity.title}
-              imageUrl={activity.imageUrl}
-              delay={0.3 + index * 0.1}
-            />
-          ))}
-        </div>
+        {isLoadingTopics ? (
+          <div className="grid grid-cols-2 gap-4">
+            {[1, 2].map((item) => (
+              <div key={item} className="h-28 bg-muted animate-pulse rounded-xl" />
+            ))}
+          </div>
+        ) : hotTopics && hotTopics.length > 0 ? (
+          <div className="grid grid-cols-2 gap-4">
+            {hotTopics.slice(0, 4).map((topic, index) => (
+              <div
+                key={topic.id}
+                onClick={() => navigate(`/topic/${topic.id}`)}
+                className="cursor-pointer"
+              >
+                <ActivityCard
+                  title={topic.title}
+                  imageUrl={topic.cover_image || `https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=400&h=225&q=80`}
+                  delay={0.3 + index * 0.1}
+                  discussionCount={topic.discussions_count}
+                />
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-4">
+            {activities.map((activity, index) => (
+              <ActivityCard
+                key={activity.id}
+                title={activity.title}
+                imageUrl={activity.imageUrl}
+                delay={0.3 + index * 0.1}
+              />
+            ))}
+          </div>
+        )}
       </div>
       
       <div className="px-4 mb-20">

@@ -44,17 +44,12 @@ import {
 import { useCreateQuestion } from '@/hooks/useQuestions';
 import { useAuth } from '@/contexts/AuthContext';
 
-// Define categories with emojis
+// Define categories with emojis - 与首页筛选保持一致
 const categories = [
   { id: 'education', name: '教育学习', emoji: '📚' },
-  { id: 'career', name: '职场发展', emoji: '💼' },
+  { id: 'career', name: '职业发展', emoji: '💼' },
   { id: 'lifestyle', name: '生活服务', emoji: '🏡' },
-  { id: 'hobby', name: '兴趣技能', emoji: '🎨' },
-  { id: 'travel', name: '旅行出行', emoji: '✈️' },
-  { id: 'health', name: '健康医疗', emoji: '🏥' },
-  { id: 'finance', name: '金融理财', emoji: '💰' },
-  { id: 'tech', name: '科技数码', emoji: '📱' },
-  { id: 'other', name: '其他问题', emoji: '❓' }
+  { id: 'hobbies', name: '兴趣技能', emoji: '🎨' },
 ];
 
 // Example placeholder questions to help users
@@ -233,6 +228,15 @@ const NewQuestion: React.FC = () => {
       return;
     }
     
+    if (!selectedCategory) {
+      toast({
+        title: "请选择问题分类",
+        description: "选择分类有助于问题被更多人看到",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     if (selectedTags.length === 0) {
       toast({
         title: "请选择至少一个标签",
@@ -322,6 +326,32 @@ const NewQuestion: React.FC = () => {
                 </ul>
               </div>
             )}
+          </div>
+        </div>
+        
+        {/* 1.5. Category Selection - 分类选择 */}
+        <div className="bg-white rounded-xl p-4 shadow-sm">
+          <div className="flex items-start mb-1">
+            <h2 className="text-lg font-medium">问题分类</h2>
+            <span className="text-red-500 ml-1">*</span>
+          </div>
+          <p className="text-muted-foreground text-sm mb-3">选择问题所属分类，便于他人找到您的问题</p>
+          
+          <div className="grid grid-cols-2 gap-2">
+            {categories.map(category => (
+              <button
+                key={category.id}
+                onClick={() => setSelectedCategory(category.id)}
+                className={`p-3 rounded-xl border text-left transition-all flex items-center gap-2 ${
+                  selectedCategory === category.id 
+                    ? 'border-primary bg-primary/10 text-primary' 
+                    : 'border-border hover:border-primary/50 hover:bg-muted'
+                }`}
+              >
+                <span className="text-xl">{category.emoji}</span>
+                <span className="font-medium">{category.name}</span>
+              </button>
+            ))}
           </div>
         </div>
         

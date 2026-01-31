@@ -136,8 +136,8 @@ const Index = () => {
       
       <CategorySection />
       
-      <div className="px-4 mb-6">
-        <div className="flex items-center gap-2 mb-4">
+      <div className="mb-6">
+        <div className="flex items-center gap-2 mb-4 px-4">
           <Sparkles size={18} className="text-yellow-500" />
           <h2 className="text-lg font-bold animate-fade-in animate-delay-2">
             问问热榜
@@ -145,37 +145,40 @@ const Index = () => {
         </div>
         
         {isLoadingTopics ? (
-          <div className="grid grid-cols-2 gap-4">
-            {[1, 2].map((item) => (
-              <div key={item} className="h-28 bg-muted animate-pulse rounded-xl" />
+          <div className="flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide">
+            {[1, 2, 3].map((item) => (
+              <div key={item} className="w-40 h-32 bg-muted animate-pulse rounded-xl shrink-0" />
             ))}
           </div>
         ) : hotTopics && hotTopics.length > 0 ? (
-          <div className="grid grid-cols-2 gap-4">
-            {hotTopics.slice(0, 4).map((topic, index) => (
+          <div className="flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide snap-x snap-mandatory">
+            {hotTopics.map((topic, index) => (
               <div
                 key={topic.id}
                 onClick={() => navigate(`/topic/${topic.id}`)}
-                className="cursor-pointer"
+                className="cursor-pointer shrink-0 w-40 snap-start"
               >
                 <ActivityCard
                   title={topic.title}
                   imageUrl={topic.cover_image || `https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=400&h=225&q=80`}
                   delay={0.3 + index * 0.1}
                   discussionCount={topic.discussions_count}
+                  compact
                 />
               </div>
             ))}
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide">
             {activities.map((activity, index) => (
-              <ActivityCard
-                key={activity.id}
-                title={activity.title}
-                imageUrl={activity.imageUrl}
-                delay={0.3 + index * 0.1}
-              />
+              <div key={activity.id} className="shrink-0 w-40">
+                <ActivityCard
+                  title={activity.title}
+                  imageUrl={activity.imageUrl}
+                  delay={0.3 + index * 0.1}
+                  compact
+                />
+              </div>
             ))}
           </div>
         )}

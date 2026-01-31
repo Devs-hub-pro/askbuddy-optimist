@@ -17,7 +17,7 @@ const Navbar: React.FC<NavbarProps> = ({ location = "深圳" }) => {
   };
   
   return (
-    <header className="sticky top-0 z-50 bg-app-teal animate-fade-in shadow-sm">
+    <header className="sticky top-0 z-50 bg-app-teal animate-fade-in shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       <div className="flex items-center justify-between h-12 px-4">
         <div className="text-white font-medium text-sm">问问</div>
         

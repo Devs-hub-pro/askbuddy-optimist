@@ -16,8 +16,8 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({
   title, asker, time, viewCount, points, onBack, onViewUser
-}) => (
-  <div className="sticky top-0 z-50 bg-app-teal shadow-sm animate-fade-in">
+) => (
+  <div className="sticky top-0 z-50 bg-app-teal shadow-sm animate-fade-in" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
     <div className="flex items-center h-12 px-4">
       <button onClick={onBack} className="text-white" aria-label="返回上一页">
         <ChevronLeft size={24} />

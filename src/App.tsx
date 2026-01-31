@@ -1,6 +1,9 @@
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
+
+const queryClient = new QueryClient();
 import Index from "./pages/Index";
 import Discover from "./pages/Discover";
 import CareerDevelopment from "./pages/CareerDevelopment";
@@ -49,61 +52,63 @@ import UserResearch from "./pages/settings/UserResearch";
 
 function App() {
   return (
-    <Router>
-      <AuthProvider>
-        <div className="app-wrapper w-full min-h-screen bg-muted">
-          <div className="app-container">
-            <Routes>
-              <Route path="/" element={<Index />} />
-              <Route path="/auth" element={<Auth />} />
-              <Route path="/discover" element={<Discover />} />
-              <Route path="/career" element={<CareerDevelopment />} />
-              <Route path="/education" element={<EducationLearning />} />
-              <Route path="/education/search" element={<EducationSearchResults />} />
-              <Route path="/search" element={<SearchResults />} />
-              <Route path="/lifestyle" element={<LifestyleServices />} />
-              <Route path="/hobbies" element={<HobbiesSkills />} />
-              <Route path="/city-selector" element={<CitySelector />} />
-              <Route path="/icons" element={<IconsPreview />} />
-              <Route path="/question/:id" element={<QuestionDetail />} />
-              <Route path="/expert/:id" element={<ExpertDetail />} />
-              <Route path="/expert-profile/:id" element={<ExpertProfile />} />
-              <Route path="/new" element={<NewQuestion />} />
-              <Route path="/messages" element={<Messages />} />
-              <Route path="/profile" element={<Profile />} />
-              <Route path="/edit-profile" element={<EditProfile />} />
-              <Route path="/skill-publish" element={<SkillPublish />} />
-              
-              {/* Profile sub-pages */}
-              <Route path="/profile/orders" element={<MyOrders />} />
-              <Route path="/profile/answers" element={<MyAnswers />} />
-              <Route path="/profile/favorites" element={<MyFavorites />} />
-              <Route path="/profile/following" element={<MyFollowing />} />
-              <Route path="/profile/earnings" element={<MyEarnings />} />
-              <Route path="/profile/community" element={<MyCommunity />} />
-              <Route path="/profile/drafts" element={<MyDrafts />} />
-              <Route path="/profile/talent-certification" element={<TalentCertification />} />
-              
-              {/* Settings sub-pages */}
-              <Route path="/settings/account" element={<AccountSecurity />} />
-              <Route path="/settings/general" element={<GeneralSettings />} />
-              <Route path="/settings/notifications" element={<NotificationSettings />} />
-              <Route path="/settings/privacy" element={<PrivacySettings />} />
-              <Route path="/settings/storage" element={<StorageSpace />} />
-              <Route path="/settings/content-preferences" element={<ContentPreferences />} />
-              <Route path="/settings/help" element={<HelpCenter />} />
-              <Route path="/settings/guidelines" element={<CommunityGuidelines />} />
-              <Route path="/settings/feedback" element={<ProductFeedback />} />
-              <Route path="/settings/about" element={<AboutUs />} />
-              <Route path="/settings/user-research" element={<UserResearch />} />
-              
-              <Route path="*" element={<NotFound />} />
-            </Routes>
+    <QueryClientProvider client={queryClient}>
+      <Router>
+        <AuthProvider>
+          <div className="app-wrapper w-full min-h-screen bg-muted">
+            <div className="app-container">
+              <Routes>
+                <Route path="/" element={<Index />} />
+                <Route path="/auth" element={<Auth />} />
+                <Route path="/discover" element={<Discover />} />
+                <Route path="/career" element={<CareerDevelopment />} />
+                <Route path="/education" element={<EducationLearning />} />
+                <Route path="/education/search" element={<EducationSearchResults />} />
+                <Route path="/search" element={<SearchResults />} />
+                <Route path="/lifestyle" element={<LifestyleServices />} />
+                <Route path="/hobbies" element={<HobbiesSkills />} />
+                <Route path="/city-selector" element={<CitySelector />} />
+                <Route path="/icons" element={<IconsPreview />} />
+                <Route path="/question/:id" element={<QuestionDetail />} />
+                <Route path="/expert/:id" element={<ExpertDetail />} />
+                <Route path="/expert-profile/:id" element={<ExpertProfile />} />
+                <Route path="/new" element={<NewQuestion />} />
+                <Route path="/messages" element={<Messages />} />
+                <Route path="/profile" element={<Profile />} />
+                <Route path="/edit-profile" element={<EditProfile />} />
+                <Route path="/skill-publish" element={<SkillPublish />} />
+                
+                {/* Profile sub-pages */}
+                <Route path="/profile/orders" element={<MyOrders />} />
+                <Route path="/profile/answers" element={<MyAnswers />} />
+                <Route path="/profile/favorites" element={<MyFavorites />} />
+                <Route path="/profile/following" element={<MyFollowing />} />
+                <Route path="/profile/earnings" element={<MyEarnings />} />
+                <Route path="/profile/community" element={<MyCommunity />} />
+                <Route path="/profile/drafts" element={<MyDrafts />} />
+                <Route path="/profile/talent-certification" element={<TalentCertification />} />
+                
+                {/* Settings sub-pages */}
+                <Route path="/settings/account" element={<AccountSecurity />} />
+                <Route path="/settings/general" element={<GeneralSettings />} />
+                <Route path="/settings/notifications" element={<NotificationSettings />} />
+                <Route path="/settings/privacy" element={<PrivacySettings />} />
+                <Route path="/settings/storage" element={<StorageSpace />} />
+                <Route path="/settings/content-preferences" element={<ContentPreferences />} />
+                <Route path="/settings/help" element={<HelpCenter />} />
+                <Route path="/settings/guidelines" element={<CommunityGuidelines />} />
+                <Route path="/settings/feedback" element={<ProductFeedback />} />
+                <Route path="/settings/about" element={<AboutUs />} />
+                <Route path="/settings/user-research" element={<UserResearch />} />
+                
+                <Route path="*" element={<NotFound />} />
+              </Routes>
+            </div>
           </div>
-        </div>
-        <Toaster />
-      </AuthProvider>
-    </Router>
+          <Toaster />
+        </AuthProvider>
+      </Router>
+    </QueryClientProvider>
   );
 }
 

@@ -1,0 +1,101 @@
+import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
+import { useToast } from '@/hooks/use-toast';
+
+interface UpdateProfileData {
+  nickname?: string;
+  bio?: string;
+  avatar_url?: string;
+}
+
+// Update profile mutation
+export const useUpdateProfile = () => {
+  const queryClient = useQueryClient();
+  const { user, refreshProfile } = useAuth();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (data: UpdateProfileData) => {
+      if (!user) throw new Error('请先登录');
+
+      const { data: profile, error } = await supabase
+        .from('profiles')
+        .update({
+          nickname: data.nickname,
+          bio: data.bio,
+          avatar_url: data.avatar_url,
+          updated_at: new Date().toISOString()
+        })
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return profile;
+    },
+    onSuccess: async () => {
+      await refreshProfile();
+      queryClient.invalidateQueries({ queryKey: ['profile'] });
+      toast({ title: '保存成功', description: '个人资料已更新' });
+    },
+    onError: (error: Error) => {
+      toast({ 
+        title: '保存失败', 
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
+  });
+};
+
+// Upload avatar mutation
+export const useUploadAvatar = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (file: File) => {
+      if (!user) throw new Error('请先登录');
+
+      // Validate file type
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+      if (!allowedTypes.includes(file.type)) {
+        throw new Error('请上传 JPG、PNG、GIF 或 WebP 格式的图片');
+      }
+
+      // Validate file size (max 2MB)
+      if (file.size > 2 * 1024 * 1024) {
+        throw new Error('图片大小不能超过 2MB');
+      }
+
+      // Generate unique filename
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
+
+      // Upload to storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file, {
+          cacheControl: '3600',
+          upsert: true
+        });
+
+      if (uploadError) throw uploadError;
+
+      // Get public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      return publicUrl;
+    },
+    onError: (error: Error) => {
+      toast({ 
+        title: '上传失败', 
+        description: error.message,
+        variant: 'destructive'
+      });
+    }
+  });
+};

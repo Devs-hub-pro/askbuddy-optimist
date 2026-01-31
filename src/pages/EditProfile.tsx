@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
   ArrowLeft, 
@@ -17,7 +17,8 @@ import {
   Edit,
   Calendar,
   Clock,
-  ChevronRight
+  ChevronRight,
+  Loader2
 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -42,14 +43,24 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { useAuth } from '@/contexts/AuthContext';
+import { useUpdateProfile, useUploadAvatar } from '@/hooks/useProfile';
+import { useToast } from '@/hooks/use-toast';
 
 const EditProfile = () => {
   const navigate = useNavigate();
+  const { user, profile, loading: authLoading } = useAuth();
+  const updateProfile = useUpdateProfile();
+  const uploadAvatar = useUploadAvatar();
+  const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const [avatarType, setAvatarType] = useState('image'); // 'image', 'gif', 'video'
-  const [avatarPreview, setAvatarPreview] = useState('https://randomuser.me/api/portraits/men/44.jpg');
+  const [avatarPreview, setAvatarPreview] = useState('');
   const [nameEdit, setNameEdit] = useState(false);
-  const [username, setUsername] = useState('张小明');
+  const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
+  const [hasChanges, setHasChanges] = useState(false);
   const [addEducationDialog, setAddEducationDialog] = useState(false);
   const [addWorkDialog, setAddWorkDialog] = useState(false);
   const [selectedTopics, setSelectedTopics] = useState([
@@ -58,6 +69,22 @@ const EditProfile = () => {
   const [recommendedTopics, setRecommendedTopics] = useState([
     '考研经验', '面试技巧', 'AI应用', '英语学习', '数据分析', '自媒体运营'
   ]);
+
+  // Load profile data
+  useEffect(() => {
+    if (profile) {
+      setUsername(profile.nickname || '');
+      setBio(profile.bio || '');
+      setAvatarPreview(profile.avatar_url || '');
+    }
+  }, [profile]);
+
+  // Redirect if not logged in
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [authLoading, user, navigate]);
   
   // Mock data
   const educationList = [
@@ -75,22 +102,99 @@ const EditProfile = () => {
     allowFollowers: true
   };
 
-  const addTopic = (topic) => {
+  const addTopic = (topic: string) => {
     if (!selectedTopics.includes(topic)) {
       setSelectedTopics([...selectedTopics, topic]);
       setRecommendedTopics(recommendedTopics.filter(t => t !== topic));
     }
   };
 
-  const removeTopic = (topic) => {
+  const removeTopic = (topic: string) => {
     setSelectedTopics(selectedTopics.filter(t => t !== topic));
     setRecommendedTopics([...recommendedTopics, topic]);
   };
 
+  // Handle avatar file selection
+  const handleAvatarClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      // Show preview immediately
+      const previewUrl = URL.createObjectURL(file);
+      setAvatarPreview(previewUrl);
+
+      // Upload to storage
+      const publicUrl = await uploadAvatar.mutateAsync(file);
+      
+      // Update profile with new avatar URL
+      await updateProfile.mutateAsync({ avatar_url: publicUrl });
+      setAvatarPreview(publicUrl);
+      setHasChanges(false);
+    } catch (error) {
+      // Revert preview on error
+      setAvatarPreview(profile?.avatar_url || '');
+    }
+  };
+
+  // Handle save
+  const handleSave = async () => {
+    try {
+      await updateProfile.mutateAsync({
+        nickname: username,
+        bio: bio
+      });
+      setHasChanges(false);
+      setNameEdit(false);
+    } catch (error) {
+      // Error handled in mutation
+    }
+  };
+
+  // Handle complete button
+  const handleComplete = async () => {
+    if (hasChanges) {
+      await handleSave();
+    }
+    navigate('/profile');
+  };
+
+  // Track changes
+  const handleNicknameChange = (value: string) => {
+    setUsername(value);
+    setHasChanges(value !== (profile?.nickname || ''));
+  };
+
+  const handleBioChange = (value: string) => {
+    setBio(value);
+    setHasChanges(value !== (profile?.bio || ''));
+  };
+
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
-    <div className="pb-6 min-h-screen bg-gray-50">
+    <div className="pb-6 min-h-screen bg-muted">
+      {/* Hidden file input */}
+      <input
+        type="file"
+        ref={fileInputRef}
+        onChange={handleFileChange}
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        className="hidden"
+      />
+
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-white flex items-center justify-between p-4 border-b">
+      <div className="sticky top-0 z-10 bg-background flex items-center justify-between p-4 border-b">
         <div className="flex items-center">
           <Button 
             variant="ghost" 
@@ -102,7 +206,15 @@ const EditProfile = () => {
           </Button>
           <h1 className="text-xl font-semibold">编辑个人资料</h1>
         </div>
-        <Button onClick={() => navigate('/profile')}>完成</Button>
+        <Button 
+          onClick={handleComplete}
+          disabled={updateProfile.isPending || uploadAvatar.isPending}
+        >
+          {(updateProfile.isPending || uploadAvatar.isPending) ? (
+            <Loader2 className="h-4 w-4 animate-spin mr-1" />
+          ) : null}
+          完成
+        </Button>
       </div>
 
       {/* Basic Information */}
@@ -149,8 +261,19 @@ const EditProfile = () => {
                         短视频
                       </Badge>
                     </div>
-                    <Button size="sm" variant="outline" className="text-xs">
-                      <Upload size={12} className="mr-1" /> 上传
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="text-xs"
+                      onClick={handleAvatarClick}
+                      disabled={uploadAvatar.isPending}
+                    >
+                      {uploadAvatar.isPending ? (
+                        <Loader2 size={12} className="mr-1 animate-spin" />
+                      ) : (
+                        <Upload size={12} className="mr-1" />
+                      )}
+                      上传
                     </Button>
                   </div>
                 </div>
@@ -166,9 +289,9 @@ const EditProfile = () => {
                     <div className="w-52">
                       <Input 
                         value={username} 
-                        onChange={(e) => setUsername(e.target.value)} 
+                        onChange={(e) => handleNicknameChange(e.target.value)} 
                         maxLength={20}
-                        className="border-app-blue text-right" 
+                        className="border-primary text-right" 
                       />
                       <div className="flex justify-end mt-1">
                         <span className="text-xs text-gray-500">
@@ -204,7 +327,7 @@ const EditProfile = () => {
                   className="resize-none"
                   maxLength={200}
                   value={bio}
-                  onChange={(e) => setBio(e.target.value)}
+                  onChange={(e) => handleBioChange(e.target.value)}
                 />
               </div>
               
@@ -213,7 +336,13 @@ const EditProfile = () => {
                   <Button variant="ghost" onClick={() => setNameEdit(false)} className="mr-2">
                     取消
                   </Button>
-                  <Button onClick={() => setNameEdit(false)}>保存</Button>
+                  <Button 
+                    onClick={handleSave}
+                    disabled={updateProfile.isPending}
+                  >
+                    {updateProfile.isPending && <Loader2 className="h-4 w-4 animate-spin mr-1" />}
+                    保存
+                  </Button>
                 </div>
               )}
             </div>

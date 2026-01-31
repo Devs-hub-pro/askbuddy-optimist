@@ -6,10 +6,13 @@ import CategorySection from '../components/CategorySection';
 import ActivityCard from '../components/ActivityCard';
 import QuestionCard from '../components/QuestionCard';
 import BottomNav from '../components/BottomNav';
-import { Sparkles, MessageSquare, Award, Clock, Package, Users } from 'lucide-react';
+import { Sparkles, MessageSquare, Award, Clock, Package, Users, Loader2 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import ExpertDetailDialog from '../components/ExpertDetailDialog';
+import { useQuestions } from '@/hooks/useQuestions';
+import { formatDistanceToNow } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 
 interface LocationState {
   location?: string;
@@ -20,19 +23,15 @@ const Index = () => {
   const navigate = useNavigate();
   const locationState = routeLocation.state as LocationState;
   
-  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>('everyone');
   const [currentLocation, setCurrentLocation] = useState<string>('深圳');
+  
+  // 使用真实数据
+  const { data: questions, isLoading } = useQuestions();
   
   useEffect(() => {
     const storedLocation = localStorage.getItem('currentLocation') || '深圳';
     setCurrentLocation(storedLocation);
-    
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    
-    return () => clearTimeout(timer);
   }, []);
   
   useEffect(() => {
@@ -53,51 +52,26 @@ const Index = () => {
       imageUrl: 'https://images.unsplash.com/photo-1523240795612-9a054b0db644?ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D&auto=format&fit=crop&w=400&h=225&q=80'
     }
   ];
-  
-  // 问题 mock 数据，增加更丰富的问题（以便测试弹窗内容多样性）
-  const questions = [
-    {
-      id: '1',
-      title: '高考填报志愿热门问题',
-      description: '面对众多院校和专业选择，如何根据自己的分数、兴趣做出最优选择？分享经验...',
-      asker: {
-        name: '李明',
-        avatar: 'https://randomuser.me/api/portraits/men/32.jpg'
-      },
-      time: '2小时前',
-      tags: ['高考', '志愿填报'],
-      points: 50,
-      viewCount: '2.5k',
-      answerName: '张老师',
-      answerAvatar: 'https://randomuser.me/api/portraits/women/32.jpg'
-    },
-    {
-      id: '2',
-      title: '留学申请的必备条件',
-      description: '想申请美国Top30名校研究生，除了GPA和语言成绩，还需要准备哪些材料？',
-      asker: {
-        name: '王芳',
-        avatar: 'https://randomuser.me/api/portraits/women/68.jpg'
-      },
-      time: '5小时前',
-      tags: ['留学', '申请'],
-      points: 30,
-      viewCount: '1.8k'
-    },
-    {
-      id: '3',
-      title: '如何选择最佳职业路径',
-      description: '毕业后是进国企还是私企？如何根据自身情况做出规划？',
-      asker: {
-        name: '张伟',
-        avatar: 'https://randomuser.me/api/portraits/men/44.jpg'
-      },
-      time: '1天前',
-      tags: ['职业发展', '路径选择'],
-      points: 40,
-      viewCount: '3.5k'
+
+  // 格式化时间
+  const formatTime = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { 
+        addSuffix: true, 
+        locale: zhCN 
+      });
+    } catch {
+      return '刚刚';
     }
-  ];
+  };
+
+  // 格式化浏览量
+  const formatViewCount = (count: number) => {
+    if (count >= 1000) {
+      return (count / 1000).toFixed(1) + 'k';
+    }
+    return count.toString();
+  };
 
   // Define multiple experts with different information
   const experts = [
@@ -252,18 +226,35 @@ const Index = () => {
         ) : (
           activeTab === 'everyone' ? (
             <div className="space-y-4">
-              {questions.map((question, index) => (
-                <div
-                  key={question.id}
-                  className="cursor-pointer"
-                  onClick={() => handleViewQuestionDetail(question.id)}
-                >
-                  <QuestionCard
-                    {...question}
-                    delay={0.4 + index * 0.1}
-                  />
+              {questions && questions.length > 0 ? (
+                questions.map((question, index) => (
+                  <div
+                    key={question.id}
+                    className="cursor-pointer"
+                    onClick={() => handleViewQuestionDetail(question.id)}
+                  >
+                    <QuestionCard
+                      id={question.id}
+                      title={question.title}
+                      description={question.content || undefined}
+                      asker={{
+                        name: question.profile_nickname || '匿名用户',
+                        avatar: question.profile_avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'
+                      }}
+                      time={formatTime(question.created_at)}
+                      tags={question.tags || []}
+                      points={question.bounty_points}
+                      viewCount={formatViewCount(question.view_count)}
+                      delay={0.4 + index * 0.1}
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="text-center py-12 text-muted-foreground">
+                  <p className="mb-2">暂无问题</p>
+                  <p className="text-sm">点击右下角"+"发布第一个问题吧</p>
                 </div>
-              ))}
+              )}
             </div>
           ) : (
             <div className="space-y-4">

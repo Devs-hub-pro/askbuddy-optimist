@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
@@ -12,7 +11,8 @@ import {
   Clock, 
   Info, 
   Coins,
-  X
+  X,
+  Loader2
 } from 'lucide-react';
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
@@ -41,6 +41,8 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer";
+import { useCreateQuestion } from '@/hooks/useQuestions';
+import { useAuth } from '@/contexts/AuthContext';
 
 // Define categories with emojis
 const categories = [
@@ -81,14 +83,17 @@ const timeSlots = [
 
 const NewQuestion: React.FC = () => {
   const navigate = useNavigate();
+  const { user, profile } = useAuth();
+  const createQuestion = useCreateQuestion();
+  
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedTags, setSelectedTags] = useState<string[]>([]);
   const [customTag, setCustomTag] = useState('');
   const [pointReward, setPointReward] = useState('10');
   const [flexibleTime, setFlexibleTime] = useState(true);
   const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([]);
-  const [submitted, setSubmitted] = useState(false);
   const [titleFocused, setTitleFocused] = useState(false);
   const [suggestedTags, setSuggestedTags] = useState<string[]>(['留学', '职场', '考研']);
   const [attachments, setAttachments] = useState<File[]>([]);
@@ -208,7 +213,17 @@ const NewQuestion: React.FC = () => {
   };
   
   // Handle form submission
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
+    if (!user) {
+      toast({
+        title: "请先登录",
+        description: "登录后才能发布问题",
+        variant: "destructive"
+      });
+      navigate('/auth');
+      return;
+    }
+
     if (!title.trim()) {
       toast({
         title: "请输入问题标题",
@@ -227,18 +242,18 @@ const NewQuestion: React.FC = () => {
       return;
     }
     
-    // Simulate successful submission
-    setSubmitted(true);
-    
-    toast({
-      title: "提问成功！",
-      description: "您的问题已发布，等待回答",
+    // 提交到数据库
+    createQuestion.mutate({
+      title: title.trim(),
+      content: description.trim() || undefined,
+      category: selectedCategory || undefined,
+      tags: selectedTags,
+      bounty_points: parseInt(pointReward) || 0
+    }, {
+      onSuccess: () => {
+        navigate('/');
+      }
     });
-    
-    // Navigate back after successful submission
-    setTimeout(() => {
-      navigate('/discover');
-    }, 1500);
   };
   
   // Save as draft
@@ -638,10 +653,17 @@ const NewQuestion: React.FC = () => {
       <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t flex justify-center">
         <Button 
           onClick={handleSubmit}
-          disabled={submitted}
+          disabled={createQuestion.isPending}
           className="w-full bg-app-teal hover:bg-app-teal/90 text-white font-medium py-5 rounded-full flex items-center justify-center shadow-lg"
         >
-          {submitted ? '发布中...' : '立即发布问题'}
+          {createQuestion.isPending ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              发布中...
+            </>
+          ) : (
+            '立即发布问题'
+          )}
         </Button>
       </div>
     </div>

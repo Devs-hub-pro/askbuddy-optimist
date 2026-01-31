@@ -1,6 +1,5 @@
 
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import { useSwipeBack } from "./hooks/useSwipeBack";
 import { AuthProvider } from "./contexts/AuthContext";
 import Index from "./pages/Index";
 import Discover from "./pages/Discover";
@@ -24,12 +23,6 @@ import SkillPublish from "./pages/SkillPublish";
 import Auth from "./pages/Auth";
 import { Toaster } from "@/components/ui/toaster";
 import "./App.css";
-
-// 右滑返回组件
-function SwipeBackHandler() {
-  useSwipeBack({ threshold: 80 });
-  return null;
-}
 
 // Profile sub-pages
 import MyOrders from "./pages/profile/MyOrders";
@@ -56,9 +49,8 @@ import UserResearch from "./pages/settings/UserResearch";
 
 function App() {
   return (
-    <AuthProvider>
-      <Router>
-        <SwipeBackHandler />
+    <Router>
+      <AuthProvider>
         <div className="app-wrapper w-full min-h-screen bg-muted">
           <div className="app-container">
             <Routes>
@@ -110,8 +102,8 @@ function App() {
           </div>
         </div>
         <Toaster />
-      </Router>
-    </AuthProvider>
+      </AuthProvider>
+    </Router>
   );
 }
 

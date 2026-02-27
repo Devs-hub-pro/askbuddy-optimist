@@ -525,16 +525,11 @@ const SearchResults = () => {
                   
                   <div className="space-y-3">
                     {searchResults.questions.slice(0, 3).map(question => (
-                      <div
+                      <QuestionCard
                         key={question.id}
-                        onClick={() => handleViewQuestionDetail(question.id)}
-                        className="cursor-pointer"
-                      >
-                        <QuestionCard
-                          {...question}
-                          delay={0}
-                        />
-                      </div>
+                        {...question}
+                        delay={0}
+                      />
                     ))}
                   </div>
                 </div>
@@ -588,16 +583,11 @@ const SearchResults = () => {
             <TabsContent value="questions" className="mt-0">
               <div className="space-y-3">
                 {searchResults.questions.map(question => (
-                  <div
+                  <QuestionCard
                     key={question.id}
-                    onClick={() => handleViewQuestionDetail(question.id)}
-                    className="cursor-pointer"
-                  >
-                    <QuestionCard
-                      {...question}
-                      delay={0}
-                    />
-                  </div>
+                    {...question}
+                    delay={0}
+                  />
                 ))}
               </div>
             </TabsContent>
@@ -656,16 +646,11 @@ const SearchResults = () => {
               <h3 className="text-base font-semibold mb-3">热门问题</h3>
               <div className="space-y-3">
                 {allQuestions.slice(0, 3).map(question => (
-                  <div
+                  <QuestionCard
                     key={question.id}
-                    onClick={() => handleViewQuestionDetail(question.id)}
-                    className="cursor-pointer"
-                  >
-                    <QuestionCard
-                      {...question}
-                      delay={0}
-                    />
-                  </div>
+                    {...question}
+                    delay={0}
+                  />
                 ))}
               </div>
             </div>

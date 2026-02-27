@@ -108,26 +108,31 @@ const ChatDetail: React.FC = () => {
       </div>
 
       {/* Input */}
-      <div className="sticky bottom-0 bg-white border-t border-gray-200 px-3 py-2 flex items-center gap-2" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}>
-        <button className="text-gray-400 p-1.5">
+      <div className="sticky bottom-0 bg-background border-t border-border px-3 py-2 flex items-center gap-2" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}>
+        <button className="text-muted-foreground p-1.5">
           <Smile size={22} />
         </button>
         <input
-          className="flex-1 bg-gray-100 rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-app-teal/50"
+          className="flex-1 bg-muted rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
           placeholder="输入消息..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
         />
-        <button className="text-gray-400 p-1.5">
+        <button className="text-muted-foreground p-1.5">
           <Image size={22} />
         </button>
         <button 
-          className={`p-2 rounded-full transition-colors ${inputValue.trim() ? 'bg-app-teal text-white' : 'bg-gray-100 text-gray-400'}`}
+          className={`flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+            inputValue.trim() 
+              ? 'bg-primary text-primary-foreground shadow-sm active:scale-95' 
+              : 'bg-muted text-muted-foreground'
+          }`}
           onClick={handleSend}
           disabled={!inputValue.trim()}
         >
-          <Send size={18} />
+          <Send size={16} />
+          <span>发送</span>
         </button>
       </div>
     </div>

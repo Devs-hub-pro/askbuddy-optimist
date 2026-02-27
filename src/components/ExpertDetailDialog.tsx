@@ -39,7 +39,9 @@ interface ExpertDetailProps {
   education?: string[];
   experience?: string[];
   verified?: boolean;
-  children: React.ReactNode;
+  children?: React.ReactNode;
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
 }
 
 const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
@@ -56,7 +58,9 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
   education = ['北京大学 | 硕士'],
   experience = ['某知名互联网公司 | 产品经理'],
   verified = true,
-  children
+  children,
+  open,
+  onOpenChange
 }) => {
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [selectedConsultType, setSelectedConsultType] = useState<'text' | 'voice' | 'video'>('text');
@@ -66,10 +70,12 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
   };
 
   return (
-    <Dialog>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      {children && (
+        <DialogTrigger asChild>
+          {children}
+        </DialogTrigger>
+      )}
       
       <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
         <DialogHeader>

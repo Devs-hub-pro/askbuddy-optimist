@@ -28,6 +28,7 @@ const Index = () => {
   
   const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>('everyone');
   const [currentLocation, setCurrentLocation] = useState<string>('深圳');
+  const [selectedExpert, setSelectedExpert] = useState<any | null>(null);
   
   // 使用真实数据
   const { data: questions, isLoading } = useQuestions();
@@ -316,17 +317,16 @@ const Index = () => {
                       {expert.description}
                     </p>
                     
-                    <ExpertDetailDialog {...expert}>
-                      <Button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                        className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-2.5 py-1 rounded-full text-xs flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 h-auto"
-                      >
-                        <MessageSquare size={10} />
-                        找我问问
-                      </Button>
-                    </ExpertDetailDialog>
+                    <Button 
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedExpert(expert);
+                      }}
+                      className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-2.5 py-1 rounded-full text-xs flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 h-auto"
+                    >
+                      <MessageSquare size={10} />
+                      找我问问
+                    </Button>
                   </div>
                   
                   <div className="flex flex-wrap gap-1.5 mt-2">
@@ -343,6 +343,14 @@ const Index = () => {
         )}
       </div>
       
+      {selectedExpert && (
+        <ExpertDetailDialog 
+          {...selectedExpert}
+          open={!!selectedExpert}
+          onOpenChange={(open) => { if (!open) setSelectedExpert(null); }}
+        />
+      )}
+
       <BottomNav />
     </div>
   );

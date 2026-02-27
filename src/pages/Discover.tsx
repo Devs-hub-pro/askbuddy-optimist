@@ -211,7 +211,7 @@ const Discover: React.FC = () => {
   };
   
   return (
-    <div className="pb-20 bg-gray-50 min-h-screen">
+    <div className="pb-16 bg-gray-50 min-h-screen">
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'following' | 'recommended' | 'local')} className="w-full">
         {/* Redesigned Header with improved tab styling */}
         <div className="sticky top-0 z-10 bg-app-teal shadow-md" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
@@ -281,15 +281,8 @@ const Discover: React.FC = () => {
         </TabsContent>
       </Tabs>
       
-      {/* Enhanced Post Creation Dialog with tags and emoji support */}
+      {/* Post Creation Dialog */}
       <Dialog open={isPostDialogOpen} onOpenChange={setIsPostDialogOpen}>
-        <DialogTrigger asChild>
-          <Button 
-            className="fixed bottom-20 right-5 w-14 h-14 rounded-full bg-app-teal shadow-lg hover:bg-app-teal/90 hover:shadow-xl transition-all duration-300 flex items-center justify-center transform hover:scale-105"
-          >
-            <Plus className="h-6 w-6 text-white" />
-          </Button>
-        </DialogTrigger>
         <DialogContent className="bg-white/95 backdrop-blur-md border border-gray-200 rounded-xl max-w-md w-full mx-auto">
           <DialogHeader>
             <DialogTitle className="text-center text-lg font-bold">发布动态</DialogTitle>

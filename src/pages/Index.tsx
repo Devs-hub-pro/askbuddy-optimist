@@ -127,10 +127,10 @@ const Index = () => {
   };
 
   return (
-    <div className="app-container bg-gradient-to-b from-white to-blue-50/30 pb-20">
+    <div className="app-container bg-gradient-to-b from-white to-blue-50/30 pb-16">
       <Navbar location={currentLocation} />
       
-      <div className="px-4 py-6 bg-app-light-bg animate-fade-in">
+      <div className="py-4 bg-app-light-bg animate-fade-in">
         <SearchBar />
       </div>
       

@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { Image, Video, Heart, MessageCircle, Share2, Bell, SmilePlus, Hash, Send, Loader2 } from 'lucide-react';
+import { Image, Video, Heart, MessageCircle, Share2, Bell, SmilePlus, Hash, Send, Loader2, X, MapPin } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -10,6 +10,9 @@ import { Badge } from "@/components/ui/badge";
 import { Input } from '@/components/ui/input';
 import BottomNav from '../components/BottomNav';
 import { usePosts, usePostComments, useTogglePostLike, useCreatePost, useAddComment, PostWithProfile } from '@/hooks/usePosts';
+import { useFollowingPosts } from '@/hooks/useFollowingPosts';
+import { useLocalPosts } from '@/hooks/useLocalPosts';
+import { useUploadPostMedia } from '@/hooks/usePostMediaUpload';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
@@ -26,8 +29,10 @@ interface RecommendationCard {
 const Discover: React.FC = () => {
   const [activeTab, setActiveTab] = useState<'following' | 'recommended' | 'local'>('recommended');
   const [showNotification, setShowNotification] = useState(true);
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
   const { data: posts, isLoading } = usePosts();
+  const { data: followingPosts, isLoading: followingLoading } = useFollowingPosts();
+  const { data: localPosts, isLoading: localLoading } = useLocalPosts();
 
   const recommendationCards: RecommendationCard[] = [
     { id: '1', title: '职场吐槽', description: '领导又开始画饼了，干还是不干？', imageUrl: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=300&h=150&auto=format&fit=crop', bgColor: 'bg-gradient-to-br from-purple-500 to-indigo-600' },
@@ -42,17 +47,40 @@ const Discover: React.FC = () => {
   const [newPostTags, setNewPostTags] = useState<string[]>([]);
   const [newTagInput, setNewTagInput] = useState('');
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
+  const [selectedImages, setSelectedImages] = useState<File[]>([]);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const imageInputRef = useRef<HTMLInputElement>(null);
   const createPost = useCreatePost();
+  const uploadMedia = useUploadPostMedia();
 
   const sampleEmojis = ['😊', '😂', '😍', '🤔', '👍', '🎉', '❤️', '😭', '🔥', '✨', '🙏', '👏', '🌹', '🤗', '😁'];
 
   const handleCreatePost = async () => {
     if (!newPostContent.trim()) return;
-    await createPost.mutateAsync({ content: newPostContent, topics: newPostTags });
+    let imageUrls: string[] = [];
+    if (selectedImages.length > 0) {
+      imageUrls = await uploadMedia.mutateAsync(selectedImages);
+    }
+    await createPost.mutateAsync({ content: newPostContent, topics: newPostTags, images: imageUrls });
     setIsPostDialogOpen(false);
     setNewPostContent('');
     setNewPostTags([]);
     setNewTagInput('');
+    setSelectedImages([]);
+    setImagePreviews([]);
+  };
+
+  const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from(e.target.files || []);
+    if (files.length + selectedImages.length > 9) return;
+    setSelectedImages(prev => [...prev, ...files]);
+    const previews = files.map(f => URL.createObjectURL(f));
+    setImagePreviews(prev => [...prev, ...previews]);
+  };
+
+  const removeImage = (index: number) => {
+    setSelectedImages(prev => prev.filter((_, i) => i !== index));
+    setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleAddTag = () => {
@@ -70,7 +98,7 @@ const Discover: React.FC = () => {
     }
   };
 
-  const filteredPosts = posts || [];
+  
 
   return (
     <div className="pb-16 bg-muted min-h-screen">
@@ -97,16 +125,51 @@ const Discover: React.FC = () => {
           </div>
         </div>
 
-        {(['following', 'recommended', 'local'] as const).map(tab => (
-          <TabsContent key={tab} value={tab} className="mt-0 p-0">
+        {/* Following tab */}
+        <TabsContent key="following" value="following" className="mt-0 p-0">
+          {!user ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <p className="mb-2">请先登录查看关注动态</p>
+            </div>
+          ) : (
             <DiscoverFeed
-              recommendationCards={tab === 'local' ? recommendationCards.filter((_, i) => i % 2 === 1) : recommendationCards}
-              posts={filteredPosts}
-              isLoading={isLoading}
+              recommendationCards={[]}
+              posts={followingPosts || []}
+              isLoading={followingLoading}
               formatTime={formatTime}
+              emptyText="暂无关注用户的动态，去关注感兴趣的人吧"
             />
-          </TabsContent>
-        ))}
+          )}
+        </TabsContent>
+
+        {/* Recommended tab */}
+        <TabsContent key="recommended" value="recommended" className="mt-0 p-0">
+          <DiscoverFeed
+            recommendationCards={recommendationCards}
+            posts={posts || []}
+            isLoading={isLoading}
+            formatTime={formatTime}
+          />
+        </TabsContent>
+
+        {/* Local tab */}
+        <TabsContent key="local" value="local" className="mt-0 p-0">
+          {!profile?.city ? (
+            <div className="text-center py-12 text-muted-foreground">
+              <MapPin size={48} className="mx-auto mb-3 text-muted-foreground/50" />
+              <p className="mb-2">请先设置您的城市</p>
+              <p className="text-sm mb-4">设置城市后可查看同城动态</p>
+            </div>
+          ) : (
+            <DiscoverFeed
+              recommendationCards={recommendationCards.filter((_, i) => i % 2 === 1)}
+              posts={localPosts || []}
+              isLoading={localLoading}
+              formatTime={formatTime}
+              emptyText={`暂无"${profile.city}"的同城动态`}
+            />
+          )}
+        </TabsContent>
       </Tabs>
 
       {/* Post Creation Dialog */}
@@ -153,14 +216,39 @@ const Discover: React.FC = () => {
                 </div>
               )}
             </div>
+            {/* Image previews */}
+            {imagePreviews.length > 0 && (
+              <div className="grid grid-cols-3 gap-2">
+                {imagePreviews.map((src, i) => (
+                  <div key={i} className="relative aspect-square rounded-lg overflow-hidden bg-muted">
+                    <img src={src} alt="" className="w-full h-full object-cover" />
+                    <button
+                      className="absolute top-1 right-1 w-5 h-5 bg-black/50 rounded-full flex items-center justify-center"
+                      onClick={() => removeImage(i)}
+                    >
+                      <X size={12} className="text-white" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
+            <input
+              ref={imageInputRef}
+              type="file"
+              accept="image/*"
+              multiple
+              className="hidden"
+              onChange={handleImageSelect}
+            />
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="flex gap-1 rounded-full"><Image size={18} /> 添加图片</Button>
-              <Button variant="outline" size="sm" className="flex gap-1 rounded-full"><Video size={18} /> 添加视频</Button>
+              <Button variant="outline" size="sm" className="flex gap-1 rounded-full" onClick={() => imageInputRef.current?.click()}>
+                <Image size={18} /> 添加图片 {selectedImages.length > 0 && `(${selectedImages.length})`}
+              </Button>
             </div>
             <div className="pt-2 flex justify-end">
-              <Button className="bg-primary hover:bg-primary/90 rounded-full" onClick={handleCreatePost} disabled={createPost.isPending || !newPostContent.trim()}>
-                {createPost.isPending ? <Loader2 size={16} className="animate-spin mr-1" /> : null}
-                发布
+              <Button className="bg-primary hover:bg-primary/90 rounded-full" onClick={handleCreatePost} disabled={createPost.isPending || uploadMedia.isPending || !newPostContent.trim()}>
+                {(createPost.isPending || uploadMedia.isPending) ? <Loader2 size={16} className="animate-spin mr-1" /> : null}
+                {uploadMedia.isPending ? '上传中...' : '发布'}
               </Button>
             </div>
           </div>
@@ -187,9 +275,10 @@ interface DiscoverFeedProps {
   posts: PostWithProfile[];
   isLoading: boolean;
   formatTime: (d: string) => string;
+  emptyText?: string;
 }
 
-const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts, isLoading, formatTime }) => {
+const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts, isLoading, formatTime, emptyText }) => {
   const [expandedComments, setExpandedComments] = useState<{ [key: string]: boolean }>({});
   const [commentInputs, setCommentInputs] = useState<{ [key: string]: string }>({});
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
@@ -247,7 +336,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
           ))
         ) : posts.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
-            <p className="mb-2">暂无动态</p>
+            <p className="mb-2">{emptyText || '暂无动态'}</p>
             <p className="text-sm">快来发布第一条动态吧</p>
           </div>
         ) : (

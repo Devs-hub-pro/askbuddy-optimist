@@ -41,8 +41,11 @@ const ChangePassword = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b">
+    <div className="min-h-[100dvh] bg-muted">
+      <div 
+        className="sticky top-0 z-10 bg-background flex items-center p-4 border-b"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}
+      >
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="mr-2">
           <ArrowLeft size={24} />
         </Button>

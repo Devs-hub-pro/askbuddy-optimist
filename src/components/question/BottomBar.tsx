@@ -12,9 +12,12 @@ interface BottomBarProps {
 const BottomBar: React.FC<BottomBarProps> = ({
   onAnswer, onInvite, loading
 }) => (
-  <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex gap-3 z-40">
+  <div 
+    className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-3 flex gap-3 z-40"
+    style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
+  >
     <Button
-      className="flex-1 bg-gradient-to-r from-blue-500 to-app-blue animate-pulse-soft"
+      className="flex-1 bg-gradient-to-r from-blue-500 to-primary"
       onClick={onAnswer}
       aria-label="我来回答"
       disabled={loading}

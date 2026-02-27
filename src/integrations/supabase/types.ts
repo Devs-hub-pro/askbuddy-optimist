@@ -712,6 +712,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      recharge_points: {
+        Args: { p_amount: number; p_payment_method?: string }
+        Returns: undefined
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
     }

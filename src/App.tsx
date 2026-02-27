@@ -40,6 +40,7 @@ import MyEarnings from "./pages/profile/MyEarnings";
 import MyCommunity from "./pages/profile/MyCommunity";
 import MyDrafts from "./pages/profile/MyDrafts";
 import TalentCertification from "./pages/profile/TalentCertification";
+import PointsRecharge from "./pages/profile/PointsRecharge";
 
 // Settings sub-pages
 import AccountSecurity from "./pages/settings/AccountSecurity";
@@ -95,6 +96,7 @@ function App() {
                 <Route path="/profile/community" element={<MyCommunity />} />
                 <Route path="/profile/drafts" element={<MyDrafts />} />
                 <Route path="/profile/talent-certification" element={<TalentCertification />} />
+                <Route path="/profile/recharge" element={<PointsRecharge />} />
                 
                 {/* Settings sub-pages */}
                 <Route path="/settings/account" element={<AccountSecurity />} />

@@ -28,6 +28,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import SearchBar from "@/components/SearchBar";
 import QuestionCard from '@/components/QuestionCard';
 import { useQuestions } from '@/hooks/useQuestions';
+import { useExperts } from '@/hooks/useExperts';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 
@@ -38,6 +39,7 @@ const CareerDevelopment = () => {
   const [showRightIndicator, setShowRightIndicator] = useState(false);
   
   const { data: questions, isLoading } = useQuestions('职业发展');
+  const { data: dbExperts, isLoading: isLoadingExperts } = useExperts('职业发展');
 
   const formatTime = (dateString: string) => {
     try {
@@ -174,9 +176,16 @@ const CareerDevelopment = () => {
     }
   ];
 
-  const filteredExperts = activeCategory === 'all' 
-    ? allExperts 
-    : allExperts.filter(expert => expert.category === activeCategory);
+  const mappedDbExperts = (dbExperts || []).map(e => ({
+    id: e.id, name: e.nickname || '专家', avatar: e.avatar_url || 'https://randomuser.me/api/portraits/lego/1.jpg',
+    title: e.title, description: e.bio || '', tags: e.tags,
+    keywords: e.keywords, category: e.category || '',
+    rating: Number(e.rating), responseRate: `${e.response_rate}%`, orderCount: `${e.order_count}单`,
+  }));
+
+  const filteredExperts = mappedDbExperts.length > 0 ? mappedDbExperts : (
+    activeCategory === 'all' ? allExperts : allExperts.filter(expert => expert.category === activeCategory)
+  );
 
   const filteredQuestions = questions || [];
 

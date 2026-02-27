@@ -10,6 +10,7 @@ interface Profile {
   bio: string | null;
   phone: string | null;
   points_balance: number;
+  city: string | null;
 }
 
 interface AuthContextType {

@@ -416,23 +416,18 @@ const EducationLearning = () => {
             ) : (
               <div className="space-y-4">
                 {filteredQuestions.map((question, index) => (
-                  <div 
-                    key={question.id} 
-                    className="cursor-pointer" 
-                    onClick={() => handleViewQuestionDetail(question.id)}
-                  >
-                    <QuestionCard
-                      id={question.id}
-                      title={question.title}
-                      description={question.description}
-                      asker={question.asker}
-                      time={question.time}
-                      tags={question.tags}
-                      points={question.points}
-                      viewCount={question.viewCount}
-                      delay={0.3 + index * 0.1}
-                    />
-                  </div>
+                  <QuestionCard
+                    key={question.id}
+                    id={question.id}
+                    title={question.title}
+                    description={question.description}
+                    asker={question.asker}
+                    time={question.time}
+                    tags={question.tags}
+                    points={question.points}
+                    viewCount={question.viewCount}
+                    delay={0.3 + index * 0.1}
+                  />
                 ))}
               </div>
             )}

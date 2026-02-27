@@ -452,10 +452,11 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
       {/* Smaller recommendation cards with enhanced design */}
       <div className="px-4 py-3 bg-white">
         <div className="overflow-x-auto flex space-x-3 pb-2 scrollbar-hide">
-          {recommendationCards.map(card => (
+          {recommendationCards.map((card, index) => (
             <div 
               key={card.id} 
-              className={`flex-shrink-0 w-28 h-28 rounded-xl overflow-hidden shadow-md ${card.bgColor} relative hover:scale-105 transition-transform duration-200 animate-fade-in`}
+              className={`flex-shrink-0 w-28 h-28 rounded-xl overflow-hidden shadow-md ${card.bgColor} relative hover:scale-105 transition-transform duration-200 opacity-0 animate-slide-in-left`}
+              style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'forwards' }}
             >
               <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent"></div>
               <div className="h-full flex flex-col justify-between p-2 relative z-10">
@@ -475,10 +476,11 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
       
       {/* Posts Feed with user tags */}
       <div className="space-y-3 mt-3 px-3">
-        {posts.map(post => (
+        {posts.map((post, index) => (
           <div 
             key={post.id} 
-            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 animate-fade-in"
+            className="bg-white p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 opacity-0 animate-slide-up"
+            style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'forwards' }}
           >
             {/* Author info with user tags */}
             <div className="flex items-start mb-3">

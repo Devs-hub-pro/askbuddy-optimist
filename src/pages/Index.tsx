@@ -156,12 +156,13 @@ const Index = () => {
               <div
                 key={topic.id}
                 onClick={() => navigate(`/topic/${topic.id}`)}
-                className="cursor-pointer shrink-0 w-40 snap-start"
+                className="cursor-pointer shrink-0 w-40 snap-start opacity-0 animate-slide-in-left"
+                style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'forwards' }}
               >
                 <ActivityCard
                   title={topic.title}
                   imageUrl={topic.cover_image || `https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=400&h=225&q=80`}
-                  delay={0.3 + index * 0.1}
+                  delay={0}
                   discussionCount={topic.discussions_count}
                   compact
                 />
@@ -260,7 +261,8 @@ const Index = () => {
                 questions.map((question, index) => (
                   <div
                     key={question.id}
-                    className="cursor-pointer"
+                    className="cursor-pointer opacity-0 animate-slide-up"
+                    style={{ animationDelay: `${index * 60}ms`, animationFillMode: 'forwards' }}
                     onClick={() => handleViewQuestionDetail(question.id)}
                   >
                     <QuestionCard

@@ -94,7 +94,7 @@ const Messages = () => {
   return (
     <div className="min-h-[100dvh] bg-muted pb-16">
       {/* Header */}
-      <div className="fixed top-0 left-0 right-0 z-10 bg-primary shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <div className="sticky top-0 z-10 bg-primary shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="pt-2 pb-2">
           <div className="flex justify-between items-center px-4">
             <div className="flex space-x-8">
@@ -160,7 +160,7 @@ const Messages = () => {
       </div>
 
       {/* Content */}
-      <div style={{ paddingTop: showSearch ? '8rem' : '4rem' }}>
+      <div>
         {/* Chats tab */}
         {activeTab === 'chats' && (
           <div>

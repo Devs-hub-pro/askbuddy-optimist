@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Wallet, DollarSign, Loader2 } from 'lucide-react';
+import { ArrowLeft, Wallet, DollarSign, Loader2, Coins } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import BottomNav from '@/components/BottomNav';
@@ -41,6 +41,15 @@ const MyEarnings = () => {
               <span className="text-3xl font-bold">{profile?.points_balance || 0}</span>
               <span className="text-white/70 mb-1">积分</span>
             </div>
+            <Button
+              variant="secondary"
+              size="sm"
+              className="rounded-full"
+              onClick={() => navigate('/profile/recharge')}
+            >
+              <Coins size={14} className="mr-1" />
+              充值积分
+            </Button>
           </CardContent>
         </Card>
       </div>

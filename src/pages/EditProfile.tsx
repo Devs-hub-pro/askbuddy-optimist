@@ -60,6 +60,7 @@ const EditProfile = () => {
   const [nameEdit, setNameEdit] = useState(false);
   const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
+  const [city, setCity] = useState('');
   const [hasChanges, setHasChanges] = useState(false);
   const [addEducationDialog, setAddEducationDialog] = useState(false);
   const [addWorkDialog, setAddWorkDialog] = useState(false);
@@ -75,6 +76,7 @@ const EditProfile = () => {
     if (profile) {
       setUsername(profile.nickname || '');
       setBio(profile.bio || '');
+      setCity((profile as any).city || '');
       setAvatarPreview(profile.avatar_url || '');
     }
   }, [profile]);
@@ -144,10 +146,12 @@ const EditProfile = () => {
   // Handle save
   const handleSave = async () => {
     try {
-      await updateProfile.mutateAsync({
+      const updateData: Record<string, any> = {
         nickname: username,
-        bio: bio
-      });
+        bio: bio,
+        city: city,
+      };
+      await updateProfile.mutateAsync(updateData);
       setHasChanges(false);
       setNameEdit(false);
     } catch (error) {
@@ -329,6 +333,20 @@ const EditProfile = () => {
                   value={bio}
                   onChange={(e) => handleBioChange(e.target.value)}
                 />
+              </div>
+
+              <Separator />
+
+              {/* City Section */}
+              <div className="flex items-center justify-between">
+                <Label className="font-medium">所在城市</Label>
+                <div className="w-52">
+                  <Input
+                    placeholder="请输入城市名称"
+                    value={city}
+                    onChange={(e) => { setCity(e.target.value); setHasChanges(true); }}
+                  />
+                </div>
               </div>
               
               {nameEdit && (

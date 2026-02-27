@@ -1,11 +1,13 @@
 import React, { useState, useRef } from 'react';
 import { ArrowLeft, Search, Settings, Check, Pin, Archive, Trash2, MessageCircle, Bell, CheckCircle, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 
 const Messages = () => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState<'chats' | 'notifications'>('chats');
   const [showSearch, setShowSearch] = useState(false);
@@ -450,11 +452,8 @@ const Messages = () => {
 
   // Handler for chat item click
   const handleChatClick = (id: string) => {
-    // In a real app, navigate to chat detail
-    console.log(`Navigate to chat ${id}`);
-    
-    // Mark as read when opening
     markChatAsRead(id);
+    navigate(`/chat/${id}`);
   };
 
   // Handler for notification click
@@ -548,8 +547,8 @@ const Messages = () => {
   return (
     <div className="min-h-screen bg-gray-50 pb-20">
       {/* Header with tabs */}
-      <div className="fixed top-0 left-0 right-0 z-10 bg-app-blue shadow-sm">
-        <div className="pt-12 pb-2">
+      <div className="fixed top-0 left-0 right-0 z-10 bg-app-blue shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <div className="pt-2 pb-2">
           <div className="flex justify-between items-center px-4">
             <div className="flex space-x-8">
               <div 

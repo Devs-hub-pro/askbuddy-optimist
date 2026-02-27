@@ -46,11 +46,28 @@ const ChatDetail: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const [messages, setMessages] = useState(chatData[chatId || '']?.messages || []);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
   const chat = chatData[chatId || ''];
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Handle visual viewport resize (keyboard open/close) on mobile
+  useEffect(() => {
+    const vv = window.visualViewport;
+    if (!vv) return;
+
+    const onResize = () => {
+      // Scroll to bottom when keyboard appears
+      setTimeout(() => {
+        messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+      }, 100);
+    };
+
+    vv.addEventListener('resize', onResize);
+    return () => vv.removeEventListener('resize', onResize);
+  }, []);
 
   const handleSend = () => {
     if (!inputValue.trim()) return;
@@ -62,6 +79,8 @@ const ChatDetail: React.FC = () => {
     };
     setMessages(prev => [...prev, newMessage]);
     setInputValue('');
+    // Keep focus on input after sending
+    inputRef.current?.focus();
   };
 
   if (!chat) {
@@ -73,11 +92,11 @@ const ChatDetail: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col">
-      {/* Header */}
-      <div className="sticky top-0 z-50 bg-app-teal shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+    <div className="h-[100dvh] bg-muted flex flex-col overflow-hidden">
+      {/* Header - fixed */}
+      <div className="flex-shrink-0 bg-primary shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex items-center h-12 px-4">
-          <button onClick={() => navigate(-1)} className="text-white p-1 -ml-1">
+          <button onClick={() => navigate(-1)} className="text-primary-foreground p-1 -ml-1">
             <ChevronLeft size={24} />
           </button>
           <div className="flex items-center ml-2 gap-2">
@@ -85,45 +104,50 @@ const ChatDetail: React.FC = () => {
               <AvatarImage src={chat.avatar} alt={chat.name} />
               <AvatarFallback>{chat.name.charAt(0)}</AvatarFallback>
             </Avatar>
-            <span className="text-white font-medium">{chat.name}</span>
+            <span className="text-primary-foreground font-medium">{chat.name}</span>
           </div>
         </div>
       </div>
 
-      {/* Messages */}
+      {/* Messages - scrollable area */}
       <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
         {messages.map((msg) => (
           <div key={msg.id} className={`flex ${msg.fromMe ? 'justify-end' : 'justify-start'}`}>
             <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${
               msg.fromMe 
-                ? 'bg-app-teal text-white rounded-br-md' 
-                : 'bg-white text-gray-800 rounded-bl-md shadow-sm'
+                ? 'bg-primary text-primary-foreground rounded-br-md' 
+                : 'bg-background text-foreground rounded-bl-md shadow-sm'
             }`}>
               <p>{msg.content}</p>
-              <p className={`text-[10px] mt-1 ${msg.fromMe ? 'text-white/70' : 'text-gray-400'}`}>{msg.time}</p>
+              <p className={`text-[10px] mt-1 ${msg.fromMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>{msg.time}</p>
             </div>
           </div>
         ))}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
-      <div className="sticky bottom-0 bg-background border-t border-border px-3 py-2 flex items-center gap-2" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 8px)' }}>
-        <button className="text-muted-foreground p-1.5">
+      {/* Input - fixed at bottom */}
+      <div 
+        className="flex-shrink-0 bg-background border-t border-border px-3 py-2 flex items-center gap-2"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 4px)' }}
+      >
+        <button className="flex-shrink-0 text-muted-foreground p-1">
           <Smile size={22} />
         </button>
         <input
-          className="flex-1 bg-muted rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
+          ref={inputRef}
+          className="flex-1 min-w-0 bg-muted rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
           placeholder="输入消息..."
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+          enterKeyHint="send"
         />
-        <button className="text-muted-foreground p-1.5">
+        <button className="flex-shrink-0 text-muted-foreground p-1">
           <Image size={22} />
         </button>
         <button 
-          className={`flex items-center gap-1 px-4 py-2 rounded-full text-sm font-medium transition-all ${
+          className={`flex-shrink-0 flex items-center gap-1 px-3 py-2 rounded-full text-sm font-medium transition-all ${
             inputValue.trim() 
               ? 'bg-primary text-primary-foreground shadow-sm active:scale-95' 
               : 'bg-muted text-muted-foreground'
@@ -131,7 +155,7 @@ const ChatDetail: React.FC = () => {
           onClick={handleSend}
           disabled={!inputValue.trim()}
         >
-          <Send size={16} />
+          <Send size={14} />
           <span>发送</span>
         </button>
       </div>

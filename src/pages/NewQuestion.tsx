@@ -266,20 +266,23 @@ const NewQuestion: React.FC = () => {
   };
   
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-[100dvh] bg-muted pb-20">
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-app-teal px-4 py-3 border-b flex items-center justify-between">
+      <div 
+        className="sticky top-0 z-10 bg-primary px-4 py-3 border-b border-primary/80 flex items-center justify-between"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+      >
         <button 
           onClick={() => navigate(-1)} 
-          className="flex items-center text-white"
+          className="flex items-center text-primary-foreground"
         >
           <ArrowLeft size={20} />
           <span className="ml-2">返回</span>
         </button>
-        <h1 className="text-lg font-medium text-center flex-1 text-white">发布问题</h1>
+        <h1 className="text-lg font-medium text-center flex-1 text-primary-foreground">发布问题</h1>
         <button 
           onClick={saveDraft}
-          className="text-white/80 text-sm"
+          className="text-primary-foreground/80 text-sm"
         >
           存草稿
         </button>
@@ -650,11 +653,14 @@ const NewQuestion: React.FC = () => {
       </div>
       
       {/* Submit Button */}
-      <div className="fixed bottom-0 left-0 right-0 p-4 bg-white border-t flex justify-center">
+      <div 
+        className="fixed bottom-0 left-0 right-0 p-4 bg-background border-t border-border flex justify-center"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 1rem)' }}
+      >
         <Button 
           onClick={handleSubmit}
           disabled={createQuestion.isPending}
-          className="w-full bg-app-teal hover:bg-app-teal/90 text-white font-medium py-5 rounded-full flex items-center justify-center shadow-lg"
+          className="w-full font-medium py-5 rounded-full flex items-center justify-center shadow-lg"
         >
           {createQuestion.isPending ? (
             <>

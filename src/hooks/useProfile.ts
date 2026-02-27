@@ -8,6 +8,7 @@ interface UpdateProfileData {
   bio?: string;
   avatar_url?: string;
   city?: string;
+  cover_url?: string;
 }
 
 // Update profile mutation
@@ -25,6 +26,7 @@ export const useUpdateProfile = () => {
       if (data.bio !== undefined) updateData.bio = data.bio;
       if (data.avatar_url !== undefined) updateData.avatar_url = data.avatar_url;
       if (data.city !== undefined) updateData.city = data.city;
+      if (data.cover_url !== undefined) updateData.cover_url = data.cover_url;
 
       const { data: profile, error } = await supabase
         .from('profiles')
@@ -51,6 +53,31 @@ export const useUpdateProfile = () => {
   });
 };
 
+const uploadImage = async (user: { id: string }, file: File, prefix: string, maxSize: number) => {
+  const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+  if (!allowedTypes.includes(file.type)) {
+    throw new Error('请上传 JPG、PNG、GIF 或 WebP 格式的图片');
+  }
+  if (file.size > maxSize) {
+    throw new Error(`图片大小不能超过 ${maxSize / 1024 / 1024}MB`);
+  }
+
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${user.id}/${prefix}_${Date.now()}.${fileExt}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from('avatars')
+    .upload(fileName, file, { cacheControl: '3600', upsert: true });
+
+  if (uploadError) throw uploadError;
+
+  const { data: { publicUrl } } = supabase.storage
+    .from('avatars')
+    .getPublicUrl(fileName);
+
+  return publicUrl;
+};
+
 // Upload avatar mutation
 export const useUploadAvatar = () => {
   const { user } = useAuth();
@@ -59,45 +86,26 @@ export const useUploadAvatar = () => {
   return useMutation({
     mutationFn: async (file: File) => {
       if (!user) throw new Error('请先登录');
-
-      // Validate file type
-      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
-      if (!allowedTypes.includes(file.type)) {
-        throw new Error('请上传 JPG、PNG、GIF 或 WebP 格式的图片');
-      }
-
-      // Validate file size (max 2MB)
-      if (file.size > 2 * 1024 * 1024) {
-        throw new Error('图片大小不能超过 2MB');
-      }
-
-      // Generate unique filename
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${Date.now()}.${fileExt}`;
-
-      // Upload to storage
-      const { error: uploadError } = await supabase.storage
-        .from('avatars')
-        .upload(fileName, file, {
-          cacheControl: '3600',
-          upsert: true
-        });
-
-      if (uploadError) throw uploadError;
-
-      // Get public URL
-      const { data: { publicUrl } } = supabase.storage
-        .from('avatars')
-        .getPublicUrl(fileName);
-
-      return publicUrl;
+      return uploadImage(user, file, 'avatar', 2 * 1024 * 1024);
     },
     onError: (error: Error) => {
-      toast({ 
-        title: '上传失败', 
-        description: error.message,
-        variant: 'destructive'
-      });
+      toast({ title: '上传失败', description: error.message, variant: 'destructive' });
+    }
+  });
+};
+
+// Upload cover image mutation
+export const useUploadCover = () => {
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (file: File) => {
+      if (!user) throw new Error('请先登录');
+      return uploadImage(user, file, 'cover', 5 * 1024 * 1024);
+    },
+    onError: (error: Error) => {
+      toast({ title: '上传失败', description: error.message, variant: 'destructive' });
     }
   });
 };

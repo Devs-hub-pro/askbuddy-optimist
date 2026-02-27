@@ -167,6 +167,15 @@ const Discover: React.FC = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Floating Publish Button */}
+      <button
+        onClick={() => setIsPostDialogOpen(true)}
+        className="fixed bottom-20 right-4 z-20 w-14 h-14 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-200 active:scale-95"
+        aria-label="发布动态"
+      >
+        <Send size={22} className="-rotate-45" />
+      </button>
+
       <BottomNav />
     </div>
   );

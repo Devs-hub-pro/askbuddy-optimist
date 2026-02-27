@@ -251,7 +251,7 @@ const Auth = () => {
   return (
     <div className="min-h-screen bg-gradient-to-b from-primary/10 to-background" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       {/* Header */}
-      <div className="flex items-center p-4">
+      <div className="sticky top-0 z-10 bg-gradient-to-b from-primary/10 to-background flex items-center p-4">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ChevronLeft size={24} />
         </Button>

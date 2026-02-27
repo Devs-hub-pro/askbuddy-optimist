@@ -7,6 +7,7 @@ interface UpdateProfileData {
   nickname?: string;
   bio?: string;
   avatar_url?: string;
+  city?: string;
 }
 
 // Update profile mutation
@@ -19,14 +20,15 @@ export const useUpdateProfile = () => {
     mutationFn: async (data: UpdateProfileData) => {
       if (!user) throw new Error('请先登录');
 
+      const updateData: Record<string, any> = { updated_at: new Date().toISOString() };
+      if (data.nickname !== undefined) updateData.nickname = data.nickname;
+      if (data.bio !== undefined) updateData.bio = data.bio;
+      if (data.avatar_url !== undefined) updateData.avatar_url = data.avatar_url;
+      if (data.city !== undefined) updateData.city = data.city;
+
       const { data: profile, error } = await supabase
         .from('profiles')
-        .update({
-          nickname: data.nickname,
-          bio: data.bio,
-          avatar_url: data.avatar_url,
-          updated_at: new Date().toISOString()
-        })
+        .update(updateData)
         .eq('user_id', user.id)
         .select()
         .single();

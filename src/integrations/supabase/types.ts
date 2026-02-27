@@ -113,6 +113,42 @@ export type Database = {
           },
         ]
       }
+      drafts: {
+        Row: {
+          bounty_points: number | null
+          category: string | null
+          content: string | null
+          created_at: string
+          id: string
+          tags: string[] | null
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          bounty_points?: number | null
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          bounty_points?: number | null
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       experts: {
         Row: {
           available_time_slots: Json | null
@@ -587,6 +623,39 @@ export type Database = {
           updated_at?: string
           user_id?: string
           view_count?: number
+        }
+        Relationships: []
+      }
+      talent_certifications: {
+        Row: {
+          cert_type: string
+          created_at: string
+          details: Json | null
+          id: string
+          reviewed_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          cert_type: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          reviewed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          cert_type?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          reviewed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }

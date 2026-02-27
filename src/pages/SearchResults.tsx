@@ -1,376 +1,89 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, Bell, MessageSquare, User, ArrowLeft, Search, Sparkles, Filter } from 'lucide-react';
-import { Card, CardContent } from "@/components/ui/card";
+import { ChevronLeft, Bell, Search, User, MessageCircle, Sparkles, Eye, Award } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Skeleton } from '@/components/ui/skeleton';
 import SearchBar from "@/components/SearchBar";
 import BottomNav from "@/components/BottomNav";
-import QuestionCard from '@/components/QuestionCard';
+import { useSearch, popularSearchTerms, type SearchQuestion, type SearchTopic, type SearchUser } from '@/hooks/useSearch';
+import { formatDistanceToNow } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 
 const SearchResults = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const initialQuery = searchParams.get('q') || '';
-  
+
   const [searchQuery, setSearchQuery] = useState(initialQuery);
-  const [isLoading, setIsLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<'all' | 'experts' | 'questions'>('all');
-  const [noResults, setNoResults] = useState(false);
+  const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
+  const [activeTab, setActiveTab] = useState<'all' | 'questions' | 'topics' | 'users'>('all');
 
-  // Popular search topics
-  const popularTopics = ['考研', '留学申请', '高考志愿', '论文写作', '竞赛辅导', '考证', '英语学习', '数学提高'];
+  const { data: results, isLoading } = useSearch(debouncedQuery);
 
-  // Mock experts data - in a real app this would come from an API
-  const allExperts = [
-    {
-      id: '1',
-      name: '张同学',
-      avatar: 'https://randomuser.me/api/portraits/women/22.jpg',
-      title: '北大硕士 | 出国党',
-      description: '专注留学申请文书指导，斯坦福offer获得者',
-      tags: ['留学', '文书', '面试'],
-      keywords: ['留学', '文书', '个人陈述', '面试', '斯坦福', '美国大学', '申请', 'SOP'],
-      category: 'study-abroad',
-      rating: 4.9,
-      responseRate: '98%',
-      orderCount: '126单'
-    },
-    {
-      id: '2',
-      name: '刘导师',
-      avatar: 'https://randomuser.me/api/portraits/men/55.jpg',
-      title: '清华博士 | 考研规划',
-      description: '5年考研辅导经验，擅长数学与专业课',
-      tags: ['考研', '数学', '规划'],
-      keywords: ['考研', '数学', '专业课', '清华', '规划', '复习'],
-      category: 'kaoyan',
-      rating: 4.8,
-      responseRate: '95%',
-      orderCount: '210单'
-    },
-    {
-      id: '3',
-      name: '王老师',
-      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-      title: '高考志愿规划师',
-      description: '10年高考志愿填报指导经验，专精各省份政策',
-      tags: ['高考', '志愿填报', '专业选择'],
-      keywords: ['高考', '志愿', '填报', '专业选择', '大学', '分数线'],
-      category: 'career',
-      rating: 4.7,
-      responseRate: '92%',
-      orderCount: '185单'
-    },
-    {
-      id: '4',
-      name: '李明',
-      avatar: 'https://randomuser.me/api/portraits/men/43.jpg',
-      title: '清华研究生',
-      description: '考研英语特长，英语六级高分，专注英语学习方法',
-      tags: ['考研', '英语', '备考'],
-      keywords: ['考研', '英语', '六级', '词汇', '听力', '阅读', '写作'],
-      category: 'language',
-      rating: 4.6,
-      responseRate: '90%',
-      orderCount: '98单'
-    },
-    {
-      id: '5',
-      name: '陈教授',
-      avatar: 'https://randomuser.me/api/portraits/men/75.jpg',
-      title: '某985教授 | 论文指导',
-      description: '研究生导师，IEEE/SCI论文审稿人，多篇高被引论文',
-      tags: ['论文', 'SCI', '科研'],
-      keywords: ['学术论文', 'SCI', 'IEEE', '期刊投稿', '审稿意见', '开题报告'],
-      category: 'academic',
-      rating: 4.9,
-      responseRate: '96%',
-      orderCount: '156单'
-    },
-    {
-      id: '6',
-      name: '张竞赛',
-      avatar: 'https://randomuser.me/api/portraits/women/45.jpg',
-      title: '全国数学竞赛金牌 | 教练',
-      description: '指导学生获得多项全国级奖项，擅长数学建模竞赛',
-      tags: ['数学竞赛', '数模', '指导'],
-      keywords: ['数学竞赛', '数学建模', 'MCM', 'ICM', '美赛', '华赛'],
-      category: 'competition',
-      rating: 4.8,
-      responseRate: '94%',
-      orderCount: '87单'
-    },
-    {
-      id: '7',
-      name: '程序员小王',
-      avatar: 'https://randomuser.me/api/portraits/men/67.jpg',
-      title: '资深前端开发 | 大厂面试官',
-      description: '帮助上百名学生成功拿到大厂offer，前端面试专家',
-      tags: ['前端', '面试', '求职'],
-      keywords: ['前端', 'React', 'JavaScript', '面试', '算法', '求职', '简历', '大厂'],
-      category: 'tech',
-      rating: 4.9,
-      responseRate: '99%',
-      orderCount: '215单'
-    },
-    {
-      id: '8',
-      name: '健身教练小李',
-      avatar: 'https://randomuser.me/api/portraits/men/29.jpg',
-      title: '国家认证健身教练 | 营养师',
-      description: '7年健身指导经验，帮助500+客户实现减脂增肌目标',
-      tags: ['健身', '营养', '减脂'],
-      keywords: ['健身', '减肥', '增肌', '力量训练', '营养', '饮食', '健康'],
-      category: 'fitness',
-      rating: 4.7,
-      responseRate: '95%',
-      orderCount: '320单'
-    }
-  ];
-
-  // Mock questions data
-  const allQuestions = [
-    {
-      id: '1',
-      title: '如何有效管理考研复习时间？',
-      description: '我是23届考研生，感觉每天都很忙但效率不高，有没有好的时间管理方法...',
-      asker: {
-        name: '小李',
-        avatar: 'https://randomuser.me/api/portraits/women/68.jpg'
-      },
-      time: '2小时前',
-      tags: ['考研', '时间管理'],
-      points: 30,
-      viewCount: '3.8k',
-      category: 'education'
-    },
-    {
-      id: '2',
-      title: '美国本科留学需要准备哪些标化考试？',
-      description: '高二学生，计划申请美国本科，不知道需要准备什么考试，什么时候开始准备比较好...',
-      asker: {
-        name: '高中生',
-        avatar: 'https://randomuser.me/api/portraits/men/42.jpg'
-      },
-      time: '4小时前',
-      tags: ['留学', '标化考试'],
-      points: 25,
-      viewCount: '2.1k',
-      category: 'education',
-      answerName: '留学顾问',
-      answerAvatar: 'https://randomuser.me/api/portraits/women/33.jpg'
-    },
-    {
-      id: '3',
-      title: '高考志愿：985分数够不到怎么选择？',
-      description: '今年高考估分630，想上计算机但分数线可能差一点，是冲一冲还是选二本保底呢？',
-      asker: {
-        name: '高考生',
-        avatar: 'https://randomuser.me/api/portraits/women/42.jpg'
-      },
-      time: '1天前',
-      tags: ['高考', '志愿填报'],
-      points: 40,
-      viewCount: '5.2k',
-      category: 'education',
-      answerName: '王老师',
-      answerAvatar: 'https://randomuser.me/api/portraits/men/32.jpg'
-    },
-    {
-      id: '4',
-      title: '前端面试怎么准备算法题？',
-      description: '准备面试大厂前端，听说算法很重要，有什么好的复习资料和方法推荐？',
-      asker: {
-        name: 'JS爱好者',
-        avatar: 'https://randomuser.me/api/portraits/men/36.jpg'
-      },
-      time: '6小时前',
-      tags: ['前端', '算法', '面试'],
-      points: 45,
-      viewCount: '4.2k',
-      category: 'tech',
-      answerName: '程序员小王',
-      answerAvatar: 'https://randomuser.me/api/portraits/men/67.jpg'
-    },
-    {
-      id: '5',
-      title: '如何在一个月内科学减脂10斤？',
-      description: '女生，25岁，体重130斤，想在一个月内减掉10斤，有什么科学的饮食和运动方案？',
-      asker: {
-        name: '减肥达人',
-        avatar: 'https://randomuser.me/api/portraits/women/22.jpg'
-      },
-      time: '1天前',
-      tags: ['减脂', '健身', '饮食'],
-      points: 35,
-      viewCount: '6.7k',
-      category: 'fitness'
-    }
-  ];
-
-  const performSearch = (query: string) => {
-    setIsLoading(true);
-    setSearchQuery(query);
-    
-    // Simulate API call
-    setTimeout(() => {
-      // If no query, show everything
-      if (!query.trim()) {
-        setSearchResults({
-          experts: allExperts,
-          questions: allQuestions
-        });
-        setNoResults(false);
-        setIsLoading(false);
-        return;
-      }
-      
-      const lowerCaseQuery = query.toLowerCase();
-      
-      // Filter experts
-      const filteredExperts = allExperts.filter(expert => {
-        return expert.keywords.some(keyword => 
-          keyword.toLowerCase().includes(lowerCaseQuery)
-        ) || 
-        expert.name.toLowerCase().includes(lowerCaseQuery) ||
-        expert.title.toLowerCase().includes(lowerCaseQuery) ||
-        expert.description.toLowerCase().includes(lowerCaseQuery) ||
-        expert.tags.some(tag => tag.toLowerCase().includes(lowerCaseQuery));
-      });
-      
-      // Filter questions
-      const filteredQuestions = allQuestions.filter(question => {
-        return question.title.toLowerCase().includes(lowerCaseQuery) ||
-               question.description.toLowerCase().includes(lowerCaseQuery) ||
-               question.tags.some(tag => tag.toLowerCase().includes(lowerCaseQuery)) ||
-               (question.asker.name && question.asker.name.toLowerCase().includes(lowerCaseQuery));
-      });
-      
-      setSearchResults({
-        experts: filteredExperts,
-        questions: filteredQuestions
-      });
-      
-      setNoResults(filteredExperts.length === 0 && filteredQuestions.length === 0);
-      setIsLoading(false);
-    }, 800);
-  };
-
-  const [searchResults, setSearchResults] = useState<{
-    experts: typeof allExperts,
-    questions: typeof allQuestions
-  }>({
-    experts: [],
-    questions: []
-  });
-
+  // Debounce search
   useEffect(() => {
-    if (initialQuery) {
-      performSearch(initialQuery);
-    } else {
-      // Show all results if no query
-      setSearchResults({
-        experts: allExperts,
-        questions: allQuestions
-      });
-      setIsLoading(false);
+    const timer = setTimeout(() => {
+      setDebouncedQuery(searchQuery);
+    }, 400);
+    return () => clearTimeout(timer);
+  }, [searchQuery]);
+
+  // Sync URL
+  useEffect(() => {
+    if (debouncedQuery) {
+      const newParams = new URLSearchParams(location.search);
+      newParams.set('q', debouncedQuery);
+      navigate({ pathname: location.pathname, search: newParams.toString() }, { replace: true });
     }
-  }, [initialQuery]);
+  }, [debouncedQuery]);
 
   const handleSearch = (value: string) => {
-    // Update URL with search query
-    const newParams = new URLSearchParams(location.search);
-    if (value) {
-      newParams.set('q', value);
-    } else {
-      newParams.delete('q');
-    }
-    navigate({
-      pathname: location.pathname,
-      search: newParams.toString()
-    }, { replace: true });
-    
-    performSearch(value);
+    setSearchQuery(value);
   };
 
   const handleTopicSelect = (topic: string) => {
     setSearchQuery(topic);
-    handleSearch(topic);
+    setDebouncedQuery(topic);
   };
 
-  const handleViewQuestionDetail = (questionId: string) => {
-    navigate(`/question/${questionId}`);
-  };
-
-  const handleViewExpertProfile = (expertId: string) => {
-    navigate(`/expert-profile/${expertId}`);
-  };
-
-  const handleBack = () => {
-    navigate(-1);
-  };
+  const totalResults = (results?.questions.length || 0) + (results?.topics.length || 0) + (results?.users.length || 0);
+  const noResults = debouncedQuery.trim() && !isLoading && totalResults === 0;
 
   return (
     <div className="app-container bg-gradient-to-b from-white to-blue-50/30 min-h-screen pb-20">
-      <div className="sticky top-0 z-50 bg-app-teal shadow-sm animate-fade-in">
+      {/* Header */}
+      <div className="sticky top-0 z-50 bg-app-teal shadow-sm">
         <div className="flex items-center justify-between h-12 px-4">
-          <button onClick={handleBack} className="text-white">
+          <button onClick={() => navigate(-1)} className="text-white">
             <ChevronLeft size={24} />
           </button>
           <div className="text-white font-medium text-base">搜索</div>
-          <button className="text-white">
-            <Bell size={20} />
-          </button>
+          <button className="text-white"><Bell size={20} /></button>
         </div>
       </div>
-      
-      <SearchBar 
-        onSearch={handleSearch} 
-        placeholder="搜索问题/达人/话题"
+
+      <SearchBar
+        onSearch={handleSearch}
+        placeholder="搜索问题/话题/用户"
         value={searchQuery}
         onChange={(e) => setSearchQuery(e.target.value)}
       />
-      
+
       <div className="p-4">
-        {searchQuery ? (
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-bold flex-1">
-              {isLoading ? '搜索中...' : `"${searchQuery}" 的搜索结果`}
-            </h2>
-            <div className="flex items-center gap-2">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="text-gray-600 border-gray-200"
-              >
-                <Filter size={14} className="mr-1" />
-                筛选
-              </Button>
-              <Button 
-                onClick={handleBack}
-                variant="ghost" 
-                size="sm"
-                className="text-gray-500"
-              >
-                <ArrowLeft size={16} className="mr-1" />
-                返回
-              </Button>
-            </div>
-          </div>
-        ) : (
+        {/* No query: show popular terms */}
+        {!debouncedQuery.trim() && (
           <>
             <div className="flex items-center mb-4">
               <Search size={20} className="text-app-teal mr-2" />
               <h2 className="text-lg font-bold">热门搜索</h2>
             </div>
             <div className="flex flex-wrap gap-2 mb-6">
-              {popularTopics.map((topic, index) => (
+              {popularSearchTerms.map((topic, i) => (
                 <button
-                  key={index}
+                  key={i}
                   onClick={() => handleTopicSelect(topic)}
                   className="bg-white text-gray-700 text-sm px-3 py-1.5 rounded-full border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm"
                 >
@@ -380,28 +93,25 @@ const SearchResults = () => {
             </div>
           </>
         )}
-        
-        {isLoading ? (
+
+        {/* Loading */}
+        {isLoading && debouncedQuery.trim() && (
           <div className="space-y-4">
-            {[1, 2, 3].map((item) => (
-              <div key={item} className="bg-white rounded-xl p-4 animate-pulse shadow-sm">
-                <div className="flex items-center mb-3">
-                  <div className="w-12 h-12 bg-gray-200 rounded-full mr-3"></div>
-                  <div className="flex-1">
-                    <div className="h-5 bg-gray-200 rounded w-1/3 mb-2"></div>
-                    <div className="h-4 bg-gray-200 rounded w-1/2"></div>
-                  </div>
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="bg-white rounded-xl p-4 shadow-sm space-y-3">
+                <Skeleton className="h-5 w-2/3" />
+                <Skeleton className="h-4 w-full" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                  <Skeleton className="h-4 w-24" />
                 </div>
-                <div className="h-4 bg-gray-200 rounded w-full mb-3"></div>
-                <div className="flex gap-2 mb-3">
-                  <div className="h-6 bg-gray-200 rounded-full w-16"></div>
-                  <div className="h-6 bg-gray-200 rounded-full w-20"></div>
-                </div>
-                <div className="h-9 bg-gray-200 rounded-full w-full"></div>
               </div>
             ))}
           </div>
-        ) : searchQuery && noResults ? (
+        )}
+
+        {/* No results */}
+        {noResults && (
           <div className="bg-white rounded-xl p-6 text-center shadow-sm">
             <div className="flex flex-col items-center">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
@@ -409,258 +119,278 @@ const SearchResults = () => {
               </div>
               <h3 className="text-lg font-medium text-gray-700 mb-2">未找到匹配结果</h3>
               <p className="text-gray-500 max-w-xs mb-4">
-                尝试使用不同的关键词，或者直接提问，我们会为您寻找最合适的回答者
+                尝试使用不同的关键词，或者直接提问
               </p>
-              <Button 
-                onClick={() => navigate('/')}
-                variant="outline" 
-                className="border-green-200 text-green-600 hover:bg-green-50"
-              >
+              <Button onClick={() => navigate('/')} variant="outline" className="border-green-200 text-green-600 hover:bg-green-50">
                 返回主页
               </Button>
             </div>
           </div>
-        ) : searchQuery ? (
-          <Tabs defaultValue="all" value={activeTab} onValueChange={(value) => setActiveTab(value as 'all' | 'experts' | 'questions')}>
-            <TabsList className="w-full bg-gray-100 p-1 rounded-full mb-4">
-              <TabsTrigger 
-                value="all" 
-                className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm"
-              >
-                全部
-              </TabsTrigger>
-              <TabsTrigger 
-                value="experts" 
-                className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm"
-              >
-                专家({searchResults.experts.length})
-              </TabsTrigger>
-              <TabsTrigger 
-                value="questions" 
-                className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm"
-              >
-                问题({searchResults.questions.length})
-              </TabsTrigger>
-            </TabsList>
-            
-            <TabsContent value="all" className="mt-0 space-y-4">
-              {searchResults.experts.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-base font-semibold flex items-center">
-                      <Sparkles size={16} className="text-yellow-500 mr-1" />
-                      专家回答者
-                    </h3>
-                    {searchResults.experts.length > 2 && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-xs text-gray-500"
-                        onClick={() => setActiveTab('experts')}
-                      >
-                        查看更多
-                      </Button>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-3">
-                    {searchResults.experts.slice(0, 2).map(expert => (
-                      <div 
-                        key={expert.id} 
-                        className="bg-white rounded-xl p-3 shadow-sm cursor-pointer hover:shadow-md transition-all"
-                        onClick={() => handleViewExpertProfile(expert.id)}
-                      >
-                        <div className="flex items-center mb-2">
-                          <Avatar className="w-10 h-10 mr-3">
-                            <AvatarImage src={expert.avatar} alt={expert.name} />
-                            <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
-                          </Avatar>
-                          <div>
-                            <h4 className="font-medium text-gray-900">{expert.name}</h4>
-                            <p className="text-xs text-green-600">{expert.title}</p>
-                          </div>
-                        </div>
-                        
-                        <div className="text-sm text-gray-600 mb-2 line-clamp-2">{expert.description}</div>
-                        
-                        <div className="flex flex-wrap gap-1 mb-3">
-                          {expert.tags.map((tag, i) => (
-                            <span key={i} className="px-2 py-0.5 bg-green-50 text-green-600 text-xs rounded-full">
-                              #{tag}
-                            </span>
-                          ))}
-                        </div>
-                        
-                        <Button 
-                          className="w-full bg-gradient-to-r from-green-500 to-teal-400 text-white rounded-full text-sm flex items-center justify-center gap-1 h-8"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            handleViewExpertProfile(expert.id);
-                          }}
-                        >
-                          <MessageSquare size={14} />
-                          咨询专家
-                        </Button>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
-              
-              {searchResults.questions.length > 0 && (
-                <div>
-                  <div className="flex items-center justify-between mb-2">
-                    <h3 className="text-base font-semibold">相关问题</h3>
-                    {searchResults.questions.length > 3 && (
-                      <Button 
-                        variant="ghost" 
-                        size="sm" 
-                        className="text-xs text-gray-500"
-                        onClick={() => setActiveTab('questions')}
-                      >
-                        查看更多
-                      </Button>
-                    )}
-                  </div>
-                  
-                  <div className="space-y-3">
-                    {searchResults.questions.slice(0, 3).map(question => (
-                      <QuestionCard
-                        key={question.id}
-                        {...question}
-                        delay={0}
-                      />
-                    ))}
-                  </div>
-                </div>
-              )}
-            </TabsContent>
-            
-            <TabsContent value="experts" className="mt-0">
-              <div className="space-y-3">
-                {searchResults.experts.map(expert => (
-                  <div 
-                    key={expert.id} 
-                    className="bg-white rounded-xl p-3 shadow-sm cursor-pointer hover:shadow-md transition-all"
-                    onClick={() => handleViewExpertProfile(expert.id)}
-                  >
-                    <div className="flex items-center mb-2">
-                      <Avatar className="w-10 h-10 mr-3">
-                        <AvatarImage src={expert.avatar} alt={expert.name} />
-                        <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h4 className="font-medium text-gray-900">{expert.name}</h4>
-                        <p className="text-xs text-green-600">{expert.title}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="text-sm text-gray-600 mb-2 line-clamp-2">{expert.description}</div>
-                    
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {expert.tags.map((tag, i) => (
-                        <span key={i} className="px-2 py-0.5 bg-green-50 text-green-600 text-xs rounded-full">
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                    
-                    <Button 
-                      className="w-full bg-gradient-to-r from-green-500 to-teal-400 text-white rounded-full text-sm flex items-center justify-center gap-1 h-8"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleViewExpertProfile(expert.id);
-                      }}
-                    >
-                      <MessageSquare size={14} />
-                      咨询专家
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </TabsContent>
-            
-            <TabsContent value="questions" className="mt-0">
-              <div className="space-y-3">
-                {searchResults.questions.map(question => (
-                  <QuestionCard
-                    key={question.id}
-                    {...question}
-                    delay={0}
-                  />
-                ))}
-              </div>
-            </TabsContent>
-          </Tabs>
-        ) : (
-          <div className="space-y-6">
-            <div>
-              <h3 className="text-base font-semibold mb-3 flex items-center">
-                <Sparkles size={16} className="text-yellow-500 mr-1" />
-                推荐专家
-              </h3>
-              <div className="space-y-3">
-                {allExperts.slice(0, 3).map(expert => (
-                  <div 
-                    key={expert.id} 
-                    className="bg-white rounded-xl p-3 shadow-sm cursor-pointer hover:shadow-md transition-all"
-                    onClick={() => handleViewExpertProfile(expert.id)}
-                  >
-                    <div className="flex items-center mb-2">
-                      <Avatar className="w-10 h-10 mr-3">
-                        <AvatarImage src={expert.avatar} alt={expert.name} />
-                        <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
-                      </Avatar>
-                      <div>
-                        <h4 className="font-medium text-gray-900">{expert.name}</h4>
-                        <p className="text-xs text-green-600">{expert.title}</p>
-                      </div>
-                    </div>
-                    
-                    <div className="text-sm text-gray-600 mb-2 line-clamp-2">{expert.description}</div>
-                    
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {expert.tags.map((tag, i) => (
-                        <span key={i} className="px-2 py-0.5 bg-green-50 text-green-600 text-xs rounded-full">
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                    
-                    <Button 
-                      className="w-full bg-gradient-to-r from-green-500 to-teal-400 text-white rounded-full text-sm flex items-center justify-center gap-1 h-8"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleViewExpertProfile(expert.id);
-                      }}
-                    >
-                      <MessageSquare size={14} />
-                      咨询专家
-                    </Button>
-                  </div>
-                ))}
-              </div>
+        )}
+
+        {/* Results */}
+        {debouncedQuery.trim() && !isLoading && totalResults > 0 && (
+          <>
+            <div className="mb-4">
+              <h2 className="text-lg font-bold">"{debouncedQuery}" 的搜索结果</h2>
             </div>
-            
-            <div>
-              <h3 className="text-base font-semibold mb-3">热门问题</h3>
-              <div className="space-y-3">
-                {allQuestions.slice(0, 3).map(question => (
-                  <QuestionCard
-                    key={question.id}
-                    {...question}
-                    delay={0}
+
+            <Tabs defaultValue="all" value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
+              <TabsList className="w-full bg-gray-100 p-1 rounded-full mb-4">
+                <TabsTrigger value="all" className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  全部({totalResults})
+                </TabsTrigger>
+                <TabsTrigger value="questions" className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  问题({results?.questions.length || 0})
+                </TabsTrigger>
+                <TabsTrigger value="topics" className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  话题({results?.topics.length || 0})
+                </TabsTrigger>
+                <TabsTrigger value="users" className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  用户({results?.users.length || 0})
+                </TabsTrigger>
+              </TabsList>
+
+              {/* All tab */}
+              <TabsContent value="all" className="mt-0 space-y-4">
+                {results && results.questions.length > 0 && (
+                  <QuestionSection
+                    questions={results.questions.slice(0, 3)}
+                    onViewMore={() => setActiveTab('questions')}
+                    showMore={results.questions.length > 3}
+                    navigate={navigate}
                   />
+                )}
+                {results && results.topics.length > 0 && (
+                  <TopicSection
+                    topics={results.topics.slice(0, 2)}
+                    onViewMore={() => setActiveTab('topics')}
+                    showMore={results.topics.length > 2}
+                    navigate={navigate}
+                  />
+                )}
+                {results && results.users.length > 0 && (
+                  <UserSection
+                    users={results.users.slice(0, 3)}
+                    onViewMore={() => setActiveTab('users')}
+                    showMore={results.users.length > 3}
+                  />
+                )}
+              </TabsContent>
+
+              {/* Questions tab */}
+              <TabsContent value="questions" className="mt-0 space-y-3">
+                {results?.questions.map((q) => (
+                  <QuestionCard key={q.id} question={q} navigate={navigate} />
                 ))}
-              </div>
-            </div>
-          </div>
+                {results?.questions.length === 0 && <EmptyHint text="没有匹配的问题" />}
+              </TabsContent>
+
+              {/* Topics tab */}
+              <TabsContent value="topics" className="mt-0 space-y-3">
+                {results?.topics.map((t) => (
+                  <TopicCard key={t.id} topic={t} navigate={navigate} />
+                ))}
+                {results?.topics.length === 0 && <EmptyHint text="没有匹配的话题" />}
+              </TabsContent>
+
+              {/* Users tab */}
+              <TabsContent value="users" className="mt-0 space-y-3">
+                {results?.users.map((u) => (
+                  <UserCard key={u.id} user={u} />
+                ))}
+                {results?.users.length === 0 && <EmptyHint text="没有匹配的用户" />}
+              </TabsContent>
+            </Tabs>
+          </>
         )}
       </div>
-      
+
       <BottomNav />
     </div>
   );
 };
+
+// --- Sub-components ---
+
+const EmptyHint = ({ text }: { text: string }) => (
+  <div className="text-center py-8 text-gray-400 text-sm">{text}</div>
+);
+
+const QuestionCard = ({ question: q, navigate }: { question: SearchQuestion; navigate: ReturnType<typeof useNavigate> }) => {
+  const timeAgo = formatDistanceToNow(new Date(q.created_at), { addSuffix: true, locale: zhCN });
+  return (
+    <div
+      className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100"
+      onClick={() => navigate(`/question/${q.id}`)}
+    >
+      <div className="flex items-start justify-between mb-2">
+        <h3 className="font-semibold text-base text-gray-800 flex-1">{q.title}</h3>
+        <div className="flex items-center gap-1 text-gray-500 text-xs ml-2 flex-shrink-0">
+          <Eye size={14} />
+          <span>{q.view_count}</span>
+        </div>
+      </div>
+      {q.content && (
+        <p className="text-sm text-gray-600 mb-3 line-clamp-2">{q.content}</p>
+      )}
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Avatar className="w-6 h-6">
+            <AvatarImage src={q.profile_avatar || ''} />
+            <AvatarFallback className="text-xs">{(q.profile_nickname || '匿')[0]}</AvatarFallback>
+          </Avatar>
+          <span className="text-xs text-gray-500">{q.profile_nickname}</span>
+          <span className="text-xs text-gray-400">{timeAgo}</span>
+        </div>
+        <div className="flex items-center gap-2">
+          {q.bounty_points > 0 && (
+            <span className="flex items-center gap-1 bg-gradient-to-r from-yellow-50 to-orange-50 text-amber-600 text-xs px-2 py-0.5 rounded-full font-medium border border-amber-100">
+              <Award size={12} />
+              {q.bounty_points}
+            </span>
+          )}
+          <span className="flex items-center gap-1 text-xs text-gray-400">
+            <MessageCircle size={12} />
+            {q.answers_count || 0}
+          </span>
+        </div>
+      </div>
+      {q.tags && q.tags.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {q.tags.map((tag, i) => (
+            <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
+              #{tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+};
+
+const TopicCard = ({ topic: t, navigate }: { topic: SearchTopic; navigate: ReturnType<typeof useNavigate> }) => (
+  <div
+    className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100"
+    onClick={() => navigate(`/topic/${t.id}`)}
+  >
+    {t.cover_image && (
+      <img src={t.cover_image} alt={t.title} className="w-full h-32 object-cover" />
+    )}
+    <div className="p-3">
+      <h3 className="font-semibold text-sm text-gray-800 mb-1">{t.title}</h3>
+      {t.description && (
+        <p className="text-xs text-gray-500 line-clamp-1 mb-2">{t.description}</p>
+      )}
+      <div className="flex items-center gap-3 text-xs text-gray-400">
+        <span className="flex items-center gap-1">
+          <MessageCircle size={12} />
+          {t.discussions_count} 讨论
+        </span>
+        {t.category && (
+          <span className="px-2 py-0.5 bg-gray-100 rounded-full">{t.category}</span>
+        )}
+      </div>
+    </div>
+  </div>
+);
+
+const UserCard = ({ user: u }: { user: SearchUser }) => (
+  <div className="bg-white rounded-xl p-4 shadow-sm flex items-center gap-3 border border-gray-100">
+    <Avatar className="w-12 h-12">
+      <AvatarImage src={u.avatar_url || ''} />
+      <AvatarFallback>{(u.nickname || '用')[0]}</AvatarFallback>
+    </Avatar>
+    <div className="flex-1 min-w-0">
+      <h3 className="font-medium text-sm text-gray-800">{u.nickname || '匿名用户'}</h3>
+      {u.bio && <p className="text-xs text-gray-500 line-clamp-1">{u.bio}</p>}
+    </div>
+  </div>
+);
+
+const QuestionSection = ({
+  questions,
+  onViewMore,
+  showMore,
+  navigate,
+}: {
+  questions: SearchQuestion[];
+  onViewMore: () => void;
+  showMore: boolean;
+  navigate: ReturnType<typeof useNavigate>;
+}) => (
+  <div>
+    <div className="flex items-center justify-between mb-2">
+      <h3 className="text-base font-semibold flex items-center">
+        <Sparkles size={16} className="text-yellow-500 mr-1" />
+        相关问题
+      </h3>
+      {showMore && (
+        <Button variant="ghost" size="sm" className="text-xs text-gray-500" onClick={onViewMore}>
+          查看更多
+        </Button>
+      )}
+    </div>
+    <div className="space-y-3">
+      {questions.map((q) => (
+        <QuestionCard key={q.id} question={q} navigate={navigate} />
+      ))}
+    </div>
+  </div>
+);
+
+const TopicSection = ({
+  topics,
+  onViewMore,
+  showMore,
+  navigate,
+}: {
+  topics: SearchTopic[];
+  onViewMore: () => void;
+  showMore: boolean;
+  navigate: ReturnType<typeof useNavigate>;
+}) => (
+  <div>
+    <div className="flex items-center justify-between mb-2">
+      <h3 className="text-base font-semibold">🔥 相关话题</h3>
+      {showMore && (
+        <Button variant="ghost" size="sm" className="text-xs text-gray-500" onClick={onViewMore}>
+          查看更多
+        </Button>
+      )}
+    </div>
+    <div className="space-y-3">
+      {topics.map((t) => (
+        <TopicCard key={t.id} topic={t} navigate={navigate} />
+      ))}
+    </div>
+  </div>
+);
+
+const UserSection = ({
+  users,
+  onViewMore,
+  showMore,
+}: {
+  users: SearchUser[];
+  onViewMore: () => void;
+  showMore: boolean;
+}) => (
+  <div>
+    <div className="flex items-center justify-between mb-2">
+      <h3 className="text-base font-semibold">👤 相关用户</h3>
+      {showMore && (
+        <Button variant="ghost" size="sm" className="text-xs text-gray-500" onClick={onViewMore}>
+          查看更多
+        </Button>
+      )}
+    </div>
+    <div className="space-y-3">
+      {users.map((u) => (
+        <UserCard key={u.id} user={u} />
+      ))}
+    </div>
+  </div>
+);
 
 export default SearchResults;

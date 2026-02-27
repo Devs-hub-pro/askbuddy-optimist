@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
-import { Home, Compass, Plus, MessageSquare, User, Star } from 'lucide-react';
+import { Home, Compass, Plus, MessageSquare, User, Star, Bell } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useUnreadCount } from '@/hooks/useNotifications';
 import { 
   Sheet,
   SheetContent,
@@ -14,6 +15,7 @@ const BottomNav: React.FC = () => {
   const location = useLocation();
   const currentPath = location.pathname;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { data: unreadCount } = useUnreadCount();
 
   const handleNeedClick = () => {
     setIsMenuOpen(false);
@@ -80,7 +82,11 @@ const BottomNav: React.FC = () => {
         >
           <div className="relative">
             <MessageSquare size={20} className={currentPath === '/messages' ? "text-app-teal" : "text-gray-400"} />
-            <span className="absolute -top-1 -right-1.5 w-2 h-2 bg-destructive rounded-full"></span>
+            {(unreadCount || 0) > 0 && (
+              <span className="absolute -top-1 -right-2 min-w-[16px] h-4 bg-destructive rounded-full text-[10px] text-white flex items-center justify-center px-1">
+                {(unreadCount || 0) > 99 ? '99+' : unreadCount}
+              </span>
+            )}
           </div>
           <span className={`text-[10px] mt-0.5 ${currentPath === '/messages' ? "text-app-teal font-medium" : "text-gray-500"}`}>消息</span>
         </button>

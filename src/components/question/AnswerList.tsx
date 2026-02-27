@@ -1,6 +1,6 @@
 
 import React from "react";
-import { Eye, MessageSquare, Award } from "lucide-react";
+import { Eye, Award, CheckCircle } from "lucide-react";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 
@@ -19,10 +19,12 @@ interface AnswerListProps {
   answers: Answer[];
   onViewUser: (userId: string) => void;
   onReply: (answerId: string) => void;
+  onAccept?: (answerId: string) => void;
+  canAccept?: boolean;
 }
 
 const AnswerList: React.FC<AnswerListProps> = ({
-  answers, onViewUser, onReply
+  answers, onViewUser, onReply, onAccept, canAccept
 }) => (
   <div className="space-y-4">
     {answers.map((ans) => (
@@ -38,17 +40,31 @@ const AnswerList: React.FC<AnswerListProps> = ({
             </Avatar>
             <div>
               <p className="text-sm font-medium">{ans.name}</p>
-              <p className="text-xs text-gray-500">{ans.title}</p>
+              <p className="text-xs text-muted-foreground">{ans.title}</p>
             </div>
           </div>
-          {ans.best && (
-            <div className="bg-yellow-50 text-yellow-600 rounded-full px-2 py-1 text-xs flex items-center">
-              最佳回答
-            </div>
-          )}
+          <div className="flex items-center gap-2">
+            {ans.best && (
+              <div className="bg-yellow-50 text-yellow-600 rounded-full px-2 py-1 text-xs flex items-center">
+                <Award size={12} className="mr-1" />
+                最佳回答
+              </div>
+            )}
+            {canAccept && !ans.best && onAccept && (
+              <Button
+                variant="outline"
+                size="sm"
+                className="text-xs h-7 text-primary border-primary/30"
+                onClick={() => onAccept(ans.id)}
+              >
+                <CheckCircle size={12} className="mr-1" />
+                采纳
+              </Button>
+            )}
+          </div>
         </div>
-        <p className="text-sm text-gray-700 mb-3 text-left">{ans.content}</p>
-        <div className="flex justify-between text-xs text-gray-500">
+        <p className="text-sm text-foreground/80 mb-3 text-left">{ans.content}</p>
+        <div className="flex justify-between text-xs text-muted-foreground">
           <span>{ans.time}</span>
           <div className="flex items-center space-x-4">
             <span className="flex items-center">
@@ -58,7 +74,7 @@ const AnswerList: React.FC<AnswerListProps> = ({
             <Button
               variant="ghost"
               size="sm"
-              className="text-blue-500 h-6 text-xs"
+              className="text-primary h-6 text-xs"
               onClick={() => onReply(ans.id)}
               aria-label={`回复${ans.name}`}
             >

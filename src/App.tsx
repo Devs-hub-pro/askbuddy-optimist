@@ -27,6 +27,7 @@ import EditProfile from "./pages/EditProfile";
 import SkillPublish from "./pages/SkillPublish";
 import Auth from "./pages/Auth";
 import TopicDetail from "./pages/TopicDetail";
+import Notifications from "./pages/Notifications";
 import { Toaster } from "@/components/ui/toaster";
 import "./App.css";
 
@@ -83,6 +84,7 @@ function App() {
                 <Route path="/edit-profile" element={<EditProfile />} />
                 <Route path="/skill-publish" element={<SkillPublish />} />
                 <Route path="/topic/:topicId" element={<TopicDetail />} />
+                <Route path="/notifications" element={<Notifications />} />
                 
                 {/* Profile sub-pages */}
                 <Route path="/profile/orders" element={<MyOrders />} />

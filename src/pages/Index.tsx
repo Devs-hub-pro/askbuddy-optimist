@@ -12,6 +12,8 @@ import { Button } from '@/components/ui/button';
 import ExpertDetailDialog from '../components/ExpertDetailDialog';
 import { useQuestions } from '@/hooks/useQuestions';
 import { useHotTopics } from '@/hooks/useHotTopics';
+import { useExperts } from '@/hooks/useExperts';
+import { useUnreadCount } from '@/hooks/useNotifications';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 
@@ -30,6 +32,8 @@ const Index = () => {
   // 使用真实数据
   const { data: questions, isLoading } = useQuestions();
   const { data: hotTopics, isLoading: isLoadingTopics } = useHotTopics();
+  const { data: dbExperts } = useExperts();
+  const { data: unreadCount } = useUnreadCount();
   
   useEffect(() => {
     const storedLocation = localStorage.getItem('currentLocation') || '深圳';
@@ -75,48 +79,32 @@ const Index = () => {
     return count.toString();
   };
 
-  // Define multiple experts with different information
-  const experts = [
+  // Use database experts if available, otherwise fall back to hardcoded
+  const hardcodedExperts = [
     {
-      id: '1',
-      name: '张同学',
-      avatar: 'https://randomuser.me/api/portraits/women/22.jpg',
-      title: '北大硕士 | 出国党',
-      description: '专注留学申请文书指导，斯坦福offer���得者。我有多年指导经验，曾帮助超过50名学生申请到世界顶尖大学。擅长个人陈述、研究计划书撰写，精通面试技巧指导。我相信每个学生都有自己的闪光点，只要找到合适的表达方式，就能在激烈的申请中脱颖而出。我希望通过我的专业知识和经验，帮助每位学生实现留学梦想。',
-      tags: ['留学', '文书', '面试'],
-      rating: 4.9,
-      responseRate: '98%',
-      orderCount: '126单',
-      education: ['北京大学 | 教育学硕士', '清华大学 | 英语文学学士'],
-      experience: ['某知名留学机构 | 高级顾问', '斯坦福大学 | 校友面试官']
+      id: '1', name: '张同学', avatar: 'https://randomuser.me/api/portraits/women/22.jpg',
+      title: '北大硕士 | 出国党', description: '专注留学申请文书指导，斯坦福offer获得者。',
+      tags: ['留学', '文书', '面试'], rating: 4.9, responseRate: '98%', orderCount: '126单',
     },
     {
-      id: '2',
-      name: '刘导师',
-      avatar: 'https://randomuser.me/api/portraits/men/55.jpg',
-      title: '清华博士 | 考研规划',
-      description: '5年考研辅导经验，擅长数学与专业课。我曾帮助上百名考生成功上岸，针对考研数学和计算机专业课有独到的教学和复习方法。我深知考研的艰辛，会尽力为每一位考生提供个性化的学习计划和复习方案。如果你在考研路上遇到困难，欢迎随时向我咨询。',
-      tags: ['考研', '数学', '规划'],
-      rating: 4.8,
-      responseRate: '95%',
-      orderCount: '210单',
-      education: ['清华大学 | 计算机科学博士', '清华大学 | 计算机科学硕士'],
-      experience: ['某培训机构 | 考研数学老师 5年', '某高校 | 助教 2年']
+      id: '2', name: '刘导师', avatar: 'https://randomuser.me/api/portraits/men/55.jpg',
+      title: '清华博士 | 考研规划', description: '5年考研辅导经验，擅长数学与专业课。',
+      tags: ['考研', '数学', '规划'], rating: 4.8, responseRate: '95%', orderCount: '210单',
     },
     {
-      id: '3',
-      name: '王老师',
-      avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-      title: '高考志愿规划师',
-      description: '10年高考志愿填报指导经验，专精各省份政策。我深入研究过全国各省份的高考政策和各大高校的招生情况，能够根据考生的分数、兴趣特长和家庭意愿，制定最优的志愿填报方案，提高理想院校的录取概率。如果你对填报志愿有困惑，欢迎随时咨询我。',
-      tags: ['高考', '志愿填报', '专业选择'],
-      rating: 4.7,
-      responseRate: '92%',
-      orderCount: '185单',
-      education: ['复旦大学 | 教育学硕士', '华东师范大学 | 教育学学士'],
-      experience: ['某教育局 | 教研员 5年', '某高考志愿填报平台 | 高级顾问 7年']
+      id: '3', name: '王老师', avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
+      title: '高考志愿规划师', description: '10年高考志愿填报指导经验。',
+      tags: ['高考', '志愿填报', '专业选择'], rating: 4.7, responseRate: '92%', orderCount: '185单',
     }
   ];
+
+  const experts = dbExperts && dbExperts.length > 0
+    ? dbExperts.map(e => ({
+        id: e.id, name: e.nickname || '专家', avatar: e.avatar_url || 'https://randomuser.me/api/portraits/lego/1.jpg',
+        title: e.title, description: e.bio || '', tags: e.tags,
+        rating: Number(e.rating), responseRate: `${e.response_rate}%`, orderCount: `${e.order_count}单`,
+      }))
+    : hardcodedExperts;
 
   const handleViewQuestionDetail = (questionId: string) => {
     navigate(`/question/${questionId}`);

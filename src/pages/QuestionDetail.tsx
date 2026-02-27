@@ -10,6 +10,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Users, Loader2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuestionDetail, useCreateAnswer, useToggleFavorite } from "@/hooks/useQuestions";
+import { useAcceptAnswer } from "@/hooks/useAcceptAnswer";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
@@ -32,6 +33,7 @@ const QuestionDetail = () => {
   const { data, isLoading, error } = useQuestionDetail(id || '');
   const createAnswer = useCreateAnswer();
   const toggleFavorite = useToggleFavorite();
+  const acceptAnswer = useAcceptAnswer();
 
   // 状态管理
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
@@ -136,6 +138,25 @@ const QuestionDetail = () => {
     toast({ title: `回复回答` });
   };
 
+  // 采纳回答
+  const handleAcceptAnswer = (answerId: string) => {
+    if (!user) {
+      toast({ title: "请先登录", variant: "destructive" });
+      return;
+    }
+    acceptAnswer.mutate({ answerId, questionId: id! }, {
+      onSuccess: () => {
+        toast({ title: "已采纳回答，积分已转移" });
+      },
+      onError: (error: any) => {
+        toast({ title: error.message || "采纳失败", variant: "destructive" });
+      }
+    });
+  };
+
+  const isQuestionOwner = user?.id === question.user_id;
+  const hasAcceptedAnswer = answers.some(a => a.is_accepted);
+
   // 转换回答数据格式
   const formattedAnswers = answers.map(answer => ({
     id: answer.id,
@@ -210,6 +231,8 @@ const QuestionDetail = () => {
             answers={formattedAnswers}
             onViewUser={handleViewUserProfile}
             onReply={handleReply}
+            onAccept={handleAcceptAnswer}
+            canAccept={isQuestionOwner && !hasAcceptedAnswer}
           />
         ) : (
           <div className="text-center py-8 text-muted-foreground">

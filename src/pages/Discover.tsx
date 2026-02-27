@@ -1,6 +1,6 @@
 
-import React, { useState } from 'react';
-import { Image, Video, Heart, MessageCircle, Share2, Plus, Bell, SmilePlus, Hash } from 'lucide-react';
+import React, { useState, useRef } from 'react';
+import { Image, Video, Heart, MessageCircle, Share2, Plus, Bell, SmilePlus, Hash, Send, ChevronDown, ChevronUp } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -17,7 +17,7 @@ interface Post {
   author: {
     name: string;
     avatar: string;
-    tags?: string[]; // Added user tags
+    tags?: string[];
   };
   time: string;
   content: string;
@@ -28,6 +28,16 @@ interface Post {
   comments: number;
   shares: number;
   liked: boolean;
+}
+
+// Comment type
+interface Comment {
+  id: string;
+  author: string;
+  avatar: string;
+  content: string;
+  time: string;
+  likes: number;
 }
 
 // Recommendation card type
@@ -398,6 +408,52 @@ interface DiscoverFeedProps {
 }
 
 const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts, likedPosts, onLike }) => {
+  const [expandedComments, setExpandedComments] = useState<{[key: string]: boolean}>({});
+  const [commentInputs, setCommentInputs] = useState<{[key: string]: string}>({});
+  const [postComments, setPostComments] = useState<{[key: string]: Comment[]}>({
+    '1': [
+      { id: 'c1', author: '小红', avatar: 'https://randomuser.me/api/portraits/women/33.jpg', content: '加油！面试最重要的是保持自信💪', time: '5分钟前', likes: 3 },
+      { id: 'c2', author: '码农小哥', avatar: 'https://randomuser.me/api/portraits/men/45.jpg', content: '建议多刷LeetCode，面试常考的题型要熟悉', time: '8分钟前', likes: 7 },
+    ],
+    '2': [
+      { id: 'c3', author: '租房老鸟', avatar: 'https://randomuser.me/api/portraits/men/28.jpg', content: '太实用了！之前就吃过这个亏', time: '1小时前', likes: 12 },
+    ],
+    '3': [
+      { id: 'c4', author: '旅游达人', avatar: 'https://randomuser.me/api/portraits/women/55.jpg', content: '深圳湾的日落真的绝了！', time: '昨天', likes: 5 },
+      { id: 'c5', author: '小李', avatar: 'https://randomuser.me/api/portraits/men/12.jpg', content: '请问用的什么相机拍的？', time: '昨天', likes: 2 },
+      { id: 'c6', author: '摄影爱好者', avatar: 'https://randomuser.me/api/portraits/women/18.jpg', content: '构图很棒，学习了📷', time: '昨天', likes: 4 },
+    ],
+  });
+  const inputRefs = useRef<{[key: string]: HTMLInputElement | null}>({});
+
+  const toggleComments = (postId: string) => {
+    setExpandedComments(prev => ({ ...prev, [postId]: !prev[postId] }));
+  };
+
+  const handleCommentSubmit = (postId: string) => {
+    const text = commentInputs[postId]?.trim();
+    if (!text) return;
+    const newComment: Comment = {
+      id: Date.now().toString(),
+      author: '我',
+      avatar: 'https://randomuser.me/api/portraits/lego/1.jpg',
+      content: text,
+      time: '刚刚',
+      likes: 0,
+    };
+    setPostComments(prev => ({
+      ...prev,
+      [postId]: [...(prev[postId] || []), newComment],
+    }));
+    setCommentInputs(prev => ({ ...prev, [postId]: '' }));
+    // Ensure comments are visible
+    setExpandedComments(prev => ({ ...prev, [postId]: true }));
+  };
+
+  const getCommentCount = (postId: string, originalCount: number) => {
+    return (postComments[postId]?.length || 0) || originalCount;
+  };
+
   return (
     <div className="pb-4">
       {/* Smaller recommendation cards with enhanced design */}
@@ -458,11 +514,10 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
               </div>
             </div>
             
-            {/* Post content - Enhanced styling */}
+            {/* Post content */}
             <div className="mb-3">
               <p className="text-gray-800 mb-3 leading-relaxed">{post.content}</p>
               
-              {/* Images grid - Enhanced styling */}
               {post.images && post.images.length > 0 && (
                 <div className={`grid gap-2 mb-3 ${
                   post.images.length === 1 ? 'grid-cols-1' : 
@@ -479,17 +534,9 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
                 </div>
               )}
               
-              {/* Video - Enhanced styling */}
               {post.video && (
                 <div className="aspect-w-16 aspect-h-9 bg-gray-100 rounded-lg overflow-hidden mb-3">
-                  <video 
-                    src={post.video} 
-                    className="w-full h-full object-cover" 
-                    controls={false}
-                    playsInline
-                    muted
-                    loop
-                  />
+                  <video src={post.video} className="w-full h-full object-cover" controls={false} playsInline muted loop />
                   <div className="absolute inset-0 flex items-center justify-center">
                     <div className="w-12 h-12 bg-black/30 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-black/40 transition-colors">
                       <div className="w-0 h-0 border-t-8 border-t-transparent border-l-12 border-l-white border-b-8 border-b-transparent ml-1"></div>
@@ -498,7 +545,6 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
                 </div>
               )}
               
-              {/* Topics - Enhanced styling */}
               {post.topics && post.topics.length > 0 && (
                 <div className="flex flex-wrap gap-2 mb-3">
                   {post.topics.map(topic => (
@@ -510,7 +556,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
               )}
             </div>
             
-            {/* Interaction buttons - Enhanced styling */}
+            {/* Interaction buttons */}
             <div className="flex justify-between border-t pt-3">
               <button 
                 className="flex items-center space-x-1 text-sm text-gray-500 transition-colors hover:text-pink-500"
@@ -520,9 +566,12 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
                 <span>{post.likes + (likedPosts[post.id] ? 1 : 0)}</span>
               </button>
               
-              <button className="flex items-center space-x-1 text-sm text-gray-500 transition-colors hover:text-app-teal">
-                <MessageCircle className="h-5 w-5" />
-                <span>{post.comments}</span>
+              <button 
+                className={`flex items-center space-x-1 text-sm transition-colors ${expandedComments[post.id] ? 'text-app-teal' : 'text-gray-500 hover:text-app-teal'}`}
+                onClick={() => toggleComments(post.id)}
+              >
+                <MessageCircle className={`h-5 w-5 ${expandedComments[post.id] ? 'fill-app-teal/20' : ''}`} />
+                <span>{getCommentCount(post.id, post.comments)}</span>
               </button>
               
               <button className="flex items-center space-x-1 text-sm text-gray-500 transition-colors hover:text-app-teal">
@@ -530,6 +579,68 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
                 <span>{post.shares}</span>
               </button>
             </div>
+
+            {/* Comments Section */}
+            {expandedComments[post.id] && (
+              <div className="mt-3 border-t pt-3 space-y-3 animate-fade-in">
+                {/* Comment Input */}
+                <div className="flex items-center gap-2">
+                  <Avatar className="h-7 w-7 shrink-0">
+                    <AvatarImage src="https://randomuser.me/api/portraits/lego/1.jpg" alt="我" />
+                    <AvatarFallback>我</AvatarFallback>
+                  </Avatar>
+                  <div className="flex-1 flex items-center bg-gray-100 rounded-full px-3 py-1.5">
+                    <input
+                      ref={(el) => { inputRefs.current[post.id] = el; }}
+                      className="flex-1 bg-transparent text-sm focus:outline-none placeholder:text-gray-400"
+                      placeholder="写评论..."
+                      value={commentInputs[post.id] || ''}
+                      onChange={(e) => setCommentInputs(prev => ({ ...prev, [post.id]: e.target.value }))}
+                      onKeyDown={(e) => e.key === 'Enter' && handleCommentSubmit(post.id)}
+                    />
+                    <button
+                      className={`ml-2 p-1 rounded-full transition-colors ${
+                        commentInputs[post.id]?.trim() ? 'text-app-teal' : 'text-gray-300'
+                      }`}
+                      onClick={() => handleCommentSubmit(post.id)}
+                      disabled={!commentInputs[post.id]?.trim()}
+                    >
+                      <Send size={16} />
+                    </button>
+                  </div>
+                </div>
+
+                {/* Comment List */}
+                {(postComments[post.id] || []).length > 0 ? (
+                  <div className="space-y-2.5">
+                    {(postComments[post.id] || []).map((comment) => (
+                      <div key={comment.id} className="flex gap-2">
+                        <Avatar className="h-7 w-7 shrink-0 mt-0.5">
+                          <AvatarImage src={comment.avatar} alt={comment.author} />
+                          <AvatarFallback>{comment.author.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <div className="flex-1 min-w-0">
+                          <div className="bg-gray-50 rounded-xl px-3 py-2">
+                            <span className="text-xs font-medium text-app-teal">{comment.author}</span>
+                            <p className="text-sm text-gray-800 mt-0.5">{comment.content}</p>
+                          </div>
+                          <div className="flex items-center gap-3 mt-1 px-1">
+                            <span className="text-[10px] text-gray-400">{comment.time}</span>
+                            <button className="text-[10px] text-gray-400 hover:text-pink-500 flex items-center gap-0.5">
+                              <Heart size={10} />
+                              {comment.likes > 0 && <span>{comment.likes}</span>}
+                            </button>
+                            <button className="text-[10px] text-gray-400 hover:text-app-teal">回复</button>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-center text-xs text-gray-400 py-2">暂无评论，快来抢沙发吧 ✨</p>
+                )}
+              </div>
+            )}
           </div>
         ))}
       </div>

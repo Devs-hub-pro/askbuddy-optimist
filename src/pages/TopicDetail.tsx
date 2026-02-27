@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MessageCircle, Heart, Send, Users, Loader2, Trash2 } from 'lucide-react';
+import { ArrowLeft, MessageCircle, Heart, Send, Users, Loader2, Trash2, Star } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useTopicDetail, useCreateDiscussion, useToggleDiscussionLike, useDeleteDiscussion } from '@/hooks/useHotTopics';
+import { useIsFollowingTopic, useToggleTopicFollow } from '@/hooks/useTopicFollowers';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import { toast } from 'sonner';
 
 const TopicDetail = () => {
   const { topicId } = useParams<{ topicId: string }>();
@@ -20,6 +22,8 @@ const TopicDetail = () => {
   const createDiscussion = useCreateDiscussion();
   const toggleLike = useToggleDiscussionLike();
   const deleteDiscussion = useDeleteDiscussion();
+  const { data: isFollowing } = useIsFollowingTopic(topicId || '');
+  const toggleFollow = useToggleTopicFollow();
 
   const formatTime = (dateString: string) => {
     try {
@@ -103,15 +107,37 @@ const TopicDetail = () => {
           {topic.description && (
             <p className="text-muted-foreground text-sm mb-3">{topic.description}</p>
           )}
-          <div className="flex items-center gap-4 text-sm text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <MessageCircle size={16} />
-              {topic.discussions_count} 讨论
-            </span>
-            <span className="flex items-center gap-1">
-              <Users size={16} />
-              {topic.participants_count} 参与
-            </span>
+          <div className="flex items-center justify-between gap-4 text-sm text-muted-foreground">
+            <div className="flex items-center gap-4">
+              <span className="flex items-center gap-1">
+                <MessageCircle size={16} />
+                {topic.discussions_count} 讨论
+              </span>
+              <span className="flex items-center gap-1">
+                <Users size={16} />
+                {topic.participants_count} 参与
+              </span>
+            </div>
+            {user && (
+              <Button
+                variant={isFollowing ? "default" : "outline"}
+                size="sm"
+                onClick={() => {
+                  if (topicId) {
+                    toggleFollow.mutate(topicId, {
+                      onSuccess: (followed) => {
+                        toast.success(followed ? '已关注话题' : '已取消关注');
+                      }
+                    });
+                  }
+                }}
+                disabled={toggleFollow.isPending}
+                className="shrink-0"
+              >
+                <Star size={14} className={cn("mr-1", isFollowing && "fill-current")} />
+                {isFollowing ? '已关注' : '关注'}
+              </Button>
+            )}
           </div>
         </div>
       </div>

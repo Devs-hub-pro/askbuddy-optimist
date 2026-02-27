@@ -113,6 +113,75 @@ export type Database = {
           },
         ]
       }
+      experts: {
+        Row: {
+          available_time_slots: Json | null
+          bio: string | null
+          category: string | null
+          consultation_count: number | null
+          created_at: string | null
+          education: Json | null
+          experience: Json | null
+          followers_count: number | null
+          id: string
+          is_active: boolean | null
+          is_verified: boolean | null
+          keywords: string[] | null
+          location: string | null
+          order_count: number | null
+          rating: number | null
+          response_rate: number | null
+          tags: string[] | null
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          available_time_slots?: Json | null
+          bio?: string | null
+          category?: string | null
+          consultation_count?: number | null
+          created_at?: string | null
+          education?: Json | null
+          experience?: Json | null
+          followers_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          keywords?: string[] | null
+          location?: string | null
+          order_count?: number | null
+          rating?: number | null
+          response_rate?: number | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          available_time_slots?: Json | null
+          bio?: string | null
+          category?: string | null
+          consultation_count?: number | null
+          created_at?: string | null
+          education?: Json | null
+          experience?: Json | null
+          followers_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          is_verified?: boolean | null
+          keywords?: string[] | null
+          location?: string | null
+          order_count?: number | null
+          rating?: number | null
+          response_rate?: number | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       favorites: {
         Row: {
           created_at: string
@@ -211,6 +280,45 @@ export type Database = {
           read_at?: string | null
           receiver_id?: string
           sender_id?: string
+        }
+        Relationships: []
+      }
+      notifications: {
+        Row: {
+          content: string | null
+          created_at: string | null
+          id: string
+          is_read: boolean | null
+          related_id: string | null
+          related_type: string | null
+          sender_id: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          related_id?: string | null
+          related_type?: string | null
+          sender_id?: string | null
+          title: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string | null
+          id?: string
+          is_read?: boolean | null
+          related_id?: string | null
+          related_type?: string | null
+          sender_id?: string | null
+          title?: string
+          type?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -511,6 +619,35 @@ export type Database = {
           },
         ]
       }
+      topic_followers: {
+        Row: {
+          created_at: string | null
+          id: string
+          topic_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          topic_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          topic_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "topic_followers_topic_id_fkey"
+            columns: ["topic_id"]
+            isOneToOne: false
+            referencedRelation: "hot_topics"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_followers: {
         Row: {
           created_at: string
@@ -558,6 +695,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      accept_answer_and_transfer_points: {
+        Args: { p_answer_id: string; p_question_id: string }
+        Returns: undefined
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]

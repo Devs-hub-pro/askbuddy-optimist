@@ -25,20 +25,28 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SearchBar from "@/components/SearchBar";
 import QuestionCard from '@/components/QuestionCard';
+import { useQuestions } from '@/hooks/useQuestions';
+import { formatDistanceToNow } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 
 const EducationLearning = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
   const categoryRef = useRef<HTMLDivElement>(null);
   const [showRightIndicator, setShowRightIndicator] = useState(false);
   
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  const { data: questions, isLoading } = useQuestions('教育学习');
+
+  const formatTime = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
+    } catch { return '刚刚'; }
+  };
+
+  const formatViewCount = (count: number) => {
+    if (count >= 1000) return (count / 1000).toFixed(1) + 'k';
+    return count.toString();
+  };
 
   useEffect(() => {
     const checkScroll = () => {
@@ -168,93 +176,7 @@ const EducationLearning = () => {
     ? allExperts 
     : allExperts.filter(expert => expert.category === activeCategory);
 
-  const communityQuestions = [
-    {
-      id: '1',
-      title: '如何有效管理考研复习时间？',
-      description: '我是23届考研生，感觉每天都很忙但效率不高，有没有好的时间管理方法...',
-      asker: {
-        name: '小李',
-        avatar: 'https://randomuser.me/api/portraits/women/68.jpg'
-      },
-      time: '2小时前',
-      tags: ['考研', '时间管理'],
-      answers: 12,
-      viewCount: '3.8k',
-      points: 30,
-      category: 'kaoyan'
-    },
-    {
-      id: '2',
-      title: '美国本科留学需要准备哪些标化考试？',
-      description: '高二学生，计划申请美国本科，不知道需要准备什么考试，什么时候开始准备比较好...',
-      asker: {
-        name: '高中生',
-        avatar: 'https://randomuser.me/api/portraits/men/42.jpg'
-      },
-      time: '4小时前',
-      tags: ['留学', '标化考试'],
-      answers: 8,
-      viewCount: '2.1k',
-      points: 25,
-      category: 'study-abroad',
-      answerName: '留学顾问',
-      answerAvatar: 'https://randomuser.me/api/portraits/women/33.jpg'
-    },
-    {
-      id: '3',
-      title: '高考志愿：985分数够不到怎么选择？',
-      description: '今年高考估分630，想上计算机但分数线可能差一点，是冲一冲还是选二本保底呢？',
-      asker: {
-        name: '高考生',
-        avatar: 'https://randomuser.me/api/portraits/women/42.jpg'
-      },
-      time: '1天前',
-      tags: ['高考', '志愿填报'],
-      answers: 15,
-      viewCount: '5.2k',
-      points: 40,
-      category: 'gaokao',
-      answerName: '王老师',
-      answerAvatar: 'https://randomuser.me/api/portraits/men/32.jpg'
-    },
-    {
-      id: '4',
-      title: 'SCI论文投稿被拒怎么修改提高接收率？',
-      description: '博士生，论文被拒了两次，审稿人给了很多意见，但不知道如何有效修改...',
-      asker: {
-        name: '博士在读',
-        avatar: 'https://randomuser.me/api/portraits/men/36.jpg'
-      },
-      time: '2天前',
-      tags: ['论文', 'SCI', '修改'],
-      answers: 9,
-      viewCount: '1.7k',
-      points: 35,
-      category: 'paper'
-    },
-    {
-      id: '5',
-      title: '数学建模竞赛如何选择合适的算法？',
-      description: '准备参加下一届美赛，想了解不同类型问题适合用什么算法和模型...',
-      asker: {
-        name: '数模爱好者',
-        avatar: 'https://randomuser.me/api/portraits/women/32.jpg'
-      },
-      time: '3天前',
-      tags: ['数学建模', '算法', '竞赛'],
-      answers: 7,
-      viewCount: '1.2k',
-      points: 20,
-      category: 'competition',
-      answerName: '张教授',
-      answerAvatar: 'https://randomuser.me/api/portraits/men/75.jpg'
-    }
-  ];
-
-  const filteredQuestions = activeCategory === 'all'
-    ? communityQuestions
-    : communityQuestions.filter(question => question.category === activeCategory);
+  const filteredQuestions = questions || [];
 
   const handleSearch = () => {
     console.log('Search initiated');
@@ -420,12 +342,15 @@ const EducationLearning = () => {
                     key={question.id}
                     id={question.id}
                     title={question.title}
-                    description={question.description}
-                    asker={question.asker}
-                    time={question.time}
-                    tags={question.tags}
-                    points={question.points}
-                    viewCount={question.viewCount}
+                    description={question.content || undefined}
+                    asker={{
+                      name: question.profile_nickname || '匿名用户',
+                      avatar: question.profile_avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'
+                    }}
+                    time={formatTime(question.created_at)}
+                    tags={question.tags || []}
+                    points={question.bounty_points}
+                    viewCount={formatViewCount(question.view_count)}
                     delay={0.3 + index * 0.1}
                   />
                 ))}

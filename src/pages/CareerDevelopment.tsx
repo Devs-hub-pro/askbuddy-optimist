@@ -27,20 +27,28 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SearchBar from "@/components/SearchBar";
 import QuestionCard from '@/components/QuestionCard';
+import { useQuestions } from '@/hooks/useQuestions';
+import { formatDistanceToNow } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 
 const CareerDevelopment = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
   const categoryRef = useRef<HTMLDivElement>(null);
   const [showRightIndicator, setShowRightIndicator] = useState(false);
   
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  const { data: questions, isLoading } = useQuestions('职业发展');
+
+  const formatTime = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
+    } catch { return '刚刚'; }
+  };
+
+  const formatViewCount = (count: number) => {
+    if (count >= 1000) return (count / 1000).toFixed(1) + 'k';
+    return count.toString();
+  };
 
   useEffect(() => {
     const checkScroll = () => {
@@ -170,89 +178,7 @@ const CareerDevelopment = () => {
     ? allExperts 
     : allExperts.filter(expert => expert.category === activeCategory);
 
-  const communityQuestions = [
-    {
-      id: '1',
-      title: '应届生如何准备前端开发面试？有哪些常见的技术问题？',
-      description: '我是23届应届生，想了解前端面试常见问题，如何准备能提高通过率...',
-      asker: {
-        name: "小李同学",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Alex",
-      },
-      time: "2小时前",
-      tags: ["前端开发", "面试技巧"],
-      answers: 5,
-      viewCount: "128",
-      points: 30,
-      category: 'interview'
-    },
-    {
-      id: '2',
-      title: '跨行业转到产品经理岗位，需要掌握哪些基本技能？',
-      description: '我目前是教育行业从业者，想转行到互联网产品经理岗位，需要提前学习什么知识？',
-      asker: {
-        name: "职场新人",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Taylor",
-      },
-      time: "4小时前",
-      tags: ["产品经理", "转行"],
-      answers: 8,
-      viewCount: "216",
-      points: 25,
-      category: 'job',
-      answerName: '资深产品经理',
-      answerAvatar: 'https://api.dicebear.com/7.x/avataaars/svg?seed=Olivia'
-    },
-    {
-      id: '3',
-      title: '大厂简历筛选关注哪些点？如何提高简历通过率？',
-      description: '即将开始校招投递，想知道如何让简历在大厂筛选中脱颖而出，有什么经验可以分享？',
-      asker: {
-        name: "求职者小王",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Jordan",
-      },
-      time: "昨天",
-      tags: ["简历优化", "大厂求职"],
-      answers: 12,
-      viewCount: "342",
-      points: 40,
-      category: 'resume'
-    },
-    {
-      id: '4',
-      title: '如何平衡远程工作和生活？有什么高效的时间管理方法？',
-      description: '最近开始做远程工作，发现很难界定工作和生活的边界，经常加班到很晚...',
-      asker: {
-        name: "远程工作者",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Charlie",
-      },
-      time: "3天前",
-      tags: ["远程工作", "时间管理"],
-      answers: 15,
-      viewCount: "420",
-      points: 35,
-      category: 'remote'
-    },
-    {
-      id: '5',
-      title: '创业初期如何寻找合伙人和组建团队？',
-      description: '有一个创业想法，但不知道如何找到志同道合的合伙人，有什么渠道和方法推荐？',
-      asker: {
-        name: "创业新手",
-        avatar: "https://api.dicebear.com/7.x/avataaars/svg?seed=Samuel",
-      },
-      time: "5天前",
-      tags: ["创业", "团队组建"],
-      answers: 7,
-      viewCount: "185",
-      points: 45,
-      category: 'startup'
-    }
-  ];
-
-  const filteredQuestions = activeCategory === 'all'
-    ? communityQuestions
-    : communityQuestions.filter(question => question.category === activeCategory);
+  const filteredQuestions = questions || [];
 
   const handleSearch = () => {
     console.log('Search initiated');
@@ -418,12 +344,15 @@ const CareerDevelopment = () => {
                     key={question.id}
                     id={question.id}
                     title={question.title}
-                    description={question.description}
-                    asker={question.asker}
-                    time={question.time}
-                    tags={question.tags}
-                    points={question.points}
-                    viewCount={question.viewCount}
+                    description={question.content || undefined}
+                    asker={{
+                      name: question.profile_nickname || '匿名用户',
+                      avatar: question.profile_avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'
+                    }}
+                    time={formatTime(question.created_at)}
+                    tags={question.tags || []}
+                    points={question.bounty_points}
+                    viewCount={formatViewCount(question.view_count)}
                     delay={0.3 + index * 0.1}
                   />
                 ))}

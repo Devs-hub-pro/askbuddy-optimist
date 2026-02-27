@@ -27,20 +27,28 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Button } from "@/components/ui/button";
 import SearchBar from "@/components/SearchBar";
 import QuestionCard from '@/components/QuestionCard';
+import { useQuestions } from '@/hooks/useQuestions';
+import { formatDistanceToNow } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 
 const LifestyleServices = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
   const categoryRef = useRef<HTMLDivElement>(null);
   const [showRightIndicator, setShowRightIndicator] = useState(false);
   
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  const { data: questions, isLoading } = useQuestions('生活服务');
+
+  const formatTime = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
+    } catch { return '刚刚'; }
+  };
+
+  const formatViewCount = (count: number) => {
+    if (count >= 1000) return (count / 1000).toFixed(1) + 'k';
+    return count.toString();
+  };
 
   useEffect(() => {
     const checkScroll = () => {
@@ -164,89 +172,7 @@ const LifestyleServices = () => {
     ? allExperts 
     : allExperts.filter(expert => expert.category === activeCategory);
 
-  const communityQuestions = [
-    {
-      id: '1',
-      title: '租房合同中哪些条款需要特别注意？',
-      description: '我即将签订一份租房合同，听说有很多陷阱，想请教有经验的人都需要注意哪些条款？',
-      asker: {
-        name: '小明',
-        avatar: 'https://randomuser.me/api/portraits/men/41.jpg'
-      },
-      time: '2小时前',
-      tags: ['租房', '合同', '法律'],
-      answers: 12,
-      viewCount: '1243',
-      points: 50,
-      category: 'housing'
-    },
-    {
-      id: '2',
-      title: '如何处理与房东的纠纷？押金不退怎么办？',
-      description: '我搬出去一个月了，房东以各种理由不退押金，该怎么维权？',
-      asker: {
-        name: '小红',
-        avatar: 'https://randomuser.me/api/portraits/women/63.jpg'
-      },
-      time: '4小时前',
-      tags: ['租房', '押金', '维权'],
-      answers: 8,
-      viewCount: '896',
-      points: 35,
-      category: 'housing',
-      answerName: '王律师',
-      answerAvatar: 'https://randomuser.me/api/portraits/men/32.jpg'
-    },
-    {
-      id: '3',
-      title: '异地恋三年，如何保持感情新鲜？',
-      description: '我和男友异地三年了，最近感觉有点倦怠，有什么方法可以让感情保持活力？',
-      asker: {
-        name: '小华',
-        avatar: 'https://randomuser.me/api/portraits/women/33.jpg'
-      },
-      time: '昨天',
-      tags: ['情感', '异地恋', '关系维护'],
-      answers: 15,
-      viewCount: '2156',
-      points: 45,
-      category: 'emotional'
-    },
-    {
-      id: '4',
-      title: '健康险和重疾险有什么区别？该如何选择？',
-      description: '想为父母购买保险，但不知道应该选择健康险还是重疾险，有什么区别和建议？',
-      asker: {
-        name: '小李',
-        avatar: 'https://randomuser.me/api/portraits/men/22.jpg'
-      },
-      time: '2天前',
-      tags: ['保险', '健康险', '重疾险'],
-      answers: 10,
-      viewCount: '1345',
-      points: 40,
-      category: 'insurance'
-    },
-    {
-      id: '5',
-      title: '日本留学生活有哪些需要注意的事项？',
-      description: '即将赴日留学，想了解一下日常生活、住宿、交通等方面需要注意什么？',
-      asker: {
-        name: '留学生',
-        avatar: 'https://randomuser.me/api/portraits/women/22.jpg'
-      },
-      time: '3天前',
-      tags: ['留学', '日本', '海外生活'],
-      answers: 7,
-      viewCount: '938',
-      points: 30,
-      category: 'overseas'
-    }
-  ];
-
-  const filteredQuestions = activeCategory === 'all'
-    ? communityQuestions
-    : communityQuestions.filter(question => question.category === activeCategory);
+  const filteredQuestions = questions || [];
 
   const handleSearch = () => {
     console.log('Search initiated');
@@ -412,12 +338,15 @@ const LifestyleServices = () => {
                     key={question.id}
                     id={question.id}
                     title={question.title}
-                    description={question.description}
-                    asker={question.asker}
-                    time={question.time}
-                    tags={question.tags}
-                    points={question.points}
-                    viewCount={question.viewCount}
+                    description={question.content || undefined}
+                    asker={{
+                      name: question.profile_nickname || '匿名用户',
+                      avatar: question.profile_avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'
+                    }}
+                    time={formatTime(question.created_at)}
+                    tags={question.tags || []}
+                    points={question.bounty_points}
+                    viewCount={formatViewCount(question.view_count)}
                     delay={0.3 + index * 0.1}
                   />
                 ))}

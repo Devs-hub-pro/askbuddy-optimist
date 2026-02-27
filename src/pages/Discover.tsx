@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from '@/components/ui/input';
 import BottomNav from '../components/BottomNav';
-import { usePosts, usePostComments, useTogglePostLike, useCreatePost, useAddComment, useDeletePost, PostWithProfile } from '@/hooks/usePosts';
+import { usePosts, usePostComments, useTogglePostLike, useCreatePost, useAddComment, useDeletePost, useSharePost, PostWithProfile } from '@/hooks/usePosts';
 import { useFollowingPosts } from '@/hooks/useFollowingPosts';
 import { useLocalPosts } from '@/hooks/useLocalPosts';
 import { useUploadPostMedia } from '@/hooks/usePostMediaUpload';
@@ -285,6 +285,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
   const toggleLike = useTogglePostLike();
   const addComment = useAddComment();
   const deletePost = useDeletePost();
+  const sharePost = useSharePost();
   const { user } = useAuth();
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
 
@@ -424,7 +425,10 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
                   <MessageCircle className={`h-5 w-5 ${expandedComments[post.id] ? 'fill-primary/20' : ''}`} />
                   <span>{post.comments_count}</span>
                 </button>
-                <button className="flex items-center space-x-1 text-sm text-muted-foreground transition-colors hover:text-primary">
+                <button
+                  className="flex items-center space-x-1 text-sm text-muted-foreground transition-colors hover:text-primary"
+                  onClick={() => sharePost.mutate(post.id)}
+                >
                   <Share2 className="h-5 w-5" />
                   <span>{post.shares_count}</span>
                 </button>

@@ -72,7 +72,7 @@ const AccountSecurity = () => {
                 <span className="text-sm font-medium">登录密码</span>
                 <p className="text-xs text-gray-500">建议定期更换密码</p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => navigate('/settings/password')}>
+              <Button variant="outline" size="sm" onClick={() => navigate('/settings/change-password')}>
                 修改
               </Button>
             </div>

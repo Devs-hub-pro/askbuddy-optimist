@@ -17,6 +17,7 @@ import {
   Loader2,
   Camera,
   ChevronRight,
+  ImagePlus,
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -25,7 +26,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import BottomNav from '@/components/BottomNav';
 import SettingsMenu from '@/components/profile/SettingsMenu';
 import { useAuth } from '@/contexts/AuthContext';
-import { useUploadAvatar, useUpdateProfile } from '@/hooks/useProfile';
+import { useUploadAvatar, useUploadCover, useUpdateProfile } from '@/hooks/useProfile';
 import { useProfileStats } from '@/hooks/useProfileData';
 import { useToast } from '@/hooks/use-toast';
 
@@ -37,8 +38,11 @@ const Profile = () => {
   const [loggingOut, setLoggingOut] = useState(false);
   const [avatarLoading, setAvatarLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [coverUploading, setCoverUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const coverInputRef = useRef<HTMLInputElement>(null);
   const uploadAvatar = useUploadAvatar();
+  const uploadCover = useUploadCover();
   const updateProfile = useUpdateProfile();
   const { data: stats } = useProfileStats();
 
@@ -62,6 +66,20 @@ const Profile = () => {
       // error handled in mutation
     } finally {
       setUploading(false);
+    }
+  };
+
+  const handleCoverUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setCoverUploading(true);
+    try {
+      const publicUrl = await uploadCover.mutateAsync(file);
+      await updateProfile.mutateAsync({ cover_url: publicUrl });
+    } catch {
+      // error handled in mutation
+    } finally {
+      setCoverUploading(false);
     }
   };
 
@@ -94,13 +112,22 @@ const Profile = () => {
     );
   }
 
+  const coverUrl = (profile as any)?.cover_url;
+
   return (
     <div className="min-h-screen bg-muted pb-16">
-      {/* Hidden file input */}
+      {/* Hidden file inputs */}
       <input
         type="file"
         ref={fileInputRef}
         onChange={handleAvatarUpload}
+        accept="image/jpeg,image/png,image/gif,image/webp"
+        className="hidden"
+      />
+      <input
+        type="file"
+        ref={coverInputRef}
+        onChange={handleCoverUpload}
         accept="image/jpeg,image/png,image/gif,image/webp"
         className="hidden"
       />
@@ -110,98 +137,135 @@ const Profile = () => {
         onClose={() => setShowSettingsMenu(false)} 
       />
 
-      {/* Header - compact and elegant */}
-      <div 
-        className="bg-background px-5 pb-4 relative"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}
-      >
-        <div className="absolute right-4 top-0" style={{ top: 'calc(env(safe-area-inset-top) + 0.5rem)' }}>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
-            onClick={() => setShowSettingsMenu(true)}
-          >
-            <Settings size={22} />
-          </Button>
-        </div>
-
-        {isLoggedIn ? (
-          <div className="flex items-center gap-4">
-            {/* Avatar with upload overlay */}
-            <div className="relative group">
-              <Avatar className="h-[64px] w-[64px] border-2 border-border shadow-md">
-                {avatarLoading && profile?.avatar_url && (
-                  <Skeleton className="absolute inset-0 rounded-full" />
-                )}
-                <AvatarImage 
-                  src={profile?.avatar_url || ''} 
-                  alt={profile?.nickname || '用户'} 
-                  onLoad={() => setAvatarLoading(false)}
-                  onError={() => setAvatarLoading(false)}
-                  className={avatarLoading ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'}
-                />
-                <AvatarFallback className="bg-muted text-muted-foreground text-xl font-semibold">
-                  {profile?.nickname?.charAt(0) || <User size={24} />}
-                </AvatarFallback>
-              </Avatar>
-              <button
-                className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-sm border-2 border-background"
-                onClick={() => fileInputRef.current?.click()}
-                disabled={uploading}
+      {/* Cover Banner */}
+      <div className="relative">
+        <div 
+          className="h-44 bg-gradient-to-br from-primary/20 via-accent/15 to-primary/10 relative overflow-hidden"
+          style={{ paddingTop: 'env(safe-area-inset-top)' }}
+        >
+          {coverUrl && (
+            <img 
+              src={coverUrl} 
+              alt="封面" 
+              className="absolute inset-0 w-full h-full object-cover"
+            />
+          )}
+          {/* Overlay for readability */}
+          <div className="absolute inset-0 bg-gradient-to-b from-black/20 to-transparent" />
+          
+          {/* Top buttons */}
+          <div className="absolute top-0 right-0 flex items-center gap-1 pr-3" style={{ top: 'calc(env(safe-area-inset-top) + 0.5rem)' }}>
+            {isLoggedIn && (
+              <Button
+                variant="ghost"
+                size="icon"
+                className="text-white/90 hover:text-white hover:bg-white/20 backdrop-blur-sm rounded-full h-8 w-8"
+                onClick={() => coverInputRef.current?.click()}
+                disabled={coverUploading}
               >
-                {uploading ? <Loader2 size={12} className="animate-spin" /> : <Camera size={12} />}
-              </button>
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2">
-                <h2 className="text-lg font-bold text-foreground truncate">{profile?.nickname || '新用户'}</h2>
-                <button 
-                  className="text-muted-foreground hover:text-foreground"
-                  onClick={() => navigate('/edit-profile')}
-                >
-                  <Edit3 size={14} />
-                </button>
-              </div>
-              {profile?.bio && (
-                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">{profile.bio}</p>
-              )}
-              <div className="flex items-center gap-2 mt-1.5">
-                <div className="flex items-center bg-amber-50 px-2 py-0.5 rounded-full text-xs font-medium text-amber-600">
-                  <Star size={11} className="mr-1" />
-                  {profile?.points_balance || 0} 积分
-                </div>
-                <button
-                  className="text-xs text-destructive/80 hover:text-destructive flex items-center gap-0.5"
-                  onClick={handleLogout}
-                  disabled={loggingOut}
-                >
-                  {loggingOut ? <Loader2 size={11} className="animate-spin" /> : <LogOut size={11} />}
-                  退出
-                </button>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className="flex items-center gap-4 py-4">
-            <Avatar className="h-16 w-16 border-2 border-border">
-              <AvatarFallback className="bg-muted text-muted-foreground">
-                <User size={28} />
-              </AvatarFallback>
-            </Avatar>
-            <Button 
-              className="rounded-full font-medium px-6 shadow-sm"
-              onClick={() => navigate('/auth')}
+                {coverUploading ? <Loader2 size={16} className="animate-spin" /> : <ImagePlus size={16} />}
+              </Button>
+            )}
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-white/90 hover:text-white hover:bg-white/20 backdrop-blur-sm rounded-full h-8 w-8"
+              onClick={() => setShowSettingsMenu(true)}
             >
-              登录 / 注册
+              <Settings size={18} />
             </Button>
           </div>
-        )}
+        </div>
+
+        {/* Profile info overlapping the banner */}
+        <div className="px-5 -mt-10 relative z-10">
+          {isLoggedIn ? (
+            <div>
+              {/* Avatar */}
+              <div className="flex items-end gap-3">
+                <div className="relative group">
+                  <Avatar className="h-[72px] w-[72px] border-[3px] border-background shadow-lg">
+                    {avatarLoading && profile?.avatar_url && (
+                      <Skeleton className="absolute inset-0 rounded-full" />
+                    )}
+                    <AvatarImage 
+                      src={profile?.avatar_url || ''} 
+                      alt={profile?.nickname || '用户'} 
+                      onLoad={() => setAvatarLoading(false)}
+                      onError={() => setAvatarLoading(false)}
+                      className={avatarLoading ? 'opacity-0' : 'opacity-100 transition-opacity duration-300'}
+                    />
+                    <AvatarFallback className="bg-muted text-muted-foreground text-xl font-semibold">
+                      {profile?.nickname?.charAt(0) || <User size={24} />}
+                    </AvatarFallback>
+                  </Avatar>
+                  <button
+                    className="absolute -bottom-0.5 -right-0.5 w-6 h-6 rounded-full bg-primary text-primary-foreground flex items-center justify-center shadow-sm border-2 border-background"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                  >
+                    {uploading ? <Loader2 size={12} className="animate-spin" /> : <Camera size={12} />}
+                  </button>
+                </div>
+                
+                {/* Action buttons on the right */}
+                <div className="flex-1 flex justify-end gap-2 pb-1">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="rounded-full text-xs h-8 px-3 gap-1"
+                    onClick={() => navigate('/edit-profile')}
+                  >
+                    <Edit3 size={12} />
+                    编辑资料
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="rounded-full text-xs h-8 px-3 gap-1 text-muted-foreground"
+                    onClick={handleLogout}
+                    disabled={loggingOut}
+                  >
+                    {loggingOut ? <Loader2 size={12} className="animate-spin" /> : <LogOut size={12} />}
+                    退出
+                  </Button>
+                </div>
+              </div>
+
+              {/* Name & bio */}
+              <div className="mt-2.5">
+                <h2 className="text-lg font-bold text-foreground">{profile?.nickname || '新用户'}</h2>
+                {profile?.bio && (
+                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{profile.bio}</p>
+                )}
+                <div className="flex items-center gap-2 mt-2">
+                  <div className="flex items-center bg-amber-50 px-2 py-0.5 rounded-full text-xs font-medium text-amber-600">
+                    <Star size={11} className="mr-1" />
+                    {profile?.points_balance || 0} 积分
+                  </div>
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="flex items-end gap-3">
+              <Avatar className="h-[72px] w-[72px] border-[3px] border-background shadow-lg">
+                <AvatarFallback className="bg-muted text-muted-foreground">
+                  <User size={28} />
+                </AvatarFallback>
+              </Avatar>
+              <Button 
+                className="rounded-full font-medium px-6 shadow-sm mb-1"
+                onClick={() => navigate('/auth')}
+              >
+                登录 / 注册
+              </Button>
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Stats Row */}
-      <div className="px-5 mt-1">
+      <div className="px-5 mt-4">
         <Card className="border-none shadow-md rounded-2xl overflow-hidden">
           <CardContent className="p-0">
             <div className="grid grid-cols-4">

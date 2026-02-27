@@ -116,10 +116,12 @@ export type Database = {
       experts: {
         Row: {
           available_time_slots: Json | null
+          avatar_url: string | null
           bio: string | null
           category: string | null
           consultation_count: number | null
           created_at: string | null
+          display_name: string | null
           education: Json | null
           experience: Json | null
           followers_count: number | null
@@ -138,10 +140,12 @@ export type Database = {
         }
         Insert: {
           available_time_slots?: Json | null
+          avatar_url?: string | null
           bio?: string | null
           category?: string | null
           consultation_count?: number | null
           created_at?: string | null
+          display_name?: string | null
           education?: Json | null
           experience?: Json | null
           followers_count?: number | null
@@ -160,10 +164,12 @@ export type Database = {
         }
         Update: {
           available_time_slots?: Json | null
+          avatar_url?: string | null
           bio?: string | null
           category?: string | null
           consultation_count?: number | null
           created_at?: string | null
+          display_name?: string | null
           education?: Json | null
           experience?: Json | null
           followers_count?: number | null

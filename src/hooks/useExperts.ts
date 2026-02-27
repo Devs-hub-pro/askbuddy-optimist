@@ -58,8 +58,8 @@ export const useExperts = (category?: string) => {
             education: expert.education || [],
             experience: expert.experience || [],
             available_time_slots: expert.available_time_slots || [],
-            nickname: profile?.nickname || '专家',
-            avatar_url: profile?.avatar_url,
+            nickname: expert.display_name || profile?.nickname || '专家',
+            avatar_url: expert.avatar_url || profile?.avatar_url,
           } as Expert;
         })
       );
@@ -96,8 +96,8 @@ export const useExpertDetail = (expertId: string) => {
         education: (data as any).education || [],
         experience: (data as any).experience || [],
         available_time_slots: (data as any).available_time_slots || [],
-        nickname: profile?.nickname || '专家',
-        avatar_url: profile?.avatar_url,
+        nickname: (data as any).display_name || profile?.nickname || '专家',
+        avatar_url: (data as any).avatar_url || profile?.avatar_url,
       } as Expert;
     },
     enabled: !!expertId,
@@ -131,8 +131,8 @@ export const useExpertByUserId = (userId: string) => {
         education: (data as any).education || [],
         experience: (data as any).experience || [],
         available_time_slots: (data as any).available_time_slots || [],
-        nickname: profile?.nickname || '专家',
-        avatar_url: profile?.avatar_url,
+        nickname: (data as any).display_name || profile?.nickname || '专家',
+        avatar_url: (data as any).avatar_url || profile?.avatar_url,
       } as Expert;
     },
     enabled: !!userId,

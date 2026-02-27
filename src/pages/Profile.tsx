@@ -26,6 +26,7 @@ import BottomNav from '@/components/BottomNav';
 import SettingsMenu from '@/components/profile/SettingsMenu';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUploadAvatar, useUpdateProfile } from '@/hooks/useProfile';
+import { useProfileStats } from '@/hooks/useProfileData';
 import { useToast } from '@/hooks/use-toast';
 
 const Profile = () => {
@@ -39,6 +40,7 @@ const Profile = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const uploadAvatar = useUploadAvatar();
   const updateProfile = useUpdateProfile();
+  const { data: stats } = useProfileStats();
 
   const isLoggedIn = !!user;
 
@@ -64,10 +66,10 @@ const Profile = () => {
   };
 
   const profileStats = [
-    { label: '订单', count: 0, route: '/profile/orders' },
-    { label: '回答', count: 0, route: '/profile/answers' },
-    { label: '收藏', count: 0, route: '/profile/favorites' },
-    { label: '关注', count: 0, route: '/profile/following' },
+    { label: '订单', count: stats?.orders || 0, route: '/profile/orders' },
+    { label: '回答', count: stats?.answers || 0, route: '/profile/answers' },
+    { label: '收藏', count: stats?.favorites || 0, route: '/profile/favorites' },
+    { label: '关注', count: stats?.following || 0, route: '/profile/following' },
   ];
 
   const commonFeatures = [

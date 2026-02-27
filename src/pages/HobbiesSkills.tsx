@@ -27,20 +27,28 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { ScrollArea } from "@/components/ui/scroll-area";
 import SearchBar from "@/components/SearchBar";
 import QuestionCard from '@/components/QuestionCard';
+import { useQuestions } from '@/hooks/useQuestions';
+import { formatDistanceToNow } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 
 const HobbiesSkills = () => {
   const navigate = useNavigate();
-  const [isLoading, setIsLoading] = useState(true);
   const [activeCategory, setActiveCategory] = useState('all');
   const categoryRef = useRef<HTMLDivElement>(null);
   const [showRightIndicator, setShowRightIndicator] = useState(false);
   
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setIsLoading(false);
-    }, 1000);
-    return () => clearTimeout(timer);
-  }, []);
+  const { data: questions, isLoading } = useQuestions('兴趣技能');
+
+  const formatTime = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
+    } catch { return '刚刚'; }
+  };
+
+  const formatViewCount = (count: number) => {
+    if (count >= 1000) return (count / 1000).toFixed(1) + 'k';
+    return count.toString();
+  };
 
   useEffect(() => {
     const checkScroll = () => {
@@ -164,89 +172,7 @@ const HobbiesSkills = () => {
     ? allExperts 
     : allExperts.filter(expert => expert.category === activeCategory);
 
-  const communityQuestions = [
-    {
-      id: '1',
-      title: '如何拍出高质量的夜景照片？',
-      description: '初学摄影，想拍出星空和城市夜景，需要哪些设备和技巧？',
-      asker: {
-        name: '摄影新手',
-        avatar: 'https://randomuser.me/api/portraits/men/41.jpg'
-      },
-      time: '2小时前',
-      tags: ['摄影', '夜景', '器材'],
-      answers: 8,
-      viewCount: '967',
-      points: 30,
-      category: 'photography'
-    },
-    {
-      id: '2',
-      title: '如何制作一首电子音乐，从哪里开始？',
-      description: '对电子音乐制作感兴趣，但不知道需要什么软件和基础知识，求指导...',
-      asker: {
-        name: '音乐爱好者',
-        avatar: 'https://randomuser.me/api/portraits/women/42.jpg'
-      },
-      time: '4小时前',
-      tags: ['音乐', '电子音乐', '制作'],
-      answers: 12,
-      viewCount: '1243',
-      points: 45,
-      category: 'music',
-      answerName: '王音乐',
-      answerAvatar: 'https://randomuser.me/api/portraits/women/23.jpg'
-    },
-    {
-      id: '3',
-      title: '零基础如何学习素描？有推荐的书籍或课程吗？',
-      description: '想学习素描但完全没有基础，不知道从哪里入手，有什么推荐的学习路径？',
-      asker: {
-        name: '艺术小白',
-        avatar: 'https://randomuser.me/api/portraits/women/43.jpg'
-      },
-      time: '昨天',
-      tags: ['艺术', '素描', '入门'],
-      answers: 10,
-      viewCount: '876',
-      points: 35,
-      category: 'art'
-    },
-    {
-      id: '4',
-      title: '如何在家高效健身？不去健身房有什么器材推荐？',
-      description: '因为工作原因没时间去健身房，想了解在家健身的有效方法和必备器材...',
-      asker: {
-        name: '健身爱好者',
-        avatar: 'https://randomuser.me/api/portraits/men/44.jpg'
-      },
-      time: '2天前',
-      tags: ['健身', '家庭健身', '器材'],
-      answers: 15,
-      viewCount: '1576',
-      points: 40,
-      category: 'fitness'
-    },
-    {
-      id: '5',
-      title: '如何提高家常菜的口感和颜值？',
-      description: '做的菜味道还行但看起来很一般，有哪些简单的技巧可以提升家常菜的档次？',
-      asker: {
-        name: '美食达人',
-        avatar: 'https://randomuser.me/api/portraits/women/45.jpg'
-      },
-      time: '3天前',
-      tags: ['烹饪', '家常菜', '摆盘'],
-      answers: 9,
-      viewCount: '1098',
-      points: 30,
-      category: 'cooking'
-    }
-  ];
-
-  const filteredQuestions = activeCategory === 'all'
-    ? communityQuestions
-    : communityQuestions.filter(question => question.category === activeCategory);
+  const filteredQuestions = questions || [];
 
   const handleSearch = () => {
     console.log('Search initiated');
@@ -412,12 +338,15 @@ const HobbiesSkills = () => {
                     key={question.id}
                     id={question.id}
                     title={question.title}
-                    description={question.description}
-                    asker={question.asker}
-                    time={question.time}
-                    tags={question.tags}
-                    points={question.points}
-                    viewCount={question.viewCount}
+                    description={question.content || undefined}
+                    asker={{
+                      name: question.profile_nickname || '匿名用户',
+                      avatar: question.profile_avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'
+                    }}
+                    time={formatTime(question.created_at)}
+                    tags={question.tags || []}
+                    points={question.bounty_points}
+                    viewCount={formatViewCount(question.view_count)}
                     delay={0.3 + index * 0.1}
                   />
                 ))}

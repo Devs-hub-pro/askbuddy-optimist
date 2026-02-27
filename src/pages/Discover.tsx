@@ -202,53 +202,47 @@ const Discover: React.FC = () => {
   
   return (
     <div className="pb-20 bg-gray-50 min-h-screen">
-      {/* Redesigned Header with improved tab styling */}
-      <div className="sticky top-0 z-10 bg-app-teal shadow-md">
-        <div className="flex items-center justify-between px-4 py-3">
-          <div className="flex-1">
-            <Tabs 
-              defaultValue="recommended" 
-              className="w-full" 
-              onValueChange={(value) => setActiveTab(value as 'following' | 'recommended' | 'local')}
-            >
+      <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'following' | 'recommended' | 'local')} className="w-full">
+        {/* Redesigned Header with improved tab styling */}
+        <div className="sticky top-0 z-10 bg-app-teal shadow-md" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+          <div className="flex items-center justify-between px-4 py-3">
+            <div className="flex-1">
               <TabsList className="w-full justify-start bg-transparent h-10 p-0">
                 <TabsTrigger 
                   value="following" 
-                  className="text-base font-medium data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:bg-transparent rounded-none px-3 py-1 text-white/80"
+                  className="text-base font-medium data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none px-3 py-1 text-white/80"
                 >
                   关注
                 </TabsTrigger>
                 <TabsTrigger 
                   value="recommended" 
-                  className="text-base font-medium data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:bg-transparent rounded-none px-3 py-1 text-white/80"
+                  className="text-base font-medium data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none px-3 py-1 text-white/80"
                 >
                   推荐
                 </TabsTrigger>
                 <TabsTrigger 
                   value="local" 
-                  className="text-base font-medium data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:bg-transparent rounded-none px-3 py-1 text-white/80"
+                  className="text-base font-medium data-[state=active]:text-white data-[state=active]:border-b-2 data-[state=active]:border-white data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none px-3 py-1 text-white/80"
                 >
                   同城
                 </TabsTrigger>
               </TabsList>
-            </Tabs>
-          </div>
-          
-          <div className="flex items-center">
-            <button 
-              className="relative p-2 hover:bg-white/10 rounded-full transition-colors"
-              onClick={handleNotificationClick}
-            >
-              <Bell size={18} className="text-white" />
-              {showNotification && (
-                <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
-              )}
-            </button>
+            </div>
+            
+            <div className="flex items-center">
+              <button 
+                className="relative p-2 hover:bg-white/10 rounded-full transition-colors"
+                onClick={handleNotificationClick}
+              >
+                <Bell size={18} className="text-white" />
+                {showNotification && (
+                  <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse"></span>
+                )}
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-      
-      <Tabs defaultValue="recommended" className="w-full">
+
         <TabsContent value="following" className="mt-0 p-0">
           <DiscoverFeed 
             recommendationCards={recommendationCards} 

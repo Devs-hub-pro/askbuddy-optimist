@@ -2,9 +2,11 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
+import SwipeBackWrapper from "./components/SwipeBackWrapper";
 
 const queryClient = new QueryClient();
 import Index from "./pages/Index";
+import ChatDetail from "./pages/ChatDetail";
 import Discover from "./pages/Discover";
 import CareerDevelopment from "./pages/CareerDevelopment";
 import EducationLearning from "./pages/EducationLearning";
@@ -56,6 +58,7 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <Router>
         <AuthProvider>
+          <SwipeBackWrapper>
           <div className="app-wrapper w-full min-h-screen bg-muted">
             <div className="app-container">
               <Routes>
@@ -75,6 +78,7 @@ function App() {
                 <Route path="/expert-profile/:id" element={<ExpertProfile />} />
                 <Route path="/new" element={<NewQuestion />} />
                 <Route path="/messages" element={<Messages />} />
+                <Route path="/chat/:chatId" element={<ChatDetail />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/edit-profile" element={<EditProfile />} />
                 <Route path="/skill-publish" element={<SkillPublish />} />
@@ -108,6 +112,7 @@ function App() {
             </div>
           </div>
           <Toaster />
+          </SwipeBackWrapper>
         </AuthProvider>
       </Router>
     </QueryClientProvider>

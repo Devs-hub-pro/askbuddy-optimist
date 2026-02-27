@@ -261,9 +261,8 @@ const Index = () => {
                 questions.map((question, index) => (
                   <div
                     key={question.id}
-                    className="cursor-pointer opacity-0 animate-slide-up"
+                    className="opacity-0 animate-slide-up"
                     style={{ animationDelay: `${index * 60}ms`, animationFillMode: 'forwards' }}
-                    onClick={() => handleViewQuestionDetail(question.id)}
                   >
                     <QuestionCard
                       id={question.id}

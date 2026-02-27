@@ -65,7 +65,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-screen bg-muted pb-20">
+    <div className="min-h-screen bg-muted pb-16">
       {/* Settings Menu */}
       <SettingsMenu 
         isOpen={showSettingsMenu} 

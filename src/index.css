@@ -56,7 +56,7 @@
 
 @layer components {
   .app-container {
-    @apply max-w-md mx-auto bg-white min-h-screen overflow-hidden relative pb-16;
+    @apply max-w-md mx-auto bg-white min-h-screen overflow-hidden relative;
     width: 100%;
   }
   

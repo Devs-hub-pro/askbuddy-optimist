@@ -545,7 +545,7 @@ const Messages = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
+    <div className="min-h-screen bg-gray-50 pb-16">
       {/* Header with tabs */}
       <div className="fixed top-0 left-0 right-0 z-10 bg-app-blue shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="pt-2 pb-2">
@@ -656,7 +656,7 @@ const Messages = () => {
       </div>
       
       {/* Content container */}
-      <div className={`pt-${showSearch ? '32' : '20'} ${showBatchActions ? 'pt-40' : ''}`}>
+      <div className="pt-16" style={{ paddingTop: showSearch ? '8rem' : showBatchActions ? '10rem' : '4rem' }}>
         {/* Chats tab */}
         {activeTab === 'chats' && (
           <div className="px-0">

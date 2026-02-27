@@ -210,3 +210,29 @@ export const useAddComment = () => {
     },
   });
 };
+
+// Delete a post
+export const useDeletePost = () => {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      if (!user) throw new Error('请先登录');
+      const { error } = await supabase
+        .from('posts')
+        .delete()
+        .eq('id', postId)
+        .eq('user_id', user.id);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      toast({ title: '已删除' });
+    },
+    onError: (error: Error) => {
+      toast({ title: '删除失败', description: error.message, variant: 'destructive' });
+    },
+  });
+};

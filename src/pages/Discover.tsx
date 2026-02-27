@@ -1,6 +1,6 @@
 
 import React, { useState, useRef } from 'react';
-import { Image, Video, Heart, MessageCircle, Share2, Bell, SmilePlus, Hash, Send, Loader2, X, MapPin } from 'lucide-react';
+import { Image, Video, Heart, MessageCircle, Share2, Bell, SmilePlus, Hash, Send, Loader2, X, MapPin, Trash2, MoreHorizontal } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from '@/components/ui/input';
 import BottomNav from '../components/BottomNav';
-import { usePosts, usePostComments, useTogglePostLike, useCreatePost, useAddComment, PostWithProfile } from '@/hooks/usePosts';
+import { usePosts, usePostComments, useTogglePostLike, useCreatePost, useAddComment, useDeletePost, PostWithProfile } from '@/hooks/usePosts';
 import { useFollowingPosts } from '@/hooks/useFollowingPosts';
 import { useLocalPosts } from '@/hooks/useLocalPosts';
 import { useUploadPostMedia } from '@/hooks/usePostMediaUpload';
@@ -284,6 +284,9 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const toggleLike = useTogglePostLike();
   const addComment = useAddComment();
+  const deletePost = useDeletePost();
+  const { user } = useAuth();
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
 
   const toggleComments = (postId: string) => {
     setExpandedComments(prev => ({ ...prev, [postId]: !prev[postId] }));
@@ -356,6 +359,30 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
                   <div className="font-medium text-foreground">{post.profile_nickname}</div>
                   <div className="text-xs text-muted-foreground">{formatTime(post.created_at)}</div>
                 </div>
+                {user && user.id === post.user_id && (
+                  <div className="relative">
+                    <button
+                      className="p-1 hover:bg-muted rounded-full transition-colors"
+                      onClick={() => setMenuOpenId(menuOpenId === post.id ? null : post.id)}
+                    >
+                      <MoreHorizontal size={18} className="text-muted-foreground" />
+                    </button>
+                    {menuOpenId === post.id && (
+                      <div className="absolute right-0 top-full mt-1 bg-card border border-border rounded-lg shadow-lg z-20 py-1 min-w-[100px]">
+                        <button
+                          className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-muted transition-colors"
+                          onClick={() => {
+                            setMenuOpenId(null);
+                            deletePost.mutate(post.id);
+                          }}
+                        >
+                          <Trash2 size={14} />
+                          删除
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                )}
               </div>
 
               {/* Content */}

@@ -54,6 +54,7 @@ import CommunityGuidelines from "./pages/settings/CommunityGuidelines";
 import ProductFeedback from "./pages/settings/ProductFeedback";
 import AboutUs from "./pages/settings/AboutUs";
 import UserResearch from "./pages/settings/UserResearch";
+import ChangePassword from "./pages/settings/ChangePassword";
 
 function App() {
   return (
@@ -110,6 +111,7 @@ function App() {
                 <Route path="/settings/feedback" element={<ProductFeedback />} />
                 <Route path="/settings/about" element={<AboutUs />} />
                 <Route path="/settings/user-research" element={<UserResearch />} />
+                <Route path="/settings/change-password" element={<ChangePassword />} />
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>

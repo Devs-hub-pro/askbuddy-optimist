@@ -253,6 +253,33 @@ export type Database = {
           },
         ]
       }
+      feedback: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          images: string[] | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          images?: string[] | null
+          type?: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          images?: string[] | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       hot_topics: {
         Row: {
           category: string | null
@@ -764,6 +791,33 @@ export type Database = {
           created_at?: string
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          created_at: string
+          id: string
+          notification_settings: Json
+          privacy_settings: Json
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          notification_settings?: Json
+          privacy_settings?: Json
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          notification_settings?: Json
+          privacy_settings?: Json
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

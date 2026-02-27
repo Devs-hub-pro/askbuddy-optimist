@@ -236,3 +236,31 @@ export const useDeletePost = () => {
     },
   });
 };
+
+// Increment share count
+export const useSharePost = () => {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: async (postId: string) => {
+      // Get current count and increment
+      const { data } = await supabase
+        .from('posts')
+        .select('shares_count')
+        .eq('id', postId)
+        .single();
+      
+      const { error } = await supabase
+        .from('posts')
+        .update({ shares_count: (data?.shares_count || 0) + 1 })
+        .eq('id', postId);
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['posts'] });
+      navigator.clipboard.writeText(window.location.href);
+      toast({ title: '链接已复制，分享成功' });
+    },
+  });
+};

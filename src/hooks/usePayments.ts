@@ -96,7 +96,7 @@ export const useCreateRechargePayment = () => {
         provider: params.provider,
         points: params.points,
         cash_amount: Number((params.points * 0.1).toFixed(2)),
-        status: 'completed',
+        status: 'completed' as const,
         legacy_mode: true,
         payment_payload: {
           provider: params.provider,

@@ -54,7 +54,7 @@ const PointsRecharge = () => {
         provider: selectedProvider,
       });
 
-      setPaymentIntent(intent);
+      setPaymentIntent(intent as RechargePaymentIntent);
       if (intent.status === 'completed') {
         setSuccess(true);
         toast({

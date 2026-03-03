@@ -45,7 +45,6 @@ export const useQuestions = (category?: string) => {
       let query = supabase
         .from('questions')
         .select('*')
-        .eq('is_hidden', false)
         .order('created_at', { ascending: false });
 
       if (category) {
@@ -103,7 +102,6 @@ export const useQuestionDetail = (questionId: string) => {
         .from('questions')
         .select('*')
         .eq('id', questionId)
-        .eq('is_hidden', false)
         .maybeSingle();
 
       if (questionError) throw questionError;
@@ -118,7 +116,6 @@ export const useQuestionDetail = (questionId: string) => {
         .from('answers')
         .select('*')
         .eq('question_id', questionId)
-        .eq('is_hidden', false)
         .order('is_accepted', { ascending: false })
         .order('likes_count', { ascending: false })
         .order('created_at', { ascending: true });

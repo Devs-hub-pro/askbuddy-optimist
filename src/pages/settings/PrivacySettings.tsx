@@ -1,13 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Eye, Lock, Users, Shield, AlertTriangle, Loader2 } from 'lucide-react';
+import { Eye, Lock, Users, Shield, AlertTriangle, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useUserSettings, useSavePrivacySettings, PrivacyPrefs } from '@/hooks/useUserSettings';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const PrivacySettings = () => {
   const navigate = useNavigate();
@@ -42,46 +42,54 @@ const PrivacySettings = () => {
   }
 
   const Item = ({ label, desc, field }: { label: string; desc: string; field: keyof PrivacyPrefs }) => (
-    <>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-3">
         <div className="space-y-0.5">
           <Label className="text-base">{label}</Label>
           <p className="text-sm text-gray-500">{desc}</p>
         </div>
         <Switch checked={!!settings[field]} onCheckedChange={() => handleToggle(field)} />
       </div>
-      <Separator />
-    </>
   );
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="sticky top-0 z-10 bg-white flex items-center justify-between p-4 border-b shadow-sm">
-        <div className="flex items-center">
-          <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} className="mr-2">
-            <ArrowLeft size={24} />
-          </Button>
-          <h1 className="text-xl font-semibold">隐私设置</h1>
-        </div>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button variant="ghost" size="icon">
-              <AlertTriangle size={20} className="text-amber-500" />
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-80">
-            <div className="space-y-2">
-              <h4 className="font-medium">隐私保护提示</h4>
-              <p className="text-sm text-muted-foreground">
-                定期检查您的隐私设置，确保个人信息安全。我们建议对陌生人限制信息可见性。
-              </p>
-            </div>
-          </PopoverContent>
-        </Popover>
-      </div>
+      <SubPageHeader
+        title="隐私设置"
+        right={
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="text-white hover:bg-white/15 hover:text-white">
+                <AlertTriangle size={20} className="text-white" />
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="space-y-2">
+                <h4 className="font-medium">隐私保护提示</h4>
+                <p className="text-sm text-muted-foreground">
+                  定期检查您的隐私设置，确保个人信息安全。我们建议对陌生人限制信息可见性。
+                </p>
+              </div>
+            </PopoverContent>
+          </Popover>
+        }
+      />
 
-      <div className="p-4 space-y-4">
-        <Card className="shadow-sm border-none rounded-xl overflow-hidden">
+      <div className="p-5 space-y-5">
+        <Card className="surface-card rounded-3xl border-none shadow-sm">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">隐私保护</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  调整信息展示、社交互动和在线状态，让你的个人资料与聊天更安心。
+                </p>
+              </div>
+              <Sparkles className="h-5 w-5 text-[rgb(73,170,155)]" />
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">
               <Eye size={18} className="text-primary mr-2" />个人信息可见性
@@ -95,7 +103,7 @@ const PrivacySettings = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-none rounded-xl overflow-hidden">
+        <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">
               <Lock size={18} className="text-red-500 mr-2" />互动设置
@@ -109,7 +117,7 @@ const PrivacySettings = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-none rounded-xl overflow-hidden">
+        <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">
               <Shield size={18} className="text-purple-500 mr-2" />活动与状态
@@ -123,7 +131,7 @@ const PrivacySettings = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-none rounded-xl overflow-hidden">
+        <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">
               <Users size={18} className="text-indigo-500 mr-2" />社交互动
@@ -133,7 +141,7 @@ const PrivacySettings = () => {
           <CardContent className="space-y-4">
             <Item label="推荐可能认识的人" desc="根据共同好友等推荐用户" field="showRecommendations" />
             <div
-              className="flex justify-between items-center cursor-pointer"
+              className="flex justify-between items-center cursor-pointer rounded-2xl bg-slate-50 px-3 py-3"
               onClick={() => navigate('/settings/blacklist')}
             >
               <div className="space-y-0.5">

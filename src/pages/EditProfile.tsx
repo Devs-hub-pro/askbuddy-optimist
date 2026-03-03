@@ -2,7 +2,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, 
   Upload, 
   User, 
   Building, 
@@ -46,6 +45,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUpdateProfile, useUploadAvatar } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/use-toast';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -197,29 +197,21 @@ const EditProfile = () => {
         className="hidden"
       />
 
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background flex items-center justify-between p-4 border-b">
-        <div className="flex items-center">
+      <SubPageHeader
+        title="编辑个人资料"
+        right={
           <Button 
-            variant="ghost" 
-            size="icon" 
-            onClick={() => navigate('/profile')}
-            className="mr-2"
+            onClick={handleComplete}
+            disabled={updateProfile.isPending || uploadAvatar.isPending}
+            className="rounded-full bg-white/20 text-white shadow-none hover:bg-white/25"
           >
-            <ArrowLeft size={24} />
+            {(updateProfile.isPending || uploadAvatar.isPending) ? (
+              <Loader2 className="mr-1 h-4 w-4 animate-spin" />
+            ) : null}
+            完成
           </Button>
-          <h1 className="text-xl font-semibold">编辑个人资料</h1>
-        </div>
-        <Button 
-          onClick={handleComplete}
-          disabled={updateProfile.isPending || uploadAvatar.isPending}
-        >
-          {(updateProfile.isPending || uploadAvatar.isPending) ? (
-            <Loader2 className="h-4 w-4 animate-spin mr-1" />
-          ) : null}
-          完成
-        </Button>
-      </div>
+        }
+      />
 
       {/* Basic Information */}
       <div className="p-4 space-y-4">

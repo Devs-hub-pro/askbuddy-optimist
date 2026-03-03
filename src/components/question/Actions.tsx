@@ -9,11 +9,11 @@ interface ActionsProps {
 }
 
 const Actions: React.FC<ActionsProps> = ({ onCollect, onShare }) => (
-  <div className="flex justify-between">
+  <div className="flex gap-3">
     <Button
       variant="outline"
       size="sm"
-      className="flex items-center text-xs"
+      className="flex-1 rounded-full flex items-center text-xs border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
       onClick={onCollect}
       aria-label="收藏"
     >
@@ -23,7 +23,7 @@ const Actions: React.FC<ActionsProps> = ({ onCollect, onShare }) => (
     <Button
       variant="outline"
       size="sm"
-      className="flex items-center text-xs"
+      className="flex-1 rounded-full flex items-center text-xs border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
       onClick={onShare}
       aria-label="分享"
     >

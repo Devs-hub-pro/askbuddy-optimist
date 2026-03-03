@@ -1,13 +1,19 @@
 
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Coins, Zap, CheckCircle2, Loader2 } from 'lucide-react';
+import { Coins, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useQueryClient } from '@tanstack/react-query';
+import {
+  useCreateRechargePayment,
+  useSimulateRechargeCallback,
+  type RechargePaymentIntent,
+  type RechargeProvider,
+} from '@/hooks/usePayments';
+import { useIsAdmin } from '@/hooks/useHotTopics';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const RECHARGE_OPTIONS = [
   { amount: 10, price: '¥1', label: '10积分', popular: false },
@@ -18,14 +24,23 @@ const RECHARGE_OPTIONS = [
   { amount: 1000, price: '¥100', label: '1000积分', popular: false },
 ];
 
+const PAYMENT_PROVIDERS: Array<{ key: RechargeProvider; label: string; badge: string }> = [
+  { key: 'wechat', label: '微信支付', badge: '推荐' },
+  { key: 'alipay', label: '支付宝', badge: '稳定' },
+  { key: 'stripe', label: 'Stripe', badge: '国际' },
+];
+
 const PointsRecharge = () => {
   const navigate = useNavigate();
   const { user, profile } = useAuth();
   const { toast } = useToast();
-  const queryClient = useQueryClient();
+  const { data: isAdmin } = useIsAdmin();
+  const createRechargePayment = useCreateRechargePayment();
+  const simulateRechargeCallback = useSimulateRechargeCallback();
   const [selected, setSelected] = useState<number>(100);
-  const [loading, setLoading] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<RechargeProvider>('wechat');
   const [success, setSuccess] = useState(false);
+  const [paymentIntent, setPaymentIntent] = useState<RechargePaymentIntent | null>(null);
 
   const handleRecharge = async () => {
     if (!user) {
@@ -33,46 +48,55 @@ const PointsRecharge = () => {
       return;
     }
 
-    setLoading(true);
     try {
-      const { error } = await supabase.rpc('recharge_points', {
-        p_amount: selected,
-        p_payment_method: '模拟支付',
+      const intent = await createRechargePayment.mutateAsync({
+        points: selected,
+        provider: selectedProvider,
       });
 
-      if (error) throw error;
-
-      setSuccess(true);
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-      queryClient.invalidateQueries({ queryKey: ['my-earnings'] });
-
-      toast({ title: '充值成功', description: `已充值 ${selected} 积分` });
-
-      setTimeout(() => {
-        setSuccess(false);
-      }, 2000);
+      setPaymentIntent(intent);
+      if (intent.status === 'completed') {
+        setSuccess(true);
+        toast({
+          title: '充值成功',
+          description: intent.legacy_mode ? '当前远端仍为旧版，已自动按旧流程直接到账' : '积分已到账',
+        });
+        setTimeout(() => setSuccess(false), 2000);
+      } else {
+        toast({
+          title: '支付单已创建',
+          description: '请调起第三方支付，到账将由服务端回调确认',
+        });
+      }
     } catch (err: any) {
       toast({ title: '充值失败', description: err.message, variant: 'destructive' });
-    } finally {
-      setLoading(false);
     }
+  };
+
+  const handleDevelopmentConfirm = async () => {
+    if (!paymentIntent) {
+      return;
+    }
+
+    await simulateRechargeCallback.mutateAsync({
+      orderId: paymentIntent.order_id,
+      providerTransactionId: `DEV-${Date.now()}`,
+      paidCash: paymentIntent.cash_amount,
+    });
+
+    setSuccess(true);
+    setTimeout(() => setSuccess(false), 2000);
   };
 
   const selectedOption = RECHARGE_OPTIONS.find(o => o.amount === selected);
 
   return (
-    <div className="min-h-screen bg-muted pb-20">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background flex items-center p-4 border-b border-border">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="mr-2">
-          <ArrowLeft size={24} />
-        </Button>
-        <h1 className="text-xl font-semibold text-foreground">积分充值</h1>
-      </div>
+    <div className="min-h-[100dvh] bg-muted pb-8">
+      <SubPageHeader title="积分充值" />
 
       {/* Balance Card */}
       <div className="p-4">
-        <Card className="bg-gradient-to-r from-primary to-accent text-primary-foreground border-none shadow-lg">
+        <Card className="border-none bg-gradient-to-r from-[rgb(121,213,199)] to-[rgb(160,237,224)] text-white shadow-lg">
           <CardContent className="p-5">
             <div className="flex items-center mb-2">
               <Coins className="mr-2" size={20} />
@@ -90,9 +114,9 @@ const PointsRecharge = () => {
           {RECHARGE_OPTIONS.map((option) => (
             <button
               key={option.amount}
-              className={`relative rounded-xl p-4 text-center transition-all border-2 ${
+              className={`relative rounded-2xl p-4 text-center transition-all border-2 ${
                 selected === option.amount
-                  ? 'border-primary bg-primary/5 shadow-md'
+                  ? 'border-primary bg-primary/5 shadow-sm'
                   : 'border-border bg-background hover:border-primary/40'
               }`}
               onClick={() => setSelected(option.amount)}
@@ -114,35 +138,88 @@ const PointsRecharge = () => {
       {/* Payment Method */}
       <div className="px-4 mt-6">
         <h3 className="text-sm font-semibold text-muted-foreground mb-3">支付方式</h3>
-        <Card className="border-border">
-          <CardContent className="p-4 flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Zap size={16} className="text-primary" />
+        <div className="space-y-3">
+          {PAYMENT_PROVIDERS.map((provider) => (
+            <button
+              key={provider.key}
+              type="button"
+              className={`w-full rounded-2xl border p-4 text-left transition-colors ${
+                selectedProvider === provider.key
+                  ? 'border-primary bg-primary/5'
+                  : 'border-border bg-background'
+              }`}
+              onClick={() => setSelectedProvider(provider.key)}
+            >
+              <div className="flex items-center justify-between">
+                <div>
+                  <div className="text-sm font-medium text-foreground">{provider.label}</div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    支付单创建后等待第三方回调确认到账
+                  </div>
+                </div>
+                <span className="rounded-full bg-muted px-2 py-1 text-[10px] font-medium">
+                  {provider.badge}
+                </span>
               </div>
-              <span className="text-sm font-medium text-foreground">模拟支付</span>
-            </div>
-            <CheckCircle2 size={20} className="text-primary" />
-          </CardContent>
-        </Card>
-        <p className="text-xs text-muted-foreground mt-2">* 当前为演示模式，充值将直接到账</p>
+            </button>
+          ))}
+        </div>
+        <p className="text-xs text-muted-foreground mt-2">* 不再点击即到账，积分会在支付回调确认后入账</p>
       </div>
 
       {/* Submit Button */}
       <div className="px-4 mt-8">
         <Button
-          className="w-full h-12 text-base font-semibold rounded-xl shadow-lg"
+          className="h-12 w-full rounded-2xl text-base font-semibold shadow-md"
           onClick={handleRecharge}
-          disabled={loading || success}
+          disabled={createRechargePayment.isPending || success}
         >
-          {loading ? (
+          {createRechargePayment.isPending ? (
             <Loader2 className="animate-spin mr-2" size={18} />
           ) : success ? (
             <CheckCircle2 className="mr-2" size={18} />
           ) : null}
-          {success ? '充值成功！' : `确认充值 ${selectedOption?.price} → ${selected}积分`}
+          {success ? '充值成功！' : `创建支付单 ${selectedOption?.price} → ${selected}积分`}
         </Button>
       </div>
+
+      {paymentIntent && paymentIntent.status === 'pending' && (
+        <div className="px-4 mt-4">
+          <Card className="border-border">
+            <CardContent className="p-4 space-y-2">
+              <div className="text-sm font-semibold text-foreground">待支付订单</div>
+              <div className="text-xs text-muted-foreground">订单号：{paymentIntent.provider_order_id}</div>
+              <div className="text-sm text-foreground">
+                待支付金额：¥{Number(paymentIntent.cash_amount).toFixed(2)}
+              </div>
+              {paymentIntent.provider === 'wechat' && paymentIntent.payment_payload?.sign && (
+                <div className="rounded-lg bg-muted p-3 text-xs text-muted-foreground">
+                  已生成微信预下单参数，可直接用于原生端拉起支付。
+                  <div className="mt-1 break-all">prepayid: {paymentIntent.payment_payload.prepayid}</div>
+                  <div className="mt-1">signType: {paymentIntent.payment_payload.signType}</div>
+                  {paymentIntent.payment_payload.is_mock_gateway && (
+                    <div className="mt-1 text-amber-600">当前为开发联调签名，不会连接真实微信网关。</div>
+                  )}
+                </div>
+              )}
+              <div className="text-xs text-muted-foreground">
+                当前状态：{paymentIntent.status}，请在第三方支付完成后等待回调确认。
+              </div>
+              {import.meta.env.DEV && isAdmin && (
+                <Button
+                  variant="outline"
+                  className="w-full"
+                  onClick={handleDevelopmentConfirm}
+                  disabled={simulateRechargeCallback.isPending}
+                >
+                  {simulateRechargeCallback.isPending && <Loader2 className="animate-spin mr-2" size={16} />}
+                  开发环境模拟支付回调
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };

@@ -1,13 +1,11 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Star, MessageSquare, Gift, Trophy, ThumbsUp } from 'lucide-react';
+import { Star, MessageSquare, Gift, Trophy, ThumbsUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from '@/hooks/use-toast';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const UserResearch = () => {
-  const navigate = useNavigate();
-
   const handleParticipate = (activity: string) => {
     toast({
       title: "感谢参与",
@@ -16,33 +14,23 @@ const UserResearch = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-white">
-      <div className="sticky top-0 z-10 bg-white/80 backdrop-blur-md flex items-center p-4 border-b">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => navigate('/settings')}
-          className="mr-2"
-        >
-          <ArrowLeft size={24} />
-        </Button>
-        <h1 className="text-xl font-semibold">用户体验调研</h1>
-      </div>
+    <div className="min-h-[100dvh] bg-gradient-to-b from-[rgb(236,251,247)] to-white">
+      <SubPageHeader title="用户体验调研" />
 
-      <div className="p-4 space-y-4">
+      <div className="p-5 space-y-5">
         {/* 当前活动 */}
         <div className="mb-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center">
             <Star className="w-5 h-5 mr-2 text-yellow-500" />
             当前活动
           </h2>
-          <Card className="bg-gradient-to-r from-purple-100 to-pink-100 border-none shadow-sm">
+          <Card className="surface-card rounded-3xl border-none shadow-sm">
             <CardContent className="p-6">
               <div className="flex items-center justify-between mb-4">
-                <span className="px-3 py-1 bg-purple-500 text-white text-sm rounded-full">
+                <span className="rounded-full bg-[rgb(121,213,199)] px-3 py-1 text-sm text-white">
                   限时活动
                 </span>
-                <span className="text-sm text-purple-600">奖励: 50积分</span>
+                <span className="text-sm text-primary">奖励: 50积分</span>
               </div>
               <h3 className="text-lg font-semibold mb-2">新版界面体验官招募</h3>
               <p className="text-gray-600 text-sm mb-4">
@@ -50,7 +38,7 @@ const UserResearch = () => {
               </p>
               <Button 
                 onClick={() => handleParticipate('interface')}
-                className="w-full bg-purple-500 hover:bg-purple-600"
+                className="w-full rounded-full bg-[rgb(121,213,199)] hover:bg-[rgb(97,194,179)]"
               >
                 立即参与
               </Button>
@@ -66,7 +54,7 @@ const UserResearch = () => {
           </h2>
           
           <div className="grid grid-cols-2 gap-4">
-            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleParticipate('survey')}>
+            <Card className="surface-card rounded-3xl cursor-pointer transition-shadow hover:shadow-md" onClick={() => handleParticipate('survey')}>
               <CardContent className="p-4 text-center">
                 <div className="w-12 h-12 mx-auto mb-2 bg-blue-100 rounded-full flex items-center justify-center">
                   <MessageSquare className="w-6 h-6 text-blue-500" />
@@ -76,7 +64,7 @@ const UserResearch = () => {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleParticipate('interview')}>
+            <Card className="surface-card rounded-3xl cursor-pointer transition-shadow hover:shadow-md" onClick={() => handleParticipate('interview')}>
               <CardContent className="p-4 text-center">
                 <div className="w-12 h-12 mx-auto mb-2 bg-green-100 rounded-full flex items-center justify-center">
                   <Gift className="w-6 h-6 text-green-500" />
@@ -86,7 +74,7 @@ const UserResearch = () => {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleParticipate('testing')}>
+            <Card className="surface-card rounded-3xl cursor-pointer transition-shadow hover:shadow-md" onClick={() => handleParticipate('testing')}>
               <CardContent className="p-4 text-center">
                 <div className="w-12 h-12 mx-auto mb-2 bg-yellow-100 rounded-full flex items-center justify-center">
                   <Trophy className="w-6 h-6 text-yellow-500" />
@@ -96,7 +84,7 @@ const UserResearch = () => {
               </CardContent>
             </Card>
 
-            <Card className="hover:shadow-md transition-shadow cursor-pointer" onClick={() => handleParticipate('feedback')}>
+            <Card className="surface-card rounded-3xl cursor-pointer transition-shadow hover:shadow-md" onClick={() => handleParticipate('feedback')}>
               <CardContent className="p-4 text-center">
                 <div className="w-12 h-12 mx-auto mb-2 bg-red-100 rounded-full flex items-center justify-center">
                   <ThumbsUp className="w-6 h-6 text-red-500" />

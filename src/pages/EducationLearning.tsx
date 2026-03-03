@@ -10,7 +10,6 @@ import {
   FileText, 
   Plus,
   Bell,
-  CalendarPlus,
   MessageSquare,
   MessageCircle,
   Clock,
@@ -19,20 +18,25 @@ import {
   Eye,
   ChevronRight
 } from 'lucide-react';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { ScrollArea } from "@/components/ui/scroll-area";
-import SearchBar from "@/components/SearchBar";
 import QuestionCard from '@/components/QuestionCard';
 import { useQuestions } from '@/hooks/useQuestions';
 import { useExperts } from '@/hooks/useExperts';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+import ChannelPageScaffold from '@/components/channel/ChannelPageScaffold';
+import ChannelExpertCard from '@/components/channel/ChannelExpertCard';
+import ChannelQuestionSkeleton from '@/components/channel/ChannelQuestionSkeleton';
+import ChannelExpertSkeleton from '@/components/channel/ChannelExpertSkeleton';
+import ChannelFloatingActionButton from '@/components/channel/ChannelFloatingActionButton';
+import { demoExperts } from '@/lib/demoData';
 
 const EducationLearning = () => {
   const navigate = useNavigate();
   const [activeCategory, setActiveCategory] = useState('all');
+  const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>('everyone');
   const categoryRef = useRef<HTMLDivElement>(null);
   const [showRightIndicator, setShowRightIndicator] = useState(false);
   
@@ -72,17 +76,6 @@ const EducationLearning = () => {
       });
     }
   };
-
-  const importantDates = [
-    { date: '2024-12-25', event: '全国研究生考试', countdown: 65, type: 'kaoyan' },
-    { date: '2024-10-15', event: '考研预报名开始', countdown: 15, type: 'kaoyan' },
-    { date: '2024-11-20', event: 'TOEFL/GRE冬季考试', countdown: 40, type: 'study-abroad' },
-    { date: '2025-06-07', event: '2025高考', countdown: 240, type: 'gaokao' }
-  ];
-
-  const filteredDates = activeCategory === 'all' 
-    ? importantDates 
-    : importantDates.filter(date => date.type === activeCategory);
 
   const categories = [
     { id: 'all', name: '全部', icon: <Calendar size={16} /> },
@@ -181,11 +174,32 @@ const EducationLearning = () => {
     rating: Number(e.rating), responseRate: `${e.response_rate}%`, orderCount: `${e.order_count}单`,
   }));
 
-  const filteredExperts = mappedDbExperts.length > 0 ? mappedDbExperts : (
-    activeCategory === 'all' ? allExperts : allExperts.filter(expert => expert.category === activeCategory)
-  );
+  const mappedDemoExperts = demoExperts
+    .filter((expert) => expert.category === 'education-learning')
+    .map((expert) => ({
+      id: expert.id,
+      name: expert.nickname || '测试专家',
+      avatar: expert.avatar_url || 'https://randomuser.me/api/portraits/lego/1.jpg',
+      title: expert.title,
+      description: expert.bio || '',
+      tags: expert.tags,
+      keywords: expert.keywords,
+      category: activeCategory === 'all' ? 'all' : 'study-abroad',
+      rating: Number(expert.rating),
+      responseRate: `${expert.response_rate}%`,
+      orderCount: `${expert.order_count}单`,
+    }));
+
+  const fallbackExperts = [
+    ...mappedDemoExperts,
+    ...(activeCategory === 'all' ? allExperts : allExperts.filter(expert => expert.category === activeCategory)),
+  ];
+
+  const filteredExperts = mappedDbExperts.length > 0 ? mappedDbExperts : fallbackExperts;
 
   const filteredQuestions = questions || [];
+  const featuredQuestion = filteredQuestions[0];
+  const featuredExpert = filteredExperts[0];
 
   const handleSearch = () => {
     console.log('Search initiated');
@@ -196,156 +210,49 @@ const EducationLearning = () => {
     console.log(`Selected category: ${categoryId}`);
   };
 
-  const handleAddDate = () => {
-    console.log('Adding custom date');
-  };
-
   const handleViewQuestionDetail = (questionId: string) => {
     navigate(`/question/${questionId}`);
   };
 
   const handleViewExpertProfile = (expertId: string) => {
-    navigate(`/expert-profile/${expertId}`);
+    const targetId = expertId.startsWith('demo-expert-') ? expertId : 'demo-expert-1';
+    navigate(`/expert-profile/${targetId}`);
   };
 
   return (
-    <div className="app-container bg-gradient-to-b from-white to-blue-50/30 pb-20">
-      <div className="sticky top-0 z-50 bg-app-teal shadow-sm animate-fade-in">
-        <div className="flex items-center h-12 px-4">
-          <button onClick={() => navigate('/')} className="text-white">
-            <ChevronLeft size={24} />
-          </button>
-          <div className="text-white font-medium text-base ml-2">教育学习</div>
-          <div className="flex-1"></div>
-          <button className="text-white">
-            <Bell size={20} />
-          </button>
-        </div>
-      </div>
-      
-      <div className="px-4 py-3 bg-app-light-bg">
-        <SearchBar placeholder="搜索问题/达人/话题" />
-      </div>
-      
-      <div className="px-4 mb-6">
-        <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-3 shadow-sm">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center">
-              <Calendar size={18} className="text-indigo-600 mr-2" />
-              <h3 className="font-medium text-sm">重要日期日历</h3>
-            </div>
-            <button 
-              className="flex items-center text-xs text-indigo-600 bg-white rounded-full px-2 py-1 shadow-sm"
-              onClick={handleAddDate}
-            >
-              <CalendarPlus size={12} className="mr-1" />
-              <span>添加日程</span>
-            </button>
-          </div>
-          
-          <div className="space-y-2">
-            {filteredDates.map((item, index) => {
-              const eventDate = new Date(item.date);
-              const formattedDate = `${eventDate.getMonth() + 1}月${eventDate.getDate()}日`;
-              
-              return (
-                <div key={index} className="flex items-center justify-between bg-white rounded-md p-2">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-medium">{item.event}</span>
-                    <span className="text-xs text-gray-500">{formattedDate}</span>
-                  </div>
-                  <div className="bg-indigo-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-                    {item.countdown}天
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </div>
-      </div>
-      
-      <div className="px-4 mb-4 relative">
-        <div className="relative">
-          {showRightIndicator && (
-            <button 
-              onClick={() => scrollCategories('right')} 
-              className="absolute right-0 top-1/2 -translate-y-1/2 bg-white bg-opacity-90 rounded-full shadow-md z-10 p-1 hover:bg-gray-100 transition-colors"
-            >
-              <ChevronRight size={16} className="text-gray-600" />
-            </button>
-          )}
-          
-          <ScrollArea className="w-full" orientation="horizontal">
-            <div 
-              ref={categoryRef}
-              className="flex space-x-2 pb-2 pr-4"
-              style={{ minWidth: "100%" }}
-            >
-              {categories.map((category) => (
-                <div 
-                  key={category.id} 
-                  className={`flex-shrink-0 ${activeCategory === category.id ? 'bg-blue-500 text-white' : 'bg-white shadow-sm'} rounded-full px-3 py-1.5 flex items-center gap-1 cursor-pointer transition-colors`}
-                  onClick={() => handleCategorySelect(category.id)}
-                >
-                  {category.icon}
-                  <span className="text-xs font-medium whitespace-nowrap">{category.name}</span>
-                </div>
-              ))}
-            </div>
-          </ScrollArea>
-        </div>
-      </div>
-      
-      <div className="px-4 mb-6">
-        <Tabs defaultValue="everyone" className="w-full">
-          <div className="relative mb-6 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-[2px] after:bg-gray-100">
-            <TabsList className="w-full bg-transparent p-0 h-auto">
-              <TabsTrigger 
-                value="everyone" 
-                className="font-bold text-lg pb-2 relative data-[state=active]:text-app-text data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=inactive]:text-gray-400"
-              >
-                大家都在问
-                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-app-teal to-app-blue z-10 opacity-0 data-[state=active]:opacity-100 transition-opacity"></span>
-              </TabsTrigger>
-              <TabsTrigger 
-                value="experts" 
-                className="font-bold text-lg pb-2 relative data-[state=active]:text-app-text data-[state=active]:bg-transparent data-[state=active]:shadow-none data-[state=inactive]:text-gray-400"
-              >
-                找TA问问
-                <span className="absolute bottom-0 left-0 w-full h-[2px] bg-gradient-to-r from-app-teal to-app-blue z-10 opacity-0 data-[state=active]:opacity-100 transition-opacity"></span>
-              </TabsTrigger>
-            </TabsList>
-          </div>
-          
+    <ChannelPageScaffold
+      title="教育学习"
+      pageClassName="bg-gradient-to-b from-blue-50/70 via-white to-white"
+      headerGradientClass="bg-gradient-to-r from-blue-500 to-indigo-500"
+      searchStripClass="bg-blue-50/90 border-blue-100/90"
+      searchAccentRingClass="ring-blue-400/25"
+      searchInputAccentClass="focus:ring-blue-400/20 focus:border-blue-200"
+      searchInputBorderClass="border-blue-200/80"
+      searchIconClass="text-blue-400"
+      searchNavigateToPath="/search?channel=education"
+      featuredBadgeClass="bg-blue-50 text-blue-600"
+      featuredHintClass="text-blue-600"
+      activeCategoryClass="bg-blue-500 text-white shadow-sm border-blue-500"
+      tabUnderlineClass="bg-gradient-to-r from-blue-500 to-indigo-500"
+      categories={categories}
+      activeCategory={activeCategory}
+      categoryRef={categoryRef}
+      showRightIndicator={showRightIndicator}
+      featuredTitle={featuredQuestion?.title || '升学与备考路线集中答疑'}
+      featuredDescription={featuredQuestion?.content || '聚焦高考、考研、留学与论文写作，先看精选问题和高质量答主，再决定深入提问。'}
+      featuredHint={featuredExpert ? `推荐答主：${featuredExpert.name}` : '优先查看高质量问答'}
+      onBack={() => navigate('/')}
+      onScrollCategories={scrollCategories}
+      onSelectCategory={handleCategorySelect}
+      onViewFeatured={featuredQuestion ? () => handleViewQuestionDetail(featuredQuestion.id) : undefined}
+      activeTab={activeTab}
+      onTabChange={setActiveTab}
+    >
           <TabsContent value="everyone" className="mt-0">
             {isLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3].map((item) => (
-                  <div key={item} className="bg-white rounded-lg p-4 animate-pulse-soft shadow-sm">
-                    <div className="h-5 bg-gray-200 rounded w-3/4 mb-3"></div>
-                    <div className="h-10 bg-gray-200 rounded w-full mb-3"></div>
-                    <div className="flex items-center justify-between mb-3">
-                      <div className="flex items-center gap-2">
-                        <div className="w-8 h-8 bg-gray-200 rounded-full"></div>
-                        <div>
-                          <div className="h-3 bg-gray-200 rounded w-20"></div>
-                          <div className="h-3 bg-gray-200 rounded w-16 mt-1"></div>
-                        </div>
-                      </div>
-                      <div className="h-5 bg-gray-200 rounded-full w-16"></div>
-                    </div>
-                    <div className="flex justify-between">
-                      <div className="flex gap-1">
-                        <div className="h-4 bg-gray-200 rounded-full w-12"></div>
-                        <div className="h-4 bg-gray-200 rounded-full w-12"></div>
-                      </div>
-                      <div className="h-6 bg-gray-200 rounded-full w-16"></div>
-                    </div>
-                  </div>
-                ))}
-              </div>
+              <ChannelQuestionSkeleton />
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-5">
                 {filteredQuestions.map((question, index) => (
                   <QuestionCard
                     key={question.id}
@@ -369,92 +276,32 @@ const EducationLearning = () => {
           
           <TabsContent value="experts" className="mt-0">
             {isLoading ? (
-              <div className="space-y-3">
-                {[1, 2, 3, 4].map((item) => (
-                  <div key={item} className="bg-white rounded-lg p-3 animate-pulse-soft shadow-sm">
-                    <div className="flex items-center mb-2">
-                      <div className="w-10 h-10 bg-gray-200 rounded-full mr-2"></div>
-                      <div>
-                        <div className="h-3 bg-gray-200 rounded w-16 mb-1"></div>
-                        <div className="h-2 bg-gray-200 rounded w-24"></div>
-                      </div>
-                    </div>
-                    <div className="h-10 bg-gray-200 rounded w-full"></div>
-                  </div>
-                ))}
-              </div>
+              <ChannelExpertSkeleton />
             ) : (
               <div className="space-y-3">
                 {filteredExperts.map((expert) => (
-                  <div 
+                  <ChannelExpertCard
                     key={expert.id}
-                    className="bg-white rounded-xl p-3 shadow-md hover:shadow-lg transition-all duration-300 cursor-pointer"
-                    onClick={() => handleViewExpertProfile(expert.id)}
-                  >
-                    <div className="flex justify-between items-start">
-                      <div className="flex items-center gap-2">
-                        <Avatar className="w-10 h-10 border border-green-50">
-                          <AvatarImage src={expert.avatar} alt={expert.name} className="object-cover" />
-                          <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <h3 className="text-sm font-semibold text-gray-800">{expert.name}</h3>
-                          <p className="text-xs text-green-600">{expert.title}</p>
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-col items-end">
-                        <div className="flex items-center text-yellow-500 gap-1">
-                          <Award size={12} />
-                          <span className="text-xs font-medium">{expert.rating}</span>
-                        </div>
-                        <div className="flex items-center text-blue-500 gap-1 text-xs">
-                          <Clock size={10} />
-                          <span>{expert.responseRate}</span>
-                        </div>
-                        <div className="flex items-center text-green-500 gap-1 text-xs">
-                          <Package size={10} />
-                          <span>{expert.orderCount}</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex mt-2">
-                      <p className="text-xs text-gray-700 border-l-2 border-green-200 pl-2 py-0.5 bg-green-50/50 rounded-r-md flex-1 mr-2 line-clamp-2">
-                        {expert.description}
-                      </p>
-                      
-                      <Button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          navigate(`/expert-profile/${expert.id}`);
-                        }}
-                        className="bg-gradient-to-r from-green-500 to-teal-400 text-white px-2.5 py-1 rounded-full text-xs flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0 h-auto"
-                      >
-                        <MessageSquare size={10} />
-                        找我问问
-                      </Button>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-1.5 mt-2">
-                      {expert.tags.map((tag, index) => (
-                        <span key={index} className="bg-green-50 text-green-600 text-xs px-2 py-0.5 rounded-full">
-                          #{tag}
-                        </span>
-                      ))}
-                    </div>
-                  </div>
+                    expert={expert}
+                    accentBorderClass="border-blue-50"
+                    accentTextClass="text-blue-600"
+                    accentTagClass="bg-blue-50 text-blue-600"
+                    accentSummaryClass="border-blue-200 bg-blue-50/60"
+                    ctaClassName="bg-gradient-to-r from-blue-500 to-indigo-400"
+                    onOpen={() => handleViewExpertProfile(expert.id)}
+                    onConsult={() => navigate(`/expert/${expert.id.startsWith('demo-expert-') ? expert.id : 'demo-expert-1'}`)}
+                  />
                 ))}
               </div>
             )}
           </TabsContent>
-        </Tabs>
-      </div>
       
-      <button className="fixed bottom-20 right-4 bg-gradient-to-r from-app-teal to-app-blue text-white rounded-full w-14 h-14 flex items-center justify-center shadow-lg">
-        <Plus size={24} />
-      </button>
-    </div>
+      <ChannelFloatingActionButton
+        className="bg-gradient-to-r from-blue-500 to-indigo-500 shadow-[0_12px_28px_rgba(59,130,246,0.28)]"
+        onClick={() => navigate('/new')}
+        ariaLabel="发布教育学习问题"
+      />
+    </ChannelPageScaffold>
   );
 };
 

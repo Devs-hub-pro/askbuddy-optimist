@@ -13,11 +13,11 @@ const BottomBar: React.FC<BottomBarProps> = ({
   onAnswer, onInvite, loading
 }) => (
   <div 
-    className="fixed bottom-0 left-0 right-0 bg-background border-t border-border p-3 flex gap-3 z-40"
+    className="fixed bottom-0 left-0 right-0 bg-background/98 border-t border-border px-4 pt-3 flex gap-3 z-40 backdrop-blur-sm"
     style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
   >
     <Button
-      className="flex-1 bg-gradient-to-r from-blue-500 to-primary"
+      className="flex-1 rounded-full bg-gradient-to-r from-blue-500 to-primary shadow-sm h-11"
       onClick={onAnswer}
       aria-label="我来回答"
       disabled={loading}
@@ -27,7 +27,7 @@ const BottomBar: React.FC<BottomBarProps> = ({
     </Button>
     <Button
       variant="outline"
-      className="flex-1 flex items-center justify-center"
+      className="flex-1 rounded-full flex items-center justify-center border-slate-200 bg-white text-slate-700 hover:bg-slate-50 h-11"
       onClick={onInvite}
       aria-label="邀请回答"
       disabled={loading}

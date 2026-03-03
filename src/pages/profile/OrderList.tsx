@@ -1,21 +1,24 @@
 
 import React, { useState } from 'react';
-import { ArrowRight, Clock, CheckCircle, ShoppingCart, Loader2 } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { ArrowRight, Clock3, CheckCircle2, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Card, CardContent } from '@/components/ui/card';
 import { useMyOrders } from '@/hooks/useProfileData';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const statusMap: Record<string, { color: string; text: string; icon: React.ReactNode }> = {
   paid: {
-    color: "bg-green-50 text-green-600 border-green-100",
+    color: "bg-emerald-50 text-emerald-600 border-emerald-100",
     text: "已支付",
-    icon: <CheckCircle size={15} className="mr-1 text-green-500" />,
+    icon: <CheckCircle2 size={14} className="mr-1 text-emerald-500" />,
   },
   pending: {
-    color: "bg-orange-50 text-orange-600 border-orange-100",
+    color: "bg-amber-50 text-amber-600 border-amber-100",
     text: "待支付",
-    icon: <Clock size={15} className="mr-1 text-orange-500" />,
+    icon: <Clock3 size={14} className="mr-1 text-amber-500" />,
   },
 };
 
@@ -26,6 +29,7 @@ const tabs = [
 ];
 
 const OrderList: React.FC = () => {
+  const navigate = useNavigate();
   const [tab, setTab] = useState<string>("all");
   const { data: orders, isLoading } = useMyOrders(tab);
 
@@ -36,61 +40,108 @@ const OrderList: React.FC = () => {
   };
 
   return (
-    <div className="max-w-lg mx-auto py-4">
-      <div className="flex bg-white rounded-lg shadow overflow-hidden mb-4">
+    <div className="px-5 py-5">
+      <div className="surface-card rounded-3xl p-1 shadow-sm">
+        <div className="grid grid-cols-3 gap-1">
         {tabs.map(t => (
           <button
             key={t.key}
-            className={`flex-1 py-3 font-medium text-sm
-              ${tab === t.key ? 'text-app-blue border-b-2 border-app-blue bg-blue-50' : 'text-gray-500 bg-white'}
-              transition`}
+            className={`rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors ${
+              tab === t.key
+                ? 'bg-[rgb(236,251,247)] text-[rgb(73,170,155)]'
+                : 'text-muted-foreground hover:bg-muted/50'
+            }`}
             onClick={() => setTab(t.key)}
           >
             {t.label}
           </button>
         ))}
+        </div>
       </div>
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <PageStateCard variant="loading" compact title="正在加载订单…" className="w-full max-w-sm" />
         </div>
       ) : orders && orders.length > 0 ? (
-        <div className="space-y-4 px-4">
+        <div className="mt-5 space-y-4">
           {orders.map((order) => {
             const status = statusMap[order.status] || statusMap.pending;
             return (
-              <div key={order.id} className="bg-white rounded-xl shadow p-4 flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-0">
-                <div className="flex-1 min-w-0">
-                  <div className="font-medium truncate mb-1 text-gray-900">
-                    {order.order_type === 'question' ? '提问订单' : order.order_type}
+              <Card key={order.id} className="surface-card rounded-3xl border-none shadow-sm">
+                <CardContent className="p-5">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0 flex-1">
+                      <div className="flex items-center gap-2">
+                        <h3 className="truncate text-base font-semibold text-foreground">
+                          {order.order_type === 'question'
+                            ? '提问订单'
+                            : order.order_type === 'recharge'
+                              ? '积分充值'
+                              : order.order_type}
+                        </h3>
+                        <span className={`inline-flex items-center rounded-full border px-2.5 py-1 text-[11px] font-medium ${status.color}`}>
+                          {status.icon}
+                          {status.text}
+                        </span>
+                      </div>
+                      <p className="mt-1 text-xs text-muted-foreground">订单创建于 {formatTime(order.created_at)}</p>
+                    </div>
+                    <div className="shrink-0 text-right">
+                      <p className="text-xs text-muted-foreground">订单金额</p>
+                      <p className="mt-1 text-base font-semibold text-foreground">
+                        ￥{typeof (order as any).cash_amount === 'number' ? (order as any).cash_amount : order.amount}
+                      </p>
+                    </div>
                   </div>
-                  <div className="text-xs text-gray-400">{formatTime(order.created_at)}</div>
-                </div>
-                <div className="flex items-center gap-2">
-                  <span className={`flex items-center px-2.5 py-0.5 rounded-full border text-xs ${status.color}`}>
-                    {status.icon}
-                    {status.text}
-                  </span>
-                  <span className="text-app-blue text-xs ml-2">￥{order.amount}</span>
-                </div>
-                {order.status === "pending" && (
-                  <Button
-                    size="sm"
-                    className="ml-4 bg-gradient-to-r from-orange-400 to-orange-500 px-4 py-1 rounded-full text-white font-medium"
-                    onClick={() => window.alert('跳转支付流程（待接入支付接口）')}
-                  >
-                    去支付 <ArrowRight size={14} className="ml-1" />
-                  </Button>
-                )}
-              </div>
+
+                  <div className="mt-4 flex items-center justify-between rounded-2xl bg-muted px-4 py-3">
+                    <div>
+                      <p className="text-xs font-medium text-muted-foreground">订单编号</p>
+                      <p className="mt-1 text-xs text-foreground">{order.id.slice(0, 8).toUpperCase()}</p>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-xs font-medium text-muted-foreground">支付方式</p>
+                      <p className="mt-1 text-xs text-foreground">
+                        {order.order_type === 'recharge' ? '积分充值' : '站内结算'}
+                      </p>
+                    </div>
+                  </div>
+
+                  {order.status === "pending" ? (
+                    <div className="mt-4 flex justify-end">
+                      <Button
+                        size="sm"
+                        className="h-10 rounded-full px-4 text-sm font-medium shadow-sm"
+                        onClick={() => {
+                          if (order.order_type === 'recharge') {
+                            navigate('/profile/recharge');
+                            return;
+                          }
+                          window.alert('当前订单支付入口仍待接入');
+                        }}
+                      >
+                        去支付
+                        <ArrowRight size={14} className="ml-1" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="mt-4 flex justify-end">
+                      <span className="text-xs text-muted-foreground">订单已完成，可在记录中查看详情</span>
+                    </div>
+                  )}
+                </CardContent>
+              </Card>
             );
           })}
         </div>
       ) : (
-        <div className="flex flex-col items-center text-gray-400 py-20">
-          <ShoppingCart size={56} className="mb-3" />
-          <div className="text-sm">暂无相关问题订单</div>
+        <div className="mt-5">
+          <PageStateCard
+            title="还没有相关订单"
+            description="后续提问、咨询或充值后，会在这里查看记录。"
+            icon={<ShoppingCart size={56} className="mx-auto text-muted-foreground/30" />}
+          />
         </div>
       )}
     </div>

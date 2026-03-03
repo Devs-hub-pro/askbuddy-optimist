@@ -3,6 +3,11 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
 
+const isMissingRpcError = (error: unknown, functionName: string) => {
+  const message = error instanceof Error ? error.message : String(error || '');
+  return message.includes(`public.${functionName}`) || message.includes('schema cache');
+};
+
 export interface HotTopic {
   id: string;
   title: string;
@@ -94,6 +99,7 @@ export const useTopicDetail = (topicId: string) => {
         .from('topic_discussions')
         .select('*')
         .eq('topic_id', topicId)
+        .eq('is_hidden', false)
         .order('likes_count', { ascending: false })
         .order('created_at', { ascending: false });
 
@@ -132,7 +138,10 @@ export const useTopicDetail = (topicId: string) => {
       }));
 
       return {
-        topic: topic as HotTopic,
+        topic: {
+          ...(topic as HotTopic),
+          discussions_count: discussionsWithProfiles.length,
+        },
         discussions: discussionsWithProfiles
       };
     },
@@ -150,18 +159,31 @@ export const useCreateDiscussion = () => {
     mutationFn: async (data: { topic_id: string; content: string }) => {
       if (!user) throw new Error('请先登录');
 
+      const rpcResult = await (supabase as any).rpc('create_topic_discussion_secure', {
+        p_topic_id: data.topic_id,
+        p_content: data.content,
+      });
+
+      if (!rpcResult.error) {
+        return rpcResult.data as string;
+      }
+
+      if (!isMissingRpcError(rpcResult.error, 'create_topic_discussion_secure')) {
+        throw rpcResult.error;
+      }
+
       const { data: discussion, error } = await supabase
         .from('topic_discussions')
         .insert({
           topic_id: data.topic_id,
           user_id: user.id,
-          content: data.content
+          content: data.content,
         })
         .select()
         .single();
 
       if (error) throw error;
-      return discussion;
+      return discussion.id as string;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['topic', variables.topic_id] });

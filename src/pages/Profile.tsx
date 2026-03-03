@@ -2,22 +2,20 @@ import React, { useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Settings,
-  Heart,
-  Users,
   FileText,
   Award,
   Star,
   User,
-  List,
-  MessageSquareText,
-  UserPlus,
   Coins,
-  Edit3,
-  LogOut,
   Loader2,
   Camera,
   ChevronRight,
   ImagePlus,
+  CircleHelp,
+  MessageSquareText,
+  Info,
+  Edit3,
+  UserPlus,
 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -29,6 +27,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUploadAvatar, useUploadCover, useUpdateProfile } from '@/hooks/useProfile';
 import { useProfileStats } from '@/hooks/useProfileData';
 import { useToast } from '@/hooks/use-toast';
+import { useIsAdmin } from '@/hooks/useHotTopics';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -45,6 +44,7 @@ const Profile = () => {
   const uploadCover = useUploadCover();
   const updateProfile = useUpdateProfile();
   const { data: stats } = useProfileStats();
+  const { data: isAdmin } = useIsAdmin();
 
   const isLoggedIn = !!user;
 
@@ -90,18 +90,63 @@ const Profile = () => {
     { label: '关注', count: stats?.following || 0, route: '/profile/following' },
   ];
 
-  const commonFeatures = [
-    { icon: <Coins size={22} className="text-amber-500" />, label: '我的收益', route: '/profile/earnings' },
-    { icon: <UserPlus size={22} className="text-indigo-500" />, label: '我的社群', route: '/profile/community' },
-    { icon: <FileText size={22} className="text-primary" />, label: '草稿箱', route: '/profile/drafts' },
-    { icon: <Award size={22} className="text-orange-500" />, label: '达人认证', route: '/profile/talent-certification' },
+  const commonFeatures: Array<{
+    icon: React.ReactNode;
+    label: string;
+    onClick: () => void;
+  }> = [
+    {
+      icon: <Coins size={22} className="text-amber-500" />,
+      label: '我的收益',
+      onClick: () => navigate('/profile/earnings'),
+    },
+    {
+      icon: <UserPlus size={22} className="text-indigo-500" />,
+      label: '我的社群',
+      onClick: () => navigate('/profile/community'),
+    },
+    {
+      icon: <FileText size={22} className="text-primary" />,
+      label: '草稿箱',
+      onClick: () => navigate('/profile/drafts'),
+    },
+    {
+      icon: <Award size={22} className="text-orange-500" />,
+      label: '达人认证',
+      onClick: () => navigate('/profile/talent-certification'),
+    },
   ];
 
-  const menuItems = [
-    { icon: <Heart size={18} className="text-destructive" />, label: '我的收藏', route: '/profile/favorites' },
-    { icon: <List size={18} className="text-primary" />, label: '我的订单', route: '/profile/orders' },
-    { icon: <MessageSquareText size={18} className="text-green-500" />, label: '我的回答', route: '/profile/answers' },
-    { icon: <Users size={18} className="text-purple-500" />, label: '我的关注', route: '/profile/following' },
+  const supportItems: Array<{
+    icon: React.ReactNode;
+    label: string;
+    description: string;
+    onClick: () => void;
+  }> = [
+    {
+      icon: <CircleHelp size={18} className="text-primary" />,
+      label: '帮助中心',
+      description: '常见问题和使用说明',
+      onClick: () => navigate('/settings/help'),
+    },
+    {
+      icon: <FileText size={18} className="text-slate-600" />,
+      label: '问问规范',
+      description: '查看发帖和互动规则',
+      onClick: () => navigate('/settings/guidelines'),
+    },
+    {
+      icon: <MessageSquareText size={18} className="text-emerald-600" />,
+      label: '产品反馈',
+      description: '告诉我们你的使用建议',
+      onClick: () => navigate('/settings/feedback'),
+    },
+    {
+      icon: <Info size={18} className="text-slate-600" />,
+      label: '关于我们',
+      description: '了解产品和团队信息',
+      onClick: () => navigate('/settings/about'),
+    },
   ];
 
   if (loading) {
@@ -113,9 +158,17 @@ const Profile = () => {
   }
 
   const coverUrl = (profile as any)?.cover_url;
+  if (isAdmin) {
+    supportItems.push({
+      icon: <Settings size={18} className="text-emerald-600" />,
+      label: '管理后台',
+      description: '处理内容审核和运营配置',
+      onClick: () => navigate('/admin'),
+    });
+  }
 
   return (
-    <div className="min-h-screen bg-muted pb-16">
+    <div className="min-h-screen bg-slate-50 pb-16">
       {/* Hidden file inputs */}
       <input
         type="file"
@@ -135,12 +188,15 @@ const Profile = () => {
       <SettingsMenu 
         isOpen={showSettingsMenu} 
         onClose={() => setShowSettingsMenu(false)} 
+        onSignOut={handleLogout}
+        showSignOut={isLoggedIn}
+        signingOut={loggingOut}
       />
 
       {/* Cover Banner */}
       <div className="relative">
         <div 
-          className="h-44 bg-gradient-to-br from-primary/20 via-accent/15 to-primary/10 relative overflow-hidden"
+          className="h-40 bg-gradient-to-br from-[#79d5c7] via-[#9be5da] to-[#d8f4ee] relative overflow-hidden"
           style={{ paddingTop: 'env(safe-area-inset-top)' }}
         >
           {coverUrl && (
@@ -178,10 +234,9 @@ const Profile = () => {
         </div>
 
         {/* Profile info overlapping the banner */}
-        <div className="px-5 -mt-10 relative z-10">
+        <div className="relative z-10 -mt-8 px-5">
           {isLoggedIn ? (
-            <div>
-              {/* Avatar */}
+            <div className="surface-card rounded-3xl p-4 shadow-sm">
               <div className="flex items-end gap-3">
                 <div className="relative group">
                   <Avatar className="h-[72px] w-[72px] border-[3px] border-background shadow-lg">
@@ -208,65 +263,58 @@ const Profile = () => {
                   </button>
                 </div>
                 
-                {/* Action buttons on the right */}
-                <div className="flex-1 flex justify-end gap-2 pb-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="rounded-full text-xs h-8 px-3 gap-1"
-                    onClick={() => navigate('/edit-profile')}
-                  >
-                    <Edit3 size={12} />
-                    编辑资料
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    className="rounded-full text-xs h-8 px-3 gap-1 text-muted-foreground"
-                    onClick={handleLogout}
-                    disabled={loggingOut}
-                  >
-                    {loggingOut ? <Loader2 size={12} className="animate-spin" /> : <LogOut size={12} />}
-                    退出
-                  </Button>
-                </div>
-              </div>
-
-              {/* Name & bio */}
-              <div className="mt-2.5">
-                <h2 className="text-lg font-bold text-foreground">{profile?.nickname || '新用户'}</h2>
-                {profile?.bio && (
-                  <p className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{profile.bio}</p>
-                )}
-                <div className="flex items-center gap-2 mt-2">
-                  <div className="flex items-center bg-amber-50 px-2 py-0.5 rounded-full text-xs font-medium text-amber-600">
-                    <Star size={11} className="mr-1" />
-                    {profile?.points_balance || 0} 积分
+                <div className="flex-1 pb-1">
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <h2 className="text-lg font-semibold text-foreground">{profile?.nickname || '新用户'}</h2>
+                      <button
+                        className="mt-1 inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600 transition-colors hover:bg-slate-200"
+                        onClick={() => navigate('/edit-profile')}
+                      >
+                        <Edit3 size={11} className="mr-1" />
+                        编辑资料
+                      </button>
+                    </div>
+                    <button
+                      type="button"
+                      className="flex shrink-0 items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-600 transition-colors hover:bg-amber-100"
+                      onClick={() => navigate('/profile/recharge')}
+                    >
+                      <Star size={11} className="mr-1" />
+                      {profile?.points_balance || 0} 积分
+                      <ChevronRight size={11} className="ml-1 opacity-70" />
+                    </button>
                   </div>
+                  <p className="mt-1 text-xs text-muted-foreground">
+                    {profile?.bio || '点击头像可更新头像，右上角可继续调整个人设置。'}
+                  </p>
                 </div>
               </div>
             </div>
           ) : (
-            <div className="flex items-end gap-3">
-              <Avatar className="h-[72px] w-[72px] border-[3px] border-background shadow-lg">
-                <AvatarFallback className="bg-muted text-muted-foreground">
-                  <User size={28} />
-                </AvatarFallback>
-              </Avatar>
-              <Button 
-                className="rounded-full font-medium px-6 shadow-sm mb-1"
-                onClick={() => navigate('/auth')}
-              >
-                登录 / 注册
-              </Button>
+            <div className="surface-card rounded-3xl p-5 shadow-sm">
+              <div className="flex items-end gap-3">
+                <Avatar className="h-[72px] w-[72px] border-[3px] border-background shadow-lg">
+                  <AvatarFallback className="bg-muted text-muted-foreground">
+                    <User size={28} />
+                  </AvatarFallback>
+                </Avatar>
+                <Button 
+                  className="mb-1 rounded-full px-6 font-medium shadow-sm"
+                  onClick={() => navigate('/auth')}
+                >
+                  登录 / 注册
+                </Button>
+              </div>
+              <p className="mt-3 text-sm text-slate-500">登录后查看订单、回答、收藏和个人资料。</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Stats Row */}
-      <div className="px-5 mt-4">
-        <Card className="border-none shadow-md rounded-2xl overflow-hidden">
+      <div className="px-5 mt-3">
+        <Card className="overflow-hidden rounded-3xl border-none shadow-sm">
           <CardContent className="p-0">
             <div className="grid grid-cols-4">
               {profileStats.map((item, index) => (
@@ -288,9 +336,9 @@ const Profile = () => {
 
       {/* Common Features */}
       <div className="px-5 mt-4">
-        <Card className="border-none shadow-sm rounded-2xl overflow-hidden">
+        <Card className="overflow-hidden rounded-3xl border-none shadow-sm">
           <CardContent className="p-5">
-            <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
+            <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
               <span className="w-7 h-7 bg-primary/10 rounded-lg flex items-center justify-center">
                 <Star size={14} className="text-primary" />
               </span>
@@ -300,8 +348,8 @@ const Profile = () => {
               {commonFeatures.map((item, index) => (
                 <button 
                   key={index}
-                  className="flex flex-col items-center justify-center py-3 rounded-xl hover:bg-muted/60 transition-colors active:scale-95"
-                  onClick={() => isLoggedIn ? navigate(item.route) : navigate('/auth')}
+                  className="flex flex-col items-center justify-center rounded-2xl py-3 hover:bg-muted/60 transition-colors active:scale-95"
+                  onClick={() => isLoggedIn ? item.onClick() : navigate('/auth')}
                 >
                   <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mb-2 shadow-sm">
                     {item.icon}
@@ -314,25 +362,29 @@ const Profile = () => {
         </Card>
       </div>
 
-      {/* Menu List */}
-      <div className="px-5 mt-4">
-        <Card className="border-none shadow-sm rounded-2xl overflow-hidden">
-          <CardContent className="p-0">
-            {menuItems.map((item, index) => (
+      {/* Service List */}
+      <div className="px-5 mt-4 mb-4">
+        <Card className="overflow-hidden rounded-3xl border-none shadow-sm">
+          <CardContent className="p-5">
+            <h3 className="mb-4 text-sm font-semibold text-foreground">帮助与信息</h3>
+            <div className="space-y-2">
+            {supportItems.map((item) => (
               <button
                 key={item.label}
-                className={`w-full flex items-center justify-between px-5 py-3.5 hover:bg-muted/50 transition-colors active:bg-muted ${
-                  index < menuItems.length - 1 ? 'border-b border-border' : ''
-                }`}
-                onClick={() => isLoggedIn ? navigate(item.route) : navigate('/auth')}
+                className="w-full flex items-center justify-between rounded-2xl px-4 py-3 text-left transition-colors hover:bg-muted/50 active:bg-muted"
+                onClick={item.onClick}
               >
                 <div className="flex items-center gap-3">
                   {item.icon}
-                  <span className="text-sm text-foreground">{item.label}</span>
+                  <div>
+                    <div className="text-sm font-medium text-foreground">{item.label}</div>
+                    <div className="mt-0.5 text-xs text-muted-foreground">{item.description}</div>
+                  </div>
                 </div>
                 <ChevronRight size={16} className="text-muted-foreground" />
               </button>
             ))}
+            </div>
           </CardContent>
         </Card>
       </div>

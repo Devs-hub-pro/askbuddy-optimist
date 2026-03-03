@@ -7,13 +7,16 @@ import ShareDialog from "@/components/question/ShareDialog";
 import BottomBar from "@/components/question/BottomBar";
 import AnswerDialog from "@/components/AnswerDialog";
 import { useParams, useNavigate } from "react-router-dom";
-import { Users, Loader2 } from "lucide-react";
+import { Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuestionDetail, useCreateAnswer, useToggleFavorite } from "@/hooks/useQuestions";
 import { useAcceptAnswer } from "@/hooks/useAcceptAnswer";
 import { useAuth } from "@/contexts/AuthContext";
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+import { useSubmitContentReport } from '@/hooks/useModeration';
+import { demoQuestionDetails } from '@/lib/demoData';
+import PageStateCard from "@/components/common/PageStateCard";
 
 // 分享选项
 const SHARE_OPTIONS = [
@@ -28,12 +31,14 @@ const QuestionDetail = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { user } = useAuth();
+  const isDemoQuestion = !!id?.startsWith('demo-question-');
 
   // 获取问题数据
-  const { data, isLoading, error } = useQuestionDetail(id || '');
+  const { data, isLoading, error } = useQuestionDetail(isDemoQuestion ? '' : id || '');
   const createAnswer = useCreateAnswer();
   const toggleFavorite = useToggleFavorite();
   const acceptAnswer = useAcceptAnswer();
+  const submitReport = useSubmitContentReport();
 
   // 状态管理
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
@@ -61,29 +66,32 @@ const QuestionDetail = () => {
     return count.toString();
   };
 
-  if (isLoading) {
+  if (!isDemoQuestion && isLoading) {
     return (
-      <div className="app-container bg-background min-h-screen flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="app-container min-h-screen bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
+        <PageStateCard variant="loading" title="正在加载问题内容…" />
       </div>
     );
   }
 
-  if (error || !data) {
+  const demoData = isDemoQuestion ? demoQuestionDetails[id as keyof typeof demoQuestionDetails] : null;
+  const resolvedData = isDemoQuestion ? demoData : data;
+
+  if (error || !resolvedData) {
     return (
-      <div className="app-container bg-background min-h-screen flex flex-col items-center justify-center p-4">
-        <p className="text-destructive mb-4">问题加载失败</p>
-        <button 
-          onClick={() => navigate(-1)}
-          className="text-primary hover:underline"
-        >
-          返回上一页
-        </button>
+      <div className="app-container min-h-screen bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
+        <PageStateCard
+          variant="error"
+          title="暂时无法加载问题"
+          description="链接可能已失效，或当前网络不稳定。"
+          actionLabel="返回上页"
+          onAction={() => navigate(-1)}
+        />
       </div>
     );
   }
 
-  const { question, answers } = data;
+  const { question, answers } = resolvedData;
 
   // 回答弹窗提交
   const handleAnswerDialogSubmit = (payload: { timeSlots: string[]; message: string }) => {
@@ -95,6 +103,13 @@ const QuestionDetail = () => {
 
     if (!payload.message.trim()) {
       toast({ title: "请输入回答内容", variant: "destructive" });
+      return;
+    }
+
+    if (isDemoQuestion) {
+      toast({ title: '这是演示问题', description: '当前用于前端展示，回答提交流程已保留但不会写入真实数据。' });
+      setIsAnswerDialogOpen(false);
+      setAnswerContent('');
       return;
     }
 
@@ -116,6 +131,10 @@ const QuestionDetail = () => {
       navigate('/auth');
       return;
     }
+    if (isDemoQuestion) {
+      toast({ title: '这是演示问题', description: '收藏流程在真实问题上可正常使用。' });
+      return;
+    }
     toggleFavorite.mutate(id!);
   };
 
@@ -126,6 +145,25 @@ const QuestionDetail = () => {
   const handleShareQuestion = (optionId: string) => {
     setIsShareDialogOpen(false);
     toast({ title: "分享链接已复制" });
+  };
+
+  const handleReportQuestion = () => {
+    if (!user) {
+      toast({ title: "请先登录", variant: "destructive" });
+      navigate('/auth');
+      return;
+    }
+    if (isDemoQuestion) {
+      toast({ title: '这是演示问题', description: '演示问题不需要举报。' });
+      return;
+    }
+
+    submitReport.mutate({
+      targetId: question.id,
+      targetType: 'question',
+      reason: '疑似违规或垃圾内容',
+      details: `来自问题详情页：${question.title}`,
+    });
   };
 
   // 查看用户资料
@@ -170,7 +208,7 @@ const QuestionDetail = () => {
   }));
 
   return (
-    <div className="app-container bg-gradient-to-b from-white to-blue-50/30 pb-20 min-h-screen">
+    <div className="app-container bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-24 min-h-screen">
       <Header
         title="问题详情"
         asker={{
@@ -184,9 +222,10 @@ const QuestionDetail = () => {
         onBack={() => navigate(-1)}
         onViewUser={handleViewUserProfile}
       />
-      <div className="p-4 bg-white shadow-sm mb-3 animate-fade-in">
-        <h1 className="text-xl font-bold text-gray-800 mb-3 text-left">{question.title}</h1>
-        <div className="text-sm text-gray-700 leading-relaxed text-left mb-3">
+      <div className="mx-4 mb-5 mt-4 surface-card rounded-3xl p-5 animate-fade-in">
+        <div className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600">问题正文</div>
+        <h1 className="mt-3 text-[21px] font-bold leading-8 text-gray-800 text-left">{question.title}</h1>
+        <div className="mt-4 text-[15px] text-gray-700 leading-7 text-left mb-5">
           {question.content && question.content.length > 100 && !isDescriptionExpanded ? (
             <>
               <p>{question.content.substring(0, 100)}...</p>
@@ -214,13 +253,28 @@ const QuestionDetail = () => {
           )}
         </div>
         <Tags tags={question.tags || []} />
-        <Actions onCollect={handleCollect} onShare={handleShareDialog} />
-      </div>
-      <div className="px-4 mb-4">
-        <div className="flex justify-between items-center mb-3">
-          <h2 className="font-bold text-lg text-left">回答 ({answers.length})</h2>
+        <div className="mt-5">
+          <Actions onCollect={handleCollect} onShare={handleShareDialog} />
+        </div>
+        <div className="mt-4 flex justify-end">
           <button
-            className="text-blue-500 text-xs flex items-center"
+            className="text-xs text-muted-foreground hover:text-foreground"
+            onClick={handleReportQuestion}
+            disabled={submitReport.isPending}
+          >
+            {submitReport.isPending ? '提交中...' : '举报内容'}
+          </button>
+        </div>
+      </div>
+      <div className="px-4 mb-5">
+        <div className="surface-card rounded-3xl p-5">
+        <div className="flex justify-between items-center mb-4">
+          <div>
+            <h2 className="font-semibold text-lg text-left text-slate-900">回答 ({answers.length})</h2>
+            <p className="mt-1 text-xs text-slate-500">优先查看高质量回答，再决定是否继续补充提问。</p>
+          </div>
+          <button
+            className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-medium text-blue-500 flex items-center"
             aria-label="按热度排序"
           >
             按热度排序
@@ -235,11 +289,9 @@ const QuestionDetail = () => {
             canAccept={isQuestionOwner && !hasAcceptedAnswer}
           />
         ) : (
-          <div className="text-center py-8 text-muted-foreground">
-            <p>暂无回答</p>
-            <p className="text-sm mt-1">快来成为第一个回答者吧！</p>
-          </div>
+          <PageStateCard compact title="还没有回答" description="你可以成为第一个回答的人。" />
         )}
+        </div>
       </div>
       <BottomBar
         onAnswer={() => setIsAnswerDialogOpen(true)}

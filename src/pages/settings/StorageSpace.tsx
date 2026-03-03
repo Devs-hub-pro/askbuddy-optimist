@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, HardDrive, Image, FileText, Video, Trash2 } from 'lucide-react';
+import { HardDrive, Image, FileText, Video, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import {
@@ -12,9 +11,9 @@ import {
 } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const StorageSpace = () => {
-  const navigate = useNavigate();
   const { toast } = useToast();
   const [totalSpace] = useState(5120); // 5GB in MB
   const [usedSpace] = useState({
@@ -43,20 +42,10 @@ const StorageSpace = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b shadow-sm">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => navigate('/settings')}
-          className="mr-2"
-        >
-          <ArrowLeft size={24} />
-        </Button>
-        <h1 className="text-xl font-semibold">存储空间</h1>
-      </div>
+      <SubPageHeader title="存储空间" />
 
-      <div className="p-4 space-y-4">
-        <Card className="border-none shadow-sm">
+      <div className="p-5 space-y-5">
+        <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">存储空间使用情况</CardTitle>
             <CardDescription>
@@ -74,7 +63,7 @@ const StorageSpace = () => {
           </CardContent>
         </Card>
 
-        <Card className="border-none shadow-sm">
+        <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">存储详情</CardTitle>
           </CardHeader>

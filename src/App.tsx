@@ -1,13 +1,15 @@
-
+import React, { useEffect, useState } from "react";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
 import SwipeBackWrapper from "./components/SwipeBackWrapper";
+import BrandSplashScreen from "./components/layout/BrandSplashScreen";
 
 const queryClient = new QueryClient();
 import Index from "./pages/Index";
 import ChatDetail from "./pages/ChatDetail";
 import Discover from "./pages/Discover";
+import DiscoverInteractions from "./pages/DiscoverInteractions";
 import CareerDevelopment from "./pages/CareerDevelopment";
 import EducationLearning from "./pages/EducationLearning";
 import EducationSearchResults from "./pages/EducationSearchResults";
@@ -16,7 +18,6 @@ import LifestyleServices from "./pages/LifestyleServices";
 import HobbiesSkills from "./pages/HobbiesSkills";
 import CitySelector from "./pages/CitySelector";
 import NotFound from "./pages/NotFound";
-import IconsPreview from "./components/IconsPreview";
 import QuestionDetail from "./pages/QuestionDetail";
 import ExpertDetail from "./pages/ExpertDetail";
 import ExpertProfile from "./pages/ExpertProfile";
@@ -38,6 +39,7 @@ import MyFavorites from "./pages/profile/MyFavorites";
 import MyFollowing from "./pages/profile/MyFollowing";
 import MyEarnings from "./pages/profile/MyEarnings";
 import MyCommunity from "./pages/profile/MyCommunity";
+import CommunityGroupDetail from "./pages/profile/CommunityGroupDetail";
 import MyDrafts from "./pages/profile/MyDrafts";
 import TalentCertification from "./pages/profile/TalentCertification";
 import PointsRecharge from "./pages/profile/PointsRecharge";
@@ -55,19 +57,42 @@ import ProductFeedback from "./pages/settings/ProductFeedback";
 import AboutUs from "./pages/settings/AboutUs";
 import UserResearch from "./pages/settings/UserResearch";
 import ChangePassword from "./pages/settings/ChangePassword";
+import PhoneSettings from "./pages/settings/PhoneSettings";
+import AccountRecovery from "./pages/settings/AccountRecovery";
+import LoginActivity from "./pages/settings/LoginActivity";
+import BlacklistSettings from "./pages/settings/BlacklistSettings";
+import AdminDashboard from "./pages/admin/AdminDashboard";
 
 function App() {
+  const [showSplash, setShowSplash] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    const key = 'brandSplashShown';
+    if (sessionStorage.getItem(key)) return;
+
+    setShowSplash(true);
+    const timer = window.setTimeout(() => {
+      sessionStorage.setItem(key, '1');
+      setShowSplash(false);
+    }, 850);
+
+    return () => window.clearTimeout(timer);
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
         <AuthProvider>
           <SwipeBackWrapper>
+          {showSplash ? <BrandSplashScreen /> : null}
           <div className="app-wrapper w-full min-h-screen bg-muted">
             <div className="app-container">
               <Routes>
                 <Route path="/" element={<Index />} />
                 <Route path="/auth" element={<Auth />} />
                 <Route path="/discover" element={<Discover />} />
+                <Route path="/discover/interactions" element={<DiscoverInteractions />} />
                 <Route path="/career" element={<CareerDevelopment />} />
                 <Route path="/education" element={<EducationLearning />} />
                 <Route path="/education/search" element={<EducationSearchResults />} />
@@ -75,7 +100,6 @@ function App() {
                 <Route path="/lifestyle" element={<LifestyleServices />} />
                 <Route path="/hobbies" element={<HobbiesSkills />} />
                 <Route path="/city-selector" element={<CitySelector />} />
-                <Route path="/icons" element={<IconsPreview />} />
                 <Route path="/question/:id" element={<QuestionDetail />} />
                 <Route path="/expert/:id" element={<ExpertDetail />} />
                 <Route path="/expert-profile/:id" element={<ExpertProfile />} />
@@ -95,6 +119,7 @@ function App() {
                 <Route path="/profile/following" element={<MyFollowing />} />
                 <Route path="/profile/earnings" element={<MyEarnings />} />
                 <Route path="/profile/community" element={<MyCommunity />} />
+                <Route path="/profile/community/:groupId" element={<CommunityGroupDetail />} />
                 <Route path="/profile/drafts" element={<MyDrafts />} />
                 <Route path="/profile/talent-certification" element={<TalentCertification />} />
                 <Route path="/profile/recharge" element={<PointsRecharge />} />
@@ -112,6 +137,11 @@ function App() {
                 <Route path="/settings/about" element={<AboutUs />} />
                 <Route path="/settings/user-research" element={<UserResearch />} />
                 <Route path="/settings/change-password" element={<ChangePassword />} />
+                <Route path="/settings/phone" element={<PhoneSettings />} />
+                <Route path="/settings/account-recovery" element={<AccountRecovery />} />
+                <Route path="/settings/login-activity" element={<LoginActivity />} />
+                <Route path="/settings/blacklist" element={<BlacklistSettings />} />
+                <Route path="/admin" element={<AdminDashboard />} />
                 
                 <Route path="*" element={<NotFound />} />
               </Routes>

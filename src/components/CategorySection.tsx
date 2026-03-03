@@ -66,8 +66,8 @@ const CategorySection: React.FC = () => {
   };
 
   return (
-    <div className="py-6 px-4 animate-fade-in animate-delay-1">
-      <div className="grid grid-cols-4 gap-3">
+    <div className="px-4 pb-5 pt-4 animate-fade-in animate-delay-1">
+      <div className="grid grid-cols-4 gap-4">
         {categories.map((category, index) => {
           const IconComponent = iconMap[category.icon] || HelpCircle;
           return (
@@ -77,10 +77,10 @@ const CategorySection: React.FC = () => {
               style={{ animationDelay: `${index * 0.1 + 0.2}s` }}
               onClick={() => handleCategoryClick(category.path)}
             >
-              <div className={`category-icon mb-2 bg-gradient-to-br ${category.gradient} shadow-md hover:shadow-lg transform hover:scale-105 transition-all duration-300 rounded-xl`}>
-                <IconComponent size={20} />
+              <div className={`category-icon mb-2 bg-gradient-to-br ${category.gradient} shadow-[0_10px_18px_rgba(15,23,42,0.08)] hover:shadow-[0_12px_22px_rgba(15,23,42,0.12)] transform hover:scale-105 transition-all duration-300 rounded-2xl`}>
+                <IconComponent size={22} />
               </div>
-              <span className="text-xs text-center font-medium">{category.name}</span>
+              <span className="text-xs text-center font-semibold leading-5 tracking-[-0.01em]">{category.name}</span>
             </div>
           );
         })}

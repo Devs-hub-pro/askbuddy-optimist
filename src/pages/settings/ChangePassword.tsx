@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const ChangePassword = () => {
   const navigate = useNavigate();
@@ -42,18 +43,10 @@ const ChangePassword = () => {
 
   return (
     <div className="min-h-[100dvh] bg-muted">
-      <div 
-        className="sticky top-0 z-10 bg-background flex items-center p-4 border-b"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 1rem)' }}
-      >
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="mr-2">
-          <ArrowLeft size={24} />
-        </Button>
-        <h1 className="text-xl font-semibold">修改密码</h1>
-      </div>
+      <SubPageHeader title="修改密码" />
 
-      <div className="p-4">
-        <Card className="border-none shadow-sm">
+      <div className="p-5">
+        <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center">
               <Lock className="w-5 h-5 mr-2 text-primary" />

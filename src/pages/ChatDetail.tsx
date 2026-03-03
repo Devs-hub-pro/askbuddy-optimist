@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, Send, Image, Smile, Loader2 } from 'lucide-react';
+import { ChevronLeft, Image, Smile, Loader2 } from 'lucide-react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useMessagesWithUser, useSendMessage, useMarkMessagesAsRead } from '@/hooks/useMessages';
@@ -8,6 +8,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+import { demoConversations, demoMessagesByPartner } from '@/lib/demoData';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const ChatDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -16,6 +18,7 @@ const ChatDetail: React.FC = () => {
   const [inputValue, setInputValue] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const isDemoChat = !!chatId?.startsWith('demo-user-');
 
   // Fetch partner profile
   const { data: partnerProfile } = useQuery({
@@ -29,20 +32,20 @@ const ChatDetail: React.FC = () => {
         .maybeSingle();
       return data;
     },
-    enabled: !!chatId,
+    enabled: !!chatId && !isDemoChat,
   });
 
   // Real messages from database
-  const { data: messages, isLoading } = useMessagesWithUser(chatId || '');
+  const { data: messages, isLoading } = useMessagesWithUser(isDemoChat ? '' : chatId || '');
   const sendMessage = useSendMessage();
   const markAsRead = useMarkMessagesAsRead();
 
   // Mark messages as read on mount
   useEffect(() => {
-    if (chatId && user) {
+    if (chatId && user && !isDemoChat) {
       markAsRead.mutate(chatId);
     }
-  }, [chatId, user]);
+  }, [chatId, user, isDemoChat]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -70,8 +73,39 @@ const ChatDetail: React.FC = () => {
     }
   };
 
+  const formatSectionDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const today = new Date();
+    const isToday = date.toDateString() === today.toDateString();
+    if (isToday) return '今天';
+    return `${date.getMonth() + 1}月${date.getDate()}日`;
+  };
+
+  const demoConversation = isDemoChat ? demoConversations.find((item) => item.partner_id === chatId) : null;
+  const resolvedMessages = isDemoChat
+    ? (demoMessagesByPartner[chatId || ''] || []).map((msg) => ({
+        ...msg,
+        sender_id: msg.sender_id === 'current-user' ? user?.id || 'current-user' : msg.sender_id,
+      }))
+    : messages || [];
+
+  const groupedMessages = React.useMemo(() => {
+    if (!resolvedMessages) return [];
+    return resolvedMessages.map((msg, index) => {
+      const prev = resolvedMessages[index - 1];
+      const showDateDivider =
+        !prev || new Date(prev.created_at).toDateString() !== new Date(msg.created_at).toDateString();
+      return { ...msg, showDateDivider };
+    });
+  }, [resolvedMessages]);
+
   const handleSend = () => {
     if (!inputValue.trim() || !chatId) return;
+    if (isDemoChat) {
+      setInputValue('');
+      inputRef.current?.focus();
+      return;
+    }
     sendMessage.mutate({
       receiver_id: chatId,
       content: inputValue.trim(),
@@ -80,8 +114,8 @@ const ChatDetail: React.FC = () => {
     inputRef.current?.focus();
   };
 
-  const partnerName = partnerProfile?.nickname || '用户';
-  const partnerAvatar = partnerProfile?.avatar_url || undefined;
+  const partnerName = demoConversation?.partner_nickname || partnerProfile?.nickname || '用户';
+  const partnerAvatar = demoConversation?.partner_avatar || partnerProfile?.avatar_url || undefined;
 
   if (!user) {
     return (
@@ -92,87 +126,99 @@ const ChatDetail: React.FC = () => {
   }
 
   return (
-    <div className="h-[100dvh] bg-muted flex flex-col overflow-hidden">
-      {/* Header */}
-      <div className="flex-shrink-0 bg-primary shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-        <div className="flex items-center h-12 px-4">
-          <button onClick={() => navigate(-1)} className="text-primary-foreground p-1 -ml-1">
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-slate-50">
+      <div className="flex-shrink-0 bg-[rgb(121,213,199)] shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <div className="flex h-12 items-center px-4">
+          <button onClick={() => navigate(-1)} className="rounded-full p-1 text-white/95 -ml-1">
             <ChevronLeft size={24} />
           </button>
-          <div className="flex items-center ml-2 gap-2">
-            <Avatar className="w-8 h-8">
+          <div className="ml-2 flex items-center gap-2">
+            <Avatar className="h-8 w-8">
               <AvatarImage src={partnerAvatar} alt={partnerName} />
               <AvatarFallback>{partnerName.charAt(0)}</AvatarFallback>
             </Avatar>
-            <span className="text-primary-foreground font-medium">{partnerName}</span>
+            <div>
+              <p className="font-medium text-white">{partnerName}</p>
+              <p className="text-[11px] text-white/75">在线私信</p>
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-3 space-y-4">
-        {isLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="w-6 h-6 animate-spin text-muted-foreground" />
+      <div className="flex-1 overflow-y-auto px-4 py-4">
+        {!isDemoChat && isLoading ? (
+          <div className="py-8">
+            <PageStateCard variant="loading" compact title="正在加载聊天记录…" />
           </div>
-        ) : messages && messages.length > 0 ? (
-          messages.map((msg) => {
+        ) : groupedMessages.length > 0 ? (
+          <div className="space-y-3">
+          {groupedMessages.map((msg) => {
             const fromMe = msg.sender_id === user.id;
             return (
-              <div key={msg.id} className={`flex ${fromMe ? 'justify-end' : 'justify-start'}`}>
-                <div className={`max-w-[75%] rounded-2xl px-4 py-2.5 text-sm ${
-                  fromMe
-                    ? 'bg-primary text-primary-foreground rounded-br-md'
-                    : 'bg-background text-foreground rounded-bl-md shadow-sm'
-                }`}>
-                  <p>{msg.content}</p>
-                  <p className={`text-[10px] mt-1 ${fromMe ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
-                    {formatTime(msg.created_at)}
-                  </p>
+              <React.Fragment key={msg.id}>
+                {msg.showDateDivider && (
+                  <div className="flex justify-center">
+                    <div className="rounded-full bg-white px-3 py-1 text-[11px] text-slate-500 shadow-sm">
+                      {formatSectionDate(msg.created_at)}
+                    </div>
+                  </div>
+                )}
+                <div className={`flex ${fromMe ? 'justify-end' : 'justify-start'}`}>
+                  <div className={`max-w-[78%] rounded-3xl px-4 py-3 text-sm ${
+                    fromMe
+                      ? 'rounded-br-xl bg-[rgb(73,170,155)] text-white shadow-sm'
+                      : 'surface-card rounded-bl-xl text-foreground'
+                  }`}>
+                    <p className="break-words leading-6">{msg.content}</p>
+                    <p className={`mt-2 text-[10px] ${fromMe ? 'text-white/70' : 'text-muted-foreground'}`}>
+                      {formatTime(msg.created_at)}
+                    </p>
+                  </div>
                 </div>
-              </div>
+              </React.Fragment>
             );
-          })
+          })}
+          </div>
         ) : (
-          <div className="text-center py-8 text-muted-foreground text-sm">
-            暂无消息，发送第一条消息开始聊天吧
+          <div className="py-8">
+            <PageStateCard compact title="还没有聊天记录" description="可以先发一条消息，开始这次对话。" />
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input */}
       <div
-        className="flex-shrink-0 bg-background border-t border-border px-3 py-2 flex items-center gap-2"
-        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 4px)' }}
+        className="flex-shrink-0 border-t border-border bg-white/98 px-3 py-2 backdrop-blur-sm"
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 6px)' }}
       >
-        <button className="flex-shrink-0 text-muted-foreground p-1">
-          <Smile size={22} />
-        </button>
-        <input
-          ref={inputRef}
-          className="flex-1 min-w-0 bg-muted rounded-full px-4 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-primary/50"
-          placeholder="输入消息..."
-          value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
-          onKeyDown={(e) => e.key === 'Enter' && handleSend()}
-          enterKeyHint="send"
-        />
-        <button className="flex-shrink-0 text-muted-foreground p-1">
-          <Image size={22} />
-        </button>
-        <button
-          className={`flex-shrink-0 flex items-center gap-1 px-3 py-2 rounded-full text-sm font-medium transition-all ${
-            inputValue.trim()
-              ? 'bg-primary text-primary-foreground shadow-sm active:scale-95'
-              : 'bg-muted text-muted-foreground'
-          }`}
-          onClick={handleSend}
-          disabled={!inputValue.trim() || sendMessage.isPending}
-        >
-          {sendMessage.isPending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />}
-          <span>发送</span>
-        </button>
+        <div className="flex items-center gap-2 rounded-3xl border border-slate-200 bg-slate-50 px-2 py-2">
+          <button className="flex-shrink-0 p-2 text-muted-foreground">
+            <Smile size={20} />
+          </button>
+          <input
+            ref={inputRef}
+            className="min-w-0 flex-1 bg-transparent px-2 text-base leading-6 focus:outline-none"
+            placeholder="输入消息..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleSend()}
+            enterKeyHint="send"
+          />
+          <button className="flex-shrink-0 p-2 text-muted-foreground">
+            <Image size={20} />
+          </button>
+          <button
+            className={`flex-shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all ${
+              inputValue.trim()
+                ? 'bg-[rgb(73,170,155)] text-white shadow-sm active:scale-95'
+                : 'bg-slate-200 text-slate-500'
+            }`}
+            onClick={handleSend}
+            disabled={!inputValue.trim() || (!isDemoChat && sendMessage.isPending)}
+          >
+            {!isDemoChat && sendMessage.isPending ? <Loader2 size={14} className="animate-spin" /> : '发送'}
+          </button>
+        </div>
       </div>
     </div>
   );

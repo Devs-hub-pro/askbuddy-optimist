@@ -1,8 +1,11 @@
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
+import { AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
 
 const NotFound = () => {
   const location = useLocation();
+  const navigate = useNavigate();
 
   useEffect(() => {
     console.error(
@@ -12,13 +15,23 @@ const NotFound = () => {
   }, [location.pathname]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <div className="text-center">
-        <h1 className="text-4xl font-bold mb-4">404</h1>
-        <p className="text-xl text-gray-600 mb-4">Oops! Page not found</p>
-        <a href="/" className="text-blue-500 hover:text-blue-700 underline">
-          Return to Home
-        </a>
+    <div className="min-h-[100dvh] flex items-center justify-center bg-slate-50 px-5">
+      <div className="surface-card w-full max-w-sm rounded-3xl p-6 text-center shadow-sm">
+        <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-red-50 text-red-500">
+          <AlertCircle size={28} />
+        </div>
+        <h1 className="mt-4 text-xl font-semibold text-slate-900">页面不存在</h1>
+        <p className="mt-2 text-sm leading-6 text-slate-500">
+          你访问的页面可能已被移除，或当前链接已失效。
+        </p>
+        <div className="mt-5 flex gap-3">
+          <Button variant="outline" className="flex-1 rounded-full" onClick={() => navigate(-1)}>
+            返回上页
+          </Button>
+          <Button className="flex-1 rounded-full" onClick={() => navigate("/")}>
+            回到首页
+          </Button>
+        </div>
       </div>
     </div>
   );

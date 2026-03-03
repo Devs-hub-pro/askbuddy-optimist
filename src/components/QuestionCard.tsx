@@ -1,22 +1,10 @@
 import React, { useState } from 'react';
 import { MessageCircle, Award, Eye } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger
-} from '@/components/ui/dialog';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { 
-  Collapsible,
-  CollapsibleContent,
-  CollapsibleTrigger,
-} from "@/components/ui/collapsible";
 import ExpertDetailDialog from './ExpertDetailDialog';
 import AnswerDialog from "./AnswerDialog";
+import { useNavigate } from 'react-router-dom';
 
 interface QuestionCardProps {
   id: string;
@@ -48,9 +36,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   answerName,
   answerAvatar
 }) => {
-  const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [showAnswerDialog, setShowAnswerDialog] = useState(false);
-  const [showDialog, setShowDialog] = useState(false);
+  const navigate = useNavigate();
 
   // Create unique expert data for the asker based on their properties
   const askerExpertData = {
@@ -85,12 +72,12 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   return (
     <>
       <div
-        className="bg-white rounded-xl p-4 shadow-md hover:shadow-lg transition-all duration-300 animate-fade-in border border-gray-100 cursor-pointer"
+        className="surface-card p-4 transition-all duration-300 animate-fade-in cursor-pointer hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
         style={{ animationDelay: `${delay}s` }}
-        onClick={() => setShowDialog(true)}
+        onClick={() => navigate(`/question/${id}`)}
       >
         <div className="flex items-start justify-between mb-2">
-          <h3 className="font-semibold text-base text-left text-gray-800">{title}</h3>
+          <h3 className="font-semibold text-base text-left text-gray-800 leading-7">{title}</h3>
           {viewCount && (
             <div className="flex items-center gap-1 text-gray-500 text-xs">
               <Eye size={14} className="flex-shrink-0" />
@@ -100,7 +87,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         </div>
         
         {description && (
-          <p className="text-sm text-gray-600 mb-3 text-left line-clamp-2">{description}</p>
+          <p className="text-sm text-gray-600 mb-3 text-left line-clamp-2 leading-6">{description}</p>
         )}
         
         <div className="flex items-center justify-between mb-3">
@@ -117,7 +104,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
             </div>
           </ExpertDetailDialog>
           
-          <span className="flex items-center gap-1 bg-gradient-to-r from-yellow-50 to-orange-50 text-amber-600 text-xs px-2.5 py-1 rounded-full font-medium border border-amber-100">
+          <span className="flex items-center gap-1 bg-gradient-to-r from-yellow-50 to-orange-50 text-amber-600 text-xs px-2.5 py-1 rounded-full font-medium border border-amber-100 shadow-sm">
             <Award size={14} className="text-amber-500" />
             {points} 积分
           </span>
@@ -146,86 +133,6 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           </div>
         </div>
       </div>
-      
-      <Dialog open={showDialog} onOpenChange={setShowDialog}>
-        <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="text-xl font-bold text-left">{title}</DialogTitle>
-          </DialogHeader>
-          
-          <div className="mt-4 space-y-6">
-            {/* Question Details */}
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <ExpertDetailDialog {...askerExpertData}>
-                  <div className="flex items-center gap-3 cursor-pointer">
-                    <Avatar className="w-10 h-10 border border-gray-100">
-                      <AvatarImage src={asker.avatar} alt={asker.name} className="object-cover" />
-                      <AvatarFallback>{asker.name.charAt(0)}</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="font-medium text-gray-800">{asker.name}</div>
-                      <div className="text-xs text-gray-500">{time}</div>
-                    </div>
-                  </div>
-                </ExpertDetailDialog>
-                <Badge variant="outline" className="flex items-center gap-1 bg-gradient-to-r from-yellow-50 to-orange-50 text-amber-600 border-amber-100 px-3 py-1.5">
-                  <Award size={16} className="text-amber-500" />
-                  <span className="text-sm font-semibold">{points} 积分</span>
-                </Badge>
-              </div>
-              
-              <Collapsible 
-                className="w-full"
-                open={isDescriptionExpanded}
-                onOpenChange={setIsDescriptionExpanded}
-              >
-                <div className="bg-gray-50 p-4 rounded-lg text-gray-800 text-sm leading-relaxed">
-                  {description && description.length > 200 && !isDescriptionExpanded ? (
-                    <>
-                      <p>{description.substring(0, 200)}...</p>
-                      <CollapsibleTrigger className="text-blue-500 text-xs mt-2 hover:underline">
-                        展开全部
-                      </CollapsibleTrigger>
-                      <CollapsibleContent>
-                        <p className="mt-2">{description.substring(200)}</p>
-                      </CollapsibleContent>
-                    </>
-                  ) : (
-                    <p>{description}</p>
-                  )}
-                </div>
-              </Collapsible>
-              
-              <div className="flex flex-wrap gap-2">
-                {tags.map((tag, index) => (
-                  <span key={index} className="inline-block text-xs px-2.5 py-1 rounded-full bg-blue-50 text-blue-600 font-medium border border-blue-100">
-                    #{tag}
-                  </span>
-                ))}
-              </div>
-            </div>
-            
-            {/* Interaction Buttons */}
-            <div className="flex gap-3 pt-4 border-t border-gray-100">
-              <Button variant="outline" className="flex-1 bg-green-50 text-green-600 border-green-100 hover:bg-green-100 hover:text-green-700">
-                预约咨询
-              </Button>
-              <Button variant="outline" className="flex-1 bg-blue-50 text-blue-600 border-blue-100 hover:bg-blue-100 hover:text-blue-700">
-                私聊
-              </Button>
-            </div>
-            
-            {/* Answer Section */}
-            <div className="pt-4 border-t border-gray-100">
-              <Button className="w-full bg-gradient-to-r from-blue-500 to-app-blue hover:opacity-90" onClick={() => setShowAnswerDialog(true)}>
-                <MessageCircle size={16} className="mr-2" />
-                回答问题
-              </Button>
-            </div>
-          </div>
-        </DialogContent>
-      </Dialog>
       
       <AnswerDialog
         open={showAnswerDialog}

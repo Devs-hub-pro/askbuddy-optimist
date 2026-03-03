@@ -1,6 +1,7 @@
 
-import React, { useState, useRef } from 'react';
-import { Image, Video, Heart, MessageCircle, Share2, Bell, SmilePlus, Hash, Send, Loader2, X, MapPin, Trash2, MoreHorizontal } from 'lucide-react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { Image, Heart, MessageCircle, Share2, Bell, SmilePlus, Hash, Send, Loader2, X, MapPin, Trash2, MoreHorizontal, PenSquare, Flame } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -16,29 +17,24 @@ import { useUploadPostMedia } from '@/hooks/usePostMediaUpload';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-
-// Recommendation card type
-interface RecommendationCard {
-  id: string;
-  title: string;
-  description: string;
-  imageUrl: string;
-  bgColor: string;
-}
+import PageStateCard from '@/components/common/PageStateCard';
 
 const Discover: React.FC = () => {
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState<'following' | 'recommended' | 'local'>('recommended');
   const [showNotification, setShowNotification] = useState(true);
+  const [currentLocation, setCurrentLocation] = useState('深圳');
   const { user, profile } = useAuth();
   const { data: posts, isLoading } = usePosts();
   const { data: followingPosts, isLoading: followingLoading } = useFollowingPosts();
-  const { data: localPosts, isLoading: localLoading } = useLocalPosts();
+  const { data: localPosts, isLoading: localLoading } = useLocalPosts(currentLocation);
 
-  const recommendationCards: RecommendationCard[] = [
-    { id: '1', title: '职场吐槽', description: '领导又开始画饼了，干还是不干？', imageUrl: 'https://images.unsplash.com/photo-1521737711867-e3b97375f902?q=80&w=300&h=150&auto=format&fit=crop', bgColor: 'bg-gradient-to-br from-purple-500 to-indigo-600' },
-    { id: '2', title: '校园趣事', description: '宿舍的猫今天又把我们早餐吃了…', imageUrl: 'https://images.unsplash.com/photo-1516321318423-f06f85e504b3?q=80&w=300&h=150&auto=format&fit=crop', bgColor: 'bg-gradient-to-br from-pink-500 to-rose-400' },
-    { id: '3', title: '今日热点', description: '考公还是考研？大家怎么看？', imageUrl: 'https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=300&h=150&auto=format&fit=crop', bgColor: 'bg-gradient-to-br from-blue-500 to-cyan-400' },
-    { id: '4', title: '生活妙招', description: '合租时如何保护自己的权益？', imageUrl: 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?q=80&w=300&h=150&auto=format&fit=crop', bgColor: 'bg-gradient-to-br from-amber-500 to-orange-400' },
+  const plazaTopics = [
+    { id: 'topic-1', name: '留学申请', hint: '经验帖最多' },
+    { id: 'topic-2', name: '简历优化', hint: '今天很热' },
+    { id: 'topic-3', name: '租房避坑', hint: '同城讨论' },
+    { id: 'topic-4', name: '副业技能', hint: '持续更新' },
+    { id: 'topic-5', name: '考研复习', hint: '正在讨论' },
   ];
 
   // Post creation state
@@ -54,6 +50,17 @@ const Discover: React.FC = () => {
   const uploadMedia = useUploadPostMedia();
 
   const sampleEmojis = ['😊', '😂', '😍', '🤔', '👍', '🎉', '❤️', '😭', '🔥', '✨', '🙏', '👏', '🌹', '🤗', '😁'];
+
+  useEffect(() => {
+    const syncLocation = () => {
+      const stored = localStorage.getItem('currentLocation') || '深圳';
+      setCurrentLocation(stored);
+    };
+
+    syncLocation();
+    window.addEventListener('storage', syncLocation);
+    return () => window.removeEventListener('storage', syncLocation);
+  }, []);
 
   const handleCreatePost = async () => {
     if (!newPostContent.trim()) return;
@@ -101,43 +108,64 @@ const Discover: React.FC = () => {
   
 
   return (
-    <div className="pb-16 bg-muted min-h-screen">
+    <div className="pb-16 min-h-[100dvh] bg-slate-50">
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'following' | 'recommended' | 'local')} className="w-full">
-        <div className="sticky top-0 z-10 bg-primary shadow-md" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <div className="sticky top-0 z-20 bg-[rgb(121,213,199)] shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex-1">
-              <TabsList className="w-full justify-start bg-transparent h-10 p-0">
+              <TabsList className="h-10 w-full justify-start rounded-none bg-transparent p-0">
                 {(['following', 'recommended', 'local'] as const).map(tab => (
                   <TabsTrigger
                     key={tab}
                     value={tab}
-                    className="text-base font-medium data-[state=active]:text-primary-foreground data-[state=active]:border-b-2 data-[state=active]:border-primary-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none rounded-none px-3 py-1 text-primary-foreground/70"
+                    className="rounded-none px-3 py-1 text-base font-medium text-white/75 data-[state=active]:bg-transparent data-[state=active]:text-white data-[state=active]:shadow-none data-[state=active]:border-b-2 data-[state=active]:border-white"
                   >
                     {tab === 'following' ? '关注' : tab === 'recommended' ? '推荐' : '同城'}
                   </TabsTrigger>
                 ))}
               </TabsList>
             </div>
-            <button className="relative p-2 hover:bg-primary-foreground/10 rounded-full transition-colors" onClick={() => setShowNotification(false)}>
-              <Bell size={18} className="text-primary-foreground" />
-              {showNotification && <span className="absolute top-1 right-1 w-2 h-2 bg-destructive rounded-full animate-pulse" />}
-            </button>
+            <div className="flex items-center gap-2">
+              <button
+                className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-white/25"
+                onClick={() => setIsPostDialogOpen(true)}
+                aria-label="发动态"
+              >
+                <PenSquare size={17} />
+              </button>
+              <button
+                className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-white/25"
+                onClick={() => {
+                  setShowNotification(false);
+                  navigate('/discover/interactions');
+                }}
+              >
+                <Bell size={18} />
+                {showNotification && <span className="absolute top-2 right-2 h-2 w-2 rounded-full bg-destructive animate-pulse" />}
+              </button>
+            </div>
           </div>
         </div>
 
         {/* Following tab */}
         <TabsContent key="following" value="following" className="mt-0 p-0">
           {!user ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <p className="mb-2">请先登录查看关注动态</p>
+            <div className="px-4 pt-5">
+              <div className="surface-card rounded-3xl px-6 py-10 text-center text-muted-foreground">
+                <p className="mb-2 text-sm font-medium text-slate-700">登录后查看关注动态</p>
+                <p className="text-sm">你关注的人发布动态后，会优先出现在这里</p>
+              </div>
             </div>
           ) : (
             <DiscoverFeed
-              recommendationCards={[]}
               posts={followingPosts || []}
               isLoading={followingLoading}
               formatTime={formatTime}
               emptyText="暂无关注用户的动态，去关注感兴趣的人吧"
+              showComposer
+              onQuickPost={() => setIsPostDialogOpen(true)}
+              topicChips={plazaTopics.slice(0, 4)}
+              tabLabel="关注广场"
             />
           )}
         </TabsContent>
@@ -145,30 +173,29 @@ const Discover: React.FC = () => {
         {/* Recommended tab */}
         <TabsContent key="recommended" value="recommended" className="mt-0 p-0">
           <DiscoverFeed
-            recommendationCards={recommendationCards}
             posts={posts || []}
             isLoading={isLoading}
             formatTime={formatTime}
+            showComposer
+            onQuickPost={() => setIsPostDialogOpen(true)}
+            topicChips={plazaTopics}
+            tabLabel="推荐广场"
           />
         </TabsContent>
 
         {/* Local tab */}
         <TabsContent key="local" value="local" className="mt-0 p-0">
-          {!profile?.city ? (
-            <div className="text-center py-12 text-muted-foreground">
-              <MapPin size={48} className="mx-auto mb-3 text-muted-foreground/50" />
-              <p className="mb-2">请先设置您的城市</p>
-              <p className="text-sm mb-4">设置城市后可查看同城动态</p>
-            </div>
-          ) : (
-            <DiscoverFeed
-              recommendationCards={recommendationCards.filter((_, i) => i % 2 === 1)}
-              posts={localPosts || []}
-              isLoading={localLoading}
-              formatTime={formatTime}
-              emptyText={`暂无"${profile.city}"的同城动态`}
-            />
-          )}
+          <DiscoverFeed
+            posts={localPosts || []}
+            isLoading={localLoading}
+            formatTime={formatTime}
+            emptyText={`还没有“${currentLocation}”的同城动态`}
+            showComposer
+            onQuickPost={() => setIsPostDialogOpen(true)}
+            topicChips={plazaTopics.slice(1)}
+            tabLabel={`${currentLocation}广场`}
+            locationLabel={currentLocation}
+          />
         </TabsContent>
       </Tabs>
 
@@ -255,15 +282,6 @@ const Discover: React.FC = () => {
         </DialogContent>
       </Dialog>
 
-      {/* Floating Publish Button */}
-      <button
-        onClick={() => setIsPostDialogOpen(true)}
-        className="fixed bottom-20 right-4 z-20 w-14 h-14 bg-primary hover:bg-primary/90 text-primary-foreground rounded-full shadow-lg hover:shadow-xl flex items-center justify-center transition-all duration-200 active:scale-95"
-        aria-label="发布动态"
-      >
-        <Send size={22} className="-rotate-45" />
-      </button>
-
       <BottomNav />
     </div>
   );
@@ -271,16 +289,21 @@ const Discover: React.FC = () => {
 
 // DiscoverFeed component
 interface DiscoverFeedProps {
-  recommendationCards: RecommendationCard[];
   posts: PostWithProfile[];
   isLoading: boolean;
   formatTime: (d: string) => string;
   emptyText?: string;
+  showComposer?: boolean;
+  onQuickPost?: () => void;
+  topicChips?: Array<{ id: string; name: string; hint: string }>;
+  tabLabel?: string;
+  locationLabel?: string;
 }
 
-const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts, isLoading, formatTime, emptyText }) => {
+const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, formatTime, emptyText, showComposer, onQuickPost, topicChips = [], tabLabel, locationLabel }) => {
   const [expandedComments, setExpandedComments] = useState<{ [key: string]: boolean }>({});
   const [commentInputs, setCommentInputs] = useState<{ [key: string]: string }>({});
+  const [sortMode, setSortMode] = useState<'latest' | 'hot'>('latest');
   const inputRefs = useRef<{ [key: string]: HTMLInputElement | null }>({});
   const toggleLike = useTogglePostLike();
   const addComment = useAddComment();
@@ -288,6 +311,18 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
   const sharePost = useSharePost();
   const { user } = useAuth();
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
+
+  const sortedPosts = useMemo(() => {
+    const list = [...posts];
+    if (sortMode === 'hot') {
+      return list.sort((a, b) => {
+        const aScore = (a.likes_count || 0) * 2 + (a.comments_count || 0) + (a.shares_count || 0);
+        const bScore = (b.likes_count || 0) * 2 + (b.comments_count || 0) + (b.shares_count || 0);
+        return bScore - aScore;
+      });
+    }
+    return list.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+  }, [posts, sortMode]);
 
   const toggleComments = (postId: string) => {
     setExpandedComments(prev => ({ ...prev, [postId]: !prev[postId] }));
@@ -302,52 +337,134 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
   };
 
   return (
-    <div className="pb-4">
-      {/* Recommendation cards */}
-      <div className="px-4 py-3 bg-card">
-        <div className="overflow-x-auto flex space-x-3 pb-2 scrollbar-hide">
-          {recommendationCards.map((card, index) => (
-            <div
-              key={card.id}
-              className={`flex-shrink-0 w-28 h-28 rounded-xl overflow-hidden shadow-md ${card.bgColor} relative hover:scale-105 transition-transform duration-200 opacity-0 animate-slide-in-left`}
-              style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'forwards' }}
-            >
-              <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
-              <div className="h-full flex flex-col justify-between p-2 relative z-10">
-                <div className="text-sm font-bold text-primary-foreground">{card.title}</div>
-                <p className="text-xs line-clamp-2 text-primary-foreground">{card.description}</p>
+    <div className="pb-5">
+      {showComposer && (
+        <div className="px-4 pt-5">
+          <div className="rounded-3xl border border-[#d9efe9] bg-[rgb(223,245,239)] p-3.5">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2">
+                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90">
+                  <PenSquare size={14} className="text-app-teal" />
+                </span>
+                <div>
+                  <div className="text-sm font-semibold leading-none text-slate-900">社交广场</div>
+                  <p className="mt-1 text-[11px] text-slate-500">{tabLabel}</p>
+                </div>
               </div>
+              {locationLabel ? (
+                <span className="flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-medium text-slate-600">
+                  <MapPin size={12} className="text-app-teal" />
+                  {locationLabel}
+                </span>
+              ) : null}
             </div>
-          ))}
+
+            <div className="mt-3 rounded-2xl bg-white/92 p-3">
+              <button
+                className="flex w-full items-center gap-3 text-left"
+                onClick={onQuickPost}
+              >
+                <Avatar className="h-9 w-9 border border-slate-100">
+                  <AvatarFallback>发</AvatarFallback>
+                </Avatar>
+                <div className="flex-1 rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-500 transition-colors hover:bg-slate-200">
+                  分享此刻的想法、经验或正在发生的事
+                </div>
+              </button>
+
+              <div className="mt-2.5 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2 text-xs text-slate-500">
+                  <button className="flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1.5 hover:text-slate-700" onClick={onQuickPost}>
+                    <Image size={14} />
+                    图片
+                  </button>
+                  <button className="flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1.5 hover:text-slate-700" onClick={onQuickPost}>
+                    <Hash size={14} />
+                    话题
+                  </button>
+                  <button className="flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1.5 hover:text-slate-700" onClick={onQuickPost}>
+                    <MapPin size={14} />
+                    同城
+                  </button>
+                </div>
+                <span className="text-[11px] text-slate-500">{posts.length} 条动态</span>
+              </div>
+
+              {topicChips.length > 0 && (
+                <div className="mt-2.5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#fff7df]">
+                    <Flame size={13} className="text-[#e0a100]" />
+                  </span>
+                  {topicChips.slice(0, 4).map((topic) => (
+                    <button
+                      key={topic.id}
+                      className="shrink-0 rounded-full border border-[#d9efe9] bg-white px-2.5 py-1.5 text-[11px] font-medium text-slate-700 transition-colors hover:border-[#c9e8df] hover:bg-slate-50"
+                      onClick={onQuickPost}
+                    >
+                      #{topic.name}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <p className="mt-2 text-[11px] leading-5 text-slate-500">
+                发动态、聊热点、看同城新鲜事，内容更轻、更即时。
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Posts Feed */}
+      <div className="px-4 pt-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-900">广场动态</h3>
+            <p className="mt-1 text-xs text-slate-500">更轻量、更即时，适合随手分享和互动</p>
+          </div>
+          <div className="flex items-center gap-2 rounded-full bg-white p-1 shadow-sm">
+            <button
+              className={`rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${sortMode === 'latest' ? 'bg-[rgb(236,251,247)] text-[rgb(73,170,155)]' : 'text-slate-500'}`}
+              onClick={() => setSortMode('latest')}
+            >
+              最新
+            </button>
+            <button
+              className={`rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${sortMode === 'hot' ? 'bg-[rgb(236,251,247)] text-[rgb(73,170,155)]' : 'text-slate-500'}`}
+              onClick={() => setSortMode('hot')}
+            >
+              最热
+            </button>
+          </div>
         </div>
       </div>
 
-      {/* Posts Feed */}
-      <div className="space-y-3 mt-3 px-3">
+      <div className="mt-4 space-y-3 px-4">
         {isLoading ? (
           [1, 2, 3].map(i => (
-            <div key={i} className="bg-card p-4 rounded-xl shadow-sm animate-pulse">
+            <div key={i} className="surface-card rounded-3xl border border-slate-100 p-4 animate-pulse-soft">
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-10 h-10 bg-muted rounded-full" />
+                <div className="h-10 w-10 rounded-full bg-slate-100" />
                 <div className="flex-1">
-                  <div className="h-4 bg-muted rounded w-24 mb-1" />
-                  <div className="h-3 bg-muted rounded w-16" />
+                  <div className="mb-1 h-4 w-24 rounded-full bg-slate-100" />
+                  <div className="h-3 w-16 rounded-full bg-slate-100" />
                 </div>
               </div>
-              <div className="h-4 bg-muted rounded w-full mb-2" />
-              <div className="h-4 bg-muted rounded w-3/4" />
+              <div className="mb-2 h-4 w-full rounded-full bg-slate-100" />
+              <div className="h-4 w-3/4 rounded-full bg-slate-100" />
             </div>
           ))
-        ) : posts.length === 0 ? (
-          <div className="text-center py-12 text-muted-foreground">
-            <p className="mb-2">{emptyText || '暂无动态'}</p>
-            <p className="text-sm">快来发布第一条动态吧</p>
-          </div>
+        ) : sortedPosts.length === 0 ? (
+          <PageStateCard
+            compact
+            title={emptyText || '还没有动态'}
+            description="现在就发一条新动态，先占个位置。"
+          />
         ) : (
-          posts.map((post, index) => (
+          sortedPosts.map((post, index) => (
             <div
               key={post.id}
-              className="bg-card p-4 rounded-xl shadow-sm hover:shadow-md transition-shadow duration-200 opacity-0 animate-slide-up"
+              className="surface-card rounded-3xl border border-slate-100 p-4 opacity-0 animate-slide-up transition-shadow duration-200 hover:shadow-md"
               style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'forwards' }}
             >
               {/* Author info */}
@@ -363,7 +480,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
                 {user && user.id === post.user_id && (
                   <div className="relative">
                     <button
-                      className="p-1 hover:bg-muted rounded-full transition-colors"
+                      className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 transition-colors hover:bg-slate-100"
                       onClick={() => setMenuOpenId(menuOpenId === post.id ? null : post.id)}
                     >
                       <MoreHorizontal size={18} className="text-muted-foreground" />
@@ -388,11 +505,11 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
 
               {/* Content */}
               <div className="mb-3">
-                <p className="text-foreground mb-3 leading-relaxed">{post.content}</p>
+                <p className="mb-3 leading-7 text-foreground">{post.content}</p>
                 {post.images && post.images.length > 0 && (
                   <div className={`grid gap-2 mb-3 ${post.images.length === 1 ? 'grid-cols-1' : post.images.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
                     {post.images.slice(0, 9).map((img, i) => (
-                      <div key={i} className={`${post.images.length === 1 ? 'aspect-video' : 'aspect-square'} bg-muted rounded-lg overflow-hidden`}>
+                    <div key={i} className={`${post.images.length === 1 ? 'aspect-video' : 'aspect-square'} overflow-hidden rounded-2xl bg-muted`}>
                         <img src={img} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
                       </div>
                     ))}
@@ -401,7 +518,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
                 {post.topics && post.topics.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-3">
                     {post.topics.map(topic => (
-                      <Badge key={topic} variant="secondary" className="bg-primary/10 text-primary border-none rounded-full text-xs hover:bg-primary/20 transition-colors">
+                      <Badge key={topic} variant="secondary" className="rounded-full border-none bg-primary/10 text-primary text-xs transition-colors hover:bg-primary/20">
                         #{topic}
                       </Badge>
                     ))}
@@ -410,28 +527,30 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ recommendationCards, posts,
               </div>
 
               {/* Interaction buttons */}
-              <div className="flex justify-between border-t border-border pt-3">
+              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-1">
+                <div className="flex justify-between">
                 <button
-                  className="flex items-center space-x-1 text-sm text-muted-foreground transition-colors hover:text-pink-500"
+                  className="flex flex-1 items-center justify-center gap-1 rounded-xl px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-white hover:text-pink-500"
                   onClick={() => toggleLike.mutate({ postId: post.id, liked: post.liked_by_me })}
                 >
                   <Heart className={`h-5 w-5 transition-transform duration-200 ${post.liked_by_me ? 'fill-pink-500 text-pink-500 scale-110' : 'text-current'}`} />
                   <span>{post.likes_count}</span>
                 </button>
                 <button
-                  className={`flex items-center space-x-1 text-sm transition-colors ${expandedComments[post.id] ? 'text-primary' : 'text-muted-foreground hover:text-primary'}`}
+                  className={`flex flex-1 items-center justify-center gap-1 rounded-xl px-2 py-2 text-sm transition-colors ${expandedComments[post.id] ? 'bg-white text-primary' : 'text-muted-foreground hover:bg-white hover:text-primary'}`}
                   onClick={() => toggleComments(post.id)}
                 >
                   <MessageCircle className={`h-5 w-5 ${expandedComments[post.id] ? 'fill-primary/20' : ''}`} />
                   <span>{post.comments_count}</span>
                 </button>
                 <button
-                  className="flex items-center space-x-1 text-sm text-muted-foreground transition-colors hover:text-primary"
+                  className="flex flex-1 items-center justify-center gap-1 rounded-xl px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-white hover:text-primary"
                   onClick={() => sharePost.mutate(post.id)}
                 >
                   <Share2 className="h-5 w-5" />
                   <span>{post.shares_count}</span>
                 </button>
+                </div>
               </div>
 
               {/* Comments Section */}
@@ -467,9 +586,9 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId, inputRefs, co
   const { data: comments, isLoading } = usePostComments(postId);
 
   return (
-    <div className="mt-3 border-t border-border pt-3 space-y-3 animate-fade-in">
+      <div className="mt-3 space-y-3 border-t border-border pt-3 animate-fade-in">
       {/* Comment Input */}
-      <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2">
         <Avatar className="h-7 w-7 shrink-0">
           <AvatarFallback>我</AvatarFallback>
         </Avatar>
@@ -523,7 +642,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId, inputRefs, co
           ))}
         </div>
       ) : (
-        <p className="text-center text-xs text-muted-foreground py-2">暂无评论，快来抢沙发吧 ✨</p>
+        <PageStateCard compact title="还没有评论" description="你可以先来发第一条评论。" className="px-4 py-5" />
       )}
     </div>
   );

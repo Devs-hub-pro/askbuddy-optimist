@@ -8,6 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const typeIconMap: Record<string, string> = {
   new_answer: '💬',
@@ -45,10 +46,14 @@ const Notifications = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <Bell className="w-12 h-12 text-muted-foreground mb-4 opacity-30" />
-        <p className="text-muted-foreground mb-4">登录后查看通知</p>
-        <Button onClick={() => navigate('/auth')}>去登录</Button>
+      <div className="min-h-[100dvh] bg-gray-50 flex items-center justify-center p-4">
+        <PageStateCard
+          variant="empty"
+          title="登录后查看通知"
+          description="互动提醒、系统通知和订单更新都会在这里显示。"
+          actionLabel="去登录"
+          onAction={() => navigate('/auth')}
+        />
       </div>
     );
   }
@@ -56,41 +61,57 @@ const Notifications = () => {
   const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="sticky top-0 z-10 bg-white border-b">
-        <div className="flex items-center px-4 py-3">
-          <button onClick={() => navigate(-1)} className="mr-3">
-            <ArrowLeft size={24} />
-          </button>
-          <h1 className="text-lg font-semibold flex-1">通知</h1>
-          {unreadCount > 0 && (
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => markAllAsRead.mutate()}
-              disabled={markAllAsRead.isPending}
-              className="text-xs text-primary"
-            >
-              <CheckCheck size={14} className="mr-1" />
-              全部已读
-            </Button>
-          )}
+    <div className="min-h-[100dvh] bg-gray-50 pb-8">
+      <div className="sticky top-0 z-10 shadow-sm">
+        <div className="bg-[rgb(121,213,199)] text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+          <div className="flex items-center px-4 py-3">
+            <button onClick={() => navigate(-1)} className="mr-3">
+              <ArrowLeft size={24} />
+            </button>
+            <h1 className="text-base font-semibold flex-1">通知</h1>
+            {unreadCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => markAllAsRead.mutate()}
+                disabled={markAllAsRead.isPending}
+                className="text-xs text-white hover:bg-white/15 hover:text-white"
+              >
+                <CheckCheck size={14} className="mr-1" />
+                全部已读
+              </Button>
+            )}
+          </div>
         </div>
+        <div className="h-1 bg-[rgb(223,245,239)]" />
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="px-4 py-10">
+          <PageStateCard variant="loading" title="正在加载通知…" compact />
         </div>
       ) : notifications && notifications.length > 0 ? (
-        <div className="divide-y">
+        <div className="space-y-3 px-4 py-4">
+          <div className="surface-card rounded-3xl p-4 shadow-sm">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">通知中心</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  这里会显示你的互动提醒、系统消息和订单更新。
+                </p>
+              </div>
+              <span className="rounded-full bg-[rgb(236,251,247)] px-3 py-1 text-xs font-medium text-[rgb(73,170,155)]">
+                {unreadCount > 0 ? `${unreadCount} 条未读` : '已读完'}
+              </span>
+            </div>
+          </div>
           {notifications.map((notification) => (
             <div
               key={notification.id}
               onClick={() => handleNotificationClick(notification)}
               className={cn(
-                "flex items-start gap-3 p-4 cursor-pointer hover:bg-gray-50 transition-colors",
-                !notification.is_read && "bg-blue-50/50"
+                "surface-card flex cursor-pointer items-start gap-3 rounded-3xl p-4 shadow-sm transition-colors hover:bg-gray-50",
+                !notification.is_read && "border border-blue-100 bg-blue-50/40"
               )}
             >
               <div className="relative">
@@ -127,9 +148,13 @@ const Notifications = () => {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center py-20">
-          <Bell className="w-12 h-12 text-muted-foreground mb-4 opacity-30" />
-          <p className="text-muted-foreground">暂无通知</p>
+        <div className="px-4 py-10">
+          <PageStateCard
+            variant="empty"
+            title="还没有通知"
+            description="新的互动、系统提醒和订单更新会出现在这里。"
+            compact
+          />
         </div>
       )}
     </div>

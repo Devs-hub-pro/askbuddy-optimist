@@ -1,15 +1,16 @@
 
 import React, { useState } from "react";
-import { FileText, PencilLine, Trash2, Loader2 } from "lucide-react";
+import { FileText, PencilLine, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useNavigate } from "react-router-dom";
-import { Card } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
+import PageStateCard from "@/components/common/PageStateCard";
 
 const DraftList: React.FC = () => {
   const navigate = useNavigate();
@@ -59,60 +60,87 @@ const DraftList: React.FC = () => {
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <PageStateCard variant="loading" compact title="正在加载草稿…" className="w-full max-w-sm" />
       </div>
     );
   }
 
   if (!drafts || drafts.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center p-8 mt-20">
-        <FileText size={64} className="text-muted-foreground/30 mb-4" />
-        <p className="text-muted-foreground mb-2">暂无草稿内容</p>
-        <Button
-          variant="outline"
-          onClick={() => navigate("/new")}
-          className="mt-2"
-        >
-          去提问
-        </Button>
+      <div className="px-5 py-5">
+        <PageStateCard
+          title="还没有草稿内容"
+          description="灵感没准备好也没关系，稍后可以继续编辑。"
+          actionLabel="去提问"
+          onAction={() => navigate("/new")}
+          icon={<FileText size={64} className="mx-auto text-muted-foreground/30" />}
+        />
       </div>
     );
   }
 
   return (
-    <div className="px-3 py-5 space-y-4">
+    <div className="px-5 py-5 space-y-4">
       {drafts.map((draft) => (
-        <Card key={draft.id} className={`flex items-start relative shadow-sm transition-all duration-300 ${deletingId === draft.id ? "opacity-30 scale-[0.97]" : ""}`}>
-          <div className="flex-1 px-4 py-3 cursor-pointer" onClick={() => navigate(`/new?draftId=${draft.id}`)}>
-            <div className="flex items-center mb-1 gap-2">
-              <FileText size={18} className="text-primary" />
-              <h3 className="text-base font-medium flex-1 truncate">{draft.title || '无标题草稿'}</h3>
-            </div>
-            <div className="text-xs text-muted-foreground mb-1">{formatTime(draft.updated_at)}</div>
-            <div className="text-sm text-muted-foreground truncate">{draft.content || '无内容'}</div>
-          </div>
-          <div className="flex flex-col gap-1 pr-3 pt-3">
-            <Button
-              size="icon"
-              variant="ghost"
-              className="text-primary"
-              aria-label="继续编辑"
+        <Card
+          key={draft.id}
+          className={`surface-card overflow-hidden rounded-3xl border-none shadow-sm transition-all duration-300 ${
+            deletingId === draft.id ? "scale-[0.98] opacity-40" : ""
+          }`}
+        >
+          <CardContent className="p-5">
+            <button
+              type="button"
+              className="block w-full text-left"
               onClick={() => navigate(`/new?draftId=${draft.id}`)}
             >
-              <PencilLine size={18} />
-            </Button>
-            <Button
-              size="icon"
-              variant="ghost"
-              className="text-destructive"
-              disabled={deletingId === draft.id}
-              aria-label="删除"
-              onClick={() => handleDelete(draft.id)}
-            >
-              <Trash2 size={18} />
-            </Button>
-          </div>
+              <div className="flex items-start gap-3">
+                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[rgb(236,251,247)]">
+                  <FileText size={18} className="text-[rgb(73,170,155)]" />
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="min-w-0">
+                      <h3 className="truncate text-base font-semibold text-foreground">
+                        {draft.title || '无标题草稿'}
+                      </h3>
+                      <p className="mt-1 text-xs text-muted-foreground">最近更新于 {formatTime(draft.updated_at)}</p>
+                    </div>
+                    <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                      草稿
+                    </span>
+                  </div>
+                  <p className="mt-3 line-clamp-2 text-sm leading-6 text-muted-foreground">
+                    {draft.content || '当前还没有填写内容，点击继续补充。'}
+                  </p>
+                </div>
+              </div>
+            </button>
+
+            <div className="mt-4 flex items-center justify-end gap-2 border-t border-border pt-4">
+              <Button
+                size="sm"
+                variant="outline"
+                className="h-9 rounded-full"
+                aria-label="继续编辑"
+                onClick={() => navigate(`/new?draftId=${draft.id}`)}
+              >
+                <PencilLine size={16} className="mr-1.5" />
+                继续编辑
+              </Button>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-9 rounded-full text-destructive hover:bg-destructive/10 hover:text-destructive"
+                disabled={deletingId === draft.id}
+                aria-label="删除"
+                onClick={() => handleDelete(draft.id)}
+              >
+                <Trash2 size={16} className="mr-1.5" />
+                删除
+              </Button>
+            </div>
+          </CardContent>
         </Card>
       ))}
     </div>

@@ -186,7 +186,7 @@ const Auth = () => {
   // OTP 验证界面
   if (showOtpVerify) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-primary/10 to-background" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <div className="min-h-[100dvh] bg-gradient-to-b from-[rgb(236,251,247)] to-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex items-center p-4">
           <Button variant="ghost" size="icon" onClick={() => setShowOtpVerify(false)}>
             <ChevronLeft size={24} />
@@ -204,7 +204,7 @@ const Auth = () => {
             验证码已发送至 <span className="text-foreground font-medium">{pendingEmail}</span>
           </p>
 
-          <Card className="w-full max-w-sm border-none shadow-lg">
+          <Card className="surface-card w-full max-w-sm rounded-3xl border-none shadow-sm">
             <CardHeader className="space-y-6">
               <div className="flex justify-center">
                 <InputOTP
@@ -249,9 +249,9 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-primary/10 to-background" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+    <div className="min-h-[100dvh] bg-gradient-to-b from-[rgb(236,251,247)] to-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       {/* Header */}
-      <div className="sticky top-0 z-10 bg-gradient-to-b from-primary/10 to-background flex items-center p-4">
+      <div className="sticky top-0 z-10 flex items-center bg-gradient-to-b from-[rgb(236,251,247)] to-white p-4">
         <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
           <ChevronLeft size={24} />
         </Button>
@@ -260,16 +260,16 @@ const Auth = () => {
 
       {/* Logo Area */}
       <div className="flex flex-col items-center py-8">
-        <div className="w-20 h-20 bg-gradient-to-br from-primary to-primary/60 rounded-2xl flex items-center justify-center shadow-lg mb-4">
+        <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-[rgb(121,213,199)] to-[rgb(160,237,224)] shadow-sm">
           <span className="text-3xl font-bold text-primary-foreground">问</span>
         </div>
         <h1 className="text-2xl font-bold text-foreground">问问</h1>
-        <p className="text-muted-foreground text-sm mt-1">专业的智能问答社区</p>
+        <p className="mt-1 text-sm text-muted-foreground">专业的智能问答社区</p>
       </div>
 
       {/* Auth Form */}
       <div className="px-4">
-        <Card className="border-none shadow-lg">
+        <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-4">
             <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'login' | 'register')}>
               <TabsList className="grid w-full grid-cols-2">

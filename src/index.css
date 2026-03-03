@@ -5,32 +5,32 @@
 @layer base {
   :root {
     --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    --foreground: 220 18% 16%;
 
     --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card-foreground: 220 18% 16%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 220 18% 16%;
 
-    --primary: 195 100% 50%;
-    --primary-foreground: 0 0% 100%;
+    --primary: 170 65% 78%;
+    --primary-foreground: 174 35% 22%;
 
-    --secondary: 168 100% 75%;
-    --secondary-foreground: 222.2 84% 4.9%;
+    --secondary: 166 60% 94%;
+    --secondary-foreground: 174 35% 22%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 180 20% 97%;
+    --muted-foreground: 215 12% 46%;
 
-    --accent: 168 100% 75%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 166 60% 92%;
+    --accent-foreground: 174 35% 22%;
 
     --destructive: 0 84.2% 60.2%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 195 100% 50%;
+    --border: 170 22% 88%;
+    --input: 170 22% 88%;
+    --ring: 174 54% 56%;
 
     --radius: 0.75rem;
   }
@@ -51,13 +51,23 @@
     /* iOS 安全区域适配 */
     padding-left: env(safe-area-inset-left);
     padding-right: env(safe-area-inset-right);
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    overflow-x: hidden;
+  }
+
+  input,
+  textarea,
+  select {
+    font-size: 16px;
   }
 }
 
 @layer components {
   .app-container {
-    @apply max-w-md mx-auto bg-white min-h-screen overflow-hidden relative;
+    @apply max-w-md mx-auto bg-white min-h-screen relative;
     width: 100%;
+    overflow-x: hidden;
   }
   
   .glass-effect {
@@ -69,7 +79,7 @@
   }
   
   .nav-item.active {
-    @apply text-app-blue;
+    color: rgb(35 159 215);
   }
   
   .category-icon {
@@ -77,7 +87,9 @@
   }
   
   .search-input {
-    @apply w-full px-4 py-3 bg-white/80 border border-gray-200 rounded-full focus:outline-none focus:ring-2 focus:ring-app-blue/30 transition-all shadow-soft placeholder:text-gray-400;
+    @apply h-12 w-full px-4 bg-white/95 border rounded-2xl focus:outline-none transition-all placeholder:text-gray-400;
+    border-color: hsl(var(--input));
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
   }
   
   .card-animate {
@@ -98,6 +110,12 @@
 
   .content-wrapper {
     @apply w-full max-w-md mx-auto;
+  }
+
+  .surface-card {
+    @apply bg-white rounded-xl border;
+    border-color: hsl(var(--border));
+    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
   }
 }
 

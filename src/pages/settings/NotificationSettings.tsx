@@ -1,15 +1,13 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Bell, MessageSquare, BellRing, BellOff, Mail, Loader2 } from 'lucide-react';
+import { Bell, MessageSquare, BellRing, BellOff, Mail, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
-import { Separator } from '@/components/ui/separator';
 import { useUserSettings, useSaveNotificationSettings, NotificationPrefs } from '@/hooks/useUserSettings';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const NotificationSettings = () => {
-  const navigate = useNavigate();
   const { data: userSettings, isLoading } = useUserSettings();
   const saveSettings = useSaveNotificationSettings();
 
@@ -46,28 +44,34 @@ const NotificationSettings = () => {
   }
 
   const Item = ({ label, desc, field }: { label: string; desc: string; field: keyof NotificationPrefs }) => (
-    <>
-      <div className="flex items-center justify-between">
+      <div className="flex items-center justify-between rounded-2xl bg-slate-50 px-3 py-3">
         <div className="space-y-0.5">
           <Label className="text-base">{label}</Label>
           <p className="text-sm text-gray-500">{desc}</p>
         </div>
         <Switch checked={!!settings[field]} onCheckedChange={() => handleToggle(field)} />
       </div>
-      <Separator />
-    </>
   );
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b shadow-sm">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/settings')} className="mr-2">
-          <ArrowLeft size={24} />
-        </Button>
-        <h1 className="text-xl font-semibold">通知设置</h1>
-      </div>
+      <SubPageHeader title="通知设置" />
 
-      <div className="p-4 space-y-4">
+      <div className="p-5 space-y-5">
+        <Card className="surface-card rounded-3xl border-none shadow-sm">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">通知中心</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  在这里统一管理推送、互动和系统提醒，减少打扰，同时不错过重要消息。
+                </p>
+              </div>
+              <Sparkles className="h-5 w-5 text-[rgb(73,170,155)]" />
+            </div>
+          </CardContent>
+        </Card>
+
         <div className="flex justify-between items-center mb-2">
           <p className="text-sm text-gray-600">一键设置</p>
           <div className="space-x-2">
@@ -80,7 +84,7 @@ const NotificationSettings = () => {
           </div>
         </div>
 
-        <Card className="shadow-sm border-none rounded-xl overflow-hidden">
+        <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">
               <Bell size={18} className="text-primary mr-2" />通知方式
@@ -93,7 +97,7 @@ const NotificationSettings = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-none rounded-xl overflow-hidden">
+        <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">
               <MessageSquare size={18} className="text-green-500 mr-2" />互动通知
@@ -109,7 +113,7 @@ const NotificationSettings = () => {
           </CardContent>
         </Card>
 
-        <Card className="shadow-sm border-none rounded-xl overflow-hidden">
+        <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">
               <Mail size={18} className="text-red-500 mr-2" />系统通知

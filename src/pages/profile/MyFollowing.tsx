@@ -1,62 +1,69 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Users, Loader2 } from 'lucide-react';
+import { Users, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import BottomNav from '@/components/BottomNav';
 import { useMyFollowing } from '@/hooks/useProfileData';
+import SubPageHeader from '@/components/layout/SubPageHeader';
+import { Card, CardContent } from '@/components/ui/card';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const MyFollowing = () => {
   const navigate = useNavigate();
   const { data: following, isLoading } = useMyFollowing();
 
   return (
-    <div className="pb-20 min-h-screen bg-gray-50">
-      <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} className="mr-2">
-          <ArrowLeft size={24} />
-        </Button>
-        <h1 className="text-xl font-semibold">我的关注</h1>
-      </div>
+    <div className="pb-8 min-h-screen bg-gray-50">
+      <SubPageHeader title="我的关注" />
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <PageStateCard variant="loading" compact title="正在加载关注…" className="w-full max-w-sm" />
         </div>
       ) : following && following.length > 0 ? (
-        <div className="p-4 space-y-3">
+        <div className="p-4 space-y-4">
           {following.map((item: any) => (
-            <div
+            <Card
               key={item.id}
-              className="bg-white rounded-xl p-4 shadow-sm flex items-center gap-3"
+              className="surface-card rounded-3xl border-none shadow-sm"
             >
-              <Avatar className="w-12 h-12">
-                <AvatarImage src={item.profile?.avatar_url || ''} />
-                <AvatarFallback>{item.profile?.nickname?.charAt(0) || '?'}</AvatarFallback>
-              </Avatar>
-              <div className="flex-1 min-w-0">
-                <h3 className="font-medium text-gray-900 truncate">
-                  {item.profile?.nickname || '未知用户'}
-                </h3>
-                {item.profile?.bio && (
-                  <p className="text-xs text-gray-500 line-clamp-1">{item.profile.bio}</p>
-                )}
-              </div>
-            </div>
+              <CardContent className="p-4">
+                <button
+                  type="button"
+                  className="flex w-full items-center gap-3 text-left"
+                  onClick={() => navigate(`/expert-profile/${item.following_id || item.profile?.user_id || item.id}`)}
+                >
+                  <Avatar className="h-12 w-12">
+                    <AvatarImage src={item.profile?.avatar_url || ''} />
+                    <AvatarFallback>{item.profile?.nickname?.charAt(0) || '?'}</AvatarFallback>
+                  </Avatar>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="truncate font-medium text-slate-900">
+                      {item.profile?.nickname || '未知用户'}
+                    </h3>
+                    <p className="mt-1 line-clamp-1 text-xs text-muted-foreground">
+                      {item.profile?.bio || '已关注，随时可以回到主页查看动态和服务信息。'}
+                    </p>
+                  </div>
+                  <ChevronRight size={16} className="text-muted-foreground" />
+                </button>
+              </CardContent>
+            </Card>
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center p-8 mt-20">
-          <Users size={64} className="text-gray-300 mb-4" />
-          <p className="text-gray-500 mb-2">暂未关注任何人</p>
-          <Button variant="outline" onClick={() => navigate('/discover')} className="mt-2">
-            发现更多专家
-          </Button>
+        <div className="p-5 pt-20">
+          <PageStateCard
+            title="暂未关注任何人"
+            description="关注感兴趣的达人后，可以更快找到熟悉的主页和服务入口。"
+            actionLabel="发现更多专家"
+            onAction={() => navigate('/discover')}
+            icon={<Users size={64} className="mx-auto text-muted-foreground/30" />}
+          />
         </div>
       )}
 
-      <BottomNav />
     </div>
   );
 };

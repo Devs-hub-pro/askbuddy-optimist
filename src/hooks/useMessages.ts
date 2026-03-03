@@ -1,8 +1,13 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect, useState } from 'react';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+
+const isMissingRpcError = (error: unknown, functionName: string) => {
+  const message = error instanceof Error ? error.message : String(error || '');
+  return message.includes(`public.${functionName}`) || message.includes('schema cache');
+};
 
 export interface Message {
   id: string;
@@ -12,7 +17,6 @@ export interface Message {
   message_type: string;
   read_at: string | null;
   created_at: string;
-  // Joined data
   sender_nickname?: string | null;
   sender_avatar?: string | null;
   receiver_nickname?: string | null;
@@ -29,16 +33,30 @@ export interface Conversation {
   is_online?: boolean;
 }
 
-// Fetch all conversations for current user
 export const useConversations = () => {
   const { user } = useAuth();
 
   return useQuery({
     queryKey: ['conversations', user?.id],
-    queryFn: async () => {
+    queryFn: async (): Promise<Conversation[]> => {
       if (!user) return [];
 
-      // Get all messages where user is sender or receiver
+      const rpcResult = await supabase.rpc('get_user_conversations');
+      if (!rpcResult.error) {
+        return (rpcResult.data || []).map((item) => ({
+          partner_id: item.partner_id,
+          partner_nickname: item.partner_nickname,
+          partner_avatar: item.partner_avatar,
+          last_message: item.last_message,
+          last_message_time: item.last_message_time,
+          unread_count: item.unread_count,
+        }));
+      }
+
+      if (!isMissingRpcError(rpcResult.error, 'get_user_conversations')) {
+        throw rpcResult.error;
+      }
+
       const { data: messages, error } = await supabase
         .from('messages')
         .select('*')
@@ -48,104 +66,92 @@ export const useConversations = () => {
       if (error) throw error;
       if (!messages || messages.length === 0) return [];
 
-      // Group messages by conversation partner
-      const conversationsMap = new Map<string, {
-        messages: typeof messages;
+      const conversationMap = new Map<string, {
         partner_id: string;
+        last_message: string;
+        last_message_time: string;
+        unread_count: number;
       }>();
 
-      messages.forEach((msg) => {
-        const partnerId = msg.sender_id === user.id ? msg.receiver_id : msg.sender_id;
-        
-        if (!conversationsMap.has(partnerId)) {
-          conversationsMap.set(partnerId, {
-            messages: [],
-            partner_id: partnerId
+      messages.forEach((message) => {
+        const partnerId = message.sender_id === user.id ? message.receiver_id : message.sender_id;
+        if (!conversationMap.has(partnerId)) {
+          conversationMap.set(partnerId, {
+            partner_id: partnerId,
+            last_message: message.content,
+            last_message_time: message.created_at,
+            unread_count: 0,
           });
         }
-        conversationsMap.get(partnerId)!.messages.push(msg);
+
+        if (message.receiver_id === user.id && !message.read_at) {
+          const current = conversationMap.get(partnerId);
+          if (current) {
+            current.unread_count += 1;
+          }
+        }
       });
 
-      // Fetch profiles for all partners
-      const partnerIds = Array.from(conversationsMap.keys());
-      const { data: profiles } = await supabase
+      const partnerIds = Array.from(conversationMap.keys());
+      const { data: profiles, error: profileError } = await supabase
         .from('profiles')
         .select('user_id, nickname, avatar_url')
         .in('user_id', partnerIds);
 
-      const profilesMap = new Map(
-        (profiles || []).map(p => [p.user_id, p])
-      );
+      if (profileError) throw profileError;
 
-      // Build conversation list
-      const conversations: Conversation[] = Array.from(conversationsMap.values()).map(conv => {
-        const profile = profilesMap.get(conv.partner_id);
-        const lastMessage = conv.messages[0]; // Already sorted by created_at desc
-        const unreadCount = conv.messages.filter(
-          m => m.receiver_id === user.id && !m.read_at
-        ).length;
+      const profileMap = new Map((profiles || []).map((profile) => [profile.user_id, profile]));
 
-        return {
-          partner_id: conv.partner_id,
-          partner_nickname: profile?.nickname || '用户',
-          partner_avatar: profile?.avatar_url || null,
-          last_message: lastMessage.content,
-          last_message_time: lastMessage.created_at,
-          unread_count: unreadCount
-        };
-      });
-
-      // Sort by last message time
-      conversations.sort((a, b) => 
-        new Date(b.last_message_time).getTime() - new Date(a.last_message_time).getTime()
-      );
-
-      return conversations;
+      return Array.from(conversationMap.values()).map((item) => ({
+        ...item,
+        partner_nickname: profileMap.get(item.partner_id)?.nickname || '用户',
+        partner_avatar: profileMap.get(item.partner_id)?.avatar_url || null,
+      }));
     },
-    enabled: !!user
+    enabled: !!user,
   });
 };
 
-// Fetch messages with a specific user
 export const useMessagesWithUser = (partnerId: string) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
   const query = useQuery({
     queryKey: ['messages', user?.id, partnerId],
-    queryFn: async () => {
+    queryFn: async (): Promise<Message[]> => {
       if (!user || !partnerId) return [];
 
       const { data: messages, error } = await supabase
         .from('messages')
         .select('*')
         .or(`and(sender_id.eq.${user.id},receiver_id.eq.${partnerId}),and(sender_id.eq.${partnerId},receiver_id.eq.${user.id})`)
+        .eq('is_hidden', false)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
 
-      // Get profiles
-      const { data: profiles } = await supabase
+      const { data: profiles, error: profileError } = await supabase
         .from('profiles')
         .select('user_id, nickname, avatar_url')
         .in('user_id', [user.id, partnerId]);
 
+      if (profileError) throw profileError;
+
       const profilesMap = new Map(
-        (profiles || []).map(p => [p.user_id, p])
+        (profiles || []).map((profile) => [profile.user_id, profile])
       );
 
-      return (messages || []).map(msg => ({
-        ...msg,
-        sender_nickname: profilesMap.get(msg.sender_id)?.nickname || '用户',
-        sender_avatar: profilesMap.get(msg.sender_id)?.avatar_url,
-        receiver_nickname: profilesMap.get(msg.receiver_id)?.nickname || '用户',
-        receiver_avatar: profilesMap.get(msg.receiver_id)?.avatar_url
-      })) as Message[];
+      return (messages || []).map((message) => ({
+        ...message,
+        sender_nickname: profilesMap.get(message.sender_id)?.nickname || '用户',
+        sender_avatar: profilesMap.get(message.sender_id)?.avatar_url || null,
+        receiver_nickname: profilesMap.get(message.receiver_id)?.nickname || '用户',
+        receiver_avatar: profilesMap.get(message.receiver_id)?.avatar_url || null,
+      }));
     },
-    enabled: !!user && !!partnerId
+    enabled: !!user && !!partnerId,
   });
 
-  // Subscribe to realtime updates
   useEffect(() => {
     if (!user || !partnerId) return;
 
@@ -154,15 +160,28 @@ export const useMessagesWithUser = (partnerId: string) => {
       .on(
         'postgres_changes',
         {
-          event: 'INSERT',
+          event: '*',
           schema: 'public',
           table: 'messages',
-          filter: `or(and(sender_id=eq.${user.id},receiver_id=eq.${partnerId}),and(sender_id=eq.${partnerId},receiver_id=eq.${user.id}))`
         },
         (payload) => {
-          // Invalidate queries to refresh data
+          const nextMessage = payload.new as { sender_id?: string; receiver_id?: string } | undefined;
+          const prevMessage = payload.old as { sender_id?: string; receiver_id?: string } | undefined;
+          const candidate = nextMessage || prevMessage;
+
+          if (!candidate) return;
+
+          const belongsToThread =
+            (candidate.sender_id === user.id && candidate.receiver_id === partnerId) ||
+            (candidate.sender_id === partnerId && candidate.receiver_id === user.id);
+
+          if (!belongsToThread) return;
+
           queryClient.invalidateQueries({ queryKey: ['messages', user.id, partnerId] });
           queryClient.invalidateQueries({ queryKey: ['conversations', user.id] });
+          queryClient.invalidateQueries({ queryKey: ['unread-count', user.id] });
+          queryClient.invalidateQueries({ queryKey: ['notifications', user.id] });
+          queryClient.invalidateQueries({ queryKey: ['notifications-unread-count', user.id] });
         }
       )
       .subscribe();
@@ -170,12 +189,11 @@ export const useMessagesWithUser = (partnerId: string) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, partnerId, queryClient]);
+  }, [partnerId, queryClient, user]);
 
   return query;
 };
 
-// Send a message
 export const useSendMessage = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -189,19 +207,33 @@ export const useSendMessage = () => {
     }) => {
       if (!user) throw new Error('请先登录');
 
+      const rpcResult = await supabase.rpc('send_direct_message', {
+        p_receiver_id: data.receiver_id,
+        p_content: data.content,
+        p_message_type: data.message_type || 'text',
+      });
+
+      if (!rpcResult.error) {
+        return rpcResult.data;
+      }
+
+      if (!isMissingRpcError(rpcResult.error, 'send_direct_message')) {
+        throw rpcResult.error;
+      }
+
       const { data: message, error } = await supabase
         .from('messages')
         .insert({
           sender_id: user.id,
           receiver_id: data.receiver_id,
           content: data.content,
-          message_type: data.message_type || 'text'
+          message_type: data.message_type || 'text',
         })
         .select()
         .single();
 
       if (error) throw error;
-      return message;
+      return message.id;
     },
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ['messages', user?.id, variables.receiver_id] });
@@ -211,13 +243,12 @@ export const useSendMessage = () => {
       toast({
         title: '发送失败',
         description: error.message,
-        variant: 'destructive'
+        variant: 'destructive',
       });
-    }
+    },
   });
 };
 
-// Mark messages as read
 export const useMarkMessagesAsRead = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -239,11 +270,10 @@ export const useMarkMessagesAsRead = () => {
       queryClient.invalidateQueries({ queryKey: ['messages', user?.id, senderId] });
       queryClient.invalidateQueries({ queryKey: ['conversations', user?.id] });
       queryClient.invalidateQueries({ queryKey: ['unread-count', user?.id] });
-    }
+    },
   });
 };
 
-// Delete a message
 export const useDeleteMessage = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
@@ -269,13 +299,12 @@ export const useDeleteMessage = () => {
       toast({
         title: '删除失败',
         description: error.message,
-        variant: 'destructive'
+        variant: 'destructive',
       });
-    }
+    },
   });
 };
 
-// Get unread message count
 export const useUnreadMessageCount = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
@@ -290,15 +319,15 @@ export const useUnreadMessageCount = () => {
         .from('messages')
         .select('*', { count: 'exact', head: true })
         .eq('receiver_id', user.id)
+        .eq('is_hidden', false)
         .is('read_at', null);
 
       if (error) throw error;
       return count || 0;
     },
-    enabled: !!user
+    enabled: !!user,
   });
 
-  // Subscribe to realtime updates for unread count
   useEffect(() => {
     if (!user) return;
 
@@ -310,7 +339,7 @@ export const useUnreadMessageCount = () => {
           event: '*',
           schema: 'public',
           table: 'messages',
-          filter: `receiver_id=eq.${user.id}`
+          filter: `receiver_id=eq.${user.id}`,
         },
         () => {
           queryClient.invalidateQueries({ queryKey: ['unread-count', user.id] });
@@ -321,7 +350,7 @@ export const useUnreadMessageCount = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [user, queryClient]);
+  }, [queryClient, user]);
 
   useEffect(() => {
     if (query.data !== undefined) {

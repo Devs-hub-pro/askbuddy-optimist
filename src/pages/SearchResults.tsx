@@ -6,20 +6,91 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import SearchBar from "@/components/SearchBar";
-import BottomNav from "@/components/BottomNav";
 import { useSearch, popularSearchTerms, type SearchQuestion, type SearchTopic, type SearchUser } from '@/hooks/useSearch';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+
+const SEARCH_HISTORY_KEY = 'searchHistory';
+const channelThemes = {
+  education: {
+    title: '教育学习搜索',
+    headerClass: 'bg-gradient-to-r from-blue-500 to-indigo-500',
+    pageClass: 'bg-gradient-to-b from-blue-50/70 via-white to-white',
+    searchStripClass: 'bg-blue-50/90 border-b border-blue-100/90',
+    accentRingClass: 'ring-blue-400/25',
+    inputAccentClass: 'focus:ring-blue-400/20 focus:border-blue-200',
+    inputBorderClass: 'border-blue-200/80',
+    iconClass: 'text-blue-500',
+    historyChipClass: 'border-blue-100 text-blue-700',
+    suggestionClass: 'bg-blue-50 text-blue-600',
+    backTo: '/education',
+  },
+  career: {
+    title: '职业发展搜索',
+    headerClass: 'bg-gradient-to-r from-green-500 to-teal-500',
+    pageClass: 'bg-gradient-to-b from-emerald-50/70 via-white to-white',
+    searchStripClass: 'bg-emerald-50/90 border-b border-emerald-100/90',
+    accentRingClass: 'ring-emerald-400/25',
+    inputAccentClass: 'focus:ring-emerald-400/20 focus:border-emerald-200',
+    inputBorderClass: 'border-emerald-200/80',
+    iconClass: 'text-emerald-500',
+    historyChipClass: 'border-emerald-100 text-emerald-700',
+    suggestionClass: 'bg-emerald-50 text-emerald-600',
+    backTo: '/career',
+  },
+  lifestyle: {
+    title: '生活服务搜索',
+    headerClass: 'bg-gradient-to-r from-orange-500 to-amber-500',
+    pageClass: 'bg-gradient-to-b from-orange-50/70 via-white to-white',
+    searchStripClass: 'bg-orange-50/90 border-b border-orange-100/90',
+    accentRingClass: 'ring-orange-400/25',
+    inputAccentClass: 'focus:ring-orange-400/20 focus:border-orange-200',
+    inputBorderClass: 'border-orange-200/80',
+    iconClass: 'text-orange-500',
+    historyChipClass: 'border-orange-100 text-orange-700',
+    suggestionClass: 'bg-orange-50 text-orange-600',
+    backTo: '/lifestyle',
+  },
+  hobbies: {
+    title: '兴趣技能搜索',
+    headerClass: 'bg-gradient-to-r from-pink-500 to-rose-500',
+    pageClass: 'bg-gradient-to-b from-rose-50/70 via-white to-white',
+    searchStripClass: 'bg-rose-50/90 border-b border-rose-100/90',
+    accentRingClass: 'ring-rose-400/25',
+    inputAccentClass: 'focus:ring-rose-400/20 focus:border-rose-200',
+    inputBorderClass: 'border-rose-200/80',
+    iconClass: 'text-rose-500',
+    historyChipClass: 'border-rose-100 text-rose-700',
+    suggestionClass: 'bg-rose-50 text-rose-600',
+    backTo: '/hobbies',
+  },
+  default: {
+    title: '搜索',
+    headerClass: 'bg-app-teal',
+    pageClass: 'bg-gradient-to-b from-white to-blue-50/30',
+    searchStripClass: 'bg-white/95 border-b border-slate-100',
+    accentRingClass: 'ring-app-teal/25',
+    inputAccentClass: 'focus:ring-app-teal/25 focus:border-app-teal/30',
+    inputBorderClass: 'border-[#d9efe9]',
+    iconClass: 'text-app-teal',
+    historyChipClass: 'border-[#d9efe9] text-slate-700',
+    suggestionClass: 'bg-[rgb(236,251,247)] text-[rgb(73,170,155)]',
+    backTo: '/',
+  },
+} as const;
 
 const SearchResults = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const searchParams = new URLSearchParams(location.search);
   const initialQuery = searchParams.get('q') || '';
+  const channel = searchParams.get('channel') || 'default';
+  const theme = channelThemes[channel as keyof typeof channelThemes] || channelThemes.default;
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
   const [activeTab, setActiveTab] = useState<'all' | 'questions' | 'topics' | 'users'>('all');
+  const [recentSearches, setRecentSearches] = useState<string[]>([]);
 
   const { data: results, isLoading } = useSearch(debouncedQuery);
 
@@ -33,12 +104,33 @@ const SearchResults = () => {
 
   // Sync URL
   useEffect(() => {
+    const newParams = new URLSearchParams(location.search);
     if (debouncedQuery) {
-      const newParams = new URLSearchParams(location.search);
       newParams.set('q', debouncedQuery);
       navigate({ pathname: location.pathname, search: newParams.toString() }, { replace: true });
+      setRecentSearches((current) => {
+        const next = [debouncedQuery, ...current.filter((item) => item !== debouncedQuery)].slice(0, 8);
+        localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(next));
+        return next;
+      });
+    } else if (searchParams.get('q')) {
+      newParams.delete('q');
+      navigate({ pathname: location.pathname, search: newParams.toString() }, { replace: true });
     }
-  }, [debouncedQuery]);
+  }, [debouncedQuery, location.pathname, location.search, navigate]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem(SEARCH_HISTORY_KEY);
+    if (!stored) return;
+    try {
+      const parsed = JSON.parse(stored);
+      if (Array.isArray(parsed)) {
+        setRecentSearches(parsed.filter((item): item is string => typeof item === 'string'));
+      }
+    } catch {
+      localStorage.removeItem(SEARCH_HISTORY_KEY);
+    }
+  }, []);
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
@@ -53,31 +145,73 @@ const SearchResults = () => {
   const noResults = debouncedQuery.trim() && !isLoading && totalResults === 0;
 
   return (
-    <div className="app-container bg-gradient-to-b from-white to-blue-50/30 min-h-screen pb-20">
+    <div className={`app-container min-h-[100dvh] pb-8 ${theme.pageClass}`}>
       {/* Header */}
-      <div className="sticky top-0 z-50 bg-app-teal shadow-sm">
+      <div className={`sticky top-0 z-50 shadow-sm ${theme.headerClass}`}>
+        <div style={{ height: 'env(safe-area-inset-top)' }} />
         <div className="flex items-center justify-between h-12 px-4">
           <button onClick={() => navigate(-1)} className="text-white">
             <ChevronLeft size={24} />
           </button>
-          <div className="text-white font-medium text-base">搜索</div>
-          <button className="text-white"><Bell size={20} /></button>
+          <div className="text-white font-medium text-base">{theme.title}</div>
+          <button className="text-white" onClick={() => navigate('/notifications')}><Bell size={20} /></button>
         </div>
       </div>
 
-      <SearchBar
-        onSearch={handleSearch}
-        placeholder="搜索问题/话题/用户"
-        value={searchQuery}
-        onChange={(e) => setSearchQuery(e.target.value)}
-      />
+      <div
+        className={`sticky z-40 shadow-[0_1px_0_rgba(15,23,42,0.03)] ${theme.searchStripClass}`}
+        style={{ top: 'calc(env(safe-area-inset-top) + 3rem)' }}
+      >
+        <SearchBar
+          onSearch={handleSearch}
+          placeholder="搜索问题/话题/用户"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          accentRingClassName={theme.accentRingClass}
+          inputAccentClassName={theme.inputAccentClass}
+          inputBorderClassName={theme.inputBorderClass}
+          iconClassName={theme.iconClass}
+          className="py-2.5"
+        />
+      </div>
 
       <div className="p-4">
         {/* No query: show popular terms */}
         {!debouncedQuery.trim() && (
           <>
-            <div className="flex items-center mb-4">
-              <Search size={20} className="text-app-teal mr-2" />
+            {recentSearches.length > 0 && (
+              <>
+                <div className="mb-3 flex items-center justify-between">
+                  <div className="flex items-center">
+                    <Search size={18} className={`mr-2 ${theme.iconClass}`} />
+                    <h2 className="text-base font-semibold">最近搜索</h2>
+                  </div>
+                  <button
+                    className="text-xs text-muted-foreground"
+                    onClick={() => {
+                      setRecentSearches([]);
+                      localStorage.removeItem(SEARCH_HISTORY_KEY);
+                    }}
+                  >
+                    清空
+                  </button>
+                </div>
+                <div className="mb-6 flex flex-wrap gap-2">
+                  {recentSearches.map((topic, i) => (
+                    <button
+                      key={`${topic}-${i}`}
+                      onClick={() => handleTopicSelect(topic)}
+                      className={`rounded-full border bg-white px-3 py-1.5 text-sm shadow-sm transition-colors hover:bg-gray-50 ${theme.historyChipClass}`}
+                    >
+                      {topic}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+
+            <div className="mb-4 flex items-center">
+              <Search size={20} className={`mr-2 ${theme.iconClass}`} />
               <h2 className="text-lg font-bold">热门搜索</h2>
             </div>
             <div className="flex flex-wrap gap-2 mb-6">
@@ -98,7 +232,7 @@ const SearchResults = () => {
         {isLoading && debouncedQuery.trim() && (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
-              <div key={i} className="bg-white rounded-xl p-4 shadow-sm space-y-3">
+              <div key={i} className="surface-card rounded-2xl p-4 shadow-sm space-y-3">
                 <Skeleton className="h-5 w-2/3" />
                 <Skeleton className="h-4 w-full" />
                 <div className="flex gap-2">
@@ -112,7 +246,7 @@ const SearchResults = () => {
 
         {/* No results */}
         {noResults && (
-          <div className="bg-white rounded-xl p-6 text-center shadow-sm">
+          <div className="surface-card rounded-2xl p-6 text-center shadow-sm">
             <div className="flex flex-col items-center">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
                 <User size={32} className="text-gray-400" />
@@ -121,8 +255,19 @@ const SearchResults = () => {
               <p className="text-gray-500 max-w-xs mb-4">
                 尝试使用不同的关键词，或者直接提问
               </p>
-              <Button onClick={() => navigate('/')} variant="outline" className="border-green-200 text-green-600 hover:bg-green-50">
-                返回主页
+              <div className="mb-4 flex flex-wrap justify-center gap-2">
+                {popularSearchTerms.slice(0, 4).map((term) => (
+                  <button
+                    key={term}
+                    onClick={() => handleTopicSelect(term)}
+                    className={`rounded-full px-3 py-1.5 text-xs font-medium ${theme.suggestionClass}`}
+                  >
+                    试试搜 {term}
+                  </button>
+                ))}
+              </div>
+              <Button onClick={() => navigate(theme.backTo)} variant="outline" className="border-green-200 text-green-600 hover:bg-green-50">
+                返回上页
               </Button>
             </div>
           </div>
@@ -206,7 +351,6 @@ const SearchResults = () => {
         )}
       </div>
 
-      <BottomNav />
     </div>
   );
 };
@@ -221,7 +365,7 @@ const QuestionCard = ({ question: q, navigate }: { question: SearchQuestion; nav
   const timeAgo = formatDistanceToNow(new Date(q.created_at), { addSuffix: true, locale: zhCN });
   return (
     <div
-      className="bg-white rounded-xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100"
+      className="surface-card rounded-2xl p-4 shadow-sm hover:shadow-md transition-all cursor-pointer"
       onClick={() => navigate(`/question/${q.id}`)}
     >
       <div className="flex items-start justify-between mb-2">
@@ -271,7 +415,7 @@ const QuestionCard = ({ question: q, navigate }: { question: SearchQuestion; nav
 
 const TopicCard = ({ topic: t, navigate }: { topic: SearchTopic; navigate: ReturnType<typeof useNavigate> }) => (
   <div
-    className="bg-white rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer border border-gray-100"
+    className="surface-card rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-all cursor-pointer"
     onClick={() => navigate(`/topic/${t.id}`)}
   >
     {t.cover_image && (
@@ -296,7 +440,7 @@ const TopicCard = ({ topic: t, navigate }: { topic: SearchTopic; navigate: Retur
 );
 
 const UserCard = ({ user: u }: { user: SearchUser }) => (
-  <div className="bg-white rounded-xl p-4 shadow-sm flex items-center gap-3 border border-gray-100">
+  <div className="surface-card rounded-2xl p-4 shadow-sm flex items-center gap-3">
     <Avatar className="w-12 h-12">
       <AvatarImage src={u.avatar_url || ''} />
       <AvatarFallback>{(u.nickname || '用')[0]}</AvatarFallback>

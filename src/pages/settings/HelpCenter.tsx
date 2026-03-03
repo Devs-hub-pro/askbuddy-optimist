@@ -1,7 +1,6 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, HelpCircle, Search, ChevronDown, ChevronRight, MessageSquare, FileText, Users, AlertCircle } from 'lucide-react';
+import { HelpCircle, Search, MessageSquare, FileText, Users, AlertCircle, Sparkles, Mail, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { 
@@ -18,9 +17,9 @@ import {
 } from "@/components/ui/accordion";
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const HelpCenter = () => {
-  const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState('');
   const [isContactDialogOpen, setContactDialogOpen] = useState(false);
 
@@ -77,37 +76,42 @@ const HelpCenter = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b shadow-sm">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => navigate('/settings')}
-          className="mr-2"
-        >
-          <ArrowLeft size={24} />
-        </Button>
-        <h1 className="text-xl font-semibold">帮助中心</h1>
-      </div>
+      <div className="sticky top-0 z-20">
+        <SubPageHeader title="帮助中心" />
 
-      {/* Search Bar */}
-      <div className="p-4 bg-white border-b">
-        <div className="relative">
+        {/* Search Bar */}
+        <div className="border-b border-[rgb(205,239,231)] bg-[rgb(223,245,239)] px-4 py-3">
+          <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           <Input 
             placeholder="搜索常见问题..." 
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-10 py-2 bg-gray-50 border-gray-200"
+            className="h-12 rounded-2xl border-gray-200 bg-white pl-10 shadow-sm"
           />
+        </div>
         </div>
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-4">
+      <div className="p-5 space-y-5">
+        <Card className="surface-card rounded-3xl border-none shadow-sm">
+          <CardContent className="p-5">
+            <div className="flex items-center justify-between gap-3">
+              <div>
+                <p className="text-sm font-semibold text-slate-900">帮助与支持</p>
+                <p className="mt-1 text-xs leading-5 text-slate-500">
+                  搜索常见问题、查看使用规则，或直接联系在线客服获取进一步帮助。
+                </p>
+              </div>
+              <Sparkles className="h-5 w-5 text-[rgb(73,170,155)]" />
+            </div>
+          </CardContent>
+        </Card>
+
         {filteredCategories.length > 0 ? (
           filteredCategories.map((category, index) => (
-            <Card key={`cat-${index}`} className="border-none shadow-sm overflow-hidden rounded-xl">
+            <Card key={`cat-${index}`} className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
               <CardHeader className="pb-2 pt-4">
                 <CardTitle className="text-lg flex items-center">
                   <span className="p-1.5 rounded-md bg-gray-100 mr-2">
@@ -152,16 +156,30 @@ const HelpCenter = () => {
         )}
         
         {/* Contact Section */}
-        <div className="bg-gradient-to-r from-blue-50 to-teal-50 p-4 rounded-xl mt-6 text-center">
-          <h3 className="font-medium mb-2">没有找到您需要的帮助？</h3>
-          <p className="text-sm text-gray-600 mb-3">工作时间：周一至周日 9:00-22:00</p>
-          <Button className="bg-app-teal hover:bg-app-teal/90"
-            onClick={() => setContactDialogOpen(true)}
-          >
-            <MessageSquare size={16} className="mr-2" />
-            联系在线客服
-          </Button>
-        </div>
+        <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
+          <CardContent className="p-5">
+            <h3 className="font-medium mb-2">没有找到您需要的帮助？</h3>
+            <p className="text-sm text-gray-600 mb-4">工作时间：周一至周日 9:00-22:00</p>
+            <div className="grid grid-cols-2 gap-3 mb-4">
+              <div className="rounded-2xl bg-slate-50 px-3 py-3 text-center">
+                <Mail size={16} className="mx-auto mb-2 text-app-blue" />
+                <p className="text-xs text-slate-500">客服邮箱</p>
+                <p className="mt-1 text-xs font-medium text-slate-700">support@example.com</p>
+              </div>
+              <div className="rounded-2xl bg-slate-50 px-3 py-3 text-center">
+                <Phone size={16} className="mx-auto mb-2 text-app-teal" />
+                <p className="text-xs text-slate-500">客服电话</p>
+                <p className="mt-1 text-xs font-medium text-slate-700">400-888-8888</p>
+              </div>
+            </div>
+            <Button className="w-full bg-app-teal hover:bg-app-teal/90"
+              onClick={() => setContactDialogOpen(true)}
+            >
+              <MessageSquare size={16} className="mr-2" />
+              联系在线客服
+            </Button>
+          </CardContent>
+        </Card>
       </div>
       
       {/* 联系客服弹窗 */}

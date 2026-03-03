@@ -11,6 +11,12 @@ interface SearchBarProps {
   value?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
   isEducation?: boolean;
+  clickToNavigate?: boolean;
+  accentRingClassName?: string;
+  inputAccentClassName?: string;
+  inputBorderClassName?: string;
+  iconClassName?: string;
+  navigateToPath?: string;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ 
@@ -19,7 +25,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
   className = "",
   value,
   onChange,
-  isEducation = false
+  isEducation = false,
+  clickToNavigate = false,
+  accentRingClassName = 'ring-app-teal/25',
+  inputAccentClassName = 'focus:ring-app-teal/25 focus:border-app-teal/30',
+  inputBorderClassName = 'border-gray-200',
+  iconClassName = 'text-gray-400',
+  navigateToPath,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -60,6 +72,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
         onSearch(searchValue);
       }
     } else {
+      if (navigateToPath) {
+        const separator = navigateToPath.includes('?') ? '&' : '?';
+        navigate(`${navigateToPath}${separator}q=${encodeURIComponent(searchValue)}`);
+        return;
+      }
+
       // Navigate to the appropriate search page
       if (isEducation) {
         navigate(`/education/search?q=${encodeURIComponent(searchValue)}`);
@@ -70,16 +88,21 @@ const SearchBar: React.FC<SearchBarProps> = ({
     }
   };
 
+  const handleNavigateToSearch = () => {
+    if (location.pathname.includes('/search')) return;
+    if (navigateToPath) {
+      navigate(navigateToPath);
+      return;
+    }
+    if (isEducation) {
+      navigate('/education/search');
+      return;
+    }
+    navigate('/search');
+  };
+
   const handleFocus = () => {
     setIsFocused(true);
-    // Navigate directly to search page when focusing on the search bar
-    if (!location.pathname.includes('/search')) {
-      if (isEducation) {
-        navigate('/education/search');
-      } else {
-        navigate('/search');
-      }
-    }
   };
 
   const handleBlur = () => {
@@ -87,8 +110,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   return (
-    <div className={`px-4 py-3 ${className}`}>
-      <div className={`relative ${isFocused ? 'ring-2 ring-app-teal/30 rounded-md' : ''}`}>
+    <div className={`px-4 py-2.5 ${className}`}>
+      <div
+        className={`relative ${isFocused ? `ring-2 ${accentRingClassName} rounded-2xl` : ''}`}
+        onClick={clickToNavigate ? handleNavigateToSearch : undefined}
+      >
         <Input
           type="text"
           value={value !== undefined ? value : searchValue}
@@ -97,12 +123,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
           onFocus={handleFocus}
           onBlur={handleBlur}
           placeholder={placeholder}
-          className="search-input pr-10 focus:ring-2 focus:ring-app-teal/30 shadow-sm"
+          readOnly={clickToNavigate}
+          className={`search-input pr-10 shadow-sm focus-visible:ring-0 focus-visible:ring-transparent ${inputBorderClassName} ${inputAccentClassName}`}
         />
         <Search 
           size={18} 
-          className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 cursor-pointer" 
-          onClick={handleSearch}
+          className={`absolute right-4 top-1/2 transform -translate-y-1/2 cursor-pointer ${iconClassName}`} 
+          onClick={clickToNavigate ? handleNavigateToSearch : handleSearch}
         />
       </div>
     </div>

@@ -11,6 +11,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const TopicDetail = () => {
   const { topicId } = useParams<{ topicId: string }>();
@@ -60,67 +61,89 @@ const TopicDetail = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-screen bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
+        <PageStateCard variant="loading" title="正在加载专题内容…" />
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-center p-4">
-        <p className="text-muted-foreground mb-4">话题不存在或已被删除</p>
-        <Button variant="outline" onClick={() => navigate(-1)}>
-          返回
-        </Button>
+      <div className="min-h-screen bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
+        <PageStateCard
+          variant="error"
+          title="暂时无法打开专题"
+          description="内容可能已下线，或当前链接已失效。"
+          actionLabel="返回上页"
+          onAction={() => navigate(-1)}
+        />
       </div>
     );
   }
 
   const { topic, discussions } = data;
+  const articleBody = topic.description?.split(/\n+/).filter(Boolean) || [];
+  const contentBlocks = articleBody.length > 0
+    ? articleBody
+    : [
+        `这是「${topic.title}」专题页，你可以把它当作一篇会持续更新的内容推文来阅读。`,
+        '上方是本期主题摘要，下方则是所有用户围绕这个主题发起的评论和讨论。',
+        '如果你也有经验、观点或补充材料，可以直接在底部输入框继续参与。',
+      ];
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-white border-b">
+    <div className="app-container min-h-screen bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-24">
+      <div
+        className="sticky top-0 z-20 border-b border-white/10 bg-app-teal text-white shadow-sm"
+        style={{ paddingTop: 'env(safe-area-inset-top)' }}
+      >
         <div className="flex items-center px-4 py-3">
           <button onClick={() => navigate(-1)} className="mr-3">
             <ArrowLeft size={24} />
           </button>
-          <h1 className="text-lg font-semibold flex-1 truncate">{topic.title}</h1>
+          <h1 className="text-base font-semibold flex-1 truncate">{topic.title}</h1>
         </div>
       </div>
 
-      {/* Topic Header */}
-      <div className="bg-white mb-2">
-        {topic.cover_image && (
-          <div className="w-full h-48 overflow-hidden">
-            <img
-              src={topic.cover_image}
-              alt={topic.title}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        )}
-        <div className="p-4">
-          <h2 className="text-xl font-bold mb-2">{topic.title}</h2>
-          {topic.description && (
-            <p className="text-muted-foreground text-sm mb-3">{topic.description}</p>
-          )}
-          <div className="flex items-center justify-between gap-4 text-sm text-muted-foreground">
-            <div className="flex items-center gap-4">
-              <span className="flex items-center gap-1">
-                <MessageCircle size={16} />
-                {topic.discussions_count} 讨论
-              </span>
-              <span className="flex items-center gap-1">
-                <Users size={16} />
-                {topic.participants_count} 参与
-              </span>
+      <div className="px-4 pt-5">
+        <div className="surface-card rounded-3xl overflow-hidden">
+          {topic.cover_image ? (
+            <div className="h-44">
+              <img
+                src={topic.cover_image}
+                alt={topic.title}
+                className="w-full h-full object-cover"
+              />
             </div>
-            {user && (
+          ) : (
+            <div className="h-36 bg-gradient-to-r from-teal-100 via-cyan-100 to-white" />
+          )}
+
+          <div className="p-5">
+          <span className="inline-flex rounded-full bg-teal-50 px-3 py-1 text-xs font-medium text-teal-700">
+            问问热榜专题
+          </span>
+          <h2 className="mt-4 text-[21px] font-semibold leading-8 text-slate-900">{topic.title}</h2>
+          <p className="mt-3 text-[15px] leading-7 text-slate-600">
+            {topic.description || '这是一篇围绕某个热点主题持续更新的内容推文，欢迎你阅读后在下方继续评论讨论。'}
+          </p>
+
+          <div className="mt-5 flex flex-wrap items-center gap-3 text-sm text-slate-500">
+            <span className="flex items-center gap-1">
+              <MessageCircle size={16} />
+              {topic.discussions_count} 条讨论
+            </span>
+            <span className="flex items-center gap-1">
+              <Users size={16} />
+              {topic.participants_count} 人参与
+            </span>
+            <span>{formatTime(topic.updated_at)}</span>
+          </div>
+
+          <div className="mt-4 flex flex-wrap items-center gap-2">
+            {user ? (
               <Button
-                variant={isFollowing ? "default" : "outline"}
+                variant={isFollowing ? 'default' : 'secondary'}
                 size="sm"
                 onClick={() => {
                   if (topicId) {
@@ -132,26 +155,78 @@ const TopicDetail = () => {
                   }
                 }}
                 disabled={toggleFollow.isPending}
-                className="shrink-0"
+                className="rounded-full"
               >
-                <Star size={14} className={cn("mr-1", isFollowing && "fill-current")} />
-                {isFollowing ? '已关注' : '关注'}
+                <Star size={14} className={cn('mr-1', isFollowing && 'fill-current')} />
+                {isFollowing ? '已关注专题' : '关注专题'}
               </Button>
-            )}
+            ) : null}
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-500">
+              阅读 2 分钟
+            </span>
+          </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="px-4 mt-5">
+        <div className="surface-card rounded-3xl p-5">
+          <div className="flex items-center justify-between gap-3">
+            <h3 className="text-base font-semibold">专题正文</h3>
+            <span className="rounded-full bg-slate-100 px-3 py-1 text-xs text-slate-500">
+              类似推文阅读
+            </span>
+          </div>
+          <div className="mt-4 space-y-4 text-[15px] leading-8 text-slate-700">
+            {contentBlocks.map((block, index) => (
+              <p key={`${topic.id}-block-${index}`}>{block}</p>
+            ))}
+          </div>
+          <div className="mt-5 grid gap-3 sm:grid-cols-2">
+            <div className="rounded-2xl bg-slate-50 p-4">
+              <div className="text-sm font-medium text-slate-900">继续阅读</div>
+              <p className="mt-2 text-sm leading-6 text-slate-600">
+                浏览专题正文后，继续往下看评论区，快速了解不同观点和补充经验。
+              </p>
+            </div>
+            <div className="rounded-2xl bg-slate-50 p-4">
+              <div className="text-sm font-medium text-slate-900">相关话题</div>
+              <div className="mt-2 flex flex-wrap gap-2">
+                {['申请经验', '效率提升', '真实分享'].map((item) => (
+                  <span key={item} className="rounded-full bg-white px-3 py-1 text-xs text-slate-600 border border-slate-200">
+                    #{item}
+                  </span>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Discussions */}
-      <div className="bg-white">
-        <div className="px-4 py-3 border-b">
-          <h3 className="font-semibold">全部讨论 ({discussions.length})</h3>
+      <div className="mt-5 px-4">
+        <div className="surface-card rounded-3xl overflow-hidden">
+        <div className="border-b px-4 py-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h3 className="font-semibold">评论讨论 ({discussions.length})</h3>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">正文在上面，评论区在下面，阅读和讨论分层更清晰。</p>
+            </div>
+            <div className="flex items-center gap-1 rounded-full bg-slate-100 p-1 text-xs">
+              <span className="rounded-full bg-white px-3 py-1 text-slate-700 shadow-sm">按热度</span>
+              <span className="px-3 py-1 text-slate-500">最新</span>
+            </div>
+          </div>
         </div>
 
         {discussions.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground">
-            <MessageCircle className="w-12 h-12 mx-auto mb-3 opacity-30" />
-            <p>暂无讨论，快来发表你的观点吧！</p>
+          <div className="p-4">
+            <PageStateCard
+              compact
+              title="还没有评论"
+              description="你可以先来发第一条评论。"
+              icon={<MessageCircle className="mx-auto h-10 w-10 text-muted-foreground/30" />}
+            />
           </div>
         ) : (
           <div className="divide-y">
@@ -207,6 +282,7 @@ const TopicDetail = () => {
             ))}
           </div>
         )}
+        </div>
       </div>
 
       {/* Comment Input */}
@@ -239,7 +315,7 @@ const TopicDetail = () => {
             className="w-full"
             variant="outline"
           >
-            登录后参与讨论
+            登录后继续讨论
           </Button>
         )}
       </div>

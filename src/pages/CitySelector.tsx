@@ -83,28 +83,30 @@ const CitySelector = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[100dvh] bg-gray-50">
       {/* Header */}
-      <div className="sticky top-0 z-40 bg-white shadow-sm">
-        <div className="flex items-center h-12 px-4">
-          <button 
-            onClick={() => navigate(-1)}
-            className="p-2 -ml-2 mr-2 rounded-full hover:bg-gray-100"
-          >
-            <ChevronLeft size={20} />
-          </button>
-          <h1 className="text-lg font-medium">选择城市</h1>
+      <div className="sticky top-0 z-40 shadow-sm">
+        <div className="bg-[rgb(121,213,199)] text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+          <div className="flex items-center h-12 px-4">
+            <button 
+              onClick={() => navigate(-1)}
+              className="p-2 -ml-2 mr-2 rounded-full hover:bg-white/15"
+            >
+              <ChevronLeft size={20} />
+            </button>
+            <h1 className="text-base font-medium">选择城市</h1>
+          </div>
         </div>
         
         {/* Search Bar */}
-        <div className="px-4 py-2 flex items-center gap-2">
+        <div className="bg-[rgb(223,245,239)] px-4 py-2 flex items-center gap-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             <Input
               value={searchKeyword}
               onChange={(e) => handleSearch(e.target.value)}
               placeholder="搜索城市、国家"
-              className="pl-10 pr-10 py-2 h-10 bg-gray-100 border-none"
+              className="h-10 border-[#d9efe9] bg-white py-2 pl-10 pr-10 shadow-sm focus:border-app-teal/30 focus-visible:ring-0"
             />
             {searchKeyword && (
               <button 
@@ -169,7 +171,7 @@ const CitySelector = () => {
       {!searchKeyword && (
         <>
           {/* Current Location */}
-          <div className="bg-white mt-2 px-4 py-3 flex justify-between items-center">
+          <div className="mt-2 flex items-center justify-between bg-white px-4 py-3">
             <div className="font-medium">当前城市：{currentLocation}</div>
             <button 
               onClick={useCurrentLocation}
@@ -182,13 +184,13 @@ const CitySelector = () => {
           
           {/* Recent Locations */}
           {recentLocations.length > 0 && (
-            <div className="bg-white mt-2 p-4">
+            <div className="surface-card mt-2 rounded-3xl p-4">
               <h2 className="text-sm text-gray-500 mb-2">最近访问</h2>
               <div className="flex flex-wrap gap-3">
                 {recentLocations.map((location) => (
                   <button
                     key={location}
-                    className="px-4 py-2 bg-gray-100 rounded-md text-sm"
+                    className="rounded-2xl bg-gray-100 px-4 py-2 text-sm"
                     onClick={() => selectLocation(location)}
                   >
                     {location}
@@ -199,13 +201,13 @@ const CitySelector = () => {
           )}
           
           {/* Hot Locations */}
-          <div className="bg-white mt-2 p-4">
+          <div className="surface-card mt-2 rounded-3xl p-4">
             <h2 className="text-sm text-gray-500 mb-2">热门城市</h2>
             <div className="flex flex-wrap gap-3">
               {hotLocations.map((location) => (
                 <button
                   key={location}
-                  className="px-4 py-2 bg-gray-100 rounded-md text-sm"
+                  className="rounded-2xl bg-gray-100 px-4 py-2 text-sm"
                   onClick={() => selectLocation(location)}
                 >
                   {location}

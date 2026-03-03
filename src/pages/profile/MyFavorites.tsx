@@ -1,12 +1,14 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Heart, Loader2 } from 'lucide-react';
+import { Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import BottomNav from '@/components/BottomNav';
+import { Card, CardContent } from '@/components/ui/card';
 import { useMyFavorites } from '@/hooks/useProfileData';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+import SubPageHeader from '@/components/layout/SubPageHeader';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const MyFavorites = () => {
   const navigate = useNavigate();
@@ -19,44 +21,49 @@ const MyFavorites = () => {
   };
 
   return (
-    <div className="pb-20 min-h-screen bg-gray-50">
-      <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} className="mr-2">
-          <ArrowLeft size={24} />
-        </Button>
-        <h1 className="text-xl font-semibold">我的收藏</h1>
-      </div>
+    <div className="pb-8 min-h-screen bg-gray-50">
+      <SubPageHeader title="我的收藏" />
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <PageStateCard variant="loading" compact title="正在加载收藏…" className="w-full max-w-sm" />
         </div>
       ) : favorites && favorites.length > 0 ? (
-        <div className="p-4 space-y-3">
+        <div className="p-4 space-y-4">
           {favorites.map((fav: any) => (
-            <div
+            <Card
               key={fav.id}
-              className="bg-white rounded-xl p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+              className="surface-card cursor-pointer rounded-3xl border-none shadow-sm transition-shadow hover:shadow-md"
               onClick={() => navigate(`/question/${fav.question_id}`)}
             >
-              <h3 className="font-medium text-gray-900 mb-1">
-                {fav.questions?.title || '已删除的问题'}
-              </h3>
-              <p className="text-xs text-gray-400">收藏于 {formatTime(fav.created_at)}</p>
-            </div>
+              <CardContent className="p-5">
+                <div className="flex items-start gap-3">
+                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-50">
+                    <Heart size={18} className="text-rose-500" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <h3 className="line-clamp-2 text-base font-semibold text-slate-900">
+                      {fav.questions?.title || '已删除的问题'}
+                    </h3>
+                    <p className="mt-2 text-xs text-muted-foreground">收藏于 {formatTime(fav.created_at)}</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center p-8 mt-20">
-          <Heart size={64} className="text-gray-300 mb-4" />
-          <p className="text-gray-500 mb-2">暂无收藏内容</p>
-          <Button variant="outline" onClick={() => navigate('/discover')} className="mt-2">
-            去发现内容
-          </Button>
+        <div className="p-5 pt-20">
+          <PageStateCard
+            title="暂无收藏内容"
+            description="看到有价值的问题和回答后，收藏会统一保存在这里。"
+            actionLabel="去发现内容"
+            onAction={() => navigate('/discover')}
+            icon={<Heart size={64} className="mx-auto text-muted-foreground/30" />}
+          />
         </div>
       )}
 
-      <BottomNav />
     </div>
   );
 };

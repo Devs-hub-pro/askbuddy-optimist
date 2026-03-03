@@ -19,16 +19,14 @@ import {
   ChevronUp, 
   Loader2
 } from 'lucide-react';
-import { 
+import {
   Collapsible,
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
+import { getConsultationAmount, useCreateConsultationOrder } from '@/hooks/useConsultationOrders';
 
 interface ExpertDetailProps {
   id: string;
@@ -41,6 +39,7 @@ interface ExpertDetailProps {
   rating: number;
   responseRate: string;
   orderCount: string;
+  consultationPrice?: number;
   education?: string[];
   experience?: string[];
   verified?: boolean;
@@ -60,6 +59,7 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
   rating,
   responseRate,
   orderCount,
+  consultationPrice = 50,
   education = ['北京大学 | 硕士'],
   experience = ['某知名互联网公司 | 产品经理'],
   verified = true,
@@ -71,32 +71,12 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
   const [selectedConsultType, setSelectedConsultType] = useState<'text' | 'voice' | 'video'>('text');
   const navigate = useNavigate();
   const { user } = useAuth();
-  const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const amounts: Record<string, number> = { text: 50, voice: 100, video: 200 };
-
-  const createOrder = useMutation({
-    mutationFn: async () => {
-      if (!user) throw new Error('请先登录');
-      const { error } = await supabase.from('orders').insert({
-        user_id: user.id,
-        order_type: 'consultation',
-        amount: amounts[selectedConsultType],
-        related_id: id,
-        status: 'pending',
-        payment_method: selectedConsultType + '咨询',
-      });
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['my-orders'] });
-      toast({ title: '预约成功', description: '咨询订单已创建' });
-    },
-    onError: (err: Error) => {
-      toast({ title: '预约失败', description: err.message, variant: 'destructive' });
-    },
-  });
+  const createOrder = useCreateConsultationOrder();
+  const amounts = {
+    text: getConsultationAmount(consultationPrice, 'text'),
+    voice: getConsultationAmount(consultationPrice, 'voice'),
+    video: getConsultationAmount(consultationPrice, 'video'),
+  };
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -106,7 +86,7 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
         </DialogTrigger>
       )}
       
-      <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto">
+      <DialogContent className="sm:max-w-[600px] max-h-[85vh] overflow-y-auto rounded-3xl">
         <DialogHeader>
           <DialogTitle className="sr-only">专家详情 - {name}</DialogTitle>
         </DialogHeader>
@@ -158,7 +138,7 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
           
           {/* Expert Description */}
           <Collapsible 
-            className="w-full border border-gray-100 rounded-lg p-4 bg-gray-50"
+            className="w-full border border-gray-100 rounded-2xl p-4 bg-gray-50"
             open={isDescriptionExpanded}
             onOpenChange={setIsDescriptionExpanded}
           >
@@ -229,21 +209,21 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
             <h3 className="text-sm font-semibold text-gray-700">咨询方式</h3>
             <div className="flex gap-3">
               <button 
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${selectedConsultType === 'text' ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' : 'bg-gray-100 text-gray-700 border border-gray-200'}`}
+                className={`flex-1 py-2.5 px-3 rounded-2xl text-sm font-medium transition-all ${selectedConsultType === 'text' ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' : 'bg-gray-100 text-gray-700 border border-gray-200'}`}
                 onClick={() => setSelectedConsultType('text')}
               >
                 文本咨询
                 <div className="text-xs mt-0.5">{amounts.text}积分</div>
               </button>
               <button 
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${selectedConsultType === 'voice' ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' : 'bg-gray-100 text-gray-700 border border-gray-200'}`}
+                className={`flex-1 py-2.5 px-3 rounded-2xl text-sm font-medium transition-all ${selectedConsultType === 'voice' ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' : 'bg-gray-100 text-gray-700 border border-gray-200'}`}
                 onClick={() => setSelectedConsultType('voice')}
               >
                 语音咨询
                 <div className="text-xs mt-0.5">{amounts.voice}积分</div>
               </button>
               <button 
-                className={`flex-1 py-2 px-3 rounded-lg text-sm font-medium transition-all ${selectedConsultType === 'video' ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' : 'bg-gray-100 text-gray-700 border border-gray-200'}`}
+                className={`flex-1 py-2.5 px-3 rounded-2xl text-sm font-medium transition-all ${selectedConsultType === 'video' ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' : 'bg-gray-100 text-gray-700 border border-gray-200'}`}
                 onClick={() => setSelectedConsultType('video')}
               >
                 视频咨询
@@ -256,17 +236,24 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
           <div className="flex gap-3">
             <Button 
               variant="outline" 
-              className="flex-1 bg-green-50 text-green-600 border-green-100 hover:bg-green-100 hover:text-green-700"
+              className="flex-1 rounded-full bg-green-50 text-green-600 border-green-100 hover:bg-green-100 hover:text-green-700"
               onClick={() => {
                 if (!user) { navigate('/auth'); return; }
-                createOrder.mutate();
+                createOrder.mutate(
+                  { expertId: id, consultType: selectedConsultType },
+                  {
+                    onSuccess: () => {
+                      onOpenChange?.(false);
+                    },
+                  }
+                );
               }}
               disabled={createOrder.isPending}
             >
               {createOrder.isPending && <Loader2 size={14} className="animate-spin mr-1" />}
               预约咨询
             </Button>
-            <Button className="flex-1 bg-gradient-to-r from-blue-500 to-app-blue hover:opacity-90">
+            <Button className="flex-1 rounded-full bg-gradient-to-r from-blue-500 to-app-blue hover:opacity-90">
               <MessageSquare size={16} className="mr-2" />
               私聊
             </Button>

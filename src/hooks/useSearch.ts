@@ -1,6 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+const isMissingRpcError = (error: unknown, functionName: string) => {
+  const message = error instanceof Error ? error.message : String(error || '');
+  return message.includes(`public.${functionName}`) || message.includes('schema cache');
+};
+
 export interface SearchQuestion {
   id: string;
   title: string;
@@ -47,19 +52,34 @@ export const useSearch = (query: string) => {
         return { questions: [], topics: [], users: [] };
       }
 
+      const rpcResult = await (supabase as any).rpc('search_app_content', {
+        p_query: query.trim(),
+        p_limit: 10,
+      });
+
+      if (!rpcResult.error) {
+        const payload = (rpcResult.data || {}) as Partial<SearchResults>;
+
+        return {
+          questions: (payload.questions || []) as SearchQuestion[],
+          topics: (payload.topics || []) as SearchTopic[],
+          users: (payload.users || []) as SearchUser[],
+        };
+      }
+
+      if (!isMissingRpcError(rpcResult.error, 'search_app_content')) {
+        throw rpcResult.error;
+      }
+
       const searchTerm = `%${query.trim()}%`;
 
-      // Run all three searches in parallel
       const [questionsResult, topicsResult, usersResult] = await Promise.all([
-        // Search questions by title, content, tags
         supabase
           .from('questions')
           .select('*')
           .or(`title.ilike.${searchTerm},content.ilike.${searchTerm}`)
           .order('created_at', { ascending: false })
           .limit(20),
-
-        // Search hot topics by title, description
         supabase
           .from('hot_topics')
           .select('*')
@@ -67,8 +87,6 @@ export const useSearch = (query: string) => {
           .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
           .order('discussions_count', { ascending: false })
           .limit(10),
-
-        // Search users/profiles by nickname, bio
         supabase
           .from('profiles')
           .select('id, user_id, nickname, avatar_url, bio')
@@ -80,62 +98,47 @@ export const useSearch = (query: string) => {
       if (topicsResult.error) throw topicsResult.error;
       if (usersResult.error) throw usersResult.error;
 
-      // Enrich questions with profiles and answer counts
-      const questions: SearchQuestion[] = await Promise.all(
-        (questionsResult.data || []).map(async (q) => {
-          const [profileRes, countRes] = await Promise.all([
-            supabase
-              .from('profiles')
-              .select('nickname, avatar_url')
-              .eq('user_id', q.user_id)
-              .maybeSingle(),
-            supabase
-              .from('answers')
-              .select('*', { count: 'exact', head: true })
-              .eq('question_id', q.id),
-          ]);
-
-          return {
-            ...q,
-            profile_nickname: profileRes.data?.nickname || '匿名用户',
-            profile_avatar: profileRes.data?.avatar_url,
-            answers_count: countRes.count || 0,
-          };
-        })
-      );
-
-      // Also search questions by tag match (client-side filter for array contains)
-      const tagQuestions = questionsResult.data?.filter(
-        (q) =>
-          q.tags?.some((tag: string) =>
-            tag.toLowerCase().includes(query.trim().toLowerCase())
-          ) && !questions.find((existing) => existing.id === q.id)
-      );
-
-      if (tagQuestions && tagQuestions.length > 0) {
-        const extraQuestions = await Promise.all(
-          tagQuestions.map(async (q) => {
-            const [profileRes, countRes] = await Promise.all([
-              supabase
-                .from('profiles')
-                .select('nickname, avatar_url')
-                .eq('user_id', q.user_id)
-                .maybeSingle(),
-              supabase
-                .from('answers')
-                .select('*', { count: 'exact', head: true })
-                .eq('question_id', q.id),
-            ]);
-            return {
-              ...q,
-              profile_nickname: profileRes.data?.nickname || '匿名用户',
-              profile_avatar: profileRes.data?.avatar_url,
-              answers_count: countRes.count || 0,
-            };
-          })
-        );
-        questions.push(...extraQuestions);
+      const questionsData = questionsResult.data || [];
+      if (questionsData.length === 0) {
+        return {
+          questions: [],
+          topics: (topicsResult.data || []) as SearchTopic[],
+          users: (usersResult.data || []) as SearchUser[],
+        };
       }
+
+      const userIds = Array.from(new Set(questionsData.map((item) => item.user_id)));
+      const questionIds = questionsData.map((item) => item.id);
+
+      const [profilesResult, answersResult] = await Promise.all([
+        supabase
+          .from('profiles')
+          .select('user_id, nickname, avatar_url')
+          .in('user_id', userIds),
+        supabase
+          .from('answers')
+          .select('question_id')
+          .in('question_id', questionIds),
+      ]);
+
+      if (profilesResult.error) throw profilesResult.error;
+      if (answersResult.error) throw answersResult.error;
+
+      const profileMap = new Map(
+        (profilesResult.data || []).map((profile) => [profile.user_id, profile])
+      );
+      const answerCountMap = new Map<string, number>();
+
+      (answersResult.data || []).forEach((answer) => {
+        answerCountMap.set(answer.question_id, (answerCountMap.get(answer.question_id) || 0) + 1);
+      });
+
+      const questions = questionsData.map((item) => ({
+        ...item,
+        profile_nickname: profileMap.get(item.user_id)?.nickname || '匿名用户',
+        profile_avatar: profileMap.get(item.user_id)?.avatar_url,
+        answers_count: answerCountMap.get(item.id) || 0,
+      })) as SearchQuestion[];
 
       return {
         questions,
@@ -144,10 +147,10 @@ export const useSearch = (query: string) => {
       };
     },
     enabled: !!query.trim(),
+    staleTime: 30_000,
   });
 };
 
-// Popular search terms (static for now)
 export const popularSearchTerms = [
   '考研', '留学', '求职', '简历', '面试',
   '论文', '英语', '健身',

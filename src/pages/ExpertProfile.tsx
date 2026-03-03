@@ -1,340 +1,68 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ChevronLeft, 
-  Camera, 
-  MapPin, 
-  Award, 
-  MessageSquare, 
-  Clock, 
-  Package, 
-  CheckCircle, 
-  Calendar, 
-  GraduationCap, 
+import React, { useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
+import {
+  Award,
   Briefcase,
-  Heart,
-  Star,
-  ChevronRight,
+  Calendar,
+  CheckCircle,
   ChevronDown,
+  ChevronLeft,
   ChevronUp,
-  User,
-  Send,
-  X,
-  CalendarCheck,
-  Clock3,
-  VideoIcon,
-  MessageCircle,
-  Phone
+  Clock,
+  MapPin,
+  MessageSquare,
+  Package,
+  Star,
 } from 'lucide-react';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Collapsible, CollapsibleTrigger, CollapsibleContent } from '@/components/ui/collapsible';
-import { 
-  Dialog, 
-  DialogContent, 
-  DialogHeader, 
-  DialogTitle, 
-  DialogDescription,
-  DialogFooter,
-  DialogClose
-} from '@/components/ui/dialog';
-import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
-import { toast } from 'sonner';
-
-interface Education {
-  school: string;
-  degree: string;
-  years?: string;
-}
-
-interface Experience {
-  company: string;
-  position: string;
-  years?: string;
-}
-
-interface Topic {
-  id: string;
-  title: string;
-  tags: string[];
-}
-
-interface TimeSlot {
-  id: string;
-  day: string;
-  time: string;
-}
-
-interface ExpertData {
-  id: string;
-  name: string;
-  avatar: string;
-  title: string;
-  location: string;
-  bio: string;
-  topics: Topic[];
-  tags: string[];
-  verifiedInfo: {
-    education: boolean;
-    workplace: boolean;
-  };
-  stats: {
-    rating: number;
-    responseRate: string;
-    orderCount: string;
-    consultationCount: number;
-    followers: number;
-  };
-  education: Education[];
-  experience: Experience[];
-  availableTimeSlots: TimeSlot[];
-}
-
-const expertsData: ExpertData[] = [
-  {
-    id: '1',
-    name: '张同学',
-    avatar: 'https://randomuser.me/api/portraits/women/22.jpg',
-    title: '北大硕士 | 出国党',
-    location: '北京',
-    bio: '专注留学申请文书指导，斯坦福offer获得者。我有多年指导经验，曾帮助超过50名学生申请到世界顶尖大学。擅长个人陈述、研究计划书撰写，精通面试技巧指导。我相信每个学生都有自己的闪光点，只要找到合适的表达方式，就能在激烈的申请中脱颖而出。我希望通过我的专业知识和经验，帮助每位学生实现留学梦想。',
-    topics: [
-      { id: '1', title: '如何准备托福口语考试？', tags: ['托福', '口语', '留学'] },
-      { id: '2', title: '美国大学申请文书怎么写？', tags: ['申请', '文书', '留学'] },
-      { id: '3', title: '留学生活如何快速适应？', tags: ['留学', '生活', '适应'] },
-      { id: '4', title: '斯坦福申请要注意什么？', tags: ['申请', '斯坦福', '留学'] },
-      { id: '5', title: '如何提高英语口语流利度？', tags: ['英语', '口语', '学习'] },
-    ],
-    tags: ['留学', '文书', '面试', '高考', '语言考试', '申请规划'],
-    verifiedInfo: {
-      education: true,
-      workplace: true
-    },
-    stats: {
-      rating: 4.9,
-      responseRate: '98%',
-      orderCount: '126单',
-      consultationCount: 235,
-      followers: 356
-    },
-    education: [
-      { school: '北京大学', degree: '教育学硕士', years: '2018-2021' },
-      { school: '清华大学', degree: '英语文学学士', years: '2014-2018' }
-    ],
-    experience: [
-      { company: '某知名留学机构', position: '高级顾问', years: '2021-至今' },
-      { company: '斯坦福大学', position: '校友面试官', years: '2022-至今' }
-    ],
-    availableTimeSlots: [
-      { id: '1', day: '今天', time: '14:00-15:00' },
-      { id: '2', day: '今天', time: '16:00-17:00' },
-      { id: '3', day: '明天', time: '10:00-11:00' },
-      { id: '4', day: '明天', time: '15:00-16:00' },
-      { id: '5', day: '后天', time: '14:00-15:00' },
-    ]
-  },
-  {
-    id: '2',
-    name: '李教授',
-    avatar: 'https://randomuser.me/api/portraits/men/42.jpg',
-    title: '清华博士 | 科研专家',
-    location: '上海',
-    bio: '清华大学计算机博士，专注AI领域研究和教学。在顶级期刊发表多篇论文，拥有丰富的教学经验。热衷于将复杂的AI概念简化，使学生能够轻松理解。我相信每个人都有潜力掌握AI技术，只需要正确的指导和方法。欢迎对AI和计算机科学感兴趣的同学咨询，我会根据你的基础提供个性化的建议。',
-    topics: [
-      { id: '1', title: '人工智能入门指南', tags: ['AI', '入门', '学习路径'] },
-      { id: '2', title: '如何准备计算机研究生考试？', tags: ['考研', '计算机', '备考'] },
-      { id: '3', title: '深度学习框架选择', tags: ['深度学习', '框架', 'AI'] },
-      { id: '4', title: '数据结构与算法学习方法', tags: ['算法', '数据结构', '编程'] },
-      { id: '5', title: '本科生如何参与科研项目？', tags: ['科研', '本科生', '项目'] },
-    ],
-    tags: ['人工智能', '机器学习', '算法', '编程', '科研', '考研'],
-    verifiedInfo: {
-      education: true,
-      workplace: true
-    },
-    stats: {
-      rating: 4.8,
-      responseRate: '95%',
-      orderCount: '178单',
-      consultationCount: 320,
-      followers: 423
-    },
-    education: [
-      { school: '清华大学', degree: '计算机博士', years: '2015-2019' },
-      { school: '北京大学', degree: '计算机硕士', years: '2012-2015' },
-      { school: '浙江大学', degree: '计算机学士', years: '2008-2012' }
-    ],
-    experience: [
-      { company: '某知名科技公司', position: '首席AI科学家', years: '2019-至今' },
-      { company: '清华大学', position: '客座教授', years: '2020-至今' }
-    ],
-    availableTimeSlots: [
-      { id: '1', day: '今天', time: '19:00-20:00' },
-      { id: '2', day: '明天', time: '09:00-10:00' },
-      { id: '3', day: '明天', time: '20:00-21:00' },
-      { id: '4', day: '后天', time: '16:00-17:00' },
-      { id: '5', day: '后天', time: '21:00-22:00' },
-    ]
-  },
-  {
-    id: '3',
-    name: '王心理',
-    avatar: 'https://randomuser.me/api/portraits/women/56.jpg',
-    title: '心理咨询师 | 青少年成长专家',
-    location: '广州',
-    bio: '资深心理咨询师，擅长青少年成长和学业压力疏导。拥有国家二级心理咨询师资格，多年来帮助无数青少年走出心理困境。我相信每个孩子都有自己的成长节奏，重要的是找到适合他们的方式。除了一对一咨询，我也提供家庭教育指导，帮助父母更好地理解和支持孩子。',
-    topics: [
-      { id: '1', title: '如何缓解考试焦虑？', tags: ['焦虑', '考试', '情绪管理'] },
-      { id: '2', title: '亲子沟通的有效方法', tags: ['亲子', '沟通', '家庭教育'] },
-      { id: '3', title: '青春期行为问题解析', tags: ['青春期', '行为', '心理'] },
-      { id: '4', title: '学习动力不足怎么办？', tags: ['学习', '动力', '心理'] },
-      { id: '5', title: '如何提高专注力？', tags: ['专注力', '学习', '训练'] },
-    ],
-    tags: ['心理疏导', '青少年心理', '学习压力', '家庭教育', '情绪管理'],
-    verifiedInfo: {
-      education: true,
-      workplace: true
-    },
-    stats: {
-      rating: 4.9,
-      responseRate: '97%',
-      orderCount: '215单',
-      consultationCount: 386,
-      followers: 478
-    },
-    education: [
-      { school: '中国人民大学', degree: '心理学硕士', years: '2010-2013' },
-      { school: '武汉大学', degree: '心理学学士', years: '2006-2010' }
-    ],
-    experience: [
-      { company: '某知名心理咨询中心', position: '高级咨询师', years: '2013-至今' },
-      { company: '某中学', position: '心理顾问', years: '2015-至今' }
-    ],
-    availableTimeSlots: [
-      { id: '1', day: '今天', time: '18:00-19:00' },
-      { id: '2', day: '明天', time: '10:00-11:00' },
-      { id: '3', day: '明天', time: '14:00-15:00' },
-      { id: '4', day: '后天', time: '11:00-12:00' },
-      { id: '5', day: '后天', time: '19:00-20:00' },
-    ]
-  },
-  {
-    id: '4',
-    name: '陈老师',
-    avatar: 'https://randomuser.me/api/portraits/men/32.jpg',
-    title: '高考数学名师 | 教育规划专家',
-    location: '成都',
-    bio: '20年高中数学教学经验，擅长高考数学提分和解题技巧。曾培养数十名数学竞赛获奖学生，教授的班级多次获得市级最高平均分。我善于发现每个学生的数学思维特点，因材施教，让学生在轻松的氛围中掌握解题方法。数学不是难题，找对方法和老师很重要。欢迎有数学困扰的学生随时咨询，我会竭诚为���答疑解惑。',
-    topics: [
-      { id: '1', title: '高考数学关键考点解析', tags: ['高考', '数学', '考点'] },
-      { id: '2', title: '如何突破数学思维瓶颈？', tags: ['数学', '思维', '方法'] },
-      { id: '3', title: '数学竞赛备考攻略', tags: ['数学', '竞赛', '备考'] },
-      { id: '4', title: '初高中数学衔接技巧', tags: ['数学', '衔接', '初高中'] },
-      { id: '5', title: '理科生如何选择大学专业？', tags: ['专业选择', '理科', '高考'] },
-    ],
-    tags: ['数学', '高考', '竞赛', '教育规划', '提分技巧'],
-    verifiedInfo: {
-      education: true,
-      workplace: true
-    },
-    stats: {
-      rating: 4.9,
-      responseRate: '99%',
-      orderCount: '267单',
-      consultationCount: 456,
-      followers: 534
-    },
-    education: [
-      { school: '四川大学', degree: '教育学硕士', years: '1998-2001' },
-      { school: '四川师范大学', degree: '数学教育学士', years: '1994-1998' }
-    ],
-    experience: [
-      { company: '某重点中学', position: '高级数学教师', years: '2001-至今' },
-      { company: '某教育机构', position: '数学教研组长', years: '2010-至今' }
-    ],
-    availableTimeSlots: [
-      { id: '1', day: '今天', time: '19:30-20:30' },
-      { id: '2', day: '明天', time: '17:00-18:00' },
-      { id: '3', day: '明天', time: '20:30-21:30' },
-      { id: '4', day: '后天', time: '18:00-19:00' },
-      { id: '5', day: '后天', time: '20:00-21:00' },
-    ]
-  }
-];
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
+import { useExpertDetail } from '@/hooks/useExperts';
+import { demoExperts } from '@/lib/demoData';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const ExpertProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const isDemoExpert = !!id?.startsWith('demo-expert-');
+  const { data: expert, isLoading, error } = useExpertDetail(isDemoExpert ? '' : id || '');
   const [isBioExpanded, setIsBioExpanded] = useState(false);
-  const [isFollowing, setIsFollowing] = useState(false);
-  const topicsScrollRef = useRef<HTMLDivElement>(null);
-  
-  const [isMessageDialogOpen, setIsMessageDialogOpen] = useState(false);
-  const [isBookingDialogOpen, setIsBookingDialogOpen] = useState(false);
-  const [messageText, setMessageText] = useState('');
-  const [selectedTopic, setSelectedTopic] = useState('');
-  const [selectedTimeSlot, setSelectedTimeSlot] = useState('');
-  const [consultType, setConsultType] = useState<'text' | 'voice' | 'video'>('text');
-  
-  const expert = expertsData.find(e => e.id === id) || expertsData[0];
-  
-  useEffect(() => {
-    if (!expertsData.find(e => e.id === id) && id !== undefined) {
-      toast.error('未找到该专家信息，已显示默认专家');
-    }
-  }, [id]);
+  const resolvedExpert = isDemoExpert ? demoExperts.find((item) => item.id === id) : expert;
 
-  const scrollTopics = (direction: 'left' | 'right') => {
-    if (topicsScrollRef.current) {
-      const scrollAmount = 300;
-      if (direction === 'left') {
-        topicsScrollRef.current.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-      } else {
-        topicsScrollRef.current.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-      }
-    }
-  };
+  if (!isDemoExpert && isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-slate-50/80 to-slate-50 p-4">
+        <PageStateCard variant="loading" title="正在加载个人主页…" />
+      </div>
+    );
+  }
 
-  const handleFollowToggle = () => {
-    setIsFollowing(!isFollowing);
-    toast.success(!isFollowing ? `已成功关注${expert.name}` : `已取消关注${expert.name}`);
-  };
-  
-  const handleMessageSubmit = () => {
-    if (!messageText.trim()) {
-      toast.error('请输入留言内容');
-      return;
-    }
-    
-    toast.success(`留言已发送给${expert.name}`);
-    setMessageText('');
-    setIsMessageDialogOpen(false);
-  };
-  
-  const handleBookingSubmit = () => {
-    if (!selectedTopic) {
-      toast.error('请选择一个话题');
-      return;
-    }
-    
-    if (!selectedTimeSlot) {
-      toast.error('请选择一个时间段');
-      return;
-    }
-    
-    const topicObj = expert.topics.find(t => t.id === selectedTopic);
-    const timeSlotObj = expert.availableTimeSlots.find(s => s.id === selectedTimeSlot);
-    
-    toast.success(`已成功预约${expert.name}，话题：${topicObj?.title}，时间：${timeSlotObj?.day} ${timeSlotObj?.time}`);
-    setIsBookingDialogOpen(false);
-  };
+  if (error || !resolvedExpert) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex flex-col items-center justify-center px-6 text-center">
+        <PageStateCard
+          variant="error"
+          title="暂时无法打开个人主页"
+          description="该专家可能已下架，或当前链接已失效。"
+          actionLabel="回到首页"
+          onAction={() => navigate('/')}
+        />
+      </div>
+    );
+  }
+
+  const education = Array.isArray(resolvedExpert.education) ? resolvedExpert.education : [];
+  const experience = Array.isArray(resolvedExpert.experience) ? resolvedExpert.experience : [];
+  const timeSlots = Array.isArray(resolvedExpert.available_time_slots) ? resolvedExpert.available_time_slots : [];
+  const displayName = resolvedExpert.nickname || '专家';
+  const responseRate = `${Number(resolvedExpert.response_rate || 0)}%`;
+  const coverImage =
+    resolvedExpert.cover_image ||
+    'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&h=480&q=80';
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-20">
-      <div className="sticky top-0 z-50 bg-app-teal shadow-sm animate-fade-in">
+    <div className="min-h-screen bg-gray-50 pb-24">
+      <div className="sticky top-0 z-50 bg-app-teal shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex items-center h-12 px-4">
           <button onClick={() => navigate(-1)} className="text-white">
             <ChevronLeft size={24} />
@@ -342,501 +70,204 @@ const ExpertProfile = () => {
           <div className="text-white font-medium text-base ml-2">个人主页</div>
         </div>
       </div>
-      
+
       <div className="relative">
-        <div 
-          className="w-full pt-6 pb-20 bg-cover bg-center"
-          style={{ 
-            backgroundImage: `url(https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&w=1200&h=400)`,
-            backgroundPosition: 'center top'
-          }}
+        <div
+          className="w-full h-44 bg-cover bg-center"
+          style={{ backgroundImage: `url(${coverImage})`, backgroundPosition: 'center center' }}
         >
-          <div className="absolute inset-0 bg-gradient-to-b from-black/50 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-transparent" />
         </div>
-        
-        <div className="relative px-4 pb-4 -mt-16">
-          <div className="flex justify-between items-end">
-            <Avatar className="w-20 h-20 border-4 border-white shadow-md">
-              <AvatarImage src={expert.avatar} alt={expert.name} />
-              <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            <Button 
-              variant={isFollowing ? "default" : "outline"} 
-              size="sm" 
-              className={isFollowing ? "bg-app-teal text-white" : "bg-white/80 backdrop-blur-sm"}
-              onClick={handleFollowToggle}
-            >
-              {isFollowing ? (
-                <>
-                  <CheckCircle size={14} className="mr-1" />
-                  已关注
-                </>
-              ) : (
-                <>
-                  <Heart size={14} className="mr-1" />
-                  关注
-                </>
-              )}
-            </Button>
-          </div>
-          
-          <div className="mt-3">
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-800 mr-2">{expert.name}</h1>
-              {expert.verifiedInfo.education && (
-                <div className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full flex items-center">
-                  <CheckCircle size={12} className="mr-1" />
-                  学历认证
+
+      <div className="relative px-4 pb-5 -mt-12">
+          <div className="surface-card rounded-3xl p-5">
+            <div className="flex justify-between items-end gap-3">
+              <div className="flex items-end gap-3">
+                <Avatar className="w-20 h-20 border-4 border-white shadow-md">
+                  <AvatarImage src={resolvedExpert.avatar_url || ''} alt={displayName} />
+                  <AvatarFallback>{displayName.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div className="pb-1">
+                  <div className="flex items-center gap-2">
+                    <h1 className="text-xl font-bold text-gray-800">{displayName}</h1>
+                    {resolvedExpert.is_verified && (
+                      <span className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full flex items-center">
+                        <CheckCircle size={12} className="mr-1" />
+                        已认证
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-sm text-gray-600 mt-1">{resolvedExpert.title}</p>
+                  <div className="flex items-center text-gray-500 text-xs mt-1">
+                    <MapPin size={12} className="mr-1" />
+                    <span>{resolvedExpert.location || '未设置地区'}</span>
+                  </div>
                 </div>
-              )}
-            </div>
-            <p className="text-sm text-gray-600 my-1">{expert.title}</p>
-            <div className="flex items-center text-gray-500 text-xs">
-              <MapPin size={12} className="mr-1" />
-              <span>{expert.location}</span>
-              <span className="mx-2">·</span>
-              <span>粉丝 {expert.stats.followers}</span>
-            </div>
-          </div>
-          
-          <div className="flex justify-between mt-4 px-2 py-3 bg-gray-50 rounded-lg">
-            <div className="flex flex-col items-center">
-              <div className="flex items-center text-yellow-500">
-                <Award size={14} className="mr-1" />
-                <span className="font-semibold">{expert.stats.rating}</span>
               </div>
-              <span className="text-xs text-gray-500 mt-1">评分</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="flex items-center text-blue-500">
-                <Clock size={14} className="mr-1" />
-                <span className="font-semibold">{expert.stats.responseRate}</span>
-              </div>
-              <span className="text-xs text-gray-500 mt-1">回复率</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="flex items-center text-green-500">
-                <Package size={14} className="mr-1" />
-                <span className="font-semibold">{expert.stats.orderCount}</span>
-              </div>
-              <span className="text-xs text-gray-500 mt-1">咨询量</span>
-            </div>
-            <div className="flex flex-col items-center">
-              <div className="font-semibold text-purple-500">{expert.stats.consultationCount}</div>
-              <span className="text-xs text-gray-500 mt-1">总解答</span>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <div className="px-4 mb-6">
-        <h2 className="text-lg font-semibold mb-2 text-left">擅长话题</h2>
-        <div className="relative">
-          <button 
-            onClick={() => scrollTopics('left')} 
-            className="absolute left-0 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-1 shadow-md z-10"
-          >
-            <ChevronLeft size={18} />
-          </button>
-          
-          <div 
-            ref={topicsScrollRef}
-            className="flex gap-3 overflow-x-auto scrollbar-hide pb-2 px-4 -mx-4 scroll-smooth"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {expert.topics.map((topic, index) => (
-              <div 
-                key={index} 
-                className="min-w-[260px] flex-shrink-0 border border-green-100 rounded-lg p-3 bg-green-50/30"
+
+              <Button
+                className="rounded-full bg-gradient-to-r from-green-500 to-teal-500 text-white"
+                onClick={() => navigate(`/expert/${resolvedExpert.id}`)}
               >
-                <h3 className="text-sm font-medium text-gray-800 mb-2">{topic.title}</h3>
-                <div className="flex flex-wrap gap-1.5">
-                  {topic.tags.map((tag, tagIndex) => (
-                    <span 
-                      key={tagIndex} 
-                      className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700"
-                    >
-                      #{tag}
-                    </span>
-                  ))}
+                前往咨询页
+              </Button>
+            </div>
+
+            <div className="grid grid-cols-4 gap-3 mt-5 bg-gray-50 rounded-xl p-3">
+              <div className="text-center">
+                <div className="flex items-center justify-center text-yellow-500 gap-1 font-semibold">
+                  <Star size={14} />
+                  <span>{Number(resolvedExpert.rating || 0).toFixed(1)}</span>
                 </div>
+                <div className="text-xs text-gray-500 mt-1">评分</div>
               </div>
-            ))}
+              <div className="text-center">
+                <div className="flex items-center justify-center text-blue-500 gap-1 font-semibold">
+                  <Clock size={14} />
+                  <span>{responseRate}</span>
+                </div>
+                <div className="text-xs text-gray-500 mt-1">回复率</div>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center text-green-500 gap-1 font-semibold">
+                  <Package size={14} />
+                  <span>{resolvedExpert.order_count || 0}</span>
+                </div>
+                <div className="text-xs text-gray-500 mt-1">订单数</div>
+              </div>
+              <div className="text-center">
+                <div className="flex items-center justify-center text-purple-500 gap-1 font-semibold">
+                  <Award size={14} />
+                  <span>{resolvedExpert.consultation_count || 0}</span>
+                </div>
+                <div className="text-xs text-gray-500 mt-1">咨询数</div>
+              </div>
+            </div>
           </div>
-          
-          <button 
-            onClick={() => scrollTopics('right')} 
-            className="absolute right-0 top-1/2 transform -translate-y-1/2 bg-white/80 rounded-full p-1 shadow-md z-10"
-          >
-            <ChevronRight size={18} />
-          </button>
-        </div>
-      </div>
-      
-      <div className="px-4 mb-6">
-        <h2 className="text-lg font-semibold mb-2 text-left">个人介绍</h2>
-        <Collapsible
-          open={isBioExpanded}
-          onOpenChange={setIsBioExpanded}
-        >
-          <div className="text-sm text-gray-700 leading-relaxed">
-            {!isBioExpanded ? (
-              <div className="line-clamp-6">
-                {expert.bio}
-                {expert.bio.length > 200 && (
-                  <CollapsibleTrigger className="text-blue-500 text-xs block mt-2 hover:underline flex items-center">
-                    展开全部 <ChevronDown size={12} className="ml-1" />
-                  </CollapsibleTrigger>
-                )}
-              </div>
-            ) : (
-              <div>
-                {expert.bio}
-              </div>
-            )}
-          </div>
-          
-          <CollapsibleContent>
-            <CollapsibleTrigger className="text-blue-500 text-xs mt-2 hover:underline flex items-center">
-              收起 <ChevronUp size={12} className="ml-1" />
-            </CollapsibleTrigger>
-          </CollapsibleContent>
-        </Collapsible>
-      </div>
-      
-      <div className="px-4 mb-6">
-        <h2 className="text-lg font-semibold mb-2 text-left">擅长领域</h2>
-        <div className="flex flex-wrap gap-2">
-          {expert.tags.map((tag, index) => (
-            <span 
-              key={index} 
-              className="bg-green-50 text-green-600 text-sm px-3 py-1 rounded-full border border-green-100"
-            >
-              #{tag}
-            </span>
-          ))}
         </div>
       </div>
 
-      <div className="px-4 mb-20">
-        <Tabs defaultValue="about" className="w-full">
-          <TabsList className="grid w-full grid-cols-4 mb-4">
-            <TabsTrigger value="about">履历</TabsTrigger>
-            <TabsTrigger value="answers">回答</TabsTrigger>
-            <TabsTrigger value="questions">问题</TabsTrigger>
-            <TabsTrigger value="reviews">评价</TabsTrigger>
-          </TabsList>
-          
-          <TabsContent value="about" className="space-y-4">
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="text-base font-semibold mb-3 flex items-center">
-                <GraduationCap className="w-4 h-4 mr-2 text-blue-500" />
-                教育经历
-                {expert.verifiedInfo.education && (
-                  <span className="ml-2 text-xs text-blue-500 flex items-center">
-                    <CheckCircle size={12} className="mr-1" />
-                    已认证
-                  </span>
-                )}
-              </h3>
-              {expert.education.map((edu, index) => (
-                <div key={index} className="mb-2 last:mb-0">
-                  <p className="font-medium text-sm">{edu.school}</p>
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>{edu.degree}</span>
-                    {edu.years && <span>{edu.years}</span>}
-                  </div>
-                </div>
+      <div className="px-4 space-y-5">
+        <div className="surface-card rounded-3xl p-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-base font-semibold text-gray-800">服务信息</h2>
+            <div className="text-sm text-green-600 font-semibold">{resolvedExpert.consultation_price || 0} 积分 / 次</div>
+          </div>
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <div className="bg-green-50 rounded-xl p-3">
+              <div className="text-gray-500 mb-1">服务分类</div>
+              <div className="font-medium text-gray-800">{resolvedExpert.category || '未设置'} / {resolvedExpert.subcategory || '未设置'}</div>
+            </div>
+            <div className="bg-blue-50 rounded-xl p-3">
+              <div className="text-gray-500 mb-1">响应承诺</div>
+              <div className="font-medium text-gray-800">{resolvedExpert.response_time || '未设置'}</div>
+            </div>
+          </div>
+          {resolvedExpert.tags.length > 0 && (
+            <div className="flex flex-wrap gap-2 mt-4">
+              {resolvedExpert.tags.map((tag, index) => (
+                <span key={`${tag}-${index}`} className="bg-green-50 text-green-600 text-xs px-2.5 py-1 rounded-full">
+                  #{tag}
+                </span>
               ))}
             </div>
-            
-            <div className="bg-white rounded-lg p-4 shadow-sm">
-              <h3 className="text-base font-semibold mb-3 flex items-center">
-                <Briefcase className="w-4 h-4 mr-2 text-green-500" />
-                工作经历
-                {expert.verifiedInfo.workplace && (
-                  <span className="ml-2 text-xs text-green-500 flex items-center">
-                    <CheckCircle size={12} className="mr-1" />
-                    已认证
-                  </span>
-                )}
-              </h3>
-              {expert.experience.map((exp, index) => (
-                <div key={index} className="mb-2 last:mb-0">
-                  <p className="font-medium text-sm">{exp.company}</p>
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>{exp.position}</span>
-                    {exp.years && <span>{exp.years}</span>}
-                  </div>
+          )}
+        </div>
+
+        <div className="surface-card rounded-3xl p-5">
+          <h2 className="text-base font-semibold text-gray-800 mb-3">个人介绍</h2>
+          <Collapsible open={isBioExpanded} onOpenChange={setIsBioExpanded}>
+            <div className="text-sm text-gray-700 leading-7">
+              {resolvedExpert.bio && resolvedExpert.bio.length > 180 && !isBioExpanded ? (
+                <>
+                  <p>{resolvedExpert.bio.slice(0, 180)}...</p>
+                  <CollapsibleTrigger className="text-app-teal text-xs mt-2 flex items-center">
+                    展开全部 <ChevronDown size={12} className="ml-1" />
+                  </CollapsibleTrigger>
+                </>
+              ) : (
+                <>
+                  <p>{resolvedExpert.bio || '该专家暂未填写介绍。'}</p>
+                  {resolvedExpert.bio && resolvedExpert.bio.length > 180 && (
+                    <CollapsibleTrigger className="text-app-teal text-xs mt-2 flex items-center">
+                      收起 <ChevronUp size={12} className="ml-1" />
+                    </CollapsibleTrigger>
+                  )}
+                </>
+              )}
+            </div>
+            <CollapsibleContent />
+          </Collapsible>
+        </div>
+
+        {(education.length > 0 || experience.length > 0) && (
+          <div className="surface-card rounded-3xl p-5 space-y-4">
+            {education.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-2 text-gray-800 font-semibold">
+                  <Calendar size={16} className="text-blue-500" />
+                  教育经历
                 </div>
-              ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="answers">
-            <div className="text-center py-10 text-gray-500">
-              <MessageSquare className="mx-auto w-10 h-10 text-gray-300 mb-3" />
-              <p>还没有回答内容</p>
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="questions">
-            <div className="space-y-4">
-              {[1, 2, 3].map((index) => (
-                <div key={index} className="bg-white rounded-lg p-4 shadow-sm">
-                  <h3 className="text-base font-medium mb-2">如何有效提高托福阅读速度？</h3>
-                  <p className="text-sm text-gray-600 mb-3 line-clamp-2">
-                    我目前托福阅读总是时间不够，想了解有什么提高阅读速度的方法...
-                  </p>
-                  <div className="flex flex-wrap gap-1.5 mb-3">
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
-                      #托福
-                    </span>
-                    <span className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
-                      #阅读
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-xs text-gray-500">
-                    <span>3天前</span>
-                    <div className="flex items-center gap-2">
-                      <span className="flex items-center">
-                        <MessageSquare size={12} className="mr-1" />
-                        5条回答
-                      </span>
+                <div className="space-y-2">
+                  {education.map((item: any, index: number) => (
+                    <div key={`edu-${index}`} className="bg-blue-50 rounded-xl p-3 text-sm text-gray-700">
+                      {typeof item === 'string' ? item : `${item.school || ''} ${item.degree || ''}`.trim()}
                     </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </TabsContent>
-          
-          <TabsContent value="reviews">
-            <div className="bg-white rounded-lg p-4 shadow-sm mb-4">
-              <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center">
-                  <div className="bg-yellow-50 rounded-lg p-3 mr-3">
-                    <Star className="h-8 w-8 text-yellow-500" />
-                  </div>
-                  <div>
-                    <div className="text-xl font-bold">{expert.stats.rating}</div>
-                    <div className="text-sm text-gray-500">总体评分</div>
-                  </div>
-                </div>
-                <div className="text-sm text-gray-500">
-                  基于 {expert.stats.consultationCount} 次咨询
+                  ))}
                 </div>
               </div>
-              
-              <div className="space-y-4">
-                {[1, 2, 3].map((index) => (
-                  <div key={index} className="border-t border-gray-100 pt-4">
-                    <div className="flex justify-between mb-2">
-                      <div className="flex items-center">
-                        <Avatar className="w-8 h-8 mr-2">
-                          <AvatarImage src={`https://randomuser.me/api/portraits/${index % 2 ? 'women' : 'men'}/${20 + index}.jpg`} />
-                          <AvatarFallback>U{index}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                          <div className="text-sm font-medium">用户{index}</div>
-                          <div className="text-xs text-gray-500">1周前</div>
-                        </div>
-                      </div>
-                      <div className="flex items-center">
-                        {Array(5).fill(0).map((_, starIndex) => (
-                          <Star 
-                            key={starIndex} 
-                            size={14} 
-                            className={starIndex < 5 - index % 2 ? "text-yellow-400" : "text-gray-200"} 
-                            fill={starIndex < 5 - index % 2 ? "currentColor" : "none"}
-                          />
-                        ))}
-                      </div>
+            )}
+
+            {experience.length > 0 && (
+              <div>
+                <div className="flex items-center gap-2 mb-2 text-gray-800 font-semibold">
+                  <Briefcase size={16} className="text-purple-500" />
+                  工作经历
+                </div>
+                <div className="space-y-2">
+                  {experience.map((item: any, index: number) => (
+                    <div key={`exp-${index}`} className="bg-purple-50 rounded-xl p-3 text-sm text-gray-700">
+                      {typeof item === 'string' ? item : `${item.company || ''} ${item.position || item.title || ''}`.trim()}
                     </div>
-                    <p className="text-sm text-gray-700">
-                      {index === 1 
-                        ? "回答非常详细，解决了我的问题，非常满意！老师很有耐心，讲解很清晰。" 
-                        : "老师很专业，回答了我所有的问题，非常感谢！"}
-                    </p>
-                  </div>
-                ))}
+                  ))}
+                </div>
               </div>
+            )}
+          </div>
+        )}
+
+        {timeSlots.length > 0 && (
+          <div className="surface-card rounded-3xl p-5">
+            <h2 className="text-base font-semibold text-gray-800 mb-3">可预约时间</h2>
+            <div className="space-y-2">
+              {timeSlots.map((slot: any, index: number) => (
+                <div key={`slot-${index}`} className="bg-amber-50 rounded-xl p-3 text-sm text-gray-700">
+                  {typeof slot === 'string'
+                    ? slot
+                    : `${slot.day || ''} ${slot.time || slot.label || ''}`.trim() || '待与专家协商'}
+                </div>
+              ))}
             </div>
-          </TabsContent>
-        </Tabs>
+          </div>
+        )}
       </div>
-      
-      <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 p-3 flex gap-3">
-        <Button 
-          variant="outline" 
-          className="flex-1 flex items-center justify-center"
-          onClick={() => setIsMessageDialogOpen(true)}
+
+      <div className="fixed bottom-0 left-0 right-0 bg-white/98 border-t p-3 flex gap-3 backdrop-blur-sm" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}>
+        <Button
+          variant="outline"
+          className="flex-1 rounded-full"
+          onClick={() => navigate('/messages')}
         >
           <MessageSquare size={16} className="mr-2" />
-          给TA留言
+          返回消息
         </Button>
-        <Button 
-          className="flex-1 bg-gradient-to-r from-blue-500 to-app-blue flex items-center justify-center"
-          onClick={() => setIsBookingDialogOpen(true)}
+        <Button
+          className="flex-1 rounded-full bg-gradient-to-r from-green-500 to-teal-500"
+          onClick={() => navigate(`/expert/${resolvedExpert.id}`)}
         >
-          <Calendar size={16} className="mr-2" />
-          预约问问
+          进入咨询页
         </Button>
       </div>
-      
-      <Dialog open={isMessageDialogOpen} onOpenChange={setIsMessageDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle className="flex items-center">
-              <span>发送消息给 </span>
-              <span className="text-app-teal ml-1">{expert.name}</span>
-            </DialogTitle>
-            <DialogDescription>
-              发送消息后，{expert.name}会尽快回复您的留言
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="flex items-start gap-3 my-4">
-            <Avatar className="w-10 h-10">
-              <AvatarImage src={expert.avatar} alt={expert.name} />
-              <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
-            </Avatar>
-            
-            <div className="flex-1">
-              <Textarea
-                placeholder={`请输入您想对${expert.name}说的话...`}
-                value={messageText}
-                onChange={(e) => setMessageText(e.target.value)}
-                rows={5}
-                className="resize-none focus-visible:ring-app-teal"
-              />
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">取消</Button>
-            </DialogClose>
-            <Button 
-              onClick={handleMessageSubmit} 
-              disabled={!messageText.trim()}
-              className="bg-gradient-to-r from-blue-500 to-app-blue"
-            >
-              <Send size={16} className="mr-2" />
-              发送留言
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      
-      <Dialog open={isBookingDialogOpen} onOpenChange={setIsBookingDialogOpen}>
-        <DialogContent className="sm:max-w-[500px] max-h-[85vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle className="flex items-center">
-              <span>预约 </span>
-              <span className="text-app-teal ml-1">{expert.name}</span>
-              <span> 问问</span>
-            </DialogTitle>
-            <DialogDescription>
-              选择您感兴趣的话题和合适的时间
-            </DialogDescription>
-          </DialogHeader>
-          
-          <div className="space-y-6 my-4">
-            <div>
-              <h3 className="text-sm font-medium mb-3">选择话题</h3>
-              <div className="grid grid-cols-2 gap-2">
-                {expert.topics.map((topic) => (
-                  <div
-                    key={topic.id}
-                    className={`border rounded-lg p-3 cursor-pointer transition-all ${
-                      selectedTopic === topic.id 
-                        ? 'border-app-teal bg-blue-50 shadow-sm' 
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                    onClick={() => setSelectedTopic(topic.id)}
-                  >
-                    <p className="text-sm font-medium line-clamp-2">{topic.title}</p>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="text-sm font-medium mb-3">选择时间</h3>
-              <div className="grid grid-cols-3 gap-2">
-                {expert.availableTimeSlots.map((slot) => (
-                  <div
-                    key={slot.id}
-                    className={`border rounded-lg p-2 flex flex-col items-center cursor-pointer transition-all ${
-                      selectedTimeSlot === slot.id 
-                        ? 'border-app-teal bg-blue-50 shadow-sm' 
-                        : 'border-gray-200 hover:border-gray-300'
-                    }`}
-                    onClick={() => setSelectedTimeSlot(slot.id)}
-                  >
-                    <span className="text-xs text-gray-500">{slot.day}</span>
-                    <span className="text-sm font-medium">{slot.time}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-            
-            <div>
-              <h3 className="text-sm font-medium mb-3">选择咨询方式</h3>
-              <div className="grid grid-cols-3 gap-3">
-                <RadioGroup value={consultType} onValueChange={(value) => setConsultType(value as 'text' | 'voice' | 'video')}>
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="text" id="text" className="text-app-teal" />
-                    <Label 
-                      htmlFor="text" 
-                      className="flex items-center cursor-pointer"
-                    >
-                      <MessageCircle size={16} className="mr-1 text-blue-500" />
-                      <span>文字</span>
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="voice" id="voice" className="text-app-teal" />
-                    <Label 
-                      htmlFor="voice" 
-                      className="flex items-center cursor-pointer"
-                    >
-                      <Phone size={16} className="mr-1 text-green-500" />
-                      <span>语音</span>
-                    </Label>
-                  </div>
-                  
-                  <div className="flex items-center space-x-2">
-                    <RadioGroupItem value="video" id="video" className="text-app-teal" />
-                    <Label 
-                      htmlFor="video" 
-                      className="flex items-center cursor-pointer"
-                    >
-                      <VideoIcon size={16} className="mr-1 text-purple-500" />
-                      <span>视频</span>
-                    </Label>
-                  </div>
-                </RadioGroup>
-              </div>
-            </div>
-          </div>
-          
-          <DialogFooter>
-            <DialogClose asChild>
-              <Button variant="outline">取消</Button>
-            </DialogClose>
-            <Button 
-              onClick={handleBookingSubmit} 
-              disabled={!selectedTopic || !selectedTimeSlot}
-              className="bg-gradient-to-r from-blue-500 to-app-blue"
-            >
-              <CalendarCheck size={16} className="mr-2" />
-              确认预约
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

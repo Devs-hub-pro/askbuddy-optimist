@@ -17,12 +17,18 @@ const Navbar: React.FC<NavbarProps> = ({ location = "深圳" }) => {
   };
   
   return (
-    <header className="sticky top-0 z-50 bg-app-teal shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-      <div className="flex items-center justify-between h-11 px-4">
-        <div className="text-white font-semibold text-base">问问</div>
+    <header
+      className="sticky top-0 z-50 shadow-sm"
+      style={{
+        paddingTop: 'env(safe-area-inset-top)',
+        background: 'rgb(121, 213, 199)',
+      }}
+    >
+      <div className="flex items-center justify-between h-12 px-4">
+        <div className="text-white font-semibold text-[17px]">问问</div>
         
         <div className="flex items-center gap-2">
-          <button className="relative p-1.5">
+          <button className="relative p-1.5" onClick={() => navigate('/notifications')}>
             <Bell size={18} className="text-white" />
             <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-destructive rounded-full"></span>
           </button>

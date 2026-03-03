@@ -1,7 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Info, ChevronRight, MessageSquare, Github, Twitter, Mail, Gift, Heart, Star } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { Info, ChevronRight, MessageSquare, Github, Twitter, Mail, Gift, Heart, Star } from 'lucide-react';
 import { 
   Card,
   CardContent,
@@ -12,37 +10,26 @@ import {
 } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const AboutUs = () => {
-  const navigate = useNavigate();
-
   return (
-    <div className="pb-20 min-h-screen bg-gray-50">
-      <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b shadow-sm">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => navigate('/settings')}
-          className="mr-2"
-        >
-          <ArrowLeft size={24} />
-        </Button>
-        <h1 className="text-xl font-semibold">关于我们</h1>
-      </div>
+    <div className="min-h-[100dvh] bg-gray-50 pb-8">
+      <SubPageHeader title="关于我们" />
 
-      <div className="p-4 bg-gradient-to-r from-app-blue to-app-teal text-center text-white rounded-b-3xl">
+      <div className="p-4 bg-gradient-to-r from-[rgb(121,213,199)] to-[rgb(160,237,224)] text-center text-white rounded-b-3xl">
         <div className="py-8">
           <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <span className="text-3xl font-bold bg-gradient-to-r from-app-blue to-app-teal bg-clip-text text-transparent">问问</span>
           </div>
           <h2 className="text-xl font-bold mb-1">找人问问</h2>
-          <p className="text-white/80 text-sm mb-2">Version 1.0.5</p>
+          <p className="text-white/80 text-sm mb-2">Version 1.0.5 · 2026</p>
           <Badge className="bg-white/20 text-white border-none">专注高质量问答社区</Badge>
         </div>
       </div>
 
-      <div className="p-4 space-y-4 -mt-5">
-        <Card className="border-none shadow-sm overflow-hidden rounded-xl">
+      <div className="p-5 space-y-5 -mt-5">
+        <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">
               <Info size={18} className="text-app-blue mr-2" />
@@ -56,10 +43,13 @@ const AboutUs = () => {
             <p>
               我们的使命是让知识传递更高效，让每个人都能获得专业可靠的解答，无论是学业问题、职业发展还是生活技能。
             </p>
+            <div className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm leading-6 text-slate-600">
+              我们希望把“提问、交流、咨询、社群”连接成一条自然链路，让年轻用户在遇到真实问题时，能够更快找到靠谱的人和靠谱的答案。
+            </div>
           </CardContent>
         </Card>
 
-        <Card className="border-none shadow-sm overflow-hidden rounded-xl">
+        <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">
               <Star size={18} className="text-amber-500 mr-2" />
@@ -105,13 +95,13 @@ const AboutUs = () => {
           </CardContent>
         </Card>
         
-        <Card className="border-none shadow-sm overflow-hidden rounded-xl">
+        <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg">联系我们</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <a href="mailto:support@example.com" className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
+              <a href="mailto:support@example.com" className="flex items-center justify-between rounded-2xl p-3 hover:bg-gray-50 transition-colors">
                 <div className="flex items-center">
                   <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center mr-3">
                     <Mail size={16} className="text-app-blue" />
@@ -121,7 +111,7 @@ const AboutUs = () => {
                 <ChevronRight size={16} className="text-gray-400" />
               </a>
               
-              <a href="#" className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
+              <a href="#" className="flex items-center justify-between rounded-2xl p-3 hover:bg-gray-50 transition-colors">
                 <div className="flex items-center">
                   <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
                     <Github size={16} className="text-gray-700" />
@@ -131,7 +121,7 @@ const AboutUs = () => {
                 <ChevronRight size={16} className="text-gray-400" />
               </a>
               
-              <a href="#" className="flex items-center justify-between p-2 hover:bg-gray-50 rounded-lg transition-colors">
+              <a href="#" className="flex items-center justify-between rounded-2xl p-3 hover:bg-gray-50 transition-colors">
                 <div className="flex items-center">
                   <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center mr-3">
                     <Twitter size={16} className="text-blue-400" />
@@ -143,7 +133,7 @@ const AboutUs = () => {
             </div>
           </CardContent>
           <CardFooter className="bg-gray-50 px-4 py-3 flex justify-between">
-            <span className="text-sm text-gray-500">© 2023 找人问问</span>
+            <span className="text-sm text-gray-500">© 2026 找人问问</span>
             <div className="flex space-x-4">
               <a href="#" className="text-sm text-gray-500 hover:text-app-blue">服务条款</a>
               <a href="#" className="text-sm text-gray-500 hover:text-app-blue">隐私政策</a>

@@ -1,12 +1,14 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, MessageSquare, Loader2 } from 'lucide-react';
+import { MessageSquare, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import BottomNav from '@/components/BottomNav';
+import { Card, CardContent } from '@/components/ui/card';
 import { useMyAnswers } from '@/hooks/useProfileData';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
+import SubPageHeader from '@/components/layout/SubPageHeader';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const MyAnswers = () => {
   const navigate = useNavigate();
@@ -19,53 +21,56 @@ const MyAnswers = () => {
   };
 
   return (
-    <div className="pb-20 min-h-screen bg-gray-50">
-      <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b">
-        <Button variant="ghost" size="icon" onClick={() => navigate('/profile')} className="mr-2">
-          <ArrowLeft size={24} />
-        </Button>
-        <h1 className="text-xl font-semibold">我的回答</h1>
-      </div>
+    <div className="pb-8 min-h-screen bg-gray-50">
+      <SubPageHeader title="我的回答" />
 
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+          <PageStateCard variant="loading" compact title="正在加载回答…" className="w-full max-w-sm" />
         </div>
       ) : answers && answers.length > 0 ? (
-        <div className="p-4 space-y-3">
+        <div className="p-4 space-y-4">
           {answers.map((answer: any) => (
-            <div
+            <Card
               key={answer.id}
-              className="bg-white rounded-xl p-4 shadow-sm cursor-pointer hover:shadow-md transition-shadow"
+              className="surface-card cursor-pointer rounded-3xl border-none shadow-sm transition-shadow hover:shadow-md"
               onClick={() => navigate(`/question/${answer.question_id}`)}
             >
-              <p className="text-xs text-primary font-medium mb-1">
-                问题：{answer.questions?.title || '已删除的问题'}
-              </p>
-              <p className="text-sm text-gray-700 line-clamp-2">{answer.content}</p>
-              <div className="flex items-center justify-between mt-2">
-                <span className="text-xs text-gray-400">{formatTime(answer.created_at)}</span>
-                <div className="flex items-center gap-2 text-xs text-gray-500">
-                  <span>👍 {answer.likes_count}</span>
-                  {answer.is_accepted && (
-                    <span className="bg-green-50 text-green-600 px-2 py-0.5 rounded-full text-xs">已采纳</span>
-                  )}
+              <CardContent className="p-5">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0 flex-1">
+                    <p className="mb-1 text-xs font-medium text-primary">
+                      问题：{answer.questions?.title || '已删除的问题'}
+                    </p>
+                    <p className="line-clamp-3 text-sm leading-6 text-slate-700">{answer.content}</p>
+                  </div>
+                  {answer.is_accepted ? (
+                    <span className="inline-flex shrink-0 items-center rounded-full border border-emerald-100 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-600">
+                      <CheckCircle2 size={13} className="mr-1" />
+                      已采纳
+                    </span>
+                  ) : null}
                 </div>
-              </div>
-            </div>
+                <div className="mt-4 flex items-center justify-between border-t border-border pt-4 text-xs text-muted-foreground">
+                  <span>{formatTime(answer.created_at)}</span>
+                  <span>👍 {answer.likes_count}</span>
+                </div>
+              </CardContent>
+            </Card>
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center p-8 mt-20">
-          <MessageSquare size={64} className="text-gray-300 mb-4" />
-          <p className="text-gray-500 mb-2">暂无回答记录</p>
-          <Button variant="outline" onClick={() => navigate('/discover')} className="mt-2">
-            去回答问题
-          </Button>
+        <div className="p-5 pt-20">
+          <PageStateCard
+            title="暂无回答记录"
+            description="去发现页看看大家都在问什么，挑擅长的问题来回答。"
+            actionLabel="去回答问题"
+            onAction={() => navigate('/discover')}
+            icon={<MessageSquare size={64} className="mx-auto text-muted-foreground/30" />}
+          />
         </div>
       )}
 
-      <BottomNav />
     </div>
   );
 };

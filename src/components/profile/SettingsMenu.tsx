@@ -11,18 +11,29 @@ import {
   HelpCircle,
   Shield,
   MessageSquare,
-  Info
+  Info,
+  LogOut,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer';
+import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
 
 interface SettingsMenuProps {
   isOpen: boolean;
   onClose: () => void;
+  onSignOut?: () => void;
+  showSignOut?: boolean;
+  signingOut?: boolean;
 }
 
-const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
+const SettingsMenu: React.FC<SettingsMenuProps> = ({
+  isOpen,
+  onClose,
+  onSignOut,
+  showSignOut = false,
+  signingOut = false,
+}) => {
   const navigate = useNavigate();
   const isDesktop = !useIsMobile();
   
@@ -36,7 +47,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
     { icon: <User size={20} className="text-gray-600" />, label: '内容偏好与调节', route: '/settings/content-preferences' },
     { icon: <HelpCircle size={20} className="text-gray-600" />, label: '帮助中心', route: '/settings/help' },
     { icon: <Shield size={20} className="text-gray-600" />, label: '问问规范', route: '/settings/guidelines' },
-    { icon: <MessageSquare size={20} className="text-gray-600" />, label: '用户体验调研', route: '/settings/user-research' },
+    { icon: <MessageSquare size={20} className="text-gray-600" />, label: '产品反馈', route: '/settings/feedback' },
     { icon: <Info size={20} className="text-gray-600" />, label: '关于我们', route: '/settings/about' },
   ];
 
@@ -45,9 +56,13 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
     onClose();
   };
 
+  const contentWrapperClass = isDesktop
+    ? 'bg-gray-50 p-3'
+    : 'min-h-[100dvh] bg-gray-50 p-3 pt-[calc(env(safe-area-inset-top)+12px)]';
+
   // Content for both dialog and drawer
   const content = (
-    <div className="p-3 min-h-screen bg-gray-50">
+    <div className={contentWrapperClass}>
       <div className="border-b pb-3 mb-3">
         <h3 className="text-xl font-bold text-gray-800 px-3">设置</h3>
       </div>
@@ -68,6 +83,19 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
           </svg>
         </div>
       ))}
+      {showSignOut && onSignOut && (
+        <div className="mt-4 px-3">
+          <Button
+            variant="outline"
+            className="w-full rounded-2xl border-0 bg-white py-6 text-sm text-slate-500 shadow-sm"
+            onClick={onSignOut}
+            disabled={signingOut}
+          >
+            <LogOut size={14} className="mr-2" />
+            {signingOut ? '正在退出…' : '退出登录'}
+          </Button>
+        </div>
+      )}
     </div>
   );
 
@@ -95,4 +123,3 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({ isOpen, onClose }) => {
 };
 
 export default SettingsMenu;
-

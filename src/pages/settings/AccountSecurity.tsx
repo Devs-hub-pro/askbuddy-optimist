@@ -1,7 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, 
   Lock, 
   KeyRound, 
   Phone, 
@@ -23,6 +22,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const AccountSecurity = () => {
   const navigate = useNavigate();
@@ -35,21 +35,11 @@ const AccountSecurity = () => {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="sticky top-0 z-10 bg-white flex items-center p-4 border-b shadow-sm">
-        <Button 
-          variant="ghost" 
-          size="icon" 
-          onClick={() => navigate('/settings')}
-          className="mr-2"
-        >
-          <ArrowLeft size={24} />
-        </Button>
-        <h1 className="text-xl font-semibold">账号与安全</h1>
-      </div>
+      <SubPageHeader title="账号与安全" />
 
-      <div className="p-4 space-y-4">
+      <div className="p-5 space-y-5">
         {/* 基本信息 */}
-        <Card className="border-none shadow-sm">
+        <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
               <Phone className="w-5 h-5 mr-2 text-blue-500" />
@@ -80,7 +70,7 @@ const AccountSecurity = () => {
         </Card>
 
         {/* 社交账号绑定 */}
-        <Card className="border-none shadow-sm">
+        <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
               <Lock className="w-5 h-5 mr-2 text-green-500" />
@@ -101,7 +91,7 @@ const AccountSecurity = () => {
         </Card>
 
         {/* 账号安全 */}
-        <Card className="border-none shadow-sm">
+        <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
               <KeyRound className="w-5 h-5 mr-2 text-orange-500" />

@@ -3,20 +3,21 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import type { PostWithProfile } from './usePosts';
 
-export const useLocalPosts = () => {
+export const useLocalPosts = (cityOverride?: string) => {
   const { user, profile } = useAuth();
+  const effectiveCity = cityOverride || profile?.city || '';
 
   return useQuery({
-    queryKey: ['local-posts', user?.id, profile?.city],
-    enabled: !!profile?.city,
+    queryKey: ['local-posts', user?.id, effectiveCity],
+    enabled: !!effectiveCity,
     queryFn: async (): Promise<PostWithProfile[]> => {
-      if (!profile?.city) return [];
+      if (!effectiveCity) return [];
 
       // Get users in the same city
       const { data: localProfiles, error: pErr } = await supabase
         .from('profiles')
         .select('user_id, nickname, avatar_url')
-        .eq('city', profile.city);
+        .eq('city', effectiveCity);
 
       if (pErr) throw pErr;
       if (!localProfiles || localProfiles.length === 0) return [];

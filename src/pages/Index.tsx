@@ -74,8 +74,8 @@ const Index = () => {
       orderCount: `${e.order_count || 0}单`,
       consultationPrice: e.consultation_price || 50,
       location: e.location || '未设置地区',
-      education: Array.isArray(e.education) ? e.education.map((item) => (typeof item === 'string' ? item : `${item.school || ''} ${item.degree || ''}`.trim())) : [],
-      experience: Array.isArray(e.experience) ? e.experience.map((item) => (typeof item === 'string' ? item : `${item.company || ''} ${item.position || item.title || ''}`.trim())) : [],
+      education: Array.isArray(e.education) ? e.education.map((item: any) => (typeof item === 'string' ? item : `${item.school || ''} ${item.degree || ''}`.trim())) : [],
+      experience: Array.isArray(e.experience) ? e.experience.map((item: any) => (typeof item === 'string' ? item : `${item.company || ''} ${item.position || item.title || ''}`.trim())) : [],
       verified: e.is_verified,
     })),
     ...(dbExperts || []).map((e) => ({

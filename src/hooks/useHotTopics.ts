@@ -95,7 +95,7 @@ export const useTopicDetail = (topicId: string) => {
       if (!topic) throw new Error('话题不存在');
 
       // Get discussions
-      const { data: discussions, error: discussionsError } = await supabase
+      const { data: discussions, error: discussionsError } = await (supabase as any)
         .from('topic_discussions')
         .select('*')
         .eq('topic_id', topicId)
@@ -106,7 +106,7 @@ export const useTopicDetail = (topicId: string) => {
       if (discussionsError) throw discussionsError;
 
       // Get profiles for discussions
-      const userIds = [...new Set((discussions || []).map(d => d.user_id))];
+      const userIds = [...new Set((discussions || []).map((d: any) => d.user_id))] as string[];
       const { data: profiles } = await supabase
         .from('profiles')
         .select('user_id, nickname, avatar_url')

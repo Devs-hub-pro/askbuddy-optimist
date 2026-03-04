@@ -42,7 +42,7 @@ export const useQuestions = (category?: string) => {
   return useQuery({
     queryKey: ['questions', category],
     queryFn: async () => {
-      let query = supabase
+      let query = (supabase as any)
         .from('questions')
         .select('*')
         .eq('is_hidden', false)
@@ -52,12 +52,12 @@ export const useQuestions = (category?: string) => {
         query = query.eq('category', category);
       }
 
-      const { data: questions, error } = await query;
+      const { data: questions, error } = await query as any;
       if (error) throw error;
       if (!questions || questions.length === 0) return [];
 
-      const userIds = Array.from(new Set(questions.map((question) => question.user_id)));
-      const questionIds = questions.map((question) => question.id);
+      const userIds = Array.from(new Set((questions as any[]).map((question: any) => question.user_id))) as string[];
+      const questionIds = (questions as any[]).map((question: any) => question.id) as string[];
 
       const [profilesResult, answersResult] = await Promise.all([
         supabase
@@ -99,7 +99,7 @@ export const useQuestionDetail = (questionId: string) => {
   return useQuery({
     queryKey: ['question', questionId],
     queryFn: async () => {
-      const { data: question, error: questionError } = await supabase
+      const { data: question, error: questionError } = await (supabase as any)
         .from('questions')
         .select('*')
         .eq('id', questionId)
@@ -114,7 +114,7 @@ export const useQuestionDetail = (questionId: string) => {
         .update({ view_count: (question.view_count || 0) + 1 })
         .eq('id', questionId);
 
-      const { data: answers, error: answersError } = await supabase
+      const { data: answers, error: answersError } = await (supabase as any)
         .from('answers')
         .select('*')
         .eq('question_id', questionId)

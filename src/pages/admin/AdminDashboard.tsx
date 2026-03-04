@@ -89,7 +89,7 @@ const AdminDashboard = () => {
   return (
     <div className="min-h-[100dvh] bg-muted pb-8">
       <div className="sticky top-0 z-10 shadow-sm">
-        <div className="bg-[rgb(121,213,199)] text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <div className="bg-app-header text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="flex items-center gap-3 px-4 py-3">
             <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white hover:bg-white/15 hover:text-white">
               <ArrowLeft size={20} />
@@ -100,7 +100,7 @@ const AdminDashboard = () => {
             </div>
           </div>
         </div>
-        <div className="h-1 bg-[rgb(223,245,239)]" />
+        <div className="h-1 bg-app-header-light" />
       </div>
 
       <div className="p-4 space-y-4">

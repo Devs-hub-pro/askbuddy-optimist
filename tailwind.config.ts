@@ -66,24 +66,14 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))'
         },
-        // App specific colors
-        'app-teal': '#7FDFD4',
-        'app-blue': '#0D99FF',
-        'app-green': '#00C781',
-        'app-orange': '#FF9F40',
-        'app-red': '#FF5A5F',
-        'app-light-bg': '#E6F9F7',
-        'app-gray': '#F0F0F0',
-        'app-text': '#333333',
-        
-        // Soft colors for youth-oriented cards
-        'soft-green': '#F2FCE2',
-        'soft-yellow': '#FEF7CD',
-        'soft-orange': '#FEC6A1', 
-        'soft-purple': '#E5DEFF',
-        'soft-pink': '#FFDEE2',
-        'soft-peach': '#FDE1D3',
-        'soft-blue': '#D3E4FD',
+        // App semantic color tokens
+        'app-header': 'hsl(var(--app-header))',
+        'app-header-light': 'hsl(var(--app-header-light))',
+        'app-accent': 'hsl(var(--app-accent))',
+        'app-surface': 'hsl(var(--app-surface))',
+        'app-border-light': 'hsl(var(--app-border-light))',
+        'app-warm': 'hsl(var(--app-warm))',
+        'app-warm-foreground': 'hsl(var(--app-warm-foreground))',
       },
       boxShadow: {
         'soft': '0 4px 20px rgba(0, 0, 0, 0.05)',

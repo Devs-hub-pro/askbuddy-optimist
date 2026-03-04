@@ -119,7 +119,7 @@ const ChatDetail: React.FC = () => {
 
   return (
     <div className="flex h-[100dvh] flex-col overflow-hidden bg-slate-50">
-      <div className="flex-shrink-0 bg-[rgb(121,213,199)] shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <div className="flex-shrink-0 bg-app-header shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex h-12 items-center px-4">
           <button onClick={() => navigate(-1)} className="rounded-full p-1 text-white/95 -ml-1">
             <ChevronLeft size={24} />
@@ -158,7 +158,7 @@ const ChatDetail: React.FC = () => {
                 <div className={`flex ${fromMe ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[78%] rounded-3xl px-4 py-3 text-sm ${
                     fromMe
-                      ? 'rounded-br-xl bg-[rgb(73,170,155)] text-white shadow-sm'
+                      ? 'rounded-br-xl bg-app-accent text-white shadow-sm'
                       : 'surface-card rounded-bl-xl text-foreground'
                   }`}>
                     <p className="break-words leading-6">{msg.content}</p>
@@ -202,7 +202,7 @@ const ChatDetail: React.FC = () => {
           <button
             className={`flex-shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all ${
               inputValue.trim()
-                ? 'bg-[rgb(73,170,155)] text-white shadow-sm active:scale-95'
+                ? 'bg-app-accent text-white shadow-sm active:scale-95'
                 : 'bg-slate-200 text-slate-500'
             }`}
             onClick={handleSend}

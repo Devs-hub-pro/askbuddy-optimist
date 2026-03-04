@@ -12,8 +12,7 @@ import { useQuestions } from '@/hooks/useQuestions';
 import { useHotTopics } from '@/hooks/useHotTopics';
 import { useExperts } from '@/hooks/useExperts';
 import { useUnreadCount } from '@/hooks/useNotifications';
-import { formatDistanceToNow } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
+import { formatTime, formatViewCount } from '@/utils/format';
 import { demoExperts, demoQuestions } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 
@@ -61,25 +60,6 @@ const Index = () => {
     }
   ];
 
-  // 格式化时间
-  const formatTime = (dateString: string) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), { 
-        addSuffix: true, 
-        locale: zhCN 
-      });
-    } catch {
-      return '刚刚';
-    }
-  };
-
-  // 格式化浏览量
-  const formatViewCount = (count: number) => {
-    if (count >= 1000) {
-      return (count / 1000).toFixed(1) + 'k';
-    }
-    return count.toString();
-  };
 
   const experts = [
     ...demoExperts.map((e) => ({

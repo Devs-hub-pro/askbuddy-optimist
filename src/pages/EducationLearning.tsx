@@ -24,8 +24,7 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import QuestionCard from '@/components/QuestionCard';
 import { useQuestions } from '@/hooks/useQuestions';
 import { useExperts } from '@/hooks/useExperts';
-import { formatDistanceToNow } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
+import { formatTime, formatViewCount } from '@/utils/format';
 import ChannelPageScaffold from '@/components/channel/ChannelPageScaffold';
 import ChannelExpertCard from '@/components/channel/ChannelExpertCard';
 import ChannelQuestionSkeleton from '@/components/channel/ChannelQuestionSkeleton';
@@ -43,16 +42,6 @@ const EducationLearning = () => {
   const { data: questions, isLoading } = useQuestions('教育学习');
   const { data: dbExperts, isLoading: isLoadingExperts } = useExperts('教育学习');
 
-  const formatTime = (dateString: string) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
-    } catch { return '刚刚'; }
-  };
-
-  const formatViewCount = (count: number) => {
-    if (count >= 1000) return (count / 1000).toFixed(1) + 'k';
-    return count.toString();
-  };
 
   useEffect(() => {
     const checkScroll = () => {

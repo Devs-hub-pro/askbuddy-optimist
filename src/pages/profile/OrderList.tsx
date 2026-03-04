@@ -5,8 +5,7 @@ import { ArrowRight, Clock3, CheckCircle2, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useMyOrders } from '@/hooks/useProfileData';
-import { formatDistanceToNow } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
+import { formatTime } from '@/utils/format';
 import PageStateCard from '@/components/common/PageStateCard';
 
 const statusMap: Record<string, { color: string; text: string; icon: React.ReactNode }> = {
@@ -33,11 +32,6 @@ const OrderList: React.FC = () => {
   const [tab, setTab] = useState<string>("all");
   const { data: orders, isLoading } = useMyOrders(tab);
 
-  const formatTime = (dateString: string) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
-    } catch { return '刚刚'; }
-  };
 
   return (
     <div className="px-5 py-5">

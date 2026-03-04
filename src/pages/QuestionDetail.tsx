@@ -12,8 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuestionDetail, useCreateAnswer, useToggleFavorite } from "@/hooks/useQuestions";
 import { useAcceptAnswer } from "@/hooks/useAcceptAnswer";
 import { useAuth } from "@/contexts/AuthContext";
-import { formatDistanceToNow } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
+import { formatTime, formatViewCount } from '@/utils/format';
 import { useSubmitContentReport } from '@/hooks/useModeration';
 import { demoQuestionDetails } from '@/lib/demoData';
 import PageStateCard from "@/components/common/PageStateCard";
@@ -46,25 +45,6 @@ const QuestionDetail = () => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [answerContent, setAnswerContent] = useState('');
 
-  // 格式化时间
-  const formatTime = (dateString: string) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), { 
-        addSuffix: true, 
-        locale: zhCN 
-      });
-    } catch {
-      return '刚刚';
-    }
-  };
-
-  // 格式化浏览量
-  const formatViewCount = (count: number) => {
-    if (count >= 1000) {
-      return (count / 1000).toFixed(1) + 'k';
-    }
-    return count.toString();
-  };
 
   if (!isDemoQuestion && isLoading) {
     return (

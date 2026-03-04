@@ -5,8 +5,7 @@ import { MessageSquare, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useMyAnswers } from '@/hooks/useProfileData';
-import { formatDistanceToNow } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
+import { formatTime } from '@/utils/format';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import PageStateCard from '@/components/common/PageStateCard';
 
@@ -14,11 +13,6 @@ const MyAnswers = () => {
   const navigate = useNavigate();
   const { data: answers, isLoading } = useMyAnswers();
 
-  const formatTime = (dateString: string) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
-    } catch { return '刚刚'; }
-  };
 
   return (
     <div className="pb-8 min-h-screen bg-gray-50">

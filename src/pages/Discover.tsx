@@ -15,8 +15,7 @@ import { useFollowingPosts } from '@/hooks/useFollowingPosts';
 import { useLocalPosts } from '@/hooks/useLocalPosts';
 import { useUploadPostMedia } from '@/hooks/usePostMediaUpload';
 import { useAuth } from '@/contexts/AuthContext';
-import { formatDistanceToNow } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
+import { formatTime } from '@/utils/format';
 import PageStateCard from '@/components/common/PageStateCard';
 
 const Discover: React.FC = () => {
@@ -94,14 +93,6 @@ const Discover: React.FC = () => {
     if (newTagInput.trim() && !newPostTags.includes(newTagInput.trim())) {
       setNewPostTags([...newPostTags, newTagInput.trim()]);
       setNewTagInput('');
-    }
-  };
-
-  const formatTime = (dateString: string) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
-    } catch {
-      return '刚刚';
     }
   };
 
@@ -630,7 +621,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId, inputRefs, co
                   <p className="text-sm text-foreground mt-0.5">{comment.content}</p>
                 </div>
                 <div className="flex items-center gap-3 mt-1 px-1">
-                  <span className="text-[10px] text-muted-foreground">{formatDistanceToNow(new Date(comment.created_at), { addSuffix: true, locale: zhCN })}</span>
+                  <span className="text-[10px] text-muted-foreground">{formatTime(comment.created_at)}</span>
                   <button className="text-[10px] text-muted-foreground hover:text-pink-500 flex items-center gap-0.5">
                     <Heart size={10} />
                     {comment.likes_count > 0 && <span>{comment.likes_count}</span>}

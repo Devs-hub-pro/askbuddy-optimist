@@ -4,8 +4,7 @@ import { ChevronLeft, Bell, CheckCheck, Heart, MessageCircle, Reply, Sparkles } 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useMarkAllAsRead, useMarkAsRead, useNotifications } from '@/hooks/useNotifications';
-import { formatDistanceToNow } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
+import { formatTime } from '@/utils/format';
 import PageStateCard from '@/components/common/PageStateCard';
 
 const socialTypes = new Set(['new_like', 'new_comment', 'comment_reply', 'new_answer']);
@@ -63,13 +62,6 @@ const DiscoverInteractions = () => {
 
   const unreadCount = interactions.filter((item) => !item.is_read).length;
 
-  const formatTime = (dateString: string) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
-    } catch {
-      return '刚刚';
-    }
-  };
 
   const handleClick = (id: string, isRead: boolean) => {
     if (!isRead && !id.startsWith('demo-')) {

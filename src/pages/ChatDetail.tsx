@@ -6,8 +6,7 @@ import { useMessagesWithUser, useSendMessage, useMarkMessagesAsRead } from '@/ho
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { formatDistanceToNow } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
+import { formatTime } from '@/utils/format';
 import { demoConversations, demoMessagesByPartner } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 
@@ -65,13 +64,6 @@ const ChatDetail: React.FC = () => {
     return () => vv.removeEventListener('resize', onResize);
   }, []);
 
-  const formatTime = (dateString: string) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
-    } catch {
-      return '刚刚';
-    }
-  };
 
   const formatSectionDate = (dateString: string) => {
     const date = new Date(dateString);

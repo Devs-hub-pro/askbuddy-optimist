@@ -107,14 +107,14 @@ const Index = () => {
   };
 
   return (
-    <div className="app-container bg-white pb-16">
+    <div className="app-container bg-background pb-16">
       <Navbar location={currentLocation} />
       
       <div
-        className="sticky z-40 border-b border-[#d9efe9] shadow-[0_1px_0_rgba(15,23,42,0.03)]"
+        className="sticky z-40 border-b border-app-border-light shadow-[0_1px_0_hsl(var(--foreground)/0.03)]"
         style={{
           top: 'calc(env(safe-area-inset-top) + 48px)',
-          background: 'rgb(223, 245, 239)',
+          background: 'hsl(var(--app-header-light))',
         }}
       >
         <div className="py-3 animate-fade-in">
@@ -128,8 +128,8 @@ const Index = () => {
         <div className="mb-4 flex items-start justify-between gap-3 px-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#fff7df]">
-                <Sparkles size={16} className="text-[#e0a100]" />
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-app-warm">
+                <Sparkles size={16} className="text-app-warm-foreground" />
               </span>
               <h2 className="text-lg font-bold tracking-[-0.01em] animate-fade-in animate-delay-2">
                 问问热榜
@@ -256,7 +256,7 @@ const Index = () => {
             >
               大家都在问
               {activeTab === 'everyone' && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-11 h-[3px] bg-gradient-to-r from-[#54d9c7] to-[#2ac3ff] z-10 rounded-full transition-all duration-300 ease-in-out"></span>
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-11 h-[3px] bg-gradient-to-r from-app-header to-primary z-10 rounded-full transition-all duration-300 ease-in-out"></span>
               )}
             </button>
             <button 
@@ -265,7 +265,7 @@ const Index = () => {
             >
               找TA问问
               {activeTab === 'experts' && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-11 h-[3px] bg-gradient-to-r from-[#54d9c7] to-[#2ac3ff] z-10 rounded-full transition-all duration-300 ease-in-out"></span>
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-11 h-[3px] bg-gradient-to-r from-app-header to-primary z-10 rounded-full transition-all duration-300 ease-in-out"></span>
               )}
             </button>
           </div>

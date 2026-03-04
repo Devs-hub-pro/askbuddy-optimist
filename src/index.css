@@ -33,6 +33,58 @@
     --ring: 174 54% 56%;
 
     --radius: 0.75rem;
+
+    /* App-specific semantic tokens */
+    --app-header: 167 55% 65%;
+    --app-header-light: 164 50% 92%;
+    --app-accent: 171 40% 48%;
+    --app-surface: 164 55% 95%;
+    --app-border-light: 160 40% 89%;
+    --app-warm: 43 100% 94%;
+    --app-warm-foreground: 43 100% 44%;
+    --app-gradient-from: 168 66% 59%;
+    --app-gradient-to: 197 100% 57%;
+  }
+
+  .dark {
+    --background: 222 47% 8%;
+    --foreground: 210 20% 92%;
+
+    --card: 222 47% 11%;
+    --card-foreground: 210 20% 92%;
+
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 20% 92%;
+
+    --primary: 170 55% 50%;
+    --primary-foreground: 170 100% 95%;
+
+    --secondary: 170 25% 18%;
+    --secondary-foreground: 170 40% 80%;
+
+    --muted: 220 20% 14%;
+    --muted-foreground: 215 12% 58%;
+
+    --accent: 170 25% 16%;
+    --accent-foreground: 170 40% 80%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 220 16% 20%;
+    --input: 220 16% 20%;
+    --ring: 170 50% 45%;
+
+    /* App-specific semantic tokens (dark) */
+    --app-header: 170 40% 28%;
+    --app-header-light: 170 30% 14%;
+    --app-accent: 170 45% 40%;
+    --app-surface: 170 20% 12%;
+    --app-border-light: 170 20% 22%;
+    --app-warm: 43 40% 16%;
+    --app-warm-foreground: 43 80% 60%;
+    --app-gradient-from: 168 50% 40%;
+    --app-gradient-to: 197 60% 45%;
   }
   
   * {
@@ -65,31 +117,31 @@
 
 @layer components {
   .app-container {
-    @apply max-w-md mx-auto bg-white min-h-screen relative;
+    @apply max-w-md mx-auto bg-background min-h-screen relative;
     width: 100%;
     overflow-x: hidden;
   }
   
   .glass-effect {
-    @apply backdrop-blur-sm bg-white/70 border border-white/20;
+    @apply backdrop-blur-sm bg-background/70 border border-background/20;
   }
   
   .nav-item {
-    @apply flex flex-col items-center justify-center space-y-1 text-gray-500 transition-colors;
+    @apply flex flex-col items-center justify-center space-y-1 text-muted-foreground transition-colors;
   }
   
   .nav-item.active {
-    color: rgb(35 159 215);
+    color: hsl(var(--app-accent));
   }
   
   .category-icon {
-    @apply w-12 h-12 flex items-center justify-center rounded-full text-white;
+    @apply w-12 h-12 flex items-center justify-center rounded-full text-primary-foreground;
   }
   
   .search-input {
-    @apply h-12 w-full px-4 bg-white/95 border rounded-2xl focus:outline-none transition-all placeholder:text-gray-400;
+    @apply h-12 w-full px-4 bg-background/95 border rounded-2xl focus:outline-none transition-all placeholder:text-muted-foreground;
     border-color: hsl(var(--input));
-    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    box-shadow: 0 4px 14px hsl(var(--foreground) / 0.04);
   }
   
   .card-animate {
@@ -97,7 +149,7 @@
   }
   
   .tag {
-    @apply inline-block text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600 font-medium;
+    @apply inline-block text-xs px-2 py-1 rounded-full bg-primary/10 text-primary font-medium;
   }
   
   .hide-scrollbar {
@@ -113,9 +165,9 @@
   }
 
   .surface-card {
-    @apply bg-white rounded-xl border;
+    @apply bg-card rounded-xl border;
     border-color: hsl(var(--border));
-    box-shadow: 0 8px 24px rgba(15, 23, 42, 0.06);
+    box-shadow: 0 8px 24px hsl(var(--foreground) / 0.06);
   }
 }
 

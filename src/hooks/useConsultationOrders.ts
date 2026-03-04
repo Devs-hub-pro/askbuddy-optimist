@@ -18,13 +18,13 @@ export const useCreateConsultationOrder = () => {
 
   return useMutation({
     mutationFn: async ({ expertId, consultType }: { expertId: string; consultType: ConsultationType }) => {
-      const { data, error } = await (supabase as any).rpc('create_consultation_order', {
+      const { data, error } = await supabase.rpc('create_consultation_order', {
         p_expert_id: expertId,
         p_consult_type: consultType,
       });
 
       if (error) throw error;
-      return data as unknown as string;
+      return data as string;
     },
     onSuccess: async () => {
       await refreshProfile();

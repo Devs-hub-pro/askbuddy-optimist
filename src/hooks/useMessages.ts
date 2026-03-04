@@ -41,9 +41,9 @@ export const useConversations = () => {
     queryFn: async (): Promise<Conversation[]> => {
       if (!user) return [];
 
-      const rpcResult = await (supabase as any).rpc('get_user_conversations');
+      const rpcResult = await supabase.rpc('get_user_conversations');
       if (!rpcResult.error) {
-        return ((rpcResult.data || []) as any[]).map((item: any) => ({
+        return (rpcResult.data || []).map((item) => ({
           partner_id: item.partner_id,
           partner_nickname: item.partner_nickname,
           partner_avatar: item.partner_avatar,
@@ -125,6 +125,7 @@ export const useMessagesWithUser = (partnerId: string) => {
         .from('messages')
         .select('*')
         .or(`and(sender_id.eq.${user.id},receiver_id.eq.${partnerId}),and(sender_id.eq.${partnerId},receiver_id.eq.${user.id})`)
+        .eq('is_hidden', false)
         .order('created_at', { ascending: true });
 
       if (error) throw error;
@@ -206,7 +207,7 @@ export const useSendMessage = () => {
     }) => {
       if (!user) throw new Error('请先登录');
 
-      const rpcResult = await (supabase as any).rpc('send_direct_message', {
+      const rpcResult = await supabase.rpc('send_direct_message', {
         p_receiver_id: data.receiver_id,
         p_content: data.content,
         p_message_type: data.message_type || 'text',
@@ -318,6 +319,7 @@ export const useUnreadMessageCount = () => {
         .from('messages')
         .select('*', { count: 'exact', head: true })
         .eq('receiver_id', user.id)
+        .eq('is_hidden', false)
         .is('read_at', null);
 
       if (error) throw error;

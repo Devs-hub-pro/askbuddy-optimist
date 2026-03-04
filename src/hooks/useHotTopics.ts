@@ -99,6 +99,7 @@ export const useTopicDetail = (topicId: string) => {
         .from('topic_discussions')
         .select('*')
         .eq('topic_id', topicId)
+        .eq('is_hidden', false)
         .order('likes_count', { ascending: false })
         .order('created_at', { ascending: false });
 

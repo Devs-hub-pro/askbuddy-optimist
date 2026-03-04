@@ -127,7 +127,7 @@ export const useMarkAsRead = () => {
 
   return useMutation({
     mutationFn: async (notificationId: string) => {
-      const rpcResult = await (supabase as any).rpc('mark_notifications_read', {
+      const rpcResult = await supabase.rpc('mark_notifications_read', {
         p_notification_ids: [notificationId],
       });
 
@@ -159,7 +159,7 @@ export const useMarkAllAsRead = () => {
 
   return useMutation({
     mutationFn: async () => {
-      const rpcResult = await (supabase as any).rpc('mark_notifications_read', {
+      const rpcResult = await supabase.rpc('mark_notifications_read', {
         p_notification_ids: null,
       });
 

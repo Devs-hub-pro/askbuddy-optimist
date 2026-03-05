@@ -43,6 +43,7 @@ import {
 } from "@/components/ui/drawer";
 import { useCreateQuestion } from '@/hooks/useQuestions';
 import { useAuth } from '@/contexts/AuthContext';
+import { navigateBackOr } from '@/utils/navigation';
 
 // Define categories with emojis
 const categories = [
@@ -273,7 +274,7 @@ const NewQuestion: React.FC = () => {
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
       >
         <button 
-          onClick={() => navigate(-1)} 
+          onClick={() => navigateBackOr(navigate, '/')} 
           className="flex items-center text-primary-foreground"
         >
           <ArrowLeft size={20} />

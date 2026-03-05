@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import { navigateBackOr } from '@/utils/navigation';
 import { supabase } from '@/integrations/supabase/client';
 
 const Auth = () => {
@@ -252,7 +253,7 @@ const Auth = () => {
     <div className="min-h-[100dvh] bg-gradient-to-b from-[rgb(236,251,247)] to-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
       {/* Header */}
       <div className="sticky top-0 z-10 flex items-center bg-gradient-to-b from-[rgb(236,251,247)] to-white p-4">
-        <Button variant="ghost" size="icon" onClick={() => navigate(-1)}>
+        <Button variant="ghost" size="icon" onClick={() => navigateBackOr(navigate, '/')}>
           <ChevronLeft size={24} />
         </Button>
         <span className="text-lg font-medium ml-2">登录 / 注册</span>

@@ -23,7 +23,11 @@ export interface Notification {
   sender_avatar?: string | null;
 }
 
-export const useNotifications = () => {
+interface HookOptions {
+  enabled?: boolean;
+}
+
+export const useNotifications = (options?: HookOptions) => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
@@ -69,11 +73,13 @@ export const useNotifications = () => {
         sender_avatar: notification.sender_id ? profileMap.get(notification.sender_id)?.avatar_url || null : null,
       }));
     },
-    enabled: !!user,
+    enabled: !!user && (options?.enabled ?? true),
+    staleTime: 15 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
-    if (!user) return;
+    if (!user || options?.enabled === false) return;
 
     const channel = supabase
       .channel(`notifications-${user.id}`)
@@ -95,12 +101,12 @@ export const useNotifications = () => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient, user]);
+  }, [queryClient, user, options?.enabled]);
 
   return query;
 };
 
-export const useUnreadCount = () => {
+export const useUnreadCount = (options?: HookOptions) => {
   const { user } = useAuth();
 
   return useQuery({
@@ -117,7 +123,9 @@ export const useUnreadCount = () => {
       if (error) throw error;
       return count || 0;
     },
-    enabled: !!user,
+    enabled: !!user && (options?.enabled ?? true),
+    staleTime: 15 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 

@@ -12,19 +12,24 @@ import { zhCN } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import PageStateCard from '@/components/common/PageStateCard';
+import { demoTopicDetails } from '@/lib/demoData';
+import { navigateBackOr } from '@/utils/navigation';
 
 const TopicDetail = () => {
   const { topicId } = useParams<{ topicId: string }>();
   const navigate = useNavigate();
   const { user } = useAuth();
   const [newComment, setNewComment] = useState('');
+  const isDemoTopic = !!topicId && topicId.startsWith('demo-topic-');
 
-  const { data, isLoading, error } = useTopicDetail(topicId || '');
+  const { data: liveData, isLoading, error } = useTopicDetail(isDemoTopic ? '' : (topicId || ''));
   const createDiscussion = useCreateDiscussion();
   const toggleLike = useToggleDiscussionLike();
   const deleteDiscussion = useDeleteDiscussion();
-  const { data: isFollowing } = useIsFollowingTopic(topicId || '');
+  const { data: isFollowing } = useIsFollowingTopic(isDemoTopic ? '' : (topicId || ''));
   const toggleFollow = useToggleTopicFollow();
+  const demoData = isDemoTopic && topicId ? demoTopicDetails[topicId as keyof typeof demoTopicDetails] : null;
+  const data = demoData || liveData;
 
   const formatTime = (dateString: string) => {
     try {
@@ -59,7 +64,7 @@ const TopicDetail = () => {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !demoData) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
         <PageStateCard variant="loading" title="正在加载专题内容…" />
@@ -67,7 +72,7 @@ const TopicDetail = () => {
     );
   }
 
-  if (error || !data) {
+  if ((error && !demoData) || !data) {
     return (
       <div className="min-h-screen bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
         <PageStateCard
@@ -75,7 +80,7 @@ const TopicDetail = () => {
           title="暂时无法打开专题"
           description="内容可能已下线，或当前链接已失效。"
           actionLabel="返回上页"
-          onAction={() => navigate(-1)}
+          onAction={() => navigateBackOr(navigate, '/')}
         />
       </div>
     );
@@ -98,7 +103,7 @@ const TopicDetail = () => {
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
         <div className="flex items-center px-4 py-3">
-          <button onClick={() => navigate(-1)} className="mr-3">
+          <button onClick={() => navigateBackOr(navigate, '/')} className="mr-3">
             <ArrowLeft size={24} />
           </button>
           <h1 className="text-base font-semibold flex-1 truncate">{topic.title}</h1>
@@ -141,7 +146,7 @@ const TopicDetail = () => {
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            {user ? (
+            {user && !isDemoTopic ? (
               <Button
                 variant={isFollowing ? 'default' : 'secondary'}
                 size="sm"

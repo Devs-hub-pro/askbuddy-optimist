@@ -15,12 +15,12 @@ const LoginActivity = () => {
   const { toast } = useToast();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[100dvh] bg-gray-50">
       <SubPageHeader title="登录活动" />
 
-      <div className="space-y-5 p-5">
+      <div className="space-y-4 p-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
-          <CardContent className="p-5">
+          <CardContent className="p-4">
             <div className="flex items-start gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgb(236,251,247)]">
                 <ShieldAlert size={18} className="text-[rgb(73,170,155)]" />
@@ -38,7 +38,7 @@ const LoginActivity = () => {
         <div className="space-y-3">
           {sessions.map((session) => (
             <Card key={session.id} className="surface-card rounded-3xl border-none shadow-sm">
-              <CardContent className="p-5">
+              <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="flex items-start gap-3">
                     <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-muted">

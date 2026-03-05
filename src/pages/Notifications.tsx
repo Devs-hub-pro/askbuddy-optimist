@@ -9,6 +9,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import PageStateCard from '@/components/common/PageStateCard';
+import { navigateBackOr } from '@/utils/navigation';
 
 const typeIconMap: Record<string, string> = {
   new_answer: '💬',
@@ -65,7 +66,7 @@ const Notifications = () => {
       <div className="sticky top-0 z-10 shadow-sm">
         <div className="bg-[rgb(121,213,199)] text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="flex items-center px-4 py-3">
-            <button onClick={() => navigate(-1)} className="mr-3">
+            <button onClick={() => navigateBackOr(navigate, '/messages')} className="mr-3">
               <ArrowLeft size={24} />
             </button>
             <h1 className="text-base font-semibold flex-1">通知</h1>

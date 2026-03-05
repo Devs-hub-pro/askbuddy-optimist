@@ -1,7 +1,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Loader2, Search, MoreHorizontal, Plus, Radio, ChevronRight, Sparkles } from 'lucide-react';
+import { Users, Search, MoreHorizontal, Plus, Radio, ChevronRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -44,12 +44,7 @@ const MyCommunity = () => {
     <div className="min-h-[100dvh] bg-muted pb-8">
       <SubPageHeader title="我的社群" />
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
-        </div>
-      ) : (
-        <div className="p-5 space-y-4 pb-28">
+      <div className="p-4 space-y-4 pb-28">
           <div className="surface-card rounded-3xl p-4 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -59,7 +54,7 @@ const MyCommunity = () => {
                 </p>
               </div>
               <span className="rounded-full bg-app-surface px-3 py-1 text-xs font-medium text-app-accent">
-                活跃中
+                {isLoading ? '同步中' : '活跃中'}
               </span>
             </div>
           </div>
@@ -156,27 +151,24 @@ const MyCommunity = () => {
             </div>
           )}
 
-        </div>
-      )}
+      </div>
 
-      {!isLoading && (
-        <div className="pointer-events-none fixed inset-x-0 bottom-20 z-20 mx-auto flex w-full max-w-md px-5">
-          <div className="pointer-events-auto w-full">
-            <Button
-              className="h-12 w-full rounded-2xl text-base font-semibold shadow-sm"
-              onClick={() =>
-                toast({
-                  title: '创建群组入口已就绪',
-                  description: '下一步可以继续补群组创建、群名称设置和邀请成员流程。',
-                })
-              }
-            >
-              <Plus size={18} className="mr-2" />
-              创建群组
-            </Button>
-          </div>
+      <div className="pointer-events-none fixed inset-x-0 bottom-20 z-20 mx-auto flex w-full max-w-md px-5">
+        <div className="pointer-events-auto w-full">
+          <Button
+            className="h-12 w-full rounded-2xl text-base font-semibold shadow-sm"
+            onClick={() =>
+              toast({
+                title: '创建群组入口已就绪',
+                description: '下一步可以继续补群组创建、群名称设置和邀请成员流程。',
+              })
+            }
+          >
+            <Plus size={18} className="mr-2" />
+            创建群组
+          </Button>
         </div>
-      )}
+      </div>
 
     </div>
   );

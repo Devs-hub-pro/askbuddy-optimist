@@ -26,6 +26,7 @@ import * as z from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { uploadExpertCoverImage, useExpertByUserId, useSaveExpertProfile } from '@/hooks/useExperts';
+import { navigateBackOr } from '@/utils/navigation';
 
 const skillFormSchema = z.object({
   title: z.string().min(5, { message: '标题至少需要5个字符' }).max(100),
@@ -189,7 +190,7 @@ const SkillPublish = () => {
       <div className="sticky top-0 z-50 shadow-sm">
         <div className="bg-app-teal" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="flex items-center h-12 px-4">
-            <button onClick={() => navigate(-1)} className="mr-4 text-white">
+            <button onClick={() => navigateBackOr(navigate, '/profile')} className="mr-4 text-white">
               <ArrowLeft size={20} />
             </button>
             <h1 className="text-lg font-medium text-white">{existingExpert ? '编辑专业技能' : '发布您的专业技能'}</h1>

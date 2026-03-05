@@ -5,7 +5,7 @@ import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const MyDrafts = () => {
   return (
-    <div className="pb-8 min-h-screen bg-gray-50">
+    <div className="pb-8 min-h-[100dvh] bg-gray-50">
       <SubPageHeader title="草稿箱" />
 
       {/* 草稿列表组件 */}

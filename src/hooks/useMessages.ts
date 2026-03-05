@@ -33,7 +33,11 @@ export interface Conversation {
   is_online?: boolean;
 }
 
-export const useConversations = () => {
+interface HookOptions {
+  enabled?: boolean;
+}
+
+export const useConversations = (options?: HookOptions) => {
   const { user } = useAuth();
 
   return useQuery({
@@ -108,7 +112,9 @@ export const useConversations = () => {
         partner_avatar: profileMap.get(item.partner_id)?.avatar_url || null,
       }));
     },
-    enabled: !!user,
+    enabled: !!user && (options?.enabled ?? true),
+    staleTime: 15 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -149,6 +155,8 @@ export const useMessagesWithUser = (partnerId: string) => {
       }));
     },
     enabled: !!user && !!partnerId,
+    staleTime: 10 * 1000,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {

@@ -51,10 +51,6 @@ const SearchBar: React.FC<SearchBarProps> = ({
     if (onChange) {
       onChange(e);
     }
-    
-    if (onSearch) {
-      onSearch(newValue);
-    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {

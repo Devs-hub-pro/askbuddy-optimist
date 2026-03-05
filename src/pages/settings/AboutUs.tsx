@@ -28,7 +28,7 @@ const AboutUs = () => {
         </div>
       </div>
 
-      <div className="p-5 space-y-5 -mt-5">
+      <div className="p-4 space-y-4 -mt-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">

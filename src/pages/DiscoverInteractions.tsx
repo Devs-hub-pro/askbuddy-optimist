@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Bell, CheckCheck, Heart, MessageCircle, Reply, Sparkles } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useMarkAllAsRead, useMarkAsRead, useNotifications } from '@/hooks/useNotifications';
 import { formatTime } from '@/utils/format';
 import PageStateCard from '@/components/common/PageStateCard';
+import { navigateBackOr } from '@/utils/navigation';
 
 const socialTypes = new Set(['new_like', 'new_comment', 'comment_reply', 'new_answer']);
 
@@ -54,18 +55,41 @@ const DiscoverInteractions = () => {
   const { data: notifications = [], isLoading } = useNotifications();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
+  const [demoState, setDemoState] = useState(demoInteractions);
 
-  const interactions = useMemo(() => {
+  const realInteractions = useMemo(() => {
     const filtered = notifications.filter((item) => socialTypes.has(item.type) || item.sender_id);
-    return filtered.length > 0 ? filtered : demoInteractions;
+    return filtered;
   }, [notifications]);
+  const usingDemo = realInteractions.length === 0;
+  const interactions = usingDemo ? demoState : realInteractions;
+
+  useEffect(() => {
+    if (usingDemo) {
+      setDemoState(demoInteractions);
+    }
+  }, [usingDemo]);
 
   const unreadCount = interactions.filter((item) => !item.is_read).length;
 
 
-  const handleClick = (id: string, isRead: boolean) => {
-    if (!isRead && !id.startsWith('demo-')) {
-      markAsRead.mutate(id);
+  const handleClick = (item: any) => {
+    if (!item.is_read) {
+      if (item.id.startsWith('demo-')) {
+        setDemoState((prev) =>
+          prev.map((entry) => (entry.id === item.id ? { ...entry, is_read: true } : entry)),
+        );
+      } else {
+        markAsRead.mutate(item.id);
+      }
+    }
+
+    if (item.related_type === 'question' && item.related_id) {
+      navigate(`/question/${item.related_id}`);
+      return;
+    }
+    if (item.related_type === 'post' && item.related_id) {
+      navigate('/discover');
     }
   };
 
@@ -74,7 +98,7 @@ const DiscoverInteractions = () => {
       <div className="sticky top-0 z-20 bg-[rgb(121,213,199)] shadow-sm">
         <div style={{ height: 'env(safe-area-inset-top)' }} />
         <div className="flex items-center justify-between px-4 h-12">
-          <button onClick={() => navigate(-1)} className="text-white">
+          <button onClick={() => navigateBackOr(navigate, '/discover')} className="text-white">
             <ChevronLeft size={24} />
           </button>
           <div className="text-base font-medium text-white">互动提醒</div>
@@ -82,7 +106,13 @@ const DiscoverInteractions = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => markAllAsRead.mutate()}
+              onClick={() => {
+                if (usingDemo) {
+                  setDemoState((prev) => prev.map((entry) => ({ ...entry, is_read: true })));
+                  return;
+                }
+                markAllAsRead.mutate();
+              }}
               className="h-8 rounded-full bg-white/20 px-3 text-xs text-white hover:bg-white/25 hover:text-white"
             >
               <CheckCheck size={14} className="mr-1" />
@@ -149,7 +179,7 @@ const DiscoverInteractions = () => {
             return (
               <button
                 key={item.id}
-                onClick={() => handleClick(item.id, item.is_read)}
+                onClick={() => handleClick(item)}
                 className={`surface-card flex w-full items-start gap-3 rounded-3xl border p-4 text-left transition-shadow hover:shadow-md ${
                   item.is_read ? 'border-slate-100' : 'border-[#d9efe9] bg-[rgb(248,253,251)]'
                 }`}

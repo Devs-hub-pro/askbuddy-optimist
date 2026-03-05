@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { formatTime } from '@/utils/format';
 import { demoConversations, demoMessagesByPartner } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
+import { navigateBackOr } from '@/utils/navigation';
 
 const ChatDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -121,7 +122,7 @@ const ChatDetail: React.FC = () => {
     <div className="flex h-[100dvh] flex-col overflow-hidden bg-slate-50">
       <div className="flex-shrink-0 bg-app-header shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex h-12 items-center px-4">
-          <button onClick={() => navigate(-1)} className="rounded-full p-1 text-white/95 -ml-1">
+          <button onClick={() => navigateBackOr(navigate, '/messages')} className="rounded-full p-1 text-white/95 -ml-1">
             <ChevronLeft size={24} />
           </button>
           <div className="ml-2 flex items-center gap-2">

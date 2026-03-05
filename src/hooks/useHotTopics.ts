@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { demoTopicDetails, demoTopics } from '@/lib/demoData';
 
 const isMissingRpcError = (error: unknown, functionName: string) => {
   const message = error instanceof Error ? error.message : String(error || '');
@@ -55,7 +56,9 @@ export const useIsAdmin = () => {
       if (error) return false;
       return !!data;
     },
-    enabled: !!user
+    enabled: !!user,
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -71,9 +74,14 @@ export const useHotTopics = () => {
         .order('discussions_count', { ascending: false })
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error || !data || data.length === 0) {
+        return demoTopics as HotTopic[];
+      }
+
       return data as HotTopic[];
-    }
+    },
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -84,7 +92,11 @@ export const useTopicDetail = (topicId: string) => {
   return useQuery({
     queryKey: ['topic', topicId, user?.id],
     queryFn: async () => {
-      // Get topic
+      const demoData = demoTopicDetails[topicId as keyof typeof demoTopicDetails];
+      if (demoData) {
+        return demoData;
+      }
+
       const { data: topic, error: topicError } = await supabase
         .from('hot_topics')
         .select('*')
@@ -94,8 +106,7 @@ export const useTopicDetail = (topicId: string) => {
       if (topicError) throw topicError;
       if (!topic) throw new Error('话题不存在');
 
-      // Get discussions
-      const { data: discussions, error: discussionsError } = await (supabase as any)
+      const discussionsResult = await (supabase as any)
         .from('topic_discussions')
         .select('*')
         .eq('topic_id', topicId)
@@ -103,32 +114,40 @@ export const useTopicDetail = (topicId: string) => {
         .order('likes_count', { ascending: false })
         .order('created_at', { ascending: false });
 
-      if (discussionsError) throw discussionsError;
+      const discussions = discussionsResult.error
+        ? await (async () => {
+            const fallbackResult = await (supabase as any)
+              .from('topic_discussions')
+              .select('*')
+              .eq('topic_id', topicId)
+              .order('likes_count', { ascending: false })
+              .order('created_at', { ascending: false });
+            if (fallbackResult.error) return [];
+            return fallbackResult.data || [];
+          })()
+        : (discussionsResult.data || []);
 
-      // Get profiles for discussions
       const userIds = [...new Set((discussions || []).map((d: any) => d.user_id))] as string[];
-      const { data: profiles } = await supabase
-        .from('profiles')
-        .select('user_id, nickname, avatar_url')
-        .in('user_id', userIds);
+      const discussionIds = (discussions || []).map((d: any) => d.id);
 
-      const profilesMap = new Map(
-        (profiles || []).map(p => [p.user_id, p])
-      );
+      const [profilesResult, likesResult] = await Promise.all([
+        userIds.length > 0
+          ? supabase
+              .from('profiles')
+              .select('user_id, nickname, avatar_url')
+              .in('user_id', userIds)
+          : Promise.resolve({ data: [], error: null } as any),
+        user && discussionIds.length > 0
+          ? supabase
+              .from('discussion_likes')
+              .select('discussion_id')
+              .eq('user_id', user.id)
+              .in('discussion_id', discussionIds)
+          : Promise.resolve({ data: [], error: null } as any),
+      ]);
 
-      // Get user's likes
-      let userLikes = new Set<string>();
-      if (user) {
-        const discussionIds = (discussions || []).map(d => d.id);
-        if (discussionIds.length > 0) {
-          const { data: likes } = await supabase
-            .from('discussion_likes')
-            .select('discussion_id')
-            .eq('user_id', user.id)
-            .in('discussion_id', discussionIds);
-          userLikes = new Set((likes || []).map(l => l.discussion_id));
-        }
-      }
+      const profilesMap = new Map((profilesResult.data || []).map((p: any) => [p.user_id, p]));
+      const userLikes = new Set((likesResult.data || []).map((l: any) => l.discussion_id));
 
       const discussionsWithProfiles: TopicDiscussion[] = (discussions || []).map(d => ({
         ...d,
@@ -145,7 +164,9 @@ export const useTopicDetail = (topicId: string) => {
         discussions: discussionsWithProfiles
       };
     },
-    enabled: !!topicId
+    enabled: !!topicId,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 

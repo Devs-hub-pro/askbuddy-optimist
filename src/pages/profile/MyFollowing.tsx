@@ -8,22 +8,32 @@ import { useMyFollowing } from '@/hooks/useProfileData';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import PageStateCard from '@/components/common/PageStateCard';
+import { demoExperts } from '@/lib/demoData';
 
 const MyFollowing = () => {
   const navigate = useNavigate();
   const { data: following, isLoading } = useMyFollowing();
+  const demoFollowing = demoExperts.slice(0, 4).map((expert) => ({
+    id: `demo-follow-${expert.id}`,
+    following_id: expert.user_id,
+    profile: {
+      user_id: expert.user_id,
+      nickname: expert.nickname || '测试用户',
+      avatar_url: expert.avatar_url,
+      bio: expert.bio || '示例关注用户',
+    },
+  }));
+  const visibleFollowing = (following && following.length > 0)
+    ? following
+    : (isLoading ? demoFollowing : []);
 
   return (
-    <div className="pb-8 min-h-screen bg-gray-50">
+    <div className="pb-8 min-h-[100dvh] bg-gray-50">
       <SubPageHeader title="我的关注" />
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <PageStateCard variant="loading" compact title="正在加载关注…" className="w-full max-w-sm" />
-        </div>
-      ) : following && following.length > 0 ? (
+      {visibleFollowing.length > 0 ? (
         <div className="p-4 space-y-4">
-          {following.map((item: any) => (
+          {visibleFollowing.map((item: any) => (
             <Card
               key={item.id}
               className="surface-card rounded-3xl border-none shadow-sm"
@@ -51,9 +61,12 @@ const MyFollowing = () => {
               </CardContent>
             </Card>
           ))}
+          {isLoading && (
+            <div className="px-1 text-xs text-muted-foreground">正在同步你的真实关注列表…</div>
+          )}
         </div>
       ) : (
-        <div className="p-5 pt-20">
+        <div className="p-4 pt-20">
           <PageStateCard
             title="暂未关注任何人"
             description="关注感兴趣的达人后，可以更快找到熟悉的主页和服务入口。"

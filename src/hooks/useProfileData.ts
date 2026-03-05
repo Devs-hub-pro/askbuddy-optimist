@@ -26,6 +26,8 @@ export const useProfileStats = () => {
       };
     },
     enabled: !!user,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -48,6 +50,8 @@ export const useMyFavorites = () => {
       return favorites || [];
     },
     enabled: !!user,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -70,6 +74,8 @@ export const useMyAnswers = () => {
       return answers || [];
     },
     enabled: !!user,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -97,6 +103,8 @@ export const useMyOrders = (statusFilter?: string) => {
       return data || [];
     },
     enabled: !!user,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -117,21 +125,25 @@ export const useMyFollowing = () => {
 
       if (error) throw error;
 
-      // Get profiles for followed users
-      const followingWithProfiles = await Promise.all(
-        (following || []).map(async (f) => {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('nickname, avatar_url, bio')
-            .eq('user_id', f.following_id)
-            .maybeSingle();
-          return { ...f, profile };
-        })
-      );
+      if (!following || following.length === 0) return [];
 
-      return followingWithProfiles;
+      const followingIds = Array.from(new Set(following.map((item) => item.following_id)));
+      const { data: profiles, error: profileError } = await supabase
+        .from('profiles')
+        .select('user_id, nickname, avatar_url, bio')
+        .in('user_id', followingIds);
+
+      if (profileError) throw profileError;
+
+      const profileMap = new Map((profiles || []).map((profile) => [profile.user_id, profile]));
+      return following.map((item) => ({
+        ...item,
+        profile: profileMap.get(item.following_id) || null,
+      }));
     },
     enabled: !!user,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -154,6 +166,8 @@ export const useMyEarnings = () => {
       return data || [];
     },
     enabled: !!user,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 

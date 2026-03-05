@@ -69,6 +69,8 @@ export const useAdminDashboard = () => {
       return data as AdminDashboardData;
     },
     enabled: isAdmin.data === true,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -87,6 +89,8 @@ export const useContentReports = (status?: AdminReport['status']) => {
       return (data || []) as AdminReport[];
     },
     enabled: isAdmin.data === true,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -103,6 +107,8 @@ export const usePendingRechargeOrders = () => {
       return (data || []) as PendingRechargeOrder[];
     },
     enabled: isAdmin.data === true,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -119,6 +125,8 @@ export const useAppConfigs = () => {
       return (data || []) as AdminConfigItem[];
     },
     enabled: isAdmin.data === true,
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 

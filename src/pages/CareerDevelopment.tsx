@@ -24,15 +24,13 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import QuestionCard from '@/components/QuestionCard';
-import { useQuestions } from '@/hooks/useQuestions';
-import { useExperts } from '@/hooks/useExperts';
 import { formatTime, formatViewCount } from '@/utils/format';
 import ChannelPageScaffold from '@/components/channel/ChannelPageScaffold';
 import ChannelExpertCard from '@/components/channel/ChannelExpertCard';
 import ChannelQuestionSkeleton from '@/components/channel/ChannelQuestionSkeleton';
 import ChannelExpertSkeleton from '@/components/channel/ChannelExpertSkeleton';
 import ChannelFloatingActionButton from '@/components/channel/ChannelFloatingActionButton';
-import { demoExperts } from '@/lib/demoData';
+import { demoExperts, demoQuestions } from '@/lib/demoData';
 
 const CareerDevelopment = () => {
   const navigate = useNavigate();
@@ -41,8 +39,8 @@ const CareerDevelopment = () => {
   const categoryRef = useRef<HTMLDivElement>(null);
   const [showRightIndicator, setShowRightIndicator] = useState(false);
   
-  const { data: questions, isLoading } = useQuestions('职业发展');
-  const { data: dbExperts, isLoading: isLoadingExperts } = useExperts('职业发展');
+  const isLoading = false;
+  const isLoadingExperts = false;
 
 
   useEffect(() => {
@@ -158,13 +156,6 @@ const CareerDevelopment = () => {
     }
   ];
 
-  const mappedDbExperts = (dbExperts || []).map(e => ({
-    id: e.id, name: e.nickname || '专家', avatar: e.avatar_url || 'https://randomuser.me/api/portraits/lego/1.jpg',
-    title: e.title, description: e.bio || '', tags: e.tags,
-    keywords: e.keywords, category: e.category || '',
-    rating: Number(e.rating), responseRate: `${e.response_rate}%`, orderCount: `${e.order_count}单`,
-  }));
-
   const mappedDemoExperts = demoExperts
     .filter((expert) => expert.category === 'career-development')
     .map((expert) => ({
@@ -181,14 +172,11 @@ const CareerDevelopment = () => {
       orderCount: `${expert.order_count}单`,
     }));
 
-  const fallbackExperts = [
-    ...mappedDemoExperts,
-    ...(activeCategory === 'all' ? allExperts : allExperts.filter(expert => expert.category === activeCategory)),
-  ];
+  const filteredExperts = mappedDemoExperts.length > 0
+    ? mappedDemoExperts
+    : (activeCategory === 'all' ? allExperts : allExperts.filter(expert => expert.category === activeCategory));
 
-  const filteredExperts = mappedDbExperts.length > 0 ? mappedDbExperts : fallbackExperts;
-
-  const filteredQuestions = questions || [];
+  const filteredQuestions = demoQuestions;
   const featuredQuestion = filteredQuestions[0];
   const featuredExpert = filteredExperts[0];
 
@@ -206,8 +194,7 @@ const CareerDevelopment = () => {
   };
 
   const handleViewExpertProfile = (expertId: string) => {
-    const targetId = expertId.startsWith('demo-expert-') ? expertId : 'demo-expert-2';
-    navigate(`/expert-profile/${targetId}`);
+    navigate(`/expert-profile/${expertId}`);
   };
 
   return (
@@ -217,7 +204,7 @@ const CareerDevelopment = () => {
       headerGradientClass="bg-gradient-to-r from-green-500 to-teal-500"
       searchStripClass="bg-emerald-50/90 border-emerald-100/90"
       searchAccentRingClass="ring-emerald-400/25"
-      searchInputAccentClass="focus:ring-emerald-400/20 focus:border-emerald-200"
+      searchInputAccentClass="focus-visible:ring-2 focus-visible:ring-emerald-400/25 focus-visible:border-emerald-300"
       searchInputBorderClass="border-emerald-200/80"
       searchIconClass="text-emerald-500"
       searchNavigateToPath="/search?channel=career"
@@ -240,7 +227,7 @@ const CareerDevelopment = () => {
       onTabChange={setActiveTab}
     >
           <TabsContent value="everyone" className="mt-0">
-            {isLoading ? (
+            {isLoading && filteredQuestions.length === 0 ? (
               <ChannelQuestionSkeleton />
             ) : (
               <div className="space-y-5">
@@ -266,7 +253,7 @@ const CareerDevelopment = () => {
           </TabsContent>
           
           <TabsContent value="experts" className="mt-0">
-            {isLoading ? (
+            {isLoadingExperts && filteredExperts.length === 0 ? (
               <ChannelExpertSkeleton />
             ) : (
               <div className="space-y-3">
@@ -280,7 +267,7 @@ const CareerDevelopment = () => {
                     accentSummaryClass="border-green-200 bg-green-50/60"
                     ctaClassName="bg-gradient-to-r from-green-500 to-teal-400"
                     onOpen={() => handleViewExpertProfile(expert.id)}
-                    onConsult={() => navigate(`/expert/${expert.id.startsWith('demo-expert-') ? expert.id : 'demo-expert-2'}`)}
+                    onConsult={() => navigate(`/expert/${expert.id}`)}
                   />
                 ))}
               </div>

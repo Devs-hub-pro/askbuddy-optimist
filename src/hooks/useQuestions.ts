@@ -92,6 +92,8 @@ export const useQuestions = (category?: string) => {
         } as Question;
       });
     },
+    staleTime: 60 * 1000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -109,7 +111,8 @@ export const useQuestionDetail = (questionId: string) => {
       if (questionError) throw questionError;
       if (!question) throw new Error('问题不存在');
 
-      await supabase
+      // Keep view tracking off the critical render path so opening a detail page feels immediate.
+      void supabase
         .from('questions')
         .update({ view_count: (question.view_count || 0) + 1 })
         .eq('id', questionId);
@@ -158,6 +161,7 @@ export const useQuestionDetail = (questionId: string) => {
       };
     },
     enabled: !!questionId,
+    staleTime: 30 * 1000,
   });
 };
 

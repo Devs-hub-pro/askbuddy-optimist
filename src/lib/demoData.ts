@@ -81,6 +81,110 @@ export const demoQuestionDetails = {
   },
 } as const;
 
+export const demoTopics = [
+  {
+    id: 'demo-topic-1',
+    title: '留学申请季交流空间',
+    description: '把申请时间线、文书经验和 offer 节奏整理成一份更容易执行的参考专题。',
+    cover_image:
+      'https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=800&h=600&q=80',
+    category: 'education-learning',
+    created_by: 'demo-user-expert-1',
+    is_active: true,
+    participants_count: 128,
+    discussions_count: 3,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 12).toISOString(),
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: 'demo-topic-2',
+    title: '大学生灵活就业圈',
+    description: '聚焦副业、灵活就业和校内外项目实践，适合快速了解真实经验。',
+    cover_image:
+      'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&h=600&q=80',
+    category: 'career-development',
+    created_by: 'demo-user-expert-2',
+    is_active: true,
+    participants_count: 96,
+    discussions_count: 2,
+    created_at: new Date(Date.now() - 1000 * 60 * 60 * 18).toISOString(),
+    updated_at: new Date(Date.now() - 1000 * 60 * 20).toISOString(),
+  },
+];
+
+export const demoTopicDetails = {
+  'demo-topic-1': {
+    topic: demoTopics[0],
+    discussions: [
+      {
+        id: 'demo-topic-discussion-1',
+        topic_id: 'demo-topic-1',
+        user_id: 'demo-user-expert-1',
+        content: '建议先把目标国家、预算和时间线拆开整理，再按申请轮次倒推文书和推荐信准备。',
+        likes_count: 12,
+        created_at: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
+        updated_at: new Date(Date.now() - 1000 * 60 * 90).toISOString(),
+        profile_nickname: '测试留学顾问',
+        profile_avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+        is_liked: false,
+      },
+      {
+        id: 'demo-topic-discussion-2',
+        topic_id: 'demo-topic-1',
+        user_id: 'demo-user-asker-1',
+        content: '我最担心的是语言考试和文书时间撞在一起，这个专题里的时间安排很实用。',
+        likes_count: 5,
+        created_at: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+        updated_at: new Date(Date.now() - 1000 * 60 * 45).toISOString(),
+        profile_nickname: '测试用户_A',
+        profile_avatar: 'https://randomuser.me/api/portraits/lego/2.jpg',
+        is_liked: false,
+      },
+      {
+        id: 'demo-topic-discussion-3',
+        topic_id: 'demo-topic-1',
+        user_id: 'demo-user-expert-2',
+        content: '如果申请英港新项目，建议把文书初稿和选校同步推进，不要等语言成绩完全出来再开始。',
+        likes_count: 7,
+        created_at: new Date(Date.now() - 1000 * 60 * 20).toISOString(),
+        updated_at: new Date(Date.now() - 1000 * 60 * 20).toISOString(),
+        profile_nickname: '测试申请规划师',
+        profile_avatar: 'https://randomuser.me/api/portraits/men/42.jpg',
+        is_liked: false,
+      },
+    ],
+  },
+  'demo-topic-2': {
+    topic: demoTopics[1],
+    discussions: [
+      {
+        id: 'demo-topic-discussion-4',
+        topic_id: 'demo-topic-2',
+        user_id: 'demo-user-expert-3',
+        content: '如果想做灵活就业，先从小体量兼职开始，别一开始就压太多时间和现金流风险。',
+        likes_count: 9,
+        created_at: new Date(Date.now() - 1000 * 60 * 80).toISOString(),
+        updated_at: new Date(Date.now() - 1000 * 60 * 80).toISOString(),
+        profile_nickname: '测试求职教练',
+        profile_avatar: 'https://randomuser.me/api/portraits/women/68.jpg',
+        is_liked: false,
+      },
+      {
+        id: 'demo-topic-discussion-5',
+        topic_id: 'demo-topic-2',
+        user_id: 'demo-user-asker-2',
+        content: '我现在靠校园项目和线上零工补贴生活，感觉找到适合自己的方向比单纯追求收入更重要。',
+        likes_count: 4,
+        created_at: new Date(Date.now() - 1000 * 60 * 35).toISOString(),
+        updated_at: new Date(Date.now() - 1000 * 60 * 35).toISOString(),
+        profile_nickname: '测试用户_B',
+        profile_avatar: 'https://randomuser.me/api/portraits/lego/3.jpg',
+        is_liked: false,
+      },
+    ],
+  },
+} as const;
+
 export const demoExperts = [
   {
     id: 'demo-expert-1',

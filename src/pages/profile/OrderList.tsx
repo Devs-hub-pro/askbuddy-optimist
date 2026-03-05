@@ -34,7 +34,7 @@ const OrderList: React.FC = () => {
 
 
   return (
-    <div className="px-5 py-5">
+    <div className="px-4 py-4">
       <div className="surface-card rounded-3xl p-1 shadow-sm">
         <div className="grid grid-cols-3 gap-1">
         {tabs.map(t => (
@@ -63,7 +63,7 @@ const OrderList: React.FC = () => {
             const status = statusMap[order.status] || statusMap.pending;
             return (
               <Card key={order.id} className="surface-card rounded-3xl border-none shadow-sm">
-                <CardContent className="p-5">
+                <CardContent className="p-4">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">

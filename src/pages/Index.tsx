@@ -8,12 +8,8 @@ import BottomNav from '../components/BottomNav';
 import { Sparkles, MessageSquare, Award, Clock, Package, ArrowUpRight } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { useQuestions } from '@/hooks/useQuestions';
-import { useHotTopics } from '@/hooks/useHotTopics';
-import { useExperts } from '@/hooks/useExperts';
-import { useUnreadCount } from '@/hooks/useNotifications';
 import { formatTime, formatViewCount } from '@/utils/format';
-import { demoExperts, demoQuestions } from '@/lib/demoData';
+import { demoExperts, demoQuestions, demoTopics } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 
 interface LocationState {
@@ -27,12 +23,6 @@ const Index = () => {
   
   const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>('everyone');
   const [currentLocation, setCurrentLocation] = useState<string>('深圳');
-  
-  // 使用真实数据
-  const { data: questions, isLoading } = useQuestions();
-  const { data: hotTopics, isLoading: isLoadingTopics } = useHotTopics();
-  const { data: dbExperts } = useExperts();
-  const { data: unreadCount } = useUnreadCount();
   
   useEffect(() => {
     const storedLocation = localStorage.getItem('currentLocation') || '深圳';
@@ -61,8 +51,7 @@ const Index = () => {
   ];
 
 
-  const experts = [
-    ...demoExperts.map((e) => ({
+  const demoExpertCards = demoExperts.map((e) => ({
       id: e.id,
       name: e.nickname || '专家',
       avatar: e.avatar_url || 'https://randomuser.me/api/portraits/lego/1.jpg',
@@ -77,26 +66,11 @@ const Index = () => {
       education: Array.isArray(e.education) ? e.education.map((item: any) => (typeof item === 'string' ? item : `${item.school || ''} ${item.degree || ''}`.trim())) : [],
       experience: Array.isArray(e.experience) ? e.experience.map((item: any) => (typeof item === 'string' ? item : `${item.company || ''} ${item.position || item.title || ''}`.trim())) : [],
       verified: e.is_verified,
-    })),
-    ...(dbExperts || []).map((e) => ({
-    id: e.id,
-    name: e.nickname || '专家',
-    avatar: e.avatar_url || 'https://randomuser.me/api/portraits/lego/1.jpg',
-    title: e.title,
-    description: e.bio || '',
-    tags: e.tags,
-    rating: Number(e.rating || 0),
-    responseRate: `${Number(e.response_rate || 0)}%`,
-    orderCount: `${e.order_count || 0}单`,
-    consultationPrice: e.consultation_price || 50,
-    location: e.location || '未设置地区',
-    education: Array.isArray(e.education) ? e.education.map((item) => (typeof item === 'string' ? item : `${item.school || ''} ${item.degree || ''}`.trim())) : [],
-    experience: Array.isArray(e.experience) ? e.experience.map((item) => (typeof item === 'string' ? item : `${item.company || ''} ${item.position || item.title || ''}`.trim())) : [],
-    verified: e.is_verified,
-  })),
-  ];
+    }));
 
-  const homepageQuestions = [...demoQuestions, ...(questions || [])];
+  const experts = demoExpertCards;
+  const homepageQuestions = demoQuestions;
+  const homepageTopics = demoTopics;
 
   const handleViewQuestionDetail = (questionId: string) => {
     navigate(`/question/${questionId}`);
@@ -144,32 +118,15 @@ const Index = () => {
             variant="ghost"
             size="sm"
             className="rounded-full px-3 text-xs text-primary hover:bg-primary/10"
-            onClick={() => hotTopics?.[0] && navigate(`/topic/${hotTopics[0].id}`)}
-            disabled={!hotTopics || hotTopics.length === 0}
+            onClick={() => homepageTopics[0] && navigate(`/topic/${homepageTopics[0].id}`)}
+            disabled={homepageTopics.length === 0}
           >
             查看专题
           </Button>
         </div>
-        
-        {isLoadingTopics ? (
-          <div className="flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide">
-            {[1, 2, 3].map((item) => (
-              <div key={item} className="w-[280px] shrink-0 animate-pulse-soft">
-                <div className="surface-card overflow-hidden rounded-3xl">
-                  <div className="h-[124px] bg-slate-100" />
-                  <div className="space-y-3 p-4">
-                    <div className="h-4 w-3/4 rounded-full bg-slate-100" />
-                    <div className="h-3 w-full rounded-full bg-slate-100" />
-                    <div className="h-3 w-5/6 rounded-full bg-slate-100" />
-                    <div className="h-3 w-1/2 rounded-full bg-slate-100" />
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : hotTopics && hotTopics.length > 0 ? (
+        {homepageTopics.length > 0 ? (
           <div className="flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-hide snap-x snap-mandatory">
-            {hotTopics.map((topic, index) => (
+            {homepageTopics.map((topic, index) => (
               <div
                 key={topic.id}
                 onClick={() => navigate(`/topic/${topic.id}`)}
@@ -271,52 +228,7 @@ const Index = () => {
           </div>
         </div>
         
-        {isLoading ? (
-          <div className="space-y-4">
-            {activeTab === 'everyone' ? (
-              [1, 2, 3].map((item) => (
-                <div key={item} className="surface-card rounded-2xl p-4 animate-pulse-soft shadow-sm">
-                  <div className="mb-3 h-5 w-3/4 rounded-full bg-slate-100"></div>
-                  <div className="mb-3 h-3 w-full rounded-full bg-slate-100"></div>
-                  <div className="flex items-center space-x-2 mb-3">
-                    <div className="w-8 h-8 bg-slate-100 rounded-full"></div>
-                    <div>
-                      <div className="h-3 bg-slate-100 rounded-full w-24"></div>
-                      <div className="h-3 bg-slate-100 rounded-full w-16 mt-1"></div>
-                    </div>
-                  </div>
-                  <div className="flex justify-between">
-                    <div className="flex space-x-2">
-                      <div className="h-4 bg-slate-100 rounded-full w-12"></div>
-                      <div className="h-4 bg-slate-100 rounded-full w-12"></div>
-                    </div>
-                    <div className="h-6 bg-slate-100 rounded-full w-16"></div>
-                  </div>
-                </div>
-              ))
-            ) : (
-              <div className="surface-card rounded-2xl p-5 animate-pulse-soft shadow-sm">
-                <div className="flex items-center mb-4 gap-3">
-                  <div className="w-16 h-16 bg-slate-100 rounded-full"></div>
-                  <div className="flex-1">
-                    <div className="h-4 bg-slate-100 rounded-full w-1/3 mb-2"></div>
-                    <div className="h-3 bg-slate-100 rounded-full w-1/2 mb-2"></div>
-                    <div className="h-3 bg-slate-100 rounded-full w-3/4"></div>
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <div className="h-3 bg-slate-100 rounded-full w-full"></div>
-                  <div className="h-3 bg-slate-100 rounded-full w-5/6"></div>
-                </div>
-                <div className="flex gap-2 mt-4">
-                  <div className="h-6 bg-slate-100 rounded-full w-16"></div>
-                  <div className="h-6 bg-slate-100 rounded-full w-16"></div>
-                </div>
-                <div className="h-10 bg-slate-100 rounded-full w-full mt-4"></div>
-              </div>
-            )}
-          </div>
-        ) : (
+        {(
           activeTab === 'everyone' ? (
             <div className="space-y-4">
               {homepageQuestions.length > 0 ? (

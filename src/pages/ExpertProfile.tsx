@@ -17,17 +17,21 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { useExpertDetail } from '@/hooks/useExperts';
+import { useExpertByUserId, useExpertDetail } from '@/hooks/useExperts';
 import { demoExperts } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
+import { navigateBackOr } from '@/utils/navigation';
 
 const ExpertProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isDemoExpert = !!id?.startsWith('demo-expert-');
-  const { data: expert, isLoading, error } = useExpertDetail(isDemoExpert ? '' : id || '');
+  const { data: expertById, isLoading: isLoadingById, error: errorById } = useExpertDetail(isDemoExpert ? '' : id || '');
+  const { data: expertByUserId, isLoading: isLoadingByUserId, error: errorByUserId } = useExpertByUserId(isDemoExpert ? '' : id || '');
   const [isBioExpanded, setIsBioExpanded] = useState(false);
-  const resolvedExpert = isDemoExpert ? demoExperts.find((item) => item.id === id) : expert;
+  const resolvedExpert = isDemoExpert ? demoExperts.find((item) => item.id === id) : (expertById || expertByUserId);
+  const isLoading = isDemoExpert ? false : isLoadingById || isLoadingByUserId;
+  const error = errorById || errorByUserId;
 
   if (!isDemoExpert && isLoading) {
     return (
@@ -64,7 +68,7 @@ const ExpertProfile = () => {
     <div className="min-h-screen bg-gray-50 pb-24">
       <div className="sticky top-0 z-50 bg-app-teal shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex items-center h-12 px-4">
-          <button onClick={() => navigate(-1)} className="text-white">
+          <button onClick={() => navigateBackOr(navigate, '/')} className="text-white">
             <ChevronLeft size={24} />
           </button>
           <div className="text-white font-medium text-base ml-2">个人主页</div>

@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Hash, Heart, MessageCircle, Share2, Trash2, MoreHorizontal, PenSquare, Flame, MapPin, Loader2 } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
@@ -32,6 +32,18 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, emptyText
   const { user } = useAuth();
   const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
 
+  useEffect(() => {
+    const handlePointerDown = (event: MouseEvent) => {
+      const target = event.target as HTMLElement | null;
+      if (!target) return;
+      if (target.closest('[data-post-menu-trigger]') || target.closest('[data-post-menu-panel]')) return;
+      setMenuOpenId(null);
+    };
+
+    document.addEventListener('mousedown', handlePointerDown);
+    return () => document.removeEventListener('mousedown', handlePointerDown);
+  }, []);
+
   const sortedPosts = useMemo(() => {
     const list = [...posts];
     if (sortMode === 'hot') {
@@ -46,6 +58,13 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, emptyText
 
   const toggleComments = (postId: string) => {
     setExpandedComments(prev => ({ ...prev, [postId]: !prev[postId] }));
+  };
+
+  const openCommentsAndFocus = (postId: string) => {
+    setExpandedComments(prev => ({ ...prev, [postId]: true }));
+    window.setTimeout(() => {
+      inputRefs.current[postId]?.focus();
+    }, 60);
   };
 
   const handleCommentSubmit = async (postId: string) => {
@@ -200,13 +219,14 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, emptyText
                 {user && user.id === post.user_id && (
                   <div className="relative">
                     <button
+                      data-post-menu-trigger
                       className="flex h-8 w-8 items-center justify-center rounded-full bg-muted transition-colors hover:bg-muted/80"
                       onClick={() => setMenuOpenId(menuOpenId === post.id ? null : post.id)}
                     >
                       <MoreHorizontal size={18} className="text-muted-foreground" />
                     </button>
                     {menuOpenId === post.id && (
-                      <div className="absolute right-0 top-full mt-1 bg-card border border-border rounded-lg shadow-lg z-20 py-1 min-w-[100px]">
+                      <div data-post-menu-panel className="absolute right-0 top-full mt-1 bg-card border border-border rounded-lg shadow-lg z-20 py-1 min-w-[100px]">
                         <button
                           className="w-full flex items-center gap-2 px-3 py-2 text-sm text-destructive hover:bg-muted transition-colors"
                           onClick={() => {
@@ -225,15 +245,25 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, emptyText
 
               {/* Content */}
               <div className="mb-3">
-                <p className="mb-3 leading-7 text-foreground">{post.content}</p>
+                <button
+                  type="button"
+                  className="mb-3 block w-full text-left leading-7 text-foreground"
+                  onClick={() => openCommentsAndFocus(post.id)}
+                >
+                  {post.content}
+                </button>
                 {post.images && post.images.length > 0 && (
-                  <div className={`grid gap-2 mb-3 ${post.images.length === 1 ? 'grid-cols-1' : post.images.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+                  <button
+                    type="button"
+                    className={`grid w-full gap-2 mb-3 ${post.images.length === 1 ? 'grid-cols-1' : post.images.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}
+                    onClick={() => openCommentsAndFocus(post.id)}
+                  >
                     {post.images.slice(0, 9).map((img, i) => (
                       <div key={i} className={`${post.images!.length === 1 ? 'aspect-video' : 'aspect-square'} overflow-hidden rounded-2xl bg-muted`}>
                         <img src={img} alt="" className="w-full h-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy" />
                       </div>
                     ))}
-                  </div>
+                  </button>
                 )}
                 {post.topics && post.topics.length > 0 && (
                   <div className="flex flex-wrap gap-2 mb-3">

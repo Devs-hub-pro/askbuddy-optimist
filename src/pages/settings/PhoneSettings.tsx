@@ -26,12 +26,12 @@ const PhoneSettings = () => {
   }, [user]);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[100dvh] bg-gray-50">
       <SubPageHeader title="修改手机号" />
 
-      <div className="space-y-5 p-5">
+      <div className="space-y-4 p-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
-          <CardContent className="p-5">
+          <CardContent className="p-4">
             <div className="flex items-start gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgb(236,251,247)]">
                 <Smartphone size={18} className="text-[rgb(73,170,155)]" />
@@ -48,7 +48,7 @@ const PhoneSettings = () => {
         </Card>
 
         <Card className="surface-card rounded-3xl border-none shadow-sm">
-          <CardContent className="space-y-4 p-5">
+          <CardContent className="space-y-4 p-4">
             <div>
               <p className="mb-2 text-sm font-medium text-foreground">新手机号</p>
               <Input
@@ -101,7 +101,7 @@ const PhoneSettings = () => {
         </Card>
 
         <Card className="surface-card rounded-3xl border-none shadow-sm">
-          <CardContent className="space-y-3 p-5">
+          <CardContent className="space-y-3 p-4">
             <div className="flex items-center gap-2">
               <ShieldCheck size={16} className="text-[rgb(73,170,155)]" />
               <p className="text-sm font-semibold text-foreground">安全提醒</p>

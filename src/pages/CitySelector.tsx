@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { ChevronLeft, Search, MapPin, X } from 'lucide-react';
 import { mainlandCities, overseasRegions, alphabet, hotLocations } from '../utils/locationData';
 import { Input } from '@/components/ui/input';
+import { navigateBackOr } from '@/utils/navigation';
 
 const CitySelector = () => {
   const navigate = useNavigate();
@@ -89,7 +90,7 @@ const CitySelector = () => {
         <div className="bg-[rgb(121,213,199)] text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="flex items-center h-12 px-4">
             <button 
-              onClick={() => navigate(-1)}
+              onClick={() => navigateBackOr(navigate, '/')}
               className="p-2 -ml-2 mr-2 rounded-full hover:bg-white/15"
             >
               <ChevronLeft size={20} />

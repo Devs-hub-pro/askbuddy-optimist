@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Bell, SmilePlus, Hash, Loader2, X, PenSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -44,9 +44,11 @@ const Discover: React.FC = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const imagePreviewsRef = useRef<string[]>([]);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const createPost = useCreatePost();
   const uploadMedia = useUploadPostMedia();
+  const selectedImageCount = useMemo(() => selectedImages.length, [selectedImages]);
 
   useEffect(() => {
     const syncLocation = () => {
@@ -82,9 +84,23 @@ const Discover: React.FC = () => {
   };
 
   const removeImage = (index: number) => {
+    const urlToRevoke = imagePreviews[index];
+    if (urlToRevoke) {
+      URL.revokeObjectURL(urlToRevoke);
+    }
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
+
+  useEffect(() => {
+    imagePreviewsRef.current = imagePreviews;
+  }, [imagePreviews]);
+
+  useEffect(() => {
+    return () => {
+      imagePreviewsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, []);
 
   const handleAddTag = () => {
     if (newTagInput.trim() && !newPostTags.includes(newTagInput.trim())) {
@@ -238,7 +254,7 @@ const Discover: React.FC = () => {
             <input ref={imageInputRef} type="file" accept="image/*" multiple className="hidden" onChange={handleImageSelect} />
             <div className="flex gap-2">
               <Button variant="outline" size="sm" className="flex gap-1 rounded-full" onClick={() => imageInputRef.current?.click()}>
-                <Image size={18} /> 添加图片 {selectedImages.length > 0 && `(${selectedImages.length})`}
+                <Image size={18} /> 添加图片 {selectedImageCount > 0 && `(${selectedImageCount})`}
               </Button>
             </div>
             <div className="pt-2 flex justify-end">

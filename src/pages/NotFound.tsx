@@ -2,6 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { navigateBackOr } from "@/utils/navigation";
 
 const NotFound = () => {
   const location = useLocation();
@@ -25,7 +26,7 @@ const NotFound = () => {
           你访问的页面可能已被移除，或当前链接已失效。
         </p>
         <div className="mt-5 flex gap-3">
-          <Button variant="outline" className="flex-1 rounded-full" onClick={() => navigate(-1)}>
+          <Button variant="outline" className="flex-1 rounded-full" onClick={() => navigateBackOr(navigate, "/")}>
             返回上页
           </Button>
           <Button className="flex-1 rounded-full" onClick={() => navigate("/")}>

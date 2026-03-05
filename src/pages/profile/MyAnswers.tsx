@@ -15,7 +15,7 @@ const MyAnswers = () => {
 
 
   return (
-    <div className="pb-8 min-h-screen bg-gray-50">
+    <div className="pb-8 min-h-[100dvh] bg-gray-50">
       <SubPageHeader title="我的回答" />
 
       {isLoading ? (
@@ -30,7 +30,7 @@ const MyAnswers = () => {
               className="surface-card cursor-pointer rounded-3xl border-none shadow-sm transition-shadow hover:shadow-md"
               onClick={() => navigate(`/question/${answer.question_id}`)}
             >
-              <CardContent className="p-5">
+              <CardContent className="p-4">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <p className="mb-1 text-xs font-medium text-primary">
@@ -54,7 +54,7 @@ const MyAnswers = () => {
           ))}
         </div>
       ) : (
-        <div className="p-5 pt-20">
+        <div className="p-4 pt-20">
           <PageStateCard
             title="暂无回答记录"
             description="去发现页看看大家都在问什么，挑擅长的问题来回答。"

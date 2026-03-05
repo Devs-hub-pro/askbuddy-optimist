@@ -16,6 +16,7 @@ import { formatTime, formatViewCount } from '@/utils/format';
 import { useSubmitContentReport } from '@/hooks/useModeration';
 import { demoQuestionDetails } from '@/lib/demoData';
 import PageStateCard from "@/components/common/PageStateCard";
+import { navigateBackOr } from '@/utils/navigation';
 
 // 分享选项
 const SHARE_OPTIONS = [
@@ -65,7 +66,7 @@ const QuestionDetail = () => {
           title="暂时无法加载问题"
           description="链接可能已失效，或当前网络不稳定。"
           actionLabel="返回上页"
-          onAction={() => navigate(-1)}
+          onAction={() => navigateBackOr(navigate, '/')}
         />
       </div>
     );
@@ -199,7 +200,7 @@ const QuestionDetail = () => {
         time={formatTime(question.created_at)}
         viewCount={formatViewCount(question.view_count)}
         points={question.bounty_points}
-        onBack={() => navigate(-1)}
+        onBack={() => navigateBackOr(navigate, '/')}
         onViewUser={handleViewUserProfile}
       />
       <div className="mx-4 mb-5 mt-4 surface-card rounded-3xl p-5 animate-fade-in">

@@ -34,10 +34,10 @@ const AccountSecurity = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[100dvh] bg-gray-50">
       <SubPageHeader title="账号与安全" />
 
-      <div className="p-5 space-y-5">
+      <div className="p-4 space-y-4">
         {/* 基本信息 */}
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">

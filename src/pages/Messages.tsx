@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Search, Check, MessageCircle, Bell, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
@@ -18,6 +18,7 @@ const Messages = () => {
   const [activeTab, setActiveTab] = useState<'chats' | 'notifications'>('chats');
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Real data hooks
   const { data: conversations, isLoading: chatsLoading } = useConversations();
@@ -36,12 +37,14 @@ const Messages = () => {
   };
 
   // Filter chats
-  const allConversations = [...demoConversations, ...(conversations || [])];
+  const allConversations = [...demoConversations, ...(conversations || [])].filter((item, index, arr) => (
+    arr.findIndex((target) => target.partner_id === item.partner_id) === index
+  ));
 
   const filteredChats = searchQuery
     ? allConversations.filter(c =>
         (c.partner_nickname || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        c.last_message.toLowerCase().includes(searchQuery.toLowerCase())
+        (c.last_message || '').toLowerCase().includes(searchQuery.toLowerCase())
       )
     : allConversations;
 
@@ -60,10 +63,17 @@ const Messages = () => {
     });
 
     const result = [];
+    const byUnreadAndTime = (a: any, b: any) => {
+      if (a.is_read !== b.is_read) return a.is_read ? 1 : -1;
+      return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
+    };
+
     if (interactionItems.length > 0) {
+      interactionItems.sort(byUnreadAndTime);
       result.push({ type: 'interaction', title: '互动通知', tone: 'bg-[rgb(236,251,247)] text-[rgb(73,170,155)]', items: interactionItems });
     }
     if (systemItems.length > 0) {
+      systemItems.sort(byUnreadAndTime);
       result.push({ type: 'system', title: '系统通知', tone: 'bg-slate-100 text-slate-500', items: systemItems });
     }
     return result;
@@ -125,7 +135,13 @@ const Messages = () => {
               </div>
               <button
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 hover:bg-white/25"
-                onClick={() => setShowSearch(!showSearch)}
+                onClick={() => {
+                  const next = !showSearch;
+                  setShowSearch(next);
+                  if (next) {
+                    window.setTimeout(() => searchInputRef.current?.focus(), 50);
+                  }
+                }}
               >
                 <Search size={20} className="text-white" />
               </button>
@@ -138,6 +154,7 @@ const Messages = () => {
               <div className="relative flex-1">
                 <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                 <input
+                  ref={searchInputRef}
                   className="h-11 w-full rounded-2xl bg-white pl-10 pr-4 text-base focus:outline-none"
                   placeholder="搜索联系人或消息内容"
                   value={searchQuery}
@@ -164,7 +181,7 @@ const Messages = () => {
                 <p className="text-xs text-muted-foreground">{filteredChats.length} 个会话</p>
               )}
             </div>
-              {chatsLoading ? (
+              {chatsLoading && filteredChats.length === 0 ? (
                 <div className="py-6">
                   <PageStateCard variant="loading" compact title="正在加载会话…" />
                 </div>
@@ -195,9 +212,9 @@ const Messages = () => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
                         <div className="truncate pr-3 font-medium text-foreground">{chat.partner_nickname || '用户'}</div>
-                        <div className="shrink-0 text-xs text-muted-foreground">{formatTime(chat.last_message_time)}</div>
+                        <div className="shrink-0 text-xs text-muted-foreground">{chat.last_message_time ? formatTime(chat.last_message_time) : '刚刚'}</div>
                       </div>
-                      <div className="mt-1 text-sm text-muted-foreground truncate">{chat.last_message}</div>
+                      <div className="mt-1 text-sm text-muted-foreground truncate">{chat.last_message || '暂无消息内容'}</div>
                     </div>
                     <div className="ml-3 flex items-center gap-2">
                       {chat.unread_count > 0 && (
@@ -220,8 +237,9 @@ const Messages = () => {
                 {(unreadNotifCount || 0) > 0 && `${unreadNotifCount} 条未读通知`}
               </div>
               <button
-                className="flex items-center text-sm text-[rgb(73,170,155)]"
+                className="flex items-center text-sm text-[rgb(73,170,155)] disabled:opacity-60"
                 onClick={handleMarkAllRead}
+                disabled={markAllAsRead.isPending || (unreadNotifCount || 0) === 0}
               >
                 <Check size={14} className="mr-1" />
                 全部已读

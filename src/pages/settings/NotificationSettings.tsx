@@ -37,7 +37,7 @@ const NotificationSettings = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+      <div className="min-h-[100dvh] bg-gray-50 flex items-center justify-center">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
     );
@@ -54,12 +54,12 @@ const NotificationSettings = () => {
   );
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[100dvh] bg-gray-50">
       <SubPageHeader title="通知设置" />
 
-      <div className="p-5 space-y-5">
+      <div className="p-4 space-y-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
-          <CardContent className="p-5">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold text-slate-900">通知中心</p>

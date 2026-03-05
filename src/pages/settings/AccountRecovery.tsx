@@ -36,12 +36,12 @@ const AccountRecovery = () => {
   const [reason, setReason] = useState('');
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[100dvh] bg-gray-50">
       <SubPageHeader title="账号找回" />
 
-      <div className="space-y-5 p-5">
+      <div className="space-y-4 p-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
-          <CardContent className="space-y-3 p-5">
+          <CardContent className="space-y-3 p-4">
             <div className="flex items-center gap-2">
               <ShieldQuestion size={16} className="text-[rgb(73,170,155)]" />
               <p className="text-sm font-semibold text-foreground">找回说明</p>
@@ -53,7 +53,7 @@ const AccountRecovery = () => {
         </Card>
 
         <Card className="surface-card rounded-3xl border-none shadow-sm">
-          <CardContent className="space-y-3 p-5">
+          <CardContent className="space-y-3 p-4">
             <p className="text-sm font-semibold text-foreground">选择找回方式</p>
             <div className="space-y-3">
               {recoveryMethods.map((item) => {
@@ -86,7 +86,7 @@ const AccountRecovery = () => {
         </Card>
 
         <Card className="surface-card rounded-3xl border-none shadow-sm">
-          <CardContent className="space-y-4 p-5">
+          <CardContent className="space-y-4 p-4">
             <p className="text-sm font-semibold text-foreground">提交找回信息</p>
 
             <div>
@@ -137,7 +137,7 @@ const AccountRecovery = () => {
         </Card>
 
         <Card className="surface-card rounded-3xl border-none shadow-sm">
-          <CardContent className="space-y-3 p-5">
+          <CardContent className="space-y-3 p-4">
             <p className="text-sm font-semibold text-foreground">找回流程</p>
             <div className="space-y-2 text-sm leading-6 text-muted-foreground">
               <p>1. 选择适合你的找回方式并填写账号信息。</p>

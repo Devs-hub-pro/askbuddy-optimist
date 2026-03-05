@@ -75,7 +75,7 @@ const HelpCenter = () => {
       })).filter(category => category.questions.length > 0);
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-[100dvh] bg-gray-50">
       <div className="sticky top-0 z-20">
         <SubPageHeader title="帮助中心" />
 
@@ -94,9 +94,9 @@ const HelpCenter = () => {
       </div>
 
       {/* Content */}
-      <div className="p-5 space-y-5">
+      <div className="p-4 space-y-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
-          <CardContent className="p-5">
+          <CardContent className="p-4">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold text-slate-900">帮助与支持</p>
@@ -157,7 +157,7 @@ const HelpCenter = () => {
         
         {/* Contact Section */}
         <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
-          <CardContent className="p-5">
+          <CardContent className="p-4">
             <h3 className="font-medium mb-2">没有找到您需要的帮助？</h3>
             <p className="text-sm text-gray-600 mb-4">工作时间：周一至周日 9:00-22:00</p>
             <div className="grid grid-cols-2 gap-3 mb-4">

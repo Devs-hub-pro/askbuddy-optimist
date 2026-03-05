@@ -19,6 +19,7 @@ import {
   useReviewContentReport,
   useUpsertAppConfig,
 } from '@/hooks/useAdmin';
+import { navigateBackOr } from '@/utils/navigation';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -60,7 +61,7 @@ const AdminDashboard = () => {
         <Shield className="h-12 w-12 text-muted-foreground mb-4" />
         <h1 className="text-xl font-semibold mb-2">无管理权限</h1>
         <p className="text-sm text-muted-foreground mb-6">当前账号不是管理员，无法访问运营后台。</p>
-        <Button onClick={() => navigate(-1)}>返回</Button>
+        <Button onClick={() => navigateBackOr(navigate, '/profile')}>返回</Button>
       </div>
     );
   }
@@ -91,7 +92,7 @@ const AdminDashboard = () => {
       <div className="sticky top-0 z-10 shadow-sm">
         <div className="bg-app-header text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="flex items-center gap-3 px-4 py-3">
-            <Button variant="ghost" size="icon" onClick={() => navigate(-1)} className="text-white hover:bg-white/15 hover:text-white">
+            <Button variant="ghost" size="icon" onClick={() => navigateBackOr(navigate, '/profile')} className="text-white hover:bg-white/15 hover:text-white">
               <ArrowLeft size={20} />
             </Button>
             <div>

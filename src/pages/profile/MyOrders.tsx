@@ -5,7 +5,7 @@ import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const MyOrders = () => {
   return (
-    <div className="pb-8 min-h-screen bg-gray-50">
+    <div className="pb-8 min-h-[100dvh] bg-gray-50">
       <SubPageHeader title="我的提问订单" />
 
       {/* 内容主体 */}

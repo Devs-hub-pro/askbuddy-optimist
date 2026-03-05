@@ -22,6 +22,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getConsultationAmount, useCreateConsultationOrder } from '@/hooks/useConsultationOrders';
 import { demoExperts } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
+import { navigateBackOr } from '@/utils/navigation';
 
 const ExpertDetail = () => {
   const { id } = useParams();
@@ -53,7 +54,7 @@ const ExpertDetail = () => {
           title="暂时无法打开达人信息"
           description="该专家可能已下架，或当前链接已失效。"
           actionLabel="返回上页"
-          onAction={() => navigate(-1)}
+          onAction={() => navigateBackOr(navigate, '/')}
         />
       </div>
     );
@@ -72,7 +73,7 @@ const ExpertDetail = () => {
     <div className="app-container bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-20 min-h-screen">
       <div className="sticky top-0 z-50 bg-primary shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex items-center h-12 px-4">
-          <button onClick={() => navigate(-1)} className="text-primary-foreground">
+          <button onClick={() => navigateBackOr(navigate, '/')} className="text-primary-foreground">
             <ChevronLeft size={24} />
           </button>
           <div className="text-primary-foreground font-medium text-base ml-2">咨询页</div>

@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import SubPageHeader from '@/components/layout/SubPageHeader';
+import { navigateBackOr } from '@/utils/navigation';
 
 const ChangePassword = () => {
   const navigate = useNavigate();
@@ -33,7 +34,7 @@ const ChangePassword = () => {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
       toast({ title: '密码修改成功' });
-      navigate(-1);
+      navigateBackOr(navigate, '/settings/account');
     } catch (error: any) {
       toast({ title: '修改失败', description: error.message, variant: 'destructive' });
     } finally {
@@ -45,7 +46,7 @@ const ChangePassword = () => {
     <div className="min-h-[100dvh] bg-muted">
       <SubPageHeader title="修改密码" />
 
-      <div className="p-5">
+      <div className="p-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center">

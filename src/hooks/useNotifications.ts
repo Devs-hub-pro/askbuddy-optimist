@@ -23,11 +23,7 @@ export interface Notification {
   sender_avatar?: string | null;
 }
 
-interface HookOptions {
-  enabled?: boolean;
-}
-
-export const useNotifications = (options?: HookOptions) => {
+export const useNotifications = () => {
   const { user } = useAuth();
   const queryClient = useQueryClient();
 
@@ -73,13 +69,11 @@ export const useNotifications = (options?: HookOptions) => {
         sender_avatar: notification.sender_id ? profileMap.get(notification.sender_id)?.avatar_url || null : null,
       }));
     },
-    enabled: !!user && (options?.enabled ?? true),
-    staleTime: 15 * 1000,
-    refetchOnWindowFocus: false,
+    enabled: !!user,
   });
 
   useEffect(() => {
-    if (!user || options?.enabled === false) return;
+    if (!user) return;
 
     const channel = supabase
       .channel(`notifications-${user.id}`)
@@ -101,12 +95,12 @@ export const useNotifications = (options?: HookOptions) => {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [queryClient, user, options?.enabled]);
+  }, [queryClient, user]);
 
   return query;
 };
 
-export const useUnreadCount = (options?: HookOptions) => {
+export const useUnreadCount = () => {
   const { user } = useAuth();
 
   return useQuery({
@@ -123,9 +117,7 @@ export const useUnreadCount = (options?: HookOptions) => {
       if (error) throw error;
       return count || 0;
     },
-    enabled: !!user && (options?.enabled ?? true),
-    staleTime: 15 * 1000,
-    refetchOnWindowFocus: false,
+    enabled: !!user,
   });
 };
 
@@ -135,7 +127,7 @@ export const useMarkAsRead = () => {
 
   return useMutation({
     mutationFn: async (notificationId: string) => {
-      const rpcResult = await (supabase as any).rpc('mark_notifications_read', {
+      const rpcResult = await supabase.rpc('mark_notifications_read', {
         p_notification_ids: [notificationId],
       });
 
@@ -167,7 +159,7 @@ export const useMarkAllAsRead = () => {
 
   return useMutation({
     mutationFn: async () => {
-      const rpcResult = await (supabase as any).rpc('mark_notifications_read', {
+      const rpcResult = await supabase.rpc('mark_notifications_read', {
         p_notification_ids: null,
       });
 

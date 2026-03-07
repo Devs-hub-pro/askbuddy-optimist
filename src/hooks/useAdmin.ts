@@ -69,8 +69,11 @@ export const useAdminDashboard = () => {
       return data as AdminDashboardData;
     },
     enabled: isAdmin.data === true,
+<<<<<<< HEAD
     staleTime: 30 * 1000,
     refetchOnWindowFocus: false,
+=======
+>>>>>>> a04765d (Update from local working directory)
   });
 };
 
@@ -89,8 +92,11 @@ export const useContentReports = (status?: AdminReport['status']) => {
       return (data || []) as AdminReport[];
     },
     enabled: isAdmin.data === true,
+<<<<<<< HEAD
     staleTime: 30 * 1000,
     refetchOnWindowFocus: false,
+=======
+>>>>>>> a04765d (Update from local working directory)
   });
 };
 
@@ -107,8 +113,11 @@ export const usePendingRechargeOrders = () => {
       return (data || []) as PendingRechargeOrder[];
     },
     enabled: isAdmin.data === true,
+<<<<<<< HEAD
     staleTime: 30 * 1000,
     refetchOnWindowFocus: false,
+=======
+>>>>>>> a04765d (Update from local working directory)
   });
 };
 
@@ -125,8 +134,11 @@ export const useAppConfigs = () => {
       return (data || []) as AdminConfigItem[];
     },
     enabled: isAdmin.data === true,
+<<<<<<< HEAD
     staleTime: 60 * 1000,
     refetchOnWindowFocus: false,
+=======
+>>>>>>> a04765d (Update from local working directory)
   });
 };
 

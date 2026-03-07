@@ -31,10 +31,6 @@ export interface Expert {
   avatar_url?: string | null;
 }
 
-interface UseExpertsOptions {
-  enabled?: boolean;
-}
-
 interface SaveExpertProfileInput {
   title: string;
   bio: string;
@@ -88,7 +84,7 @@ export const uploadExpertCoverImage = async (userId: string, file: File) => {
   return publicUrl;
 };
 
-export const useExperts = (category?: string, options?: UseExpertsOptions) => {
+export const useExperts = (category?: string) => {
   return useQuery({
     queryKey: ['experts', category],
     queryFn: async (): Promise<Expert[]> => {
@@ -105,23 +101,20 @@ export const useExperts = (category?: string, options?: UseExpertsOptions) => {
       const { data, error } = await query.limit(20);
       if (error) throw error;
 
-      const userIds = Array.from(new Set((data || []).map((expert: any) => expert.user_id))) as string[];
-      const { data: profiles, error: profileError } = userIds.length > 0
-        ? await supabase
+      const experts = await Promise.all(
+        (data || []).map(async (expert: any) => {
+          const { data: profile } = await supabase
             .from('profiles')
-            .select('user_id, nickname, avatar_url')
-            .in('user_id', userIds)
-        : { data: [], error: null };
+            .select('nickname, avatar_url')
+            .eq('user_id', expert.user_id)
+            .maybeSingle();
 
-      if (profileError) throw profileError;
+          return normalizeExpert(expert, profile);
+        })
+      );
 
-      const profileMap = new Map((profiles || []).map((profile) => [profile.user_id, profile]));
-
-      return (data || []).map((expert: any) => normalizeExpert(expert, profileMap.get(expert.user_id)));
+      return experts;
     },
-    enabled: options?.enabled ?? true,
-    staleTime: 60 * 1000,
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -148,8 +141,6 @@ export const useExpertDetail = (expertId: string) => {
       return normalizeExpert(data, profile);
     },
     enabled: !!expertId,
-    staleTime: 60 * 1000,
-    refetchOnWindowFocus: false,
   });
 };
 
@@ -177,8 +168,6 @@ export const useExpertByUserId = (userId: string) => {
       return normalizeExpert(data, profile);
     },
     enabled: !!userId,
-    staleTime: 60 * 1000,
-    refetchOnWindowFocus: false,
   });
 };
 

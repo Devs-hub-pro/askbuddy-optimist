@@ -234,7 +234,7 @@ const Profile = () => {
         </div>
 
         {/* Profile info overlapping the banner */}
-        <div className="relative z-10 -mt-8 px-4">
+        <div className="relative z-10 -mt-8 px-5">
           {isLoggedIn ? (
             <div className="surface-card rounded-3xl p-4 shadow-sm">
               <div className="flex items-end gap-3">
@@ -313,7 +313,7 @@ const Profile = () => {
       </div>
 
       {/* Stats Row */}
-      <div className="px-4 mt-3">
+      <div className="px-5 mt-3">
         <Card className="overflow-hidden rounded-3xl border-none shadow-sm">
           <CardContent className="p-0">
             <div className="grid grid-cols-4">
@@ -335,7 +335,7 @@ const Profile = () => {
       </div>
 
       {/* Common Features */}
-      <div className="px-4 mt-4">
+      <div className="px-5 mt-4">
         <Card className="overflow-hidden rounded-3xl border-none shadow-sm">
           <CardContent className="p-5">
             <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -348,7 +348,7 @@ const Profile = () => {
               {commonFeatures.map((item, index) => (
                 <button 
                   key={index}
-                  className="flex flex-col items-center justify-center rounded-2xl py-3 transition-all hover:bg-muted/60 active:scale-95 active:bg-muted"
+                  className="flex flex-col items-center justify-center rounded-2xl py-3 hover:bg-muted/60 transition-colors active:scale-95"
                   onClick={() => isLoggedIn ? item.onClick() : navigate('/auth')}
                 >
                   <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mb-2 shadow-sm">
@@ -363,7 +363,7 @@ const Profile = () => {
       </div>
 
       {/* Service List */}
-      <div className="px-4 mt-4 mb-4">
+      <div className="px-5 mt-4 mb-4">
         <Card className="overflow-hidden rounded-3xl border-none shadow-sm">
           <CardContent className="p-5">
             <h3 className="mb-4 text-sm font-semibold text-foreground">帮助与信息</h3>
@@ -371,7 +371,7 @@ const Profile = () => {
             {supportItems.map((item) => (
               <button
                 key={item.label}
-                className="w-full flex items-center justify-between rounded-2xl px-4 py-3 text-left transition-all hover:bg-muted/50 active:scale-[0.99] active:bg-muted"
+                className="w-full flex items-center justify-between rounded-2xl px-4 py-3 text-left transition-colors hover:bg-muted/50 active:bg-muted"
                 onClick={item.onClick}
               >
                 <div className="flex items-center gap-3">

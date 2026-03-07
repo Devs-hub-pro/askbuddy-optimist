@@ -18,7 +18,7 @@ const Navbar: React.FC<NavbarProps> = ({ location = "深圳" }) => {
   
   return (
     <header
-      className="sticky top-0 z-50 shadow-sm"
+      className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm"
       style={{
         paddingTop: 'env(safe-area-inset-top)',
         background: 'rgb(121, 213, 199)',

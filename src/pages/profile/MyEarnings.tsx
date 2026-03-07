@@ -29,9 +29,9 @@ const MyEarnings = () => {
     <div className="pb-8 min-h-[100dvh] bg-gray-50">
       <SubPageHeader title="我的收益" />
 
-      <div className="p-4 pt-4 space-y-4">
+      <div className="p-5 pt-4 space-y-4">
         <Card className="border-none bg-gradient-to-r from-[rgb(121,213,199)] to-[rgb(160,237,224)] text-white">
-          <CardContent className="p-4">
+          <CardContent className="p-5">
             <div className="flex items-center mb-3">
               <Wallet className="mr-2" />
               <h2 className="text-lg font-semibold">我的积分</h2>
@@ -81,7 +81,7 @@ const MyEarnings = () => {
           <Loader2 className="w-8 h-8 animate-spin text-primary" />
         </div>
       ) : transactions && transactions.length > 0 ? (
-        <div className="px-4 pb-4 space-y-3">
+        <div className="px-5 pb-5 space-y-3">
           <div className="px-1">
             <h3 className="font-medium text-sm text-gray-600">积分流水</h3>
             <p className="mt-1 text-xs text-gray-400">按时间倒序展示你的收入、奖励和扣费记录。</p>
@@ -99,7 +99,7 @@ const MyEarnings = () => {
           ))}
         </div>
       ) : (
-        <div className="mx-4 mt-2 flex flex-col items-center justify-center rounded-3xl bg-white p-8 shadow-sm">
+        <div className="flex flex-col items-center justify-center rounded-3xl bg-white p-8 mt-2 mx-5 shadow-sm">
           <DollarSign size={64} className="text-gray-300 mb-4" />
           <p className="text-gray-500 mb-2">暂无积分记录</p>
           <Button variant="outline" onClick={() => navigate('/discover')} className="mt-2">

@@ -6,7 +6,8 @@ import { useMessagesWithUser, useSendMessage, useMarkMessagesAsRead } from '@/ho
 import { useAuth } from '@/contexts/AuthContext';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { formatTime } from '@/utils/format';
+import { formatDistanceToNow } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 import { demoConversations, demoMessagesByPartner } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 import { navigateBackOr } from '@/utils/navigation';
@@ -65,6 +66,13 @@ const ChatDetail: React.FC = () => {
     return () => vv.removeEventListener('resize', onResize);
   }, []);
 
+  const formatTime = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
+    } catch {
+      return '刚刚';
+    }
+  };
 
   const formatSectionDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -112,7 +120,7 @@ const ChatDetail: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-[100dvh] flex items-center justify-center">
         <p className="text-muted-foreground">请先登录</p>
       </div>
     );
@@ -120,7 +128,7 @@ const ChatDetail: React.FC = () => {
 
   return (
     <div className="flex h-[100dvh] flex-col overflow-hidden bg-slate-50">
-      <div className="flex-shrink-0 bg-app-header shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <div className="flex-shrink-0 bg-[rgb(121,213,199)] shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex h-12 items-center px-4">
           <button onClick={() => navigateBackOr(navigate, '/messages')} className="rounded-full p-1 text-white/95 -ml-1">
             <ChevronLeft size={24} />
@@ -159,7 +167,7 @@ const ChatDetail: React.FC = () => {
                 <div className={`flex ${fromMe ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[78%] rounded-3xl px-4 py-3 text-sm ${
                     fromMe
-                      ? 'rounded-br-xl bg-app-accent text-white shadow-sm'
+                      ? 'rounded-br-xl bg-[rgb(73,170,155)] text-white shadow-sm'
                       : 'surface-card rounded-bl-xl text-foreground'
                   }`}>
                     <p className="break-words leading-6">{msg.content}</p>
@@ -203,7 +211,7 @@ const ChatDetail: React.FC = () => {
           <button
             className={`flex-shrink-0 rounded-full px-4 py-2 text-sm font-medium transition-all ${
               inputValue.trim()
-                ? 'bg-app-accent text-white shadow-sm active:scale-95'
+                ? 'bg-[rgb(73,170,155)] text-white shadow-sm active:scale-95'
                 : 'bg-slate-200 text-slate-500'
             }`}
             onClick={handleSend}

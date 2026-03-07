@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { ChevronLeft, Bell, Search, User, MessageCircle, Sparkles, Eye, Award } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
@@ -19,12 +19,11 @@ const channelThemes = {
     pageClass: 'bg-gradient-to-b from-blue-50/70 via-white to-white',
     searchStripClass: 'bg-blue-50/90 border-b border-blue-100/90',
     accentRingClass: 'ring-blue-400/25',
-    inputAccentClass: 'focus-visible:ring-2 focus-visible:ring-blue-400/25 focus-visible:border-blue-300',
+    inputAccentClass: 'focus-visible:ring-blue-400/20 focus-visible:border-blue-200',
     inputBorderClass: 'border-blue-200/80',
     iconClass: 'text-blue-500',
     historyChipClass: 'border-blue-100 text-blue-700',
     suggestionClass: 'bg-blue-50 text-blue-600',
-    actionButtonClass: 'border-blue-200 text-blue-600 hover:bg-blue-50',
     backTo: '/education',
   },
   career: {
@@ -33,12 +32,11 @@ const channelThemes = {
     pageClass: 'bg-gradient-to-b from-emerald-50/70 via-white to-white',
     searchStripClass: 'bg-emerald-50/90 border-b border-emerald-100/90',
     accentRingClass: 'ring-emerald-400/25',
-    inputAccentClass: 'focus-visible:ring-2 focus-visible:ring-emerald-400/25 focus-visible:border-emerald-300',
+    inputAccentClass: 'focus-visible:ring-emerald-400/20 focus-visible:border-emerald-200',
     inputBorderClass: 'border-emerald-200/80',
     iconClass: 'text-emerald-500',
     historyChipClass: 'border-emerald-100 text-emerald-700',
     suggestionClass: 'bg-emerald-50 text-emerald-600',
-    actionButtonClass: 'border-emerald-200 text-emerald-600 hover:bg-emerald-50',
     backTo: '/career',
   },
   lifestyle: {
@@ -47,12 +45,11 @@ const channelThemes = {
     pageClass: 'bg-gradient-to-b from-orange-50/70 via-white to-white',
     searchStripClass: 'bg-orange-50/90 border-b border-orange-100/90',
     accentRingClass: 'ring-orange-400/25',
-    inputAccentClass: 'focus-visible:ring-2 focus-visible:ring-orange-400/25 focus-visible:border-orange-300',
+    inputAccentClass: 'focus-visible:ring-orange-400/20 focus-visible:border-orange-200',
     inputBorderClass: 'border-orange-200/80',
     iconClass: 'text-orange-500',
     historyChipClass: 'border-orange-100 text-orange-700',
     suggestionClass: 'bg-orange-50 text-orange-600',
-    actionButtonClass: 'border-orange-200 text-orange-600 hover:bg-orange-50',
     backTo: '/lifestyle',
   },
   hobbies: {
@@ -61,12 +58,11 @@ const channelThemes = {
     pageClass: 'bg-gradient-to-b from-rose-50/70 via-white to-white',
     searchStripClass: 'bg-rose-50/90 border-b border-rose-100/90',
     accentRingClass: 'ring-rose-400/25',
-    inputAccentClass: 'focus-visible:ring-2 focus-visible:ring-rose-400/25 focus-visible:border-rose-300',
+    inputAccentClass: 'focus-visible:ring-rose-400/20 focus-visible:border-rose-200',
     inputBorderClass: 'border-rose-200/80',
     iconClass: 'text-rose-500',
     historyChipClass: 'border-rose-100 text-rose-700',
     suggestionClass: 'bg-rose-50 text-rose-600',
-    actionButtonClass: 'border-rose-200 text-rose-600 hover:bg-rose-50',
     backTo: '/hobbies',
   },
   default: {
@@ -75,12 +71,11 @@ const channelThemes = {
     pageClass: 'bg-gradient-to-b from-white to-blue-50/30',
     searchStripClass: 'bg-white/95 border-b border-slate-100',
     accentRingClass: 'ring-app-teal/25',
-    inputAccentClass: 'focus-visible:ring-2 focus-visible:ring-app-teal/25 focus-visible:border-app-teal/40',
+    inputAccentClass: 'focus-visible:ring-app-teal/25 focus-visible:border-app-teal/30',
     inputBorderClass: 'border-[#d9efe9]',
     iconClass: 'text-app-teal',
     historyChipClass: 'border-[#d9efe9] text-slate-700',
     suggestionClass: 'bg-[rgb(236,251,247)] text-[rgb(73,170,155)]',
-    actionButtonClass: 'border-[rgb(205,239,231)] text-[rgb(73,170,155)] hover:bg-[rgb(236,251,247)]',
     backTo: '/',
   },
 } as const;
@@ -88,7 +83,7 @@ const channelThemes = {
 const SearchResults = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const searchParams = useMemo(() => new URLSearchParams(location.search), [location.search]);
+  const searchParams = new URLSearchParams(location.search);
   const initialQuery = searchParams.get('q') || '';
   const channel = searchParams.get('channel') || 'default';
   const theme = channelThemes[channel as keyof typeof channelThemes] || channelThemes.default;
@@ -104,14 +99,9 @@ const SearchResults = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setDebouncedQuery(searchQuery);
-    }, 200);
+    }, 400);
     return () => clearTimeout(timer);
   }, [searchQuery]);
-
-  useEffect(() => {
-    setSearchQuery(initialQuery);
-    setDebouncedQuery(initialQuery);
-  }, [initialQuery]);
 
   // Sync URL
   useEffect(() => {
@@ -128,7 +118,7 @@ const SearchResults = () => {
       newParams.delete('q');
       navigate({ pathname: location.pathname, search: newParams.toString() }, { replace: true });
     }
-  }, [debouncedQuery, location.pathname, location.search, navigate, searchParams]);
+  }, [debouncedQuery, location.pathname, location.search, navigate]);
 
   useEffect(() => {
     const stored = localStorage.getItem(SEARCH_HISTORY_KEY);
@@ -158,7 +148,7 @@ const SearchResults = () => {
   return (
     <div className={`app-container min-h-[100dvh] pb-8 ${theme.pageClass}`}>
       {/* Header */}
-      <div className={`sticky top-0 z-50 shadow-sm ${theme.headerClass}`}>
+      <div className={`fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm ${theme.headerClass}`}>
         <div style={{ height: 'env(safe-area-inset-top)' }} />
         <div className="flex items-center justify-between h-12 px-4">
           <button onClick={() => navigateBackOr(navigate, theme.backTo)} className="text-white">
@@ -167,26 +157,23 @@ const SearchResults = () => {
           <div className="text-white font-medium text-base">{theme.title}</div>
           <button className="text-white" onClick={() => navigate('/notifications')}><Bell size={20} /></button>
         </div>
+
+        <div className={`shadow-[0_1px_0_rgba(15,23,42,0.03)] ${theme.searchStripClass}`}>
+          <SearchBar
+            onSearch={handleSearch}
+            placeholder="搜索问题/话题/用户"
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            accentRingClassName={theme.accentRingClass}
+            inputAccentClassName={theme.inputAccentClass}
+            inputBorderClassName={theme.inputBorderClass}
+            iconClassName={theme.iconClass}
+            className="py-2.5"
+          />
+        </div>
       </div>
 
-      <div
-        className={`sticky z-40 shadow-[0_1px_0_rgba(15,23,42,0.03)] ${theme.searchStripClass}`}
-        style={{ top: 'calc(env(safe-area-inset-top) + 3rem)' }}
-      >
-        <SearchBar
-          onSearch={handleSearch}
-          placeholder="搜索问题/话题/用户"
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          accentRingClassName={theme.accentRingClass}
-          inputAccentClassName={theme.inputAccentClass}
-          inputBorderClassName={theme.inputBorderClass}
-          iconClassName={theme.iconClass}
-          className="py-2.5"
-        />
-      </div>
-
-      <div className="p-4">
+      <div className="p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 8rem)' }}>
         {/* No query: show popular terms */}
         {!debouncedQuery.trim() && (
           <>
@@ -277,7 +264,7 @@ const SearchResults = () => {
                   </button>
                 ))}
               </div>
-              <Button onClick={() => navigate(theme.backTo)} variant="outline" className={theme.actionButtonClass}>
+              <Button onClick={() => navigate(theme.backTo)} variant="outline" className="border-green-200 text-green-600 hover:bg-green-50">
                 返回上页
               </Button>
             </div>

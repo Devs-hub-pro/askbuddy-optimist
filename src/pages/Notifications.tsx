@@ -63,7 +63,7 @@ const Notifications = () => {
 
   return (
     <div className="min-h-[100dvh] bg-gray-50 pb-8">
-      <div className="sticky top-0 z-10 shadow-sm">
+      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm">
         <div className="bg-[rgb(121,213,199)] text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="flex items-center px-4 py-3">
             <button onClick={() => navigateBackOr(navigate, '/messages')} className="mr-3">
@@ -88,11 +88,11 @@ const Notifications = () => {
       </div>
 
       {isLoading ? (
-        <div className="px-4 py-10">
+        <div className="px-4 py-10" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5.25rem)' }}>
           <PageStateCard variant="loading" title="正在加载通知…" compact />
         </div>
       ) : notifications && notifications.length > 0 ? (
-        <div className="space-y-3 px-4 py-4">
+        <div className="space-y-3 px-4 py-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5rem)' }}>
           <div className="surface-card rounded-3xl p-4 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -149,7 +149,7 @@ const Notifications = () => {
           ))}
         </div>
       ) : (
-        <div className="px-4 py-10">
+        <div className="px-4 py-10" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5.25rem)' }}>
           <PageStateCard
             variant="empty"
             title="还没有通知"

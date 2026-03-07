@@ -66,7 +66,7 @@ const ProductFeedback = () => {
     <div className="pb-20 min-h-[100dvh] bg-gray-50">
       <SubPageHeader title="产品反馈" />
 
-      <div className="p-4 space-y-4">
+      <div className="space-y-4 p-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center justify-between gap-3">

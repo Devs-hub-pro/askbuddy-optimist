@@ -1,7 +1,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Search, MoreHorizontal, Plus, Radio, ChevronRight, Sparkles } from 'lucide-react';
+import { Users, Loader2, Search, MoreHorizontal, Plus, Radio, ChevronRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -44,7 +44,12 @@ const MyCommunity = () => {
     <div className="min-h-[100dvh] bg-muted pb-8">
       <SubPageHeader title="我的社群" />
 
-      <div className="p-4 space-y-4 pb-28">
+      {isLoading ? (
+        <div className="flex items-center justify-center py-20">
+          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        </div>
+      ) : (
+        <div className="p-5 space-y-4 pb-28">
           <div className="surface-card rounded-3xl p-4 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -53,18 +58,18 @@ const MyCommunity = () => {
                   在这里查看你加入的群组、最新讨论和未读消息，也可以发起自己的兴趣小组。
                 </p>
               </div>
-              <span className="rounded-full bg-app-surface px-3 py-1 text-xs font-medium text-app-accent">
-                {isLoading ? '同步中' : '活跃中'}
+              <span className="rounded-full bg-[rgb(236,251,247)] px-3 py-1 text-xs font-medium text-[rgb(73,170,155)]">
+                活跃中
               </span>
             </div>
           </div>
           <div className="surface-card rounded-3xl p-4 shadow-sm">
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl bg-app-surface px-4 py-3">
+              <div className="rounded-2xl bg-[rgb(236,251,247)] px-4 py-3">
                 <p className="text-xs font-medium text-muted-foreground">我加入的群</p>
                 <p className="mt-1 text-xl font-semibold text-foreground">{groups.length}</p>
               </div>
-              <div className="rounded-2xl bg-card px-4 py-3">
+              <div className="rounded-2xl bg-white px-4 py-3">
                 <p className="text-xs font-medium text-muted-foreground">未读消息</p>
                 <p className="mt-1 text-xl font-semibold text-foreground">{unreadCount}</p>
               </div>
@@ -104,7 +109,7 @@ const MyCommunity = () => {
                     <div className="flex items-start gap-3">
                       <Avatar className="h-14 w-14 rounded-2xl">
                         <AvatarImage src={group.avatarUrl} />
-                        <AvatarFallback className="rounded-2xl bg-app-header-light text-app-header">
+                        <AvatarFallback className="rounded-2xl bg-[rgb(223,245,239)] text-[rgb(121,213,199)]">
                           {group.name[0]}
                         </AvatarFallback>
                       </Avatar>
@@ -113,7 +118,7 @@ const MyCommunity = () => {
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <h3 className="truncate text-base font-semibold text-foreground">{group.name}</h3>
-                              <span className="rounded-full bg-app-surface px-2 py-0.5 text-[11px] font-medium text-app-accent">
+                              <span className="rounded-full bg-[rgb(236,251,247)] px-2 py-0.5 text-[11px] font-medium text-[rgb(73,170,155)]">
                                 {group.topic}
                               </span>
                             </div>
@@ -151,24 +156,27 @@ const MyCommunity = () => {
             </div>
           )}
 
-      </div>
-
-      <div className="pointer-events-none fixed inset-x-0 bottom-20 z-20 mx-auto flex w-full max-w-md px-5">
-        <div className="pointer-events-auto w-full">
-          <Button
-            className="h-12 w-full rounded-2xl text-base font-semibold shadow-sm"
-            onClick={() =>
-              toast({
-                title: '创建群组入口已就绪',
-                description: '下一步可以继续补群组创建、群名称设置和邀请成员流程。',
-              })
-            }
-          >
-            <Plus size={18} className="mr-2" />
-            创建群组
-          </Button>
         </div>
-      </div>
+      )}
+
+      {!isLoading && (
+        <div className="pointer-events-none fixed inset-x-0 bottom-20 z-20 mx-auto flex w-full max-w-md px-5">
+          <div className="pointer-events-auto w-full">
+            <Button
+              className="h-12 w-full rounded-2xl text-base font-semibold shadow-sm"
+              onClick={() =>
+                toast({
+                  title: '创建群组入口已就绪',
+                  description: '下一步可以继续补群组创建、群名称设置和邀请成员流程。',
+                })
+              }
+            >
+              <Plus size={18} className="mr-2" />
+              创建群组
+            </Button>
+          </div>
+        </div>
+      )}
 
     </div>
   );

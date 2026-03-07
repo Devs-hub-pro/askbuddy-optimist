@@ -102,7 +102,7 @@ const Messages = () => {
 
   return (
     <div className="min-h-[100dvh] bg-slate-50 pb-16">
-      <div className="sticky top-0 z-10 shadow-sm">
+      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm">
         <div className="bg-[rgb(121,213,199)]" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="px-4 pb-3 pt-2">
             <div className="flex items-center justify-between">
@@ -138,9 +138,7 @@ const Messages = () => {
                 onClick={() => {
                   const next = !showSearch;
                   setShowSearch(next);
-                  if (next) {
-                    window.setTimeout(() => searchInputRef.current?.focus(), 50);
-                  }
+                  if (next) window.setTimeout(() => searchInputRef.current?.focus(), 50);
                 }}
               >
                 <Search size={20} className="text-white" />
@@ -172,7 +170,10 @@ const Messages = () => {
         </div>
       </div>
 
-      <div className="space-y-4 px-4 py-4">
+      <div
+        className="space-y-4 px-4 py-4"
+        style={{ paddingTop: showSearch ? 'calc(env(safe-area-inset-top) + 8.25rem)' : 'calc(env(safe-area-inset-top) + 4.75rem)' }}
+      >
         {activeTab === 'chats' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">

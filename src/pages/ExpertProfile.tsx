@@ -17,7 +17,7 @@ import {
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
-import { useExpertByUserId, useExpertDetail } from '@/hooks/useExperts';
+import { useExpertDetail } from '@/hooks/useExperts';
 import { demoExperts } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 import { navigateBackOr } from '@/utils/navigation';
@@ -26,16 +26,13 @@ const ExpertProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const isDemoExpert = !!id?.startsWith('demo-expert-');
-  const { data: expertById, isLoading: isLoadingById, error: errorById } = useExpertDetail(isDemoExpert ? '' : id || '');
-  const { data: expertByUserId, isLoading: isLoadingByUserId, error: errorByUserId } = useExpertByUserId(isDemoExpert ? '' : id || '');
+  const { data: expert, isLoading, error } = useExpertDetail(isDemoExpert ? '' : id || '');
   const [isBioExpanded, setIsBioExpanded] = useState(false);
-  const resolvedExpert = isDemoExpert ? demoExperts.find((item) => item.id === id) : (expertById || expertByUserId);
-  const isLoading = isDemoExpert ? false : isLoadingById || isLoadingByUserId;
-  const error = errorById || errorByUserId;
+  const resolvedExpert = isDemoExpert ? demoExperts.find((item) => item.id === id) : expert;
 
   if (!isDemoExpert && isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-slate-50/80 to-slate-50 p-4">
+      <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-white via-slate-50/80 to-slate-50 p-4">
         <PageStateCard variant="loading" title="正在加载个人主页…" />
       </div>
     );
@@ -43,7 +40,7 @@ const ExpertProfile = () => {
 
   if (error || !resolvedExpert) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex flex-col items-center justify-center px-6 text-center">
+      <div className="min-h-[100dvh] bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex flex-col items-center justify-center px-6 text-center">
         <PageStateCard
           variant="error"
           title="暂时无法打开个人主页"
@@ -65,8 +62,8 @@ const ExpertProfile = () => {
     'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&h=480&q=80';
 
   return (
-    <div className="min-h-screen bg-gray-50 pb-24">
-      <div className="sticky top-0 z-50 bg-app-teal shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+    <div className="min-h-[100dvh] bg-gray-50 pb-24">
+      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 bg-app-teal shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex items-center h-12 px-4">
           <button onClick={() => navigateBackOr(navigate, '/')} className="text-white">
             <ChevronLeft size={24} />
@@ -75,6 +72,7 @@ const ExpertProfile = () => {
         </div>
       </div>
 
+      <div style={{ paddingTop: 'calc(env(safe-area-inset-top) + 3.75rem)' }}>
       <div className="relative">
         <div
           className="w-full h-44 bg-cover bg-center"
@@ -149,6 +147,7 @@ const ExpertProfile = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       <div className="px-4 space-y-5">

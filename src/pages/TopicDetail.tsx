@@ -12,7 +12,6 @@ import { zhCN } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import PageStateCard from '@/components/common/PageStateCard';
-import { demoTopicDetails } from '@/lib/demoData';
 import { navigateBackOr } from '@/utils/navigation';
 
 const TopicDetail = () => {
@@ -20,16 +19,13 @@ const TopicDetail = () => {
   const navigate = useNavigate();
   const { user } = useAuth();
   const [newComment, setNewComment] = useState('');
-  const isDemoTopic = !!topicId && topicId.startsWith('demo-topic-');
 
-  const { data: liveData, isLoading, error } = useTopicDetail(isDemoTopic ? '' : (topicId || ''));
+  const { data, isLoading, error } = useTopicDetail(topicId || '');
   const createDiscussion = useCreateDiscussion();
   const toggleLike = useToggleDiscussionLike();
   const deleteDiscussion = useDeleteDiscussion();
-  const { data: isFollowing } = useIsFollowingTopic(isDemoTopic ? '' : (topicId || ''));
+  const { data: isFollowing } = useIsFollowingTopic(topicId || '');
   const toggleFollow = useToggleTopicFollow();
-  const demoData = isDemoTopic && topicId ? demoTopicDetails[topicId as keyof typeof demoTopicDetails] : null;
-  const data = demoData || liveData;
 
   const formatTime = (dateString: string) => {
     try {
@@ -64,17 +60,17 @@ const TopicDetail = () => {
     }
   };
 
-  if (isLoading && !demoData) {
+  if (isLoading) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
+      <div className="min-h-[100dvh] bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
         <PageStateCard variant="loading" title="正在加载专题内容…" />
       </div>
     );
   }
 
-  if ((error && !demoData) || !data) {
+  if (error || !data) {
     return (
-      <div className="min-h-screen bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
+      <div className="min-h-[100dvh] bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
         <PageStateCard
           variant="error"
           title="暂时无法打开专题"
@@ -97,9 +93,9 @@ const TopicDetail = () => {
       ];
 
   return (
-    <div className="app-container min-h-screen bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-24">
+    <div className="app-container min-h-[100dvh] bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-24">
       <div
-        className="sticky top-0 z-20 border-b border-white/10 bg-app-teal text-white shadow-sm"
+        className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 border-b border-white/10 bg-app-teal text-white shadow-sm"
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
         <div className="flex items-center px-4 py-3">
@@ -110,7 +106,7 @@ const TopicDetail = () => {
         </div>
       </div>
 
-      <div className="px-4 pt-5">
+      <div className="px-4 pt-5" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5.25rem)' }}>
         <div className="surface-card rounded-3xl overflow-hidden">
           {topic.cover_image ? (
             <div className="h-44">
@@ -146,7 +142,7 @@ const TopicDetail = () => {
           </div>
 
           <div className="mt-4 flex flex-wrap items-center gap-2">
-            {user && !isDemoTopic ? (
+            {user ? (
               <Button
                 variant={isFollowing ? 'default' : 'secondary'}
                 size="sm"

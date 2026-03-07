@@ -76,7 +76,11 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
 
   return (
     <div className={`app-container pb-20 ${pageClassName}`}>
+<<<<<<< HEAD
       <div className="sticky top-0 z-50 animate-fade-in">
+=======
+      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 animate-fade-in">
+>>>>>>> a04765d (Update from local working directory)
         <div className={`${headerGradientClass} shadow-sm`}>
           <div style={{ height: 'env(safe-area-inset-top)' }} />
           <div className="flex items-center h-12 px-4">
@@ -104,8 +108,13 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
         </div>
       </div>
 
+<<<<<<< HEAD
       <div className="px-4 pt-5">
         <div className="surface-card rounded-3xl p-5">
+=======
+      <div className="px-4 pt-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 7.5rem)' }}>
+        <div className="surface-card rounded-3xl p-4">
+>>>>>>> a04765d (Update from local working directory)
           <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${featuredBadgeClass}`}>
             本周精选
           </span>
@@ -122,7 +131,11 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
         </div>
       </div>
 
+<<<<<<< HEAD
       <div className="relative mb-6 px-4 pt-4">
+=======
+      <div className="relative mb-5 px-4 pt-3">
+>>>>>>> a04765d (Update from local working directory)
         <div className="relative">
           {showRightIndicator && (
             <button
@@ -155,9 +168,15 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
         </div>
       </div>
 
+<<<<<<< HEAD
       <div className="mb-7 px-4">
         <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as 'everyone' | 'experts')} className="w-full">
           <div className="relative mb-7 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-gray-100 after:content-['']">
+=======
+      <div className="mb-6 px-4">
+        <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as 'everyone' | 'experts')} className="w-full">
+          <div className="relative mb-6 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-gray-100 after:content-['']">
+>>>>>>> a04765d (Update from local working directory)
             <TabsList className="h-auto w-full bg-transparent p-0">
               <TabsTrigger
                 value="everyone"

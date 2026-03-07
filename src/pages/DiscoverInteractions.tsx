@@ -4,7 +4,12 @@ import { ChevronLeft, Bell, CheckCheck, Heart, MessageCircle, Reply, Sparkles } 
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useMarkAllAsRead, useMarkAsRead, useNotifications } from '@/hooks/useNotifications';
+<<<<<<< HEAD
 import { formatTime } from '@/utils/format';
+=======
+import { formatDistanceToNow } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
+>>>>>>> a04765d (Update from local working directory)
 import PageStateCard from '@/components/common/PageStateCard';
 import { navigateBackOr } from '@/utils/navigation';
 
@@ -65,20 +70,38 @@ const DiscoverInteractions = () => {
   const interactions = usingDemo ? demoState : realInteractions;
 
   useEffect(() => {
+<<<<<<< HEAD
     if (usingDemo) {
       setDemoState(demoInteractions);
     }
+=======
+    if (usingDemo) setDemoState(demoInteractions);
+>>>>>>> a04765d (Update from local working directory)
   }, [usingDemo]);
 
   const unreadCount = interactions.filter((item) => !item.is_read).length;
 
+<<<<<<< HEAD
+=======
+  const formatTime = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
+    } catch {
+      return '刚刚';
+    }
+  };
+>>>>>>> a04765d (Update from local working directory)
 
   const handleClick = (item: any) => {
     if (!item.is_read) {
       if (item.id.startsWith('demo-')) {
+<<<<<<< HEAD
         setDemoState((prev) =>
           prev.map((entry) => (entry.id === item.id ? { ...entry, is_read: true } : entry)),
         );
+=======
+        setDemoState((prev) => prev.map((entry) => (entry.id === item.id ? { ...entry, is_read: true } : entry)));
+>>>>>>> a04765d (Update from local working directory)
       } else {
         markAsRead.mutate(item.id);
       }
@@ -86,16 +109,23 @@ const DiscoverInteractions = () => {
 
     if (item.related_type === 'question' && item.related_id) {
       navigate(`/question/${item.related_id}`);
+<<<<<<< HEAD
       return;
     }
     if (item.related_type === 'post' && item.related_id) {
       navigate('/discover');
+=======
+>>>>>>> a04765d (Update from local working directory)
     }
   };
 
   return (
     <div className="min-h-[100dvh] bg-slate-50 pb-6">
+<<<<<<< HEAD
       <div className="sticky top-0 z-20 bg-[rgb(121,213,199)] shadow-sm">
+=======
+      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 bg-[rgb(121,213,199)] shadow-sm">
+>>>>>>> a04765d (Update from local working directory)
         <div style={{ height: 'env(safe-area-inset-top)' }} />
         <div className="flex items-center justify-between px-4 h-12">
           <button onClick={() => navigateBackOr(navigate, '/discover')} className="text-white">
@@ -124,7 +154,11 @@ const DiscoverInteractions = () => {
         </div>
       </div>
 
+<<<<<<< HEAD
       <div className="px-4 pt-5">
+=======
+      <div className="px-4 pt-5" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5rem)' }}>
+>>>>>>> a04765d (Update from local working directory)
         <div className="rounded-3xl border border-[#d9efe9] bg-[rgb(223,245,239)] p-4">
           <div className="flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90">

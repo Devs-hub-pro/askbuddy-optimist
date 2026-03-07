@@ -8,7 +8,7 @@ const CommunityGuidelines = () => {
     <div className="min-h-[100dvh] bg-gray-50 pb-8">
       <SubPageHeader title="问问规范" />
 
-      <div className="p-4 space-y-4">
+      <div className="space-y-4 p-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">

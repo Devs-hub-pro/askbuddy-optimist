@@ -49,7 +49,11 @@ const AdminDashboard = () => {
 
   if (adminChecking || dashboardLoading || reportsLoading || pendingOrdersLoading || configsLoading) {
     return (
+<<<<<<< HEAD
       <div className="min-h-screen bg-muted flex items-center justify-center">
+=======
+      <div className="min-h-[100dvh] bg-muted flex items-center justify-center">
+>>>>>>> a04765d (Update from local working directory)
         <RefreshCcw className="h-8 w-8 animate-spin text-primary" />
       </div>
     );
@@ -57,7 +61,11 @@ const AdminDashboard = () => {
 
   if (!isAdmin) {
     return (
+<<<<<<< HEAD
       <div className="min-h-screen bg-muted p-6 flex flex-col items-center justify-center text-center">
+=======
+      <div className="min-h-[100dvh] bg-muted p-6 flex flex-col items-center justify-center text-center">
+>>>>>>> a04765d (Update from local working directory)
         <Shield className="h-12 w-12 text-muted-foreground mb-4" />
         <h1 className="text-xl font-semibold mb-2">无管理权限</h1>
         <p className="text-sm text-muted-foreground mb-6">当前账号不是管理员，无法访问运营后台。</p>
@@ -89,8 +97,13 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-[100dvh] bg-muted pb-8">
+<<<<<<< HEAD
       <div className="sticky top-0 z-10 shadow-sm">
         <div className="bg-app-header text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+=======
+      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm">
+        <div className="bg-[rgb(121,213,199)] text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+>>>>>>> a04765d (Update from local working directory)
           <div className="flex items-center gap-3 px-4 py-3">
             <Button variant="ghost" size="icon" onClick={() => navigateBackOr(navigate, '/profile')} className="text-white hover:bg-white/15 hover:text-white">
               <ArrowLeft size={20} />
@@ -101,10 +114,17 @@ const AdminDashboard = () => {
             </div>
           </div>
         </div>
+<<<<<<< HEAD
         <div className="h-1 bg-app-header-light" />
       </div>
 
       <div className="p-4 space-y-4">
+=======
+        <div className="h-1 bg-[rgb(223,245,239)]" />
+      </div>
+
+      <div className="space-y-4 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5.25rem)' }}>
+>>>>>>> a04765d (Update from local working directory)
         <div className="grid grid-cols-2 gap-3">
           <MetricCard title="待确认充值" value={dashboard?.pending_recharge_orders || 0} />
           <MetricCard title="待处理举报" value={dashboard?.pending_reports || 0} tone="warning" />

@@ -22,13 +22,16 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import QuestionCard from '@/components/QuestionCard';
-import { formatTime, formatViewCount } from '@/utils/format';
+import { useQuestions } from '@/hooks/useQuestions';
+import { useExperts } from '@/hooks/useExperts';
+import { formatDistanceToNow } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 import ChannelPageScaffold from '@/components/channel/ChannelPageScaffold';
 import ChannelExpertCard from '@/components/channel/ChannelExpertCard';
 import ChannelQuestionSkeleton from '@/components/channel/ChannelQuestionSkeleton';
 import ChannelExpertSkeleton from '@/components/channel/ChannelExpertSkeleton';
 import ChannelFloatingActionButton from '@/components/channel/ChannelFloatingActionButton';
-import { demoExperts, demoQuestions } from '@/lib/demoData';
+import { demoExperts } from '@/lib/demoData';
 
 const EducationLearning = () => {
   const navigate = useNavigate();
@@ -37,9 +40,19 @@ const EducationLearning = () => {
   const categoryRef = useRef<HTMLDivElement>(null);
   const [showRightIndicator, setShowRightIndicator] = useState(false);
   
-  const isLoading = false;
-  const isLoadingExperts = false;
+  const { data: questions, isLoading } = useQuestions('教育学习');
+  const { data: dbExperts, isLoading: isLoadingExperts } = useExperts('教育学习');
 
+  const formatTime = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
+    } catch { return '刚刚'; }
+  };
+
+  const formatViewCount = (count: number) => {
+    if (count >= 1000) return (count / 1000).toFixed(1) + 'k';
+    return count.toString();
+  };
 
   useEffect(() => {
     const checkScroll = () => {
@@ -154,6 +167,13 @@ const EducationLearning = () => {
     }
   ];
 
+  const mappedDbExperts = (dbExperts || []).map(e => ({
+    id: e.id, name: e.nickname || '专家', avatar: e.avatar_url || 'https://randomuser.me/api/portraits/lego/1.jpg',
+    title: e.title, description: e.bio || '', tags: e.tags,
+    keywords: e.keywords, category: e.category || '',
+    rating: Number(e.rating), responseRate: `${e.response_rate}%`, orderCount: `${e.order_count}单`,
+  }));
+
   const mappedDemoExperts = demoExperts
     .filter((expert) => expert.category === 'education-learning')
     .map((expert) => ({
@@ -170,11 +190,14 @@ const EducationLearning = () => {
       orderCount: `${expert.order_count}单`,
     }));
 
-  const filteredExperts = mappedDemoExperts.length > 0
-    ? mappedDemoExperts
-    : (activeCategory === 'all' ? allExperts : allExperts.filter(expert => expert.category === activeCategory));
+  const fallbackExperts = [
+    ...mappedDemoExperts,
+    ...(activeCategory === 'all' ? allExperts : allExperts.filter(expert => expert.category === activeCategory)),
+  ];
 
-  const filteredQuestions = demoQuestions;
+  const filteredExperts = mappedDbExperts.length > 0 ? mappedDbExperts : fallbackExperts;
+
+  const filteredQuestions = questions || [];
   const featuredQuestion = filteredQuestions[0];
   const featuredExpert = filteredExperts[0];
 
@@ -192,7 +215,8 @@ const EducationLearning = () => {
   };
 
   const handleViewExpertProfile = (expertId: string) => {
-    navigate(`/expert-profile/${expertId}`);
+    const targetId = expertId.startsWith('demo-expert-') ? expertId : 'demo-expert-1';
+    navigate(`/expert-profile/${targetId}`);
   };
 
   return (
@@ -202,7 +226,7 @@ const EducationLearning = () => {
       headerGradientClass="bg-gradient-to-r from-blue-500 to-indigo-500"
       searchStripClass="bg-blue-50/90 border-blue-100/90"
       searchAccentRingClass="ring-blue-400/25"
-      searchInputAccentClass="focus-visible:ring-2 focus-visible:ring-blue-400/25 focus-visible:border-blue-300"
+      searchInputAccentClass="focus-visible:ring-blue-400/20 focus-visible:border-blue-200"
       searchInputBorderClass="border-blue-200/80"
       searchIconClass="text-blue-400"
       searchNavigateToPath="/search?channel=education"
@@ -225,10 +249,10 @@ const EducationLearning = () => {
       onTabChange={setActiveTab}
     >
           <TabsContent value="everyone" className="mt-0">
-            {isLoading && filteredQuestions.length === 0 ? (
+            {isLoading ? (
               <ChannelQuestionSkeleton />
             ) : (
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {filteredQuestions.map((question, index) => (
                   <QuestionCard
                     key={question.id}
@@ -251,7 +275,7 @@ const EducationLearning = () => {
           </TabsContent>
           
           <TabsContent value="experts" className="mt-0">
-            {isLoadingExperts && filteredExperts.length === 0 ? (
+            {isLoading ? (
               <ChannelExpertSkeleton />
             ) : (
               <div className="space-y-3">
@@ -265,7 +289,7 @@ const EducationLearning = () => {
                     accentSummaryClass="border-blue-200 bg-blue-50/60"
                     ctaClassName="bg-gradient-to-r from-blue-500 to-indigo-400"
                     onOpen={() => handleViewExpertProfile(expert.id)}
-                    onConsult={() => navigate(`/expert/${expert.id}`)}
+                    onConsult={() => navigate(`/expert/${expert.id.startsWith('demo-expert-') ? expert.id : 'demo-expert-1'}`)}
                   />
                 ))}
               </div>

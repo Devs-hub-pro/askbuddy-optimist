@@ -10,7 +10,11 @@ interface SettingsPlaceholderPageProps {
 
 const SettingsPlaceholderPage: React.FC<SettingsPlaceholderPageProps> = ({ title, description }) => {
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-gray-50">
+=======
+    <div className="min-h-[100dvh] bg-gray-50">
+>>>>>>> a04765d (Update from local working directory)
       <SubPageHeader title={title} />
       <div className="p-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm">

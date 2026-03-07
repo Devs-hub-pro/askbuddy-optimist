@@ -9,6 +9,11 @@ const isMissingRpcError = (error: unknown, functionName: string) => {
   return message.includes(`public.${functionName}`) || message.includes('schema cache');
 };
 
+const isMissingRpcError = (error: unknown, functionName: string) => {
+  const message = error instanceof Error ? error.message : String(error || '');
+  return message.includes(`public.${functionName}`) || message.includes('schema cache');
+};
+
 export interface HotTopic {
   id: string;
   title: string;

@@ -36,7 +36,7 @@ const MyFavorites = () => {
               className="surface-card cursor-pointer rounded-3xl border-none shadow-sm transition-shadow hover:shadow-md"
               onClick={() => navigate(`/question/${fav.question_id}`)}
             >
-              <CardContent className="p-4">
+              <CardContent className="p-5">
                 <div className="flex items-start gap-3">
                   <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-50">
                     <Heart size={18} className="text-rose-500" />
@@ -53,7 +53,7 @@ const MyFavorites = () => {
           ))}
         </div>
       ) : (
-        <div className="p-4 pt-20">
+        <div className="p-5 pt-20">
           <PageStateCard
             title="暂无收藏内容"
             description="看到有价值的问题和回答后，收藏会统一保存在这里。"

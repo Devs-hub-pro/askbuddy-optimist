@@ -178,9 +178,9 @@ const TalentCertification = () => {
     <div className="pb-8 min-h-[100dvh] bg-muted">
       <SubPageHeader title="达人认证" />
 
-      <div className="p-4 space-y-4">
+      <div className="p-5 space-y-5">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
-          <CardContent className="p-4">
+          <CardContent className="p-5">
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold text-foreground">认证进度</p>
@@ -208,8 +208,8 @@ const TalentCertification = () => {
         </Card>
 
         <Card className="surface-card rounded-3xl border-none shadow-sm">
-          <CardContent className="p-4">
-            <h2 className="mb-3 text-lg font-semibold text-foreground">为什么要认证？</h2>
+          <CardContent className="p-5">
+            <h2 className="mb-3 text-xl font-semibold text-foreground">为什么要认证？</h2>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li className="flex items-start"><Check size={16} className="text-green-500 mr-2 mt-0.5" /><span>获得官方认证标识，提升个人可信度</span></li>
               <li className="flex items-start"><Check size={16} className="text-green-500 mr-2 mt-0.5" /><span>问答内容获得优先展示</span></li>
@@ -219,7 +219,7 @@ const TalentCertification = () => {
         </Card>
 
         <div className="space-y-3">
-          <h3 className="px-1 text-lg font-semibold text-foreground">选择认证类型</h3>
+          <h3 className="px-1 text-xl font-semibold text-foreground">选择认证类型</h3>
           <p className="px-1 text-sm text-muted-foreground">认证通过后，您将获得专属标识和更多权益。</p>
         
           {isLoading ? (
@@ -235,7 +235,7 @@ const TalentCertification = () => {
                   <CardContent className="p-0">
                     <button
                       type="button"
-                      className="flex w-full items-center justify-between p-4 text-left"
+                      className="flex w-full items-center justify-between p-5 text-left"
                       onClick={() => {
                         if (status === 'none' || status === 'rejected') {
                           if (!user) { navigate('/auth'); return; }
@@ -248,7 +248,7 @@ const TalentCertification = () => {
                           <Award className={type.colorClass} />
                         </div>
                         <div>
-                          <h4 className="text-lg font-semibold text-foreground">{type.title}</h4>
+                          <h4 className="text-xl font-semibold text-foreground">{type.title}</h4>
                           <p className="mt-1 text-sm text-muted-foreground">{type.desc}</p>
                           <div className="mt-3 flex items-center gap-2 text-xs text-slate-500">
                             {statusMeta.icon}

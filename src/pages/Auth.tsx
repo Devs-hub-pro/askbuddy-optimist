@@ -9,8 +9,8 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
-import { navigateBackOr } from '@/utils/navigation';
 import { supabase } from '@/integrations/supabase/client';
+import { navigateBackOr } from '@/utils/navigation';
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -250,15 +250,19 @@ const Auth = () => {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-gradient-to-b from-[rgb(236,251,247)] to-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+    <div className="min-h-[100dvh] bg-gradient-to-b from-[rgb(236,251,247)] to-white">
       {/* Header */}
-      <div className="sticky top-0 z-10 flex items-center bg-gradient-to-b from-[rgb(236,251,247)] to-white p-4">
+      <div
+        className="fixed left-1/2 top-0 z-[90] flex w-full max-w-md -translate-x-1/2 items-center bg-gradient-to-b from-[rgb(236,251,247)] to-white p-4 shadow-sm"
+        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+      >
         <Button variant="ghost" size="icon" onClick={() => navigateBackOr(navigate, '/')}>
           <ChevronLeft size={24} />
         </Button>
-        <span className="text-lg font-medium ml-2">登录 / 注册</span>
+        <span className="ml-2 text-lg font-medium">登录 / 注册</span>
       </div>
 
+      <div style={{ paddingTop: 'calc(env(safe-area-inset-top) + 4.75rem)' }}>
       {/* Logo Area */}
       <div className="flex flex-col items-center py-8">
         <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-[rgb(121,213,199)] to-[rgb(160,237,224)] shadow-sm">
@@ -406,6 +410,7 @@ const Auth = () => {
             </Tabs>
           </CardHeader>
         </Card>
+      </div>
       </div>
     </div>
   );

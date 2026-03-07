@@ -5,7 +5,8 @@ import { ArrowRight, Clock3, CheckCircle2, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useMyOrders } from '@/hooks/useProfileData';
-import { formatTime } from '@/utils/format';
+import { formatDistanceToNow } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 import PageStateCard from '@/components/common/PageStateCard';
 
 const statusMap: Record<string, { color: string; text: string; icon: React.ReactNode }> = {
@@ -32,9 +33,14 @@ const OrderList: React.FC = () => {
   const [tab, setTab] = useState<string>("all");
   const { data: orders, isLoading } = useMyOrders(tab);
 
+  const formatTime = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
+    } catch { return '刚刚'; }
+  };
 
   return (
-    <div className="px-4 py-4">
+    <div className="px-5 py-5">
       <div className="surface-card rounded-3xl p-1 shadow-sm">
         <div className="grid grid-cols-3 gap-1">
         {tabs.map(t => (
@@ -63,7 +69,7 @@ const OrderList: React.FC = () => {
             const status = statusMap[order.status] || statusMap.pending;
             return (
               <Card key={order.id} className="surface-card rounded-3xl border-none shadow-sm">
-                <CardContent className="p-4">
+                <CardContent className="p-5">
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
                       <div className="flex items-center gap-2">

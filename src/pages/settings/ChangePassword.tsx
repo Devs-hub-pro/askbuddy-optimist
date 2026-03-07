@@ -46,7 +46,7 @@ const ChangePassword = () => {
     <div className="min-h-[100dvh] bg-muted">
       <SubPageHeader title="修改密码" />
 
-      <div className="p-4">
+      <div className="p-5">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg flex items-center">

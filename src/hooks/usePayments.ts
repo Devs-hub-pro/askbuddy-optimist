@@ -96,12 +96,20 @@ export const useCreateRechargePayment = () => {
         provider: params.provider,
         points: params.points,
         cash_amount: Number((params.points * 0.1).toFixed(2)),
+<<<<<<< HEAD
         status: 'completed' as const,
+=======
+        status: 'completed',
+>>>>>>> a04765d (Update from local working directory)
         legacy_mode: true,
         payment_payload: {
           provider: params.provider,
           cash_amount: Number((params.points * 0.1).toFixed(2)),
+<<<<<<< HEAD
           currency: 'CNY' as const,
+=======
+          currency: 'CNY',
+>>>>>>> a04765d (Update from local working directory)
         },
       };
     },

@@ -40,7 +40,7 @@ const ExpertDetail = () => {
 
   if (!isDemoExpert && isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-slate-50/80 to-slate-50 p-4">
+      <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-white via-slate-50/80 to-slate-50 p-4">
         <PageStateCard variant="loading" title="正在加载达人信息…" />
       </div>
     );
@@ -48,7 +48,7 @@ const ExpertDetail = () => {
 
   if (!resolvedExpert) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-slate-50/80 to-slate-50 p-4">
+      <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-white via-slate-50/80 to-slate-50 p-4">
         <PageStateCard
           variant="error"
           title="暂时无法打开达人信息"
@@ -70,8 +70,8 @@ const ExpertDetail = () => {
   };
 
   return (
-    <div className="app-container bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-20 min-h-screen">
-      <div className="sticky top-0 z-50 bg-primary shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+    <div className="app-container bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-20 min-h-[100dvh]">
+      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 bg-primary shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex items-center h-12 px-4">
           <button onClick={() => navigateBackOr(navigate, '/')} className="text-primary-foreground">
             <ChevronLeft size={24} />
@@ -82,7 +82,7 @@ const ExpertDetail = () => {
         </div>
       </div>
       
-      <div className="px-4 pb-6 pt-5 space-y-5">
+      <div className="px-4 pb-6 pt-5 space-y-5" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5.25rem)' }}>
         {/* Expert Header */}
         <div className="surface-card rounded-3xl p-5">
           <div className="flex items-start justify-between mb-4">

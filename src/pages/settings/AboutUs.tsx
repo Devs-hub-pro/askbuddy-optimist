@@ -22,13 +22,13 @@ const AboutUs = () => {
           <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
             <span className="text-3xl font-bold bg-gradient-to-r from-app-blue to-app-teal bg-clip-text text-transparent">问问</span>
           </div>
-          <h2 className="text-xl font-bold mb-1">找人问问</h2>
+          <h2 className="mb-1 text-lg font-semibold">找人问问</h2>
           <p className="text-white/80 text-sm mb-2">Version 1.0.5 · 2026</p>
           <Badge className="bg-white/20 text-white border-none">专注高质量问答社区</Badge>
         </div>
       </div>
 
-      <div className="p-4 space-y-4 -mt-4">
+      <div className="-mt-5 space-y-4 p-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">

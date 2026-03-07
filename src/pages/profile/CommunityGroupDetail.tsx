@@ -1,4 +1,8 @@
+<<<<<<< HEAD
 import React, { useEffect } from 'react';
+=======
+import React from 'react';
+>>>>>>> a04765d (Update from local working directory)
 import { useLocation, useNavigate } from 'react-router-dom';
 import { Bell, Users, Pin, MessageCircleMore, Image as ImageIcon, FileText, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -10,6 +14,7 @@ const CommunityGroupDetail = () => {
   const location = useLocation();
   const group = (location.state as any)?.group;
 
+<<<<<<< HEAD
   useEffect(() => {
     if (!group) {
       navigate('/profile/community', { replace: true });
@@ -17,6 +22,12 @@ const CommunityGroupDetail = () => {
   }, [group, navigate]);
 
   if (!group) return null;
+=======
+  if (!group) {
+    navigate('/profile/community', { replace: true });
+    return null;
+  }
+>>>>>>> a04765d (Update from local working directory)
 
   const feed = [
     { id: '1', author: '群主', content: `${group.name} 欢迎新成员，记得先看置顶资料。`, time: '刚刚' },
@@ -28,9 +39,15 @@ const CommunityGroupDetail = () => {
     <div className="min-h-[100dvh] bg-muted pb-8">
       <SubPageHeader title={group.name} />
 
+<<<<<<< HEAD
       <div className="p-4 space-y-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardContent className="p-4">
+=======
+      <div className="p-5 space-y-5">
+        <Card className="surface-card rounded-3xl border-none shadow-sm">
+          <CardContent className="p-5">
+>>>>>>> a04765d (Update from local working directory)
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-medium text-muted-foreground">群组概览</p>
@@ -63,7 +80,11 @@ const CommunityGroupDetail = () => {
         </Card>
 
         <Card className="surface-card rounded-3xl border-none shadow-sm">
+<<<<<<< HEAD
           <CardContent className="p-4">
+=======
+          <CardContent className="p-5">
+>>>>>>> a04765d (Update from local working directory)
             <div className="mb-4 flex items-center justify-between">
               <h3 className="text-base font-semibold text-foreground">群内动态</h3>
               <span className="text-xs text-muted-foreground">最近更新</span>
@@ -83,7 +104,11 @@ const CommunityGroupDetail = () => {
         </Card>
 
         <Card className="surface-card rounded-3xl border-none shadow-sm">
+<<<<<<< HEAD
           <CardContent className="p-4">
+=======
+          <CardContent className="p-5">
+>>>>>>> a04765d (Update from local working directory)
             <div className="flex items-center justify-between gap-3">
               <div>
                 <p className="text-sm font-semibold text-foreground">群公告</p>

@@ -28,7 +28,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   isEducation = false,
   clickToNavigate = false,
   accentRingClassName = 'ring-app-teal/25',
-  inputAccentClassName = 'focus:ring-app-teal/25 focus:border-app-teal/30',
+  inputAccentClassName = 'focus-visible:ring-app-teal/25 focus-visible:border-app-teal/30',
   inputBorderClassName = 'border-gray-200',
   iconClassName = 'text-gray-400',
   navigateToPath,
@@ -50,6 +50,10 @@ const SearchBar: React.FC<SearchBarProps> = ({
     
     if (onChange) {
       onChange(e);
+    }
+    
+    if (onSearch) {
+      onSearch(newValue);
     }
   };
 
@@ -120,7 +124,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
           onBlur={handleBlur}
           placeholder={placeholder}
           readOnly={clickToNavigate}
-          className={`search-input pr-10 shadow-sm focus-visible:ring-0 focus-visible:ring-transparent ${inputBorderClassName} ${inputAccentClassName}`}
+          className={`search-input pr-10 shadow-sm focus-visible:ring-2 ${inputBorderClassName} ${inputAccentClassName}`}
         />
         <Search 
           size={18} 

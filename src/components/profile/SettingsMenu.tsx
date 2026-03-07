@@ -58,13 +58,13 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
 
   const contentWrapperClass = isDesktop
     ? 'bg-gray-50 p-3'
-    : 'min-h-[100dvh] bg-gray-50 p-3 pt-[calc(env(safe-area-inset-top)+12px)]';
+    : 'min-h-[100dvh] bg-gray-50 p-3 pt-[calc(env(safe-area-inset-top)+16px)]';
 
   // Content for both dialog and drawer
   const content = (
     <div className={contentWrapperClass}>
-      <div className="border-b pb-3 mb-3">
-        <h3 className="text-xl font-bold text-gray-800 px-3">设置</h3>
+      <div className="mb-3 border-b pb-3">
+        <h3 className="px-3 text-lg font-semibold text-gray-800">设置</h3>
       </div>
       {menuItems.map((item, index) => (
         <div 

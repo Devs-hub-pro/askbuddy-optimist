@@ -86,7 +86,7 @@ const CitySelector = () => {
   return (
     <div className="min-h-[100dvh] bg-gray-50">
       {/* Header */}
-      <div className="sticky top-0 z-40 shadow-sm">
+      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm">
         <div className="bg-[rgb(121,213,199)] text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="flex items-center h-12 px-4">
             <button 
@@ -144,7 +144,7 @@ const CitySelector = () => {
           </div>
         )}
       </div>
-      
+      <div style={{ paddingTop: searchKeyword ? 'calc(env(safe-area-inset-top) + 7.25rem)' : 'calc(env(safe-area-inset-top) + 9.75rem)' }}>
       {/* Search Results */}
       {searchKeyword && (
         <div className="bg-white p-4">
@@ -289,6 +289,7 @@ const CitySelector = () => {
           )}
         </>
       )}
+      </div>
     </div>
   );
 };

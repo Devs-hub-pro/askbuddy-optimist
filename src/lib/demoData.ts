@@ -81,6 +81,7 @@ export const demoQuestionDetails = {
   },
 } as const;
 
+<<<<<<< HEAD
 export const demoTopics = [
   {
     id: 'demo-topic-1',
@@ -185,6 +186,8 @@ export const demoTopicDetails = {
   },
 } as const;
 
+=======
+>>>>>>> a04765d (Update from local working directory)
 export const demoExperts = [
   {
     id: 'demo-expert-1',

@@ -17,7 +17,7 @@ const UserResearch = () => {
     <div className="min-h-[100dvh] bg-gradient-to-b from-[rgb(236,251,247)] to-white">
       <SubPageHeader title="用户体验调研" />
 
-      <div className="p-4 space-y-4">
+      <div className="space-y-4 p-4">
         {/* 当前活动 */}
         <div className="mb-6">
           <h2 className="text-lg font-semibold mb-4 flex items-center">

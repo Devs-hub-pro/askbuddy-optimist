@@ -270,7 +270,7 @@ const NewQuestion: React.FC = () => {
     <div className="min-h-[100dvh] bg-slate-50 pb-20">
       {/* Header */}
       <div 
-        className="sticky top-0 z-10 bg-primary px-4 py-3 border-b border-primary/80 flex items-center justify-between"
+        className="fixed left-1/2 top-0 z-[90] flex w-full max-w-md -translate-x-1/2 items-center justify-between border-b border-primary/80 bg-primary px-4 py-3 shadow-sm"
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
       >
         <button 
@@ -289,7 +289,7 @@ const NewQuestion: React.FC = () => {
         </button>
       </div>
       
-      <div className="p-4 space-y-5">
+      <div className="space-y-5 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5.75rem)' }}>
         <div className="surface-card rounded-3xl p-4">
           <div className="flex items-center justify-between gap-3">
             <div>

@@ -76,12 +76,11 @@ const HelpCenter = () => {
 
   return (
     <div className="min-h-[100dvh] bg-gray-50">
-      <div className="sticky top-0 z-20">
-        <SubPageHeader title="帮助中心" />
+      <SubPageHeader title="帮助中心" />
 
-        {/* Search Bar */}
-        <div className="border-b border-[rgb(205,239,231)] bg-[rgb(223,245,239)] px-4 py-3">
-          <div className="relative">
+      {/* Search Bar */}
+      <div className="border-b border-[rgb(205,239,231)] bg-[rgb(223,245,239)] px-4 py-3">
+        <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           <Input 
             placeholder="搜索常见问题..." 
@@ -90,11 +89,10 @@ const HelpCenter = () => {
             className="h-12 rounded-2xl border-gray-200 bg-white pl-10 shadow-sm"
           />
         </div>
-        </div>
       </div>
 
       {/* Content */}
-      <div className="p-4 space-y-4">
+      <div className="space-y-4 p-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardContent className="p-4">
             <div className="flex items-center justify-between gap-3">
@@ -186,7 +184,7 @@ const HelpCenter = () => {
       <Dialog open={isContactDialogOpen} onOpenChange={setContactDialogOpen}>
         <DialogContent className="max-w-sm p-0">
           <DialogHeader className="px-6 pt-6">
-            <DialogTitle className="text-xl text-center font-bold">联系客服</DialogTitle>
+            <DialogTitle className="text-center text-lg font-semibold">联系客服</DialogTitle>
             <DialogDescription className="text-center mt-1 text-gray-500">我们将竭诚为您服务</DialogDescription>
           </DialogHeader>
           <div className="px-6 pb-6 pt-2 space-y-4">

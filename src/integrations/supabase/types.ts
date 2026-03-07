@@ -49,6 +49,7 @@ export type Database = {
           created_at: string
           id: string
           is_accepted: boolean
+          is_hidden: boolean
           likes_count: number
           question_id: string
           updated_at: string
@@ -59,6 +60,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_accepted?: boolean
+          is_hidden?: boolean
           likes_count?: number
           question_id: string
           updated_at?: string
@@ -69,6 +71,7 @@ export type Database = {
           created_at?: string
           id?: string
           is_accepted?: boolean
+          is_hidden?: boolean
           likes_count?: number
           question_id?: string
           updated_at?: string
@@ -155,10 +158,13 @@ export type Database = {
           avatar_url: string | null
           bio: string | null
           category: string | null
+          consultation_price: number | null
           consultation_count: number | null
+          cover_image: string | null
           created_at: string | null
           display_name: string | null
           education: Json | null
+          experience_level: string | null
           experience: Json | null
           followers_count: number | null
           id: string
@@ -169,6 +175,8 @@ export type Database = {
           order_count: number | null
           rating: number | null
           response_rate: number | null
+          response_time: string | null
+          subcategory: string | null
           tags: string[] | null
           title: string
           updated_at: string | null
@@ -179,10 +187,13 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           category?: string | null
+          consultation_price?: number | null
           consultation_count?: number | null
+          cover_image?: string | null
           created_at?: string | null
           display_name?: string | null
           education?: Json | null
+          experience_level?: string | null
           experience?: Json | null
           followers_count?: number | null
           id?: string
@@ -193,6 +204,8 @@ export type Database = {
           order_count?: number | null
           rating?: number | null
           response_rate?: number | null
+          response_time?: string | null
+          subcategory?: string | null
           tags?: string[] | null
           title: string
           updated_at?: string | null
@@ -203,10 +216,13 @@ export type Database = {
           avatar_url?: string | null
           bio?: string | null
           category?: string | null
+          consultation_price?: number | null
           consultation_count?: number | null
+          cover_image?: string | null
           created_at?: string | null
           display_name?: string | null
           education?: Json | null
+          experience_level?: string | null
           experience?: Json | null
           followers_count?: number | null
           id?: string
@@ -217,6 +233,8 @@ export type Database = {
           order_count?: number | null
           rating?: number | null
           response_rate?: number | null
+          response_time?: string | null
+          subcategory?: string | null
           tags?: string[] | null
           title?: string
           updated_at?: string | null
@@ -327,6 +345,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          is_hidden: boolean
           message_type: string
           read_at: string | null
           receiver_id: string
@@ -336,6 +355,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          is_hidden?: boolean
           message_type?: string
           read_at?: string | null
           receiver_id: string
@@ -345,6 +365,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          is_hidden?: boolean
           message_type?: string
           read_at?: string | null
           receiver_id?: string
@@ -394,33 +415,45 @@ export type Database = {
       orders: {
         Row: {
           amount: number
+          cash_amount: number | null
           created_at: string
           id: string
+          metadata: Json
           order_type: string
           paid_at: string | null
           payment_method: string | null
+          provider_order_id: string | null
+          provider_transaction_id: string | null
           related_id: string | null
           status: string
           user_id: string
         }
         Insert: {
           amount: number
+          cash_amount?: number | null
           created_at?: string
           id?: string
+          metadata?: Json
           order_type: string
           paid_at?: string | null
           payment_method?: string | null
+          provider_order_id?: string | null
+          provider_transaction_id?: string | null
           related_id?: string | null
           status?: string
           user_id: string
         }
         Update: {
           amount?: number
+          cash_amount?: number | null
           created_at?: string
           id?: string
+          metadata?: Json
           order_type?: string
           paid_at?: string | null
           payment_method?: string | null
+          provider_order_id?: string | null
+          provider_transaction_id?: string | null
           related_id?: string | null
           status?: string
           user_id?: string
@@ -580,6 +613,8 @@ export type Database = {
           cover_url: string | null
           created_at: string
           id: string
+          latitude: number | null
+          longitude: number | null
           nickname: string | null
           phone: string | null
           points_balance: number
@@ -593,6 +628,8 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           nickname?: string | null
           phone?: string | null
           points_balance?: number
@@ -606,6 +643,8 @@ export type Database = {
           cover_url?: string | null
           created_at?: string
           id?: string
+          latitude?: number | null
+          longitude?: number | null
           nickname?: string | null
           phone?: string | null
           points_balance?: number
@@ -621,6 +660,7 @@ export type Database = {
           content: string | null
           created_at: string
           id: string
+          is_hidden: boolean
           status: string
           tags: string[] | null
           title: string
@@ -634,6 +674,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          is_hidden?: boolean
           status?: string
           tags?: string[] | null
           title: string
@@ -647,6 +688,7 @@ export type Database = {
           content?: string | null
           created_at?: string
           id?: string
+          is_hidden?: boolean
           status?: string
           tags?: string[] | null
           title?: string
@@ -694,6 +736,7 @@ export type Database = {
           content: string
           created_at: string
           id: string
+          is_hidden: boolean
           likes_count: number
           topic_id: string
           updated_at: string
@@ -703,6 +746,7 @@ export type Database = {
           content: string
           created_at?: string
           id?: string
+          is_hidden?: boolean
           likes_count?: number
           topic_id: string
           updated_at?: string
@@ -712,6 +756,7 @@ export type Database = {
           content?: string
           created_at?: string
           id?: string
+          is_hidden?: boolean
           likes_count?: number
           topic_id?: string
           updated_at?: string
@@ -834,6 +879,85 @@ export type Database = {
         Args: { p_answer_id: string; p_question_id: string }
         Returns: undefined
       }
+      admin_confirm_recharge_order: {
+        Args: { p_order_id: string; p_provider_transaction_id?: string | null }
+        Returns: boolean
+      }
+      apply_content_moderation_action: {
+        Args: {
+          p_action: string
+          p_reason?: string | null
+          p_report_id?: string | null
+          p_target_id: string
+          p_target_type: string
+        }
+        Returns: boolean
+      }
+      create_consultation_order: {
+        Args: { p_consult_type?: string; p_expert_id: string }
+        Returns: string
+      }
+      create_question_secure: {
+        Args: {
+          p_bounty_points?: number
+          p_category?: string | null
+          p_content?: string | null
+          p_tags?: string[] | null
+          p_title: string
+        }
+        Returns: string
+      }
+      create_answer_secure: {
+        Args: { p_content: string; p_question_id: string }
+        Returns: string
+      }
+      create_recharge_payment_order: {
+        Args: { p_payment_method?: string; p_points: number }
+        Returns: Json
+      }
+      create_topic_discussion_secure: {
+        Args: { p_content: string; p_topic_id: string }
+        Returns: string
+      }
+      get_admin_dashboard: {
+        Args: never
+        Returns: Json
+      }
+      get_app_configs: {
+        Args: never
+        Returns: Json
+      }
+      get_nearby_experts: {
+        Args: { p_lat: number; p_lng: number; p_radius_km?: number }
+        Returns: {
+          avatar_url: string | null
+          bio: string | null
+          category: string | null
+          consultation_count: number | null
+          display_name: string | null
+          distance_km: number
+          expert_id: string
+          followers_count: number | null
+          is_verified: boolean | null
+          location: string | null
+          order_count: number | null
+          rating: number | null
+          response_rate: number | null
+          title: string
+          user_id: string
+        }[]
+      }
+      get_user_conversations: {
+        Args: never
+        Returns: {
+          last_message: string
+          last_message_time: string
+          partner_avatar: string | null
+          partner_id: string
+          partner_nickname: string | null
+          unread_count: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -841,12 +965,53 @@ export type Database = {
         }
         Returns: boolean
       }
+      list_content_reports: {
+        Args: { p_status?: string | null }
+        Returns: Json
+      }
+      list_pending_recharge_orders: {
+        Args: never
+        Returns: Json
+      }
+      mark_notifications_read: {
+        Args: { p_notification_ids?: string[] | null }
+        Returns: number
+      }
+      review_content_report: {
+        Args: {
+          p_report_id: string
+          p_resolution_note?: string | null
+          p_status: string
+        }
+        Returns: boolean
+      }
       recharge_points: {
         Args: { p_amount: number; p_payment_method?: string }
         Returns: undefined
       }
+      search_app_content: {
+        Args: { p_limit?: number; p_query: string }
+        Returns: Json
+      }
+      send_direct_message: {
+        Args: { p_content: string; p_message_type?: string; p_receiver_id: string }
+        Returns: string
+      }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
+      submit_content_report: {
+        Args: {
+          p_details?: string | null
+          p_reason: string
+          p_target_id: string
+          p_target_type: string
+        }
+        Returns: string
+      }
+      upsert_app_config: {
+        Args: { p_description?: string | null; p_key: string; p_value: Json }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"

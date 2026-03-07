@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { demoExperts, demoQuestions, demoTopics } from '@/lib/demoData';
+import { demoExperts, demoQuestions } from '@/lib/demoData';
 
 const isMissingRpcError = (error: unknown, functionName: string) => {
   const message = error instanceof Error ? error.message : String(error || '');
@@ -53,74 +53,6 @@ export const useSearch = (query: string) => {
         return { questions: [], topics: [], users: [] };
       }
 
-      const keyword = query.trim().toLowerCase();
-      const matches = (...values: Array<string | null | undefined>) =>
-        values.some((value) => value?.toLowerCase().includes(keyword));
-
-      const demoFallback = (): SearchResults => ({
-        questions: demoQuestions
-          .filter((item) => matches(item.title, item.content, ...(item.tags || [])))
-          .map((item) => ({
-            id: item.id,
-            title: item.title,
-            content: item.content,
-            category: null,
-            tags: item.tags,
-            bounty_points: item.bounty_points,
-            view_count: item.view_count,
-            created_at: item.created_at,
-            profile_nickname: item.profile_nickname,
-            profile_avatar: item.profile_avatar,
-            answers_count: item.answers_count,
-          })),
-        topics: demoTopics
-          .filter((item) => matches(item.title, item.description, item.category))
-          .map((item) => ({
-            id: item.id,
-            title: item.title,
-            description: item.description,
-            cover_image: item.cover_image,
-            category: item.category,
-            discussions_count: item.discussions_count,
-            participants_count: item.participants_count,
-          })),
-        users: demoExperts
-          .filter((item) => matches(item.nickname, item.title, item.bio, ...(item.tags || []), ...(item.keywords || [])))
-          .map((item) => ({
-            id: item.id,
-            user_id: item.user_id,
-            nickname: item.nickname || '测试达人',
-            avatar_url: item.avatar_url,
-            bio: item.bio,
-          })),
-      });
-
-      const mergeResults = (
-        primary: SearchResults,
-        fallback: SearchResults
-      ): SearchResults => {
-        const mergeById = <T extends { id: string }>(first: T[], second: T[]) => {
-          const seen = new Set<string>();
-          const merged: T[] = [];
-
-          [...first, ...second].forEach((item) => {
-            if (seen.has(item.id)) return;
-            seen.add(item.id);
-            merged.push(item);
-          });
-
-          return merged;
-        };
-
-        return {
-          questions: mergeById(primary.questions, fallback.questions),
-          topics: mergeById(primary.topics, fallback.topics),
-          users: mergeById(primary.users, fallback.users),
-        };
-      };
-
-      const fallback = demoFallback();
-
       const rpcResult = await (supabase as any).rpc('search_app_content', {
         p_query: query.trim(),
         p_limit: 10,
@@ -128,26 +60,27 @@ export const useSearch = (query: string) => {
 
       if (!rpcResult.error) {
         const payload = (rpcResult.data || {}) as Partial<SearchResults>;
-        const primary = {
+
+        return {
           questions: (payload.questions || []) as SearchQuestion[],
           topics: (payload.topics || []) as SearchTopic[],
           users: (payload.users || []) as SearchUser[],
         };
-
-        return mergeResults(primary, fallback);
       }
 
       if (!isMissingRpcError(rpcResult.error, 'search_app_content')) {
-        return fallback;
+        throw rpcResult.error;
       }
 
-      const searchTerm = `%${query.trim()}%`;
+      const trimmedQuery = query.trim();
+      const normalizedQuery = trimmedQuery.toLowerCase();
+      const searchTerm = `%${trimmedQuery}%`;
 
       const [questionsResult, topicsResult, usersResult] = await Promise.all([
         supabase
           .from('questions')
           .select('*')
-          .or(`title.ilike.${searchTerm},content.ilike.${searchTerm}`)
+          .or(`title.ilike.${searchTerm},content.ilike.${searchTerm},tags::text.ilike.${searchTerm}`)
           .order('created_at', { ascending: false })
           .limit(20),
         supabase
@@ -164,19 +97,44 @@ export const useSearch = (query: string) => {
           .limit(10),
       ]);
 
-      if (questionsResult.error || topicsResult.error || usersResult.error) {
-        return fallback;
-      }
+      if (questionsResult.error) throw questionsResult.error;
+      if (topicsResult.error) throw topicsResult.error;
+      if (usersResult.error) throw usersResult.error;
 
       const questionsData = questionsResult.data || [];
-      if (questionsData.length === 0) {
-        const primary = {
-          questions: [],
-          topics: (topicsResult.data || []) as SearchTopic[],
-          users: (usersResult.data || []) as SearchUser[],
-        };
+      const topics = (topicsResult.data || []) as SearchTopic[];
+      const users = (usersResult.data || []) as SearchUser[];
 
-        return mergeResults(primary, fallback);
+      if (questionsData.length === 0) {
+        const demoMatchedQuestions = demoQuestions
+          .filter((item) => {
+            const bag = [item.title, item.content || '', ...(item.tags || [])].join(' ').toLowerCase();
+            return bag.includes(normalizedQuery);
+          })
+          .map((item) => ({
+            ...item,
+            category: item.tags?.[0] || null,
+          })) as SearchQuestion[];
+
+        const demoMatchedUsers = demoExperts
+          .filter((item) => {
+            const bag = [item.nickname || '', item.title || '', item.bio || '', ...(item.tags || [])].join(' ').toLowerCase();
+            return bag.includes(normalizedQuery);
+          })
+          .slice(0, 10)
+          .map((item) => ({
+            id: item.id,
+            user_id: item.user_id,
+            nickname: item.nickname,
+            avatar_url: item.avatar_url,
+            bio: item.bio,
+          })) as SearchUser[];
+
+        return {
+          questions: demoMatchedQuestions,
+          topics,
+          users: users.length > 0 ? users : demoMatchedUsers,
+        };
       }
 
       const userIds = Array.from(new Set(questionsData.map((item) => item.user_id)));
@@ -193,9 +151,8 @@ export const useSearch = (query: string) => {
           .in('question_id', questionIds),
       ]);
 
-      if (profilesResult.error || answersResult.error) {
-        return fallback;
-      }
+      if (profilesResult.error) throw profilesResult.error;
+      if (answersResult.error) throw answersResult.error;
 
       const profileMap = new Map(
         (profilesResult.data || []).map((profile) => [profile.user_id, profile])
@@ -213,13 +170,25 @@ export const useSearch = (query: string) => {
         answers_count: answerCountMap.get(item.id) || 0,
       })) as SearchQuestion[];
 
-      const primary = {
-        questions,
-        topics: (topicsResult.data || []) as SearchTopic[],
-        users: (usersResult.data || []) as SearchUser[],
-      };
+      const demoMatchedQuestions = demoQuestions
+        .filter((item) => {
+          const bag = [item.title, item.content || '', ...(item.tags || [])].join(' ').toLowerCase();
+          return bag.includes(normalizedQuery);
+        })
+        .map((item) => ({
+          ...item,
+          category: item.tags?.[0] || null,
+        })) as SearchQuestion[];
 
-      return mergeResults(primary, fallback);
+      const mergedQuestions = [...questions, ...demoMatchedQuestions].filter((item, index, arr) => (
+        arr.findIndex((target) => target.id === item.id) === index
+      ));
+
+      return {
+        questions: mergedQuestions,
+        topics,
+        users,
+      };
     },
     enabled: !!query.trim(),
     staleTime: 30_000,

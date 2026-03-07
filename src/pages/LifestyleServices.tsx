@@ -24,13 +24,16 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from "@/components/ui/button";
 import QuestionCard from '@/components/QuestionCard';
-import { formatTime, formatViewCount } from '@/utils/format';
+import { useQuestions } from '@/hooks/useQuestions';
+import { useExperts } from '@/hooks/useExperts';
+import { formatDistanceToNow } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 import ChannelPageScaffold from '@/components/channel/ChannelPageScaffold';
 import ChannelExpertCard from '@/components/channel/ChannelExpertCard';
 import ChannelQuestionSkeleton from '@/components/channel/ChannelQuestionSkeleton';
 import ChannelExpertSkeleton from '@/components/channel/ChannelExpertSkeleton';
 import ChannelFloatingActionButton from '@/components/channel/ChannelFloatingActionButton';
-import { demoExperts, demoQuestions } from '@/lib/demoData';
+import { demoExperts } from '@/lib/demoData';
 
 const LifestyleServices = () => {
   const navigate = useNavigate();
@@ -39,9 +42,19 @@ const LifestyleServices = () => {
   const categoryRef = useRef<HTMLDivElement>(null);
   const [showRightIndicator, setShowRightIndicator] = useState(false);
   
-  const isLoading = false;
-  const isLoadingExperts = false;
+  const { data: questions, isLoading } = useQuestions('生活服务');
+  const { data: dbExperts, isLoading: isLoadingExperts } = useExperts('生活服务');
 
+  const formatTime = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
+    } catch { return '刚刚'; }
+  };
+
+  const formatViewCount = (count: number) => {
+    if (count >= 1000) return (count / 1000).toFixed(1) + 'k';
+    return count.toString();
+  };
 
   useEffect(() => {
     const checkScroll = () => {
@@ -150,6 +163,13 @@ const LifestyleServices = () => {
     }
   ];
 
+  const mappedDbExperts = (dbExperts || []).map(e => ({
+    id: e.id, name: e.nickname || '专家', avatar: e.avatar_url || 'https://randomuser.me/api/portraits/lego/1.jpg',
+    title: e.title, description: e.bio || '', tags: e.tags,
+    category: e.category || '',
+    rating: Number(e.rating), responseRate: `${e.response_rate}%`, orderCount: `${e.order_count}单`,
+  }));
+
   const mappedDemoExperts = demoExperts
     .filter((expert) => expert.category === 'lifestyle-services')
     .map((expert) => ({
@@ -165,11 +185,14 @@ const LifestyleServices = () => {
       orderCount: `${expert.order_count}单`,
     }));
 
-  const filteredExperts = mappedDemoExperts.length > 0
-    ? mappedDemoExperts
-    : (activeCategory === 'all' ? allExperts : allExperts.filter(expert => expert.category === activeCategory));
+  const fallbackExperts = [
+    ...mappedDemoExperts,
+    ...(activeCategory === 'all' ? allExperts : allExperts.filter(expert => expert.category === activeCategory)),
+  ];
 
-  const filteredQuestions = demoQuestions;
+  const filteredExperts = mappedDbExperts.length > 0 ? mappedDbExperts : fallbackExperts;
+
+  const filteredQuestions = questions || [];
   const featuredQuestion = filteredQuestions[0];
   const featuredExpert = filteredExperts[0];
 
@@ -187,7 +210,8 @@ const LifestyleServices = () => {
   };
 
   const handleViewExpertProfile = (expertId: string) => {
-    navigate(`/expert-profile/${expertId}`);
+    const targetId = expertId.startsWith('demo-expert-') ? expertId : 'demo-expert-3';
+    navigate(`/expert-profile/${targetId}`);
   };
 
   return (
@@ -197,7 +221,7 @@ const LifestyleServices = () => {
       headerGradientClass="bg-gradient-to-r from-orange-500 to-amber-500"
       searchStripClass="bg-orange-50/90 border-orange-100/90"
       searchAccentRingClass="ring-orange-400/25"
-      searchInputAccentClass="focus-visible:ring-2 focus-visible:ring-orange-400/25 focus-visible:border-orange-300"
+      searchInputAccentClass="focus-visible:ring-orange-400/20 focus-visible:border-orange-200"
       searchInputBorderClass="border-orange-200/80"
       searchIconClass="text-orange-400"
       searchNavigateToPath="/search?channel=lifestyle"
@@ -220,10 +244,10 @@ const LifestyleServices = () => {
       onTabChange={setActiveTab}
     >
           <TabsContent value="everyone" className="mt-0">
-            {isLoading && filteredQuestions.length === 0 ? (
+            {isLoading ? (
               <ChannelQuestionSkeleton />
             ) : (
-              <div className="space-y-5">
+              <div className="space-y-4">
                 {filteredQuestions.map((question, index) => (
                   <QuestionCard
                     key={question.id}
@@ -246,7 +270,7 @@ const LifestyleServices = () => {
           </TabsContent>
           
           <TabsContent value="experts" className="mt-0">
-            {isLoadingExperts && filteredExperts.length === 0 ? (
+            {isLoading ? (
               <ChannelExpertSkeleton />
             ) : (
               <div className="space-y-3">
@@ -260,7 +284,7 @@ const LifestyleServices = () => {
                     accentSummaryClass="border-orange-200 bg-orange-50/50"
                     ctaClassName="bg-gradient-to-r from-orange-500 to-amber-400"
                     onOpen={() => handleViewExpertProfile(expert.id)}
-                    onConsult={() => navigate(`/expert/${expert.id}`)}
+                    onConsult={() => navigate(`/expert/${expert.id.startsWith('demo-expert-') ? expert.id : 'demo-expert-3'}`)}
                   />
                 ))}
               </div>

@@ -12,7 +12,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useQuestionDetail, useCreateAnswer, useToggleFavorite } from "@/hooks/useQuestions";
 import { useAcceptAnswer } from "@/hooks/useAcceptAnswer";
 import { useAuth } from "@/contexts/AuthContext";
-import { formatTime, formatViewCount } from '@/utils/format';
+import { formatDistanceToNow } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 import { useSubmitContentReport } from '@/hooks/useModeration';
 import { demoQuestionDetails } from '@/lib/demoData';
 import PageStateCard from "@/components/common/PageStateCard";
@@ -46,10 +47,29 @@ const QuestionDetail = () => {
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [answerContent, setAnswerContent] = useState('');
 
+  // 格式化时间
+  const formatTime = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { 
+        addSuffix: true, 
+        locale: zhCN 
+      });
+    } catch {
+      return '刚刚';
+    }
+  };
+
+  // 格式化浏览量
+  const formatViewCount = (count: number) => {
+    if (count >= 1000) {
+      return (count / 1000).toFixed(1) + 'k';
+    }
+    return count.toString();
+  };
 
   if (!isDemoQuestion && isLoading) {
     return (
-      <div className="app-container min-h-screen bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
+      <div className="app-container min-h-[100dvh] bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
         <PageStateCard variant="loading" title="正在加载问题内容…" />
       </div>
     );
@@ -60,7 +80,7 @@ const QuestionDetail = () => {
 
   if (error || !resolvedData) {
     return (
-      <div className="app-container min-h-screen bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
+      <div className="app-container min-h-[100dvh] bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
         <PageStateCard
           variant="error"
           title="暂时无法加载问题"
@@ -189,7 +209,7 @@ const QuestionDetail = () => {
   }));
 
   return (
-    <div className="app-container bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-24 min-h-screen">
+    <div className="app-container bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-24 min-h-[100dvh]">
       <Header
         title="问题详情"
         asker={{

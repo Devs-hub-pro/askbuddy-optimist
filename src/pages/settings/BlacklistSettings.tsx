@@ -18,9 +18,15 @@ const BlacklistSettings = () => {
     <div className="min-h-[100dvh] bg-gray-50">
       <SubPageHeader title="黑名单管理" />
 
+<<<<<<< HEAD
       <div className="space-y-4 p-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardContent className="p-4">
+=======
+      <div className="space-y-5 p-5">
+        <Card className="surface-card rounded-3xl border-none shadow-sm">
+          <CardContent className="p-5">
+>>>>>>> a04765d (Update from local working directory)
             <div className="flex items-start gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgb(236,251,247)]">
                 <Ban size={18} className="text-[rgb(73,170,155)]" />
@@ -39,7 +45,11 @@ const BlacklistSettings = () => {
           <div className="space-y-3">
             {blockedUsers.map((user) => (
               <Card key={user.id} className="surface-card rounded-3xl border-none shadow-sm">
+<<<<<<< HEAD
                 <CardContent className="flex items-center justify-between gap-3 p-4">
+=======
+                <CardContent className="flex items-center justify-between gap-3 p-5">
+>>>>>>> a04765d (Update from local working directory)
                   <div className="flex items-center gap-3">
                     <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-muted">
                       <UserRoundX size={18} className="text-slate-600" />

@@ -186,8 +186,8 @@ const SkillPublish = () => {
   const isSaving = saveExpertProfile.isPending;
 
   return (
-    <div className="bg-slate-50 min-h-screen pb-8">
-      <div className="sticky top-0 z-50 shadow-sm">
+    <div className="bg-slate-50 min-h-[100dvh] pb-8">
+      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm">
         <div className="bg-app-teal" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="flex items-center h-12 px-4">
             <button onClick={() => navigateBackOr(navigate, '/profile')} className="mr-4 text-white">
@@ -215,7 +215,7 @@ const SkillPublish = () => {
         </div>
       </div>
 
-      <div className="px-4 py-6">
+      <div className="px-4 py-6" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 10rem)' }}>
 
         {loadingExisting ? (
           <div className="py-12 flex items-center justify-center text-gray-500">

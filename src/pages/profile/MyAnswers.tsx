@@ -5,7 +5,8 @@ import { MessageSquare, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useMyAnswers } from '@/hooks/useProfileData';
-import { formatTime } from '@/utils/format';
+import { formatDistanceToNow } from 'date-fns';
+import { zhCN } from 'date-fns/locale';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import PageStateCard from '@/components/common/PageStateCard';
 
@@ -13,6 +14,11 @@ const MyAnswers = () => {
   const navigate = useNavigate();
   const { data: answers, isLoading } = useMyAnswers();
 
+  const formatTime = (dateString: string) => {
+    try {
+      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
+    } catch { return '刚刚'; }
+  };
 
   return (
     <div className="pb-8 min-h-[100dvh] bg-gray-50">
@@ -30,7 +36,7 @@ const MyAnswers = () => {
               className="surface-card cursor-pointer rounded-3xl border-none shadow-sm transition-shadow hover:shadow-md"
               onClick={() => navigate(`/question/${answer.question_id}`)}
             >
-              <CardContent className="p-4">
+              <CardContent className="p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0 flex-1">
                     <p className="mb-1 text-xs font-medium text-primary">
@@ -54,7 +60,7 @@ const MyAnswers = () => {
           ))}
         </div>
       ) : (
-        <div className="p-4 pt-20">
+        <div className="p-5 pt-20">
           <PageStateCard
             title="暂无回答记录"
             description="去发现页看看大家都在问什么，挑擅长的问题来回答。"

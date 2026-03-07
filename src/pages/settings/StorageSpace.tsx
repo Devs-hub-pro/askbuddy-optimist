@@ -44,7 +44,7 @@ const StorageSpace = () => {
     <div className="min-h-[100dvh] bg-gray-50">
       <SubPageHeader title="存储空间" />
 
-      <div className="p-4 space-y-4">
+      <div className="space-y-4 p-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-2">
             <CardTitle className="text-lg">存储空间使用情况</CardTitle>

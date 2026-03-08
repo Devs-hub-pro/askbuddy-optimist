@@ -31,7 +31,7 @@ const ContentPreferences = () => {
                   选择你更关注的话题与内容方向，发现页和首页推荐会更贴近你的兴趣。
                 </p>
               </div>
-              <Sparkles className="h-5 w-5 text-[rgb(73,170,155)]" />
+              <Sparkles className="app-accent-text h-5 w-5" />
             </div>
           </CardContent>
         </Card>

@@ -18,10 +18,15 @@ import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import PageStateCard from '@/components/common/PageStateCard';
+import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 
 const Discover: React.FC = () => {
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState<'following' | 'recommended' | 'local'>('recommended');
+  const [activeTab, setActiveTab] = useState<'following' | 'recommended' | 'local'>(() => {
+    const cached = sessionStorage.getItem('tab:discover');
+    if (cached === 'following' || cached === 'local' || cached === 'recommended') return cached;
+    return 'recommended';
+  });
   const [showNotification, setShowNotification] = useState(true);
   const [currentLocation, setCurrentLocation] = useState('深圳');
   const { user, profile } = useAuth();
@@ -45,6 +50,7 @@ const Discover: React.FC = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const previewsRef = useRef<string[]>([]);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const createPost = useCreatePost();
   const uploadMedia = useUploadPostMedia();
@@ -62,6 +68,22 @@ const Discover: React.FC = () => {
     return () => window.removeEventListener('storage', syncLocation);
   }, []);
 
+  usePageScrollMemory('discover');
+
+  useEffect(() => {
+    sessionStorage.setItem('tab:discover', activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    previewsRef.current = imagePreviews;
+  }, [imagePreviews]);
+
+  useEffect(() => {
+    return () => {
+      previewsRef.current.forEach((url) => URL.revokeObjectURL(url));
+    };
+  }, []);
+
   const handleCreatePost = async () => {
     if (!newPostContent.trim()) return;
     let imageUrls: string[] = [];
@@ -69,6 +91,7 @@ const Discover: React.FC = () => {
       imageUrls = await uploadMedia.mutateAsync(selectedImages);
     }
     await createPost.mutateAsync({ content: newPostContent, topics: newPostTags, images: imageUrls });
+    imagePreviews.forEach((url) => URL.revokeObjectURL(url));
     setIsPostDialogOpen(false);
     setNewPostContent('');
     setNewPostTags([]);
@@ -86,6 +109,8 @@ const Discover: React.FC = () => {
   };
 
   const removeImage = (index: number) => {
+    const target = imagePreviews[index];
+    if (target) URL.revokeObjectURL(target);
     setSelectedImages(prev => prev.filter((_, i) => i !== index));
     setImagePreviews(prev => prev.filter((_, i) => i !== index));
   };
@@ -110,7 +135,7 @@ const Discover: React.FC = () => {
   return (
     <div className="pb-16 min-h-[100dvh] bg-slate-50">
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'following' | 'recommended' | 'local')} className="w-full">
-        <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 bg-[rgb(121,213,199)] shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <div className="app-header-bg fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex-1">
               <TabsList className="h-10 w-full justify-start rounded-none bg-transparent p-0">
@@ -201,7 +226,18 @@ const Discover: React.FC = () => {
       </Tabs>
 
       {/* Post Creation Dialog */}
-      <Dialog open={isPostDialogOpen} onOpenChange={setIsPostDialogOpen}>
+      <Dialog
+        open={isPostDialogOpen}
+        onOpenChange={(open) => {
+          if (!open) {
+            imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+            setSelectedImages([]);
+            setImagePreviews([]);
+            setShowEmojiPicker(false);
+          }
+          setIsPostDialogOpen(open);
+        }}
+      >
         <DialogContent className="bg-card/95 backdrop-blur-md border-border rounded-xl max-w-md w-full mx-auto">
           <DialogHeader>
             <DialogTitle className="text-center text-lg font-bold">发布动态</DialogTitle>
@@ -341,12 +377,12 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, formatTim
     <div className="pb-5">
       {showComposer && (
         <div className="px-4 pt-5">
-          <div className="rounded-3xl border border-[#d9efe9] bg-[rgb(223,245,239)] p-3.5">
+          <div className="app-header-soft-bg app-soft-border rounded-3xl border p-3.5">
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
-                <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90">
-                  <PenSquare size={14} className="text-app-teal" />
-                </span>
+              <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90">
+                <PenSquare size={14} className="text-app-teal" />
+              </span>
                 <div>
                   <div className="text-sm font-semibold leading-none text-slate-900">社交广场</div>
                   <p className="mt-1 text-[11px] text-slate-500">{tabLabel}</p>
@@ -393,13 +429,13 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, formatTim
 
               {topicChips.length > 0 && (
                 <div className="mt-2.5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
-                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-[#fff7df]">
-                    <Flame size={13} className="text-[#e0a100]" />
+                  <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-50">
+                    <Flame size={13} className="text-amber-500" />
                   </span>
                   {topicChips.slice(0, 4).map((topic) => (
                     <button
                       key={topic.id}
-                      className="shrink-0 rounded-full border border-[#d9efe9] bg-white px-2.5 py-1.5 text-[11px] font-medium text-slate-700 transition-colors hover:border-[#c9e8df] hover:bg-slate-50"
+                      className="app-soft-border shrink-0 rounded-full border bg-white px-2.5 py-1.5 text-[11px] font-medium text-slate-700 transition-colors hover:bg-slate-50"
                       onClick={onQuickPost}
                     >
                       #{topic.name}
@@ -425,13 +461,13 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, formatTim
           </div>
           <div className="flex items-center gap-2 rounded-full bg-white p-1 shadow-sm">
             <button
-              className={`rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${sortMode === 'latest' ? 'bg-[rgb(236,251,247)] text-[rgb(73,170,155)]' : 'text-slate-500'}`}
+              className={`rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${sortMode === 'latest' ? 'app-soft-surface-bg app-accent-text' : 'text-slate-500'}`}
               onClick={() => setSortMode('latest')}
             >
               最新
             </button>
             <button
-              className={`rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${sortMode === 'hot' ? 'bg-[rgb(236,251,247)] text-[rgb(73,170,155)]' : 'text-slate-500'}`}
+              className={`rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${sortMode === 'hot' ? 'app-soft-surface-bg app-accent-text' : 'text-slate-500'}`}
               onClick={() => setSortMode('hot')}
             >
               最热

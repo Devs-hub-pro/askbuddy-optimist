@@ -1,5 +1,5 @@
-import React from 'react';
-import { ChevronLeft, ChevronRight, Bell } from 'lucide-react';
+import React, { useEffect, useState } from 'react';
+import { ChevronLeft, ChevronRight, Bell, Search } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -73,14 +73,20 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
   children,
 }) => {
   const navigate = useNavigate();
+  const [isSearchCollapsed, setIsSearchCollapsed] = useState(false);
+
+  useEffect(() => {
+    const onScroll = () => {
+      setIsSearchCollapsed(window.scrollY > 28);
+    };
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
 
   return (
     <div className={`app-container pb-20 ${pageClassName}`}>
-<<<<<<< HEAD
-      <div className="sticky top-0 z-50 animate-fade-in">
-=======
       <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 animate-fade-in">
->>>>>>> a04765d (Update from local working directory)
         <div className={`${headerGradientClass} shadow-sm`}>
           <div style={{ height: 'env(safe-area-inset-top)' }} />
           <div className="flex items-center h-12 px-4">
@@ -89,32 +95,49 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
             </button>
             <div className="ml-2 text-base font-medium text-white">{title}</div>
             <div className="flex-1" />
+            <button
+              className={`mr-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white transition-all duration-200 ${
+                isSearchCollapsed ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-90 opacity-0'
+              }`}
+              onClick={() => navigate(searchNavigateToPath)}
+              aria-label="打开搜索"
+            >
+              <Search size={16} />
+            </button>
             <button className="text-white" onClick={() => navigate('/notifications')}>
               <Bell size={20} />
             </button>
           </div>
         </div>
 
-        <div className={`px-4 py-3 border-b shadow-[0_1px_0_rgba(15,23,42,0.03)] ${searchStripClass}`}>
-          <SearchBar
-            placeholder="搜索问题/达人/话题"
-            clickToNavigate
-            accentRingClassName={searchAccentRingClass}
-            inputAccentClassName={searchInputAccentClass}
-            inputBorderClassName={searchInputBorderClass}
-            iconClassName={searchIconClass}
-            navigateToPath={searchNavigateToPath}
-          />
+        <div
+          className={`overflow-hidden border-b shadow-[0_1px_0_rgba(15,23,42,0.03)] transition-all duration-200 ${searchStripClass} ${
+            isSearchCollapsed ? 'max-h-0 opacity-0' : 'max-h-24 opacity-100'
+          }`}
+        >
+          <div className="px-4 py-3">
+            <SearchBar
+              placeholder="搜索问题/达人/话题"
+              clickToNavigate
+              accentRingClassName={searchAccentRingClass}
+              inputAccentClassName={searchInputAccentClass}
+              inputBorderClassName={searchInputBorderClass}
+              iconClassName={searchIconClass}
+              navigateToPath={searchNavigateToPath}
+            />
+          </div>
         </div>
       </div>
 
-<<<<<<< HEAD
-      <div className="px-4 pt-5">
-        <div className="surface-card rounded-3xl p-5">
-=======
-      <div className="px-4 pt-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 7.5rem)' }}>
+      <div
+        className="px-4 pt-4 transition-[padding-top] duration-200"
+        style={{
+          paddingTop: isSearchCollapsed
+            ? 'calc(env(safe-area-inset-top) + 3.5rem)'
+            : 'calc(env(safe-area-inset-top) + 8.75rem)',
+        }}
+      >
         <div className="surface-card rounded-3xl p-4">
->>>>>>> a04765d (Update from local working directory)
           <span className={`inline-flex rounded-full px-3 py-1 text-xs font-medium ${featuredBadgeClass}`}>
             本周精选
           </span>
@@ -131,11 +154,7 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
         </div>
       </div>
 
-<<<<<<< HEAD
-      <div className="relative mb-6 px-4 pt-4">
-=======
       <div className="relative mb-5 px-4 pt-3">
->>>>>>> a04765d (Update from local working directory)
         <div className="relative">
           {showRightIndicator && (
             <button
@@ -168,15 +187,9 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
         </div>
       </div>
 
-<<<<<<< HEAD
-      <div className="mb-7 px-4">
-        <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as 'everyone' | 'experts')} className="w-full">
-          <div className="relative mb-7 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-gray-100 after:content-['']">
-=======
       <div className="mb-6 px-4">
         <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as 'everyone' | 'experts')} className="w-full">
           <div className="relative mb-6 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-gray-100 after:content-['']">
->>>>>>> a04765d (Update from local working directory)
             <TabsList className="h-auto w-full bg-transparent p-0">
               <TabsTrigger
                 value="everyone"

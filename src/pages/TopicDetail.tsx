@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { ArrowLeft, MessageCircle, Heart, Send, Users, Loader2, Trash2, Star } from 'lucide-react';
+import { MessageCircle, Heart, Send, Users, Loader2, Trash2, Star } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -13,6 +13,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import PageStateCard from '@/components/common/PageStateCard';
 import { navigateBackOr } from '@/utils/navigation';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const TopicDetail = () => {
   const { topicId } = useParams<{ topicId: string }>();
@@ -94,19 +95,9 @@ const TopicDetail = () => {
 
   return (
     <div className="app-container min-h-[100dvh] bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-24">
-      <div
-        className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 border-b border-white/10 bg-app-teal text-white shadow-sm"
-        style={{ paddingTop: 'env(safe-area-inset-top)' }}
-      >
-        <div className="flex items-center px-4 py-3">
-          <button onClick={() => navigateBackOr(navigate, '/')} className="mr-3">
-            <ArrowLeft size={24} />
-          </button>
-          <h1 className="text-base font-semibold flex-1 truncate">{topic.title}</h1>
-        </div>
-      </div>
+      <SubPageHeader title={topic.title} onBack={() => navigateBackOr(navigate, '/')} headerClassName="border-white/10 bg-app-teal" />
 
-      <div className="px-4 pt-5" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5.25rem)' }}>
+      <div className="px-4 pt-4">
         <div className="surface-card rounded-3xl overflow-hidden">
           {topic.cover_image ? (
             <div className="h-44">

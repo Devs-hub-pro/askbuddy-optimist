@@ -14,7 +14,9 @@ const CitySelector = () => {
   const [recentLocations, setRecentLocations] = useState<string[]>([]);
   const [scrollToLetter, setScrollToLetter] = useState('');
   const letterRefs = useRef<{ [key: string]: HTMLDivElement | null }>({});
-  const [activeRegion, setActiveRegion] = useState<string | null>(null);
+  const headerOffset = searchKeyword
+    ? 'calc(env(safe-area-inset-top) + 7.25rem)'
+    : 'calc(env(safe-area-inset-top) + 9.75rem)';
 
   useEffect(() => {
     // Get stored location data
@@ -87,7 +89,7 @@ const CitySelector = () => {
     <div className="min-h-[100dvh] bg-gray-50">
       {/* Header */}
       <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm">
-        <div className="bg-[rgb(121,213,199)] text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <div className="app-header-bg text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="flex items-center h-12 px-4">
             <button 
               onClick={() => navigateBackOr(navigate, '/')}
@@ -100,7 +102,7 @@ const CitySelector = () => {
         </div>
         
         {/* Search Bar */}
-        <div className="bg-[rgb(223,245,239)] px-4 py-2 flex items-center gap-2">
+        <div className="app-header-soft-bg flex items-center gap-2 px-4 py-2">
           <div className="relative flex-1">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
             <Input
@@ -144,7 +146,7 @@ const CitySelector = () => {
           </div>
         )}
       </div>
-      <div style={{ paddingTop: searchKeyword ? 'calc(env(safe-area-inset-top) + 7.25rem)' : 'calc(env(safe-area-inset-top) + 9.75rem)' }}>
+      <div style={{ paddingTop: headerOffset }}>
       {/* Search Results */}
       {searchKeyword && (
         <div className="bg-white p-4">
@@ -240,7 +242,8 @@ const CitySelector = () => {
                     <div key={letter} className="city-section">
                       <div 
                         ref={(el) => letterRefs.current[letter] = el}
-                        className="sticky top-[104px] z-20 px-4 py-1 bg-gray-100 text-sm text-gray-500"
+                        className="sticky z-20 px-4 py-1 bg-gray-100 text-sm text-gray-500"
+                        style={{ top: headerOffset }}
                       >
                         {letter}
                       </div>
@@ -267,7 +270,7 @@ const CitySelector = () => {
             <div className="bg-white mt-2 pb-24">
               {Object.entries(overseasRegions).map(([region, countries]) => (
                 <div key={region}>
-                  <div className="sticky top-[104px] z-20 px-4 py-1 bg-gray-100 text-sm text-gray-500">
+                  <div className="sticky z-20 px-4 py-1 bg-gray-100 text-sm text-gray-500" style={{ top: headerOffset }}>
                     {region}
                   </div>
                   <div className="p-4">

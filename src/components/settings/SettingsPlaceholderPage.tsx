@@ -10,17 +10,13 @@ interface SettingsPlaceholderPageProps {
 
 const SettingsPlaceholderPage: React.FC<SettingsPlaceholderPageProps> = ({ title, description }) => {
   return (
-<<<<<<< HEAD
-    <div className="min-h-screen bg-gray-50">
-=======
     <div className="min-h-[100dvh] bg-gray-50">
->>>>>>> a04765d (Update from local working directory)
       <SubPageHeader title={title} />
       <div className="p-4">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardContent className="flex flex-col items-center px-6 py-12 text-center">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-2xl bg-[rgb(223,245,239)]">
-              <Clock3 className="h-7 w-7 text-[rgb(121,213,199)]" />
+            <div className="app-header-soft-bg mb-4 flex h-14 w-14 items-center justify-center rounded-2xl">
+              <Clock3 className="app-accent-text h-7 w-7" />
             </div>
             <h2 className="text-lg font-semibold text-foreground">{title}</h2>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">{description}</p>

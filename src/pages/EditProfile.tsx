@@ -46,6 +46,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { useUpdateProfile, useUploadAvatar } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/use-toast';
 import SubPageHeader from '@/components/layout/SubPageHeader';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -180,8 +181,8 @@ const EditProfile = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-[100dvh] bg-muted px-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
+        <PageStateCard variant="loading" title="正在加载资料…" compact />
       </div>
     );
   }

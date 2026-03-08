@@ -16,6 +16,8 @@ import { zhCN } from 'date-fns/locale';
 import { demoExperts, demoQuestions } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 import ChannelExpertCard from '@/components/channel/ChannelExpertCard';
+import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
+import { mapExpertToUIModel, mapQuestionToUIModel, mergeUniqueById } from '@/lib/adapters/contentAdapters';
 
 interface LocationState {
   location?: string;
@@ -26,20 +28,43 @@ const Index = () => {
   const navigate = useNavigate();
   const locationState = routeLocation.state as LocationState;
   
-  const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>('everyone');
+  const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>(() => {
+    const cached = sessionStorage.getItem('tab:index');
+    return cached === 'experts' ? 'experts' : 'everyone';
+  });
   const [currentLocation, setCurrentLocation] = useState<string>('深圳');
   const [isSearchCollapsed, setIsSearchCollapsed] = useState(false);
   
   // 使用真实数据
-  const { data: questions, isLoading } = useQuestions();
-  const { data: hotTopics, isLoading: isLoadingTopics } = useHotTopics();
-  const { data: dbExperts } = useExperts();
+  const {
+    data: questions,
+    isLoading,
+    error: questionsError,
+    refetch: refetchQuestions,
+  } = useQuestions();
+  const {
+    data: hotTopics,
+    isLoading: isLoadingTopics,
+    error: hotTopicsError,
+    refetch: refetchHotTopics,
+  } = useHotTopics();
+  const {
+    data: dbExperts,
+    error: expertsError,
+    refetch: refetchExperts,
+  } = useExperts();
   const { data: unreadCount } = useUnreadCount();
   
   useEffect(() => {
     const storedLocation = localStorage.getItem('currentLocation') || '深圳';
     setCurrentLocation(storedLocation);
   }, []);
+
+  usePageScrollMemory('index');
+
+  useEffect(() => {
+    sessionStorage.setItem('tab:index', activeTab);
+  }, [activeTab]);
   
   useEffect(() => {
     if (locationState?.location) {
@@ -91,42 +116,15 @@ const Index = () => {
     return count.toString();
   };
 
-  const experts = [
-    ...demoExperts.map((e) => ({
-      id: e.id,
-      name: e.nickname || '专家',
-      avatar: e.avatar_url || 'https://randomuser.me/api/portraits/lego/1.jpg',
-      title: e.title,
-      description: e.bio || '',
-      tags: e.tags,
-      rating: Number(e.rating || 0),
-      responseRate: `${Number(e.response_rate || 0)}%`,
-      orderCount: `${e.order_count || 0}单`,
-      consultationPrice: e.consultation_price || 50,
-      location: e.location || '未设置地区',
-      education: Array.isArray(e.education) ? e.education.map((item) => (typeof item === 'string' ? item : `${item.school || ''} ${item.degree || ''}`.trim())) : [],
-      experience: Array.isArray(e.experience) ? e.experience.map((item) => (typeof item === 'string' ? item : `${item.company || ''} ${item.position || item.title || ''}`.trim())) : [],
-      verified: e.is_verified,
-    })),
-    ...(dbExperts || []).map((e) => ({
-    id: e.id,
-    name: e.nickname || '专家',
-    avatar: e.avatar_url || 'https://randomuser.me/api/portraits/lego/1.jpg',
-    title: e.title,
-    description: e.bio || '',
-    tags: e.tags,
-    rating: Number(e.rating || 0),
-    responseRate: `${Number(e.response_rate || 0)}%`,
-    orderCount: `${e.order_count || 0}单`,
-    consultationPrice: e.consultation_price || 50,
-    location: e.location || '未设置地区',
-    education: Array.isArray(e.education) ? e.education.map((item) => (typeof item === 'string' ? item : `${item.school || ''} ${item.degree || ''}`.trim())) : [],
-    experience: Array.isArray(e.experience) ? e.experience.map((item) => (typeof item === 'string' ? item : `${item.company || ''} ${item.position || item.title || ''}`.trim())) : [],
-    verified: e.is_verified,
-  })),
-  ];
+  const experts = mergeUniqueById(
+    (dbExperts || []).map((item) => mapExpertToUIModel(item)),
+    demoExperts.map((item) => mapExpertToUIModel(item))
+  );
 
-  const homepageQuestions = [...demoQuestions, ...(questions || [])];
+  const homepageQuestions = mergeUniqueById(
+    (questions || []).map((item) => mapQuestionToUIModel(item)),
+    demoQuestions.map((item) => mapQuestionToUIModel(item))
+  );
 
   const handleViewQuestionDetail = (questionId: string) => {
     navigate(`/question/${questionId}`);
@@ -138,7 +136,7 @@ const Index = () => {
 
   const fixedHeader = (
     <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm">
-      <div style={{ background: 'rgb(121, 213, 199)' }}>
+      <div className="app-header-bg">
         <div style={{ height: 'env(safe-area-inset-top)' }} />
         <div className="flex h-12 items-center justify-between px-4">
           <div className="text-[17px] font-semibold text-white">问问</div>
@@ -169,12 +167,20 @@ const Index = () => {
           </div>
         </div>
         <div
-          className={`overflow-hidden border-t border-white/20 bg-[rgb(223,245,239)] transition-all duration-200 ${
+          className={`overflow-hidden border-t border-white/20 app-header-soft-bg transition-all duration-200 ${
             isSearchCollapsed ? 'max-h-0 opacity-0' : 'max-h-24 opacity-100'
           }`}
         >
           <div className="py-3">
-            <SearchBar className="py-0" clickToNavigate />
+            <SearchBar
+              className="py-0"
+              clickToNavigate
+              navigateToPath="/search"
+              accentRingClassName="ring-app-teal/35"
+              inputAccentClassName="focus-visible:ring-app-teal/25 focus-visible:border-app-teal/60"
+              inputBorderClassName="border-[rgb(160,237,224)]"
+              iconClassName="text-app-teal"
+            />
           </div>
         </div>
       </div>
@@ -199,8 +205,8 @@ const Index = () => {
         <div className="mb-4 flex items-start justify-between gap-3 px-4">
           <div>
             <div className="flex items-center gap-2">
-              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#fff7df]">
-                <Sparkles size={16} className="text-[#e0a100]" />
+              <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-50">
+                <Sparkles size={16} className="text-amber-500" />
               </span>
               <h2 className="text-lg font-bold tracking-[-0.01em] animate-fade-in animate-delay-2">
                 问问热榜
@@ -238,44 +244,62 @@ const Index = () => {
               </div>
             ))}
           </div>
+        ) : hotTopicsError ? (
+          <div className="px-4 pb-2">
+            <PageStateCard
+              compact
+              variant="error"
+              title="热榜加载失败"
+              description={hotTopicsError instanceof Error ? hotTopicsError.message : '请稍后重试'}
+              actionLabel="重试"
+              onAction={() => refetchHotTopics()}
+            />
+          </div>
         ) : hotTopics && hotTopics.length > 0 ? (
           <div className="flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-hide snap-x snap-mandatory">
             {hotTopics.map((topic, index) => (
               <div
                 key={topic.id}
-                onClick={() => navigate(`/topic/${topic.id}`)}
-                className="cursor-pointer shrink-0 w-[280px] snap-start opacity-0 animate-slide-in-left"
+                className="shrink-0 w-[280px] snap-start opacity-0 animate-slide-in-left"
                 style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'forwards' }}
               >
                 <div className="surface-card overflow-hidden rounded-3xl">
-                  <div className="relative h-[112px]">
-                    <img
-                      src={topic.cover_image || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&h=600&q=80'}
-                      alt={topic.title}
-                      className="h-full w-full object-cover"
-                      loading="lazy"
-                    />
-                    <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3">
-                      <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-slate-700">
-                        热榜专题
-                      </span>
-                      <span className="flex items-center gap-1 rounded-full bg-slate-900/70 px-2.5 py-1 text-[11px] text-white">
-                        <MessageSquare size={12} />
-                        {topic.discussions_count}
-                      </span>
+                  <button type="button" className="block w-full text-left" onClick={() => navigate(`/topic/${topic.id}`)}>
+                    <div className="relative h-[112px]">
+                      <img
+                        src={topic.cover_image || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&h=600&q=80'}
+                        alt={topic.title}
+                        className="h-full w-full object-cover"
+                        loading="lazy"
+                      />
+                      <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3">
+                        <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-slate-700">
+                          热榜专题
+                        </span>
+                        <span className="flex items-center gap-1 rounded-full bg-slate-900/70 px-2.5 py-1 text-[11px] text-white">
+                          <MessageSquare size={12} />
+                          {topic.discussions_count}
+                        </span>
+                      </div>
                     </div>
-                  </div>
+                  </button>
                   <div className="p-4">
-                    <h3 className="text-[15px] font-semibold leading-6 text-slate-900">{topic.title}</h3>
-                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">
-                      {topic.description || '点击进入专题详情，查看完整内容并继续参与讨论。'}
-                    </p>
+                    <button type="button" className="block w-full text-left" onClick={() => navigate(`/topic/${topic.id}`)}>
+                      <h3 className="text-[15px] font-semibold leading-6 text-slate-900">{topic.title}</h3>
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">
+                        {topic.description || '点击进入专题详情，查看完整内容并继续参与讨论。'}
+                      </p>
+                    </button>
                     <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
                       <span>{topic.participants_count} 人正在围观</span>
-                      <span className="flex items-center gap-1 font-medium text-primary">
+                      <button
+                        type="button"
+                        className="flex items-center gap-1 font-medium text-primary"
+                        onClick={() => navigate(`/topic/${topic.id}`)}
+                      >
                         点进查看
                         <ArrowUpRight size={14} />
-                      </span>
+                      </button>
                     </div>
                   </div>
                 </div>
@@ -327,7 +351,7 @@ const Index = () => {
             >
               大家都在问
               {activeTab === 'everyone' && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-11 h-[3px] bg-gradient-to-r from-[#54d9c7] to-[#2ac3ff] z-10 rounded-full transition-all duration-300 ease-in-out"></span>
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-11 h-[3px] bg-gradient-to-r from-app-teal to-cyan-400 z-10 rounded-full transition-all duration-300 ease-in-out"></span>
               )}
             </button>
             <button 
@@ -336,7 +360,7 @@ const Index = () => {
             >
               找TA问问
               {activeTab === 'experts' && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-11 h-[3px] bg-gradient-to-r from-[#54d9c7] to-[#2ac3ff] z-10 rounded-full transition-all duration-300 ease-in-out"></span>
+                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-11 h-[3px] bg-gradient-to-r from-app-teal to-cyan-400 z-10 rounded-full transition-all duration-300 ease-in-out"></span>
               )}
             </button>
           </div>
@@ -390,7 +414,16 @@ const Index = () => {
         ) : (
           activeTab === 'everyone' ? (
             <div className="space-y-4">
-              {homepageQuestions.length > 0 ? (
+              {questionsError ? (
+                <PageStateCard
+                  compact
+                  variant="error"
+                  title="问题列表加载失败"
+                  description={questionsError instanceof Error ? questionsError.message : '请稍后重试'}
+                  actionLabel="重试"
+                  onAction={() => refetchQuestions()}
+                />
+              ) : homepageQuestions.length > 0 ? (
                 homepageQuestions.map((question, index) => (
                   <div
                     key={question.id}
@@ -402,13 +435,13 @@ const Index = () => {
                       title={question.title}
                       description={question.content || undefined}
                       asker={{
-                        name: question.profile_nickname || '匿名用户',
-                        avatar: question.profile_avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'
+                        name: question.askerName,
+                        avatar: question.askerAvatar
                       }}
-                      time={formatTime(question.created_at)}
+                      time={formatTime(question.createdAt)}
                       tags={question.tags || []}
-                      points={question.bounty_points}
-                      viewCount={formatViewCount(question.view_count)}
+                      points={question.bountyPoints}
+                      viewCount={formatViewCount(question.viewCount)}
                       delay={0.4 + index * 0.1}
                     />
                   </div>
@@ -423,7 +456,16 @@ const Index = () => {
             </div>
           ) : (
             <div className="space-y-3.5">
-              {experts.length > 0 ? experts.map((expert, index) => (
+              {expertsError ? (
+                <PageStateCard
+                  compact
+                  variant="error"
+                  title="专家列表加载失败"
+                  description={expertsError instanceof Error ? expertsError.message : '请稍后重试'}
+                  actionLabel="重试"
+                  onAction={() => refetchExperts()}
+                />
+              ) : experts.length > 0 ? experts.map((expert, index) => (
                 <div
                   key={expert.id}
                   className="opacity-0 animate-slide-up"
@@ -431,10 +473,10 @@ const Index = () => {
                 >
                   <ChannelExpertCard
                     expert={expert}
-                    accentBorderClass="border-[#d9efe9]"
+                    accentBorderClass="app-soft-border"
                     accentTextClass="text-app-teal"
-                    accentTagClass="bg-[rgb(236,251,247)] text-[rgb(73,170,155)] border border-[rgb(205,239,231)]"
-                    accentSummaryClass="border-[rgb(160,237,224)] bg-[rgb(236,251,247)]"
+                    accentTagClass="app-soft-surface-bg app-accent-text app-soft-border border"
+                    accentSummaryClass="app-soft-border app-soft-surface-bg"
                     ctaClassName="bg-gradient-to-r from-app-teal to-cyan-400"
                     onOpen={() => handleViewExpertProfile(expert.id)}
                     onConsult={() => navigate(`/expert/${expert.id}`)}

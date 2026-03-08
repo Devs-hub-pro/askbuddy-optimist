@@ -72,12 +72,17 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
   return (
     <>
       <div
-        className="surface-card p-4 transition-all duration-300 animate-fade-in cursor-pointer hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
+        className="surface-card p-4 transition-all duration-300 animate-fade-in hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
         style={{ animationDelay: `${delay}s` }}
-        onClick={() => navigate(`/question/${id}`)}
       >
         <div className="flex items-start justify-between mb-2">
-          <h3 className="font-semibold text-base text-left text-gray-800 leading-7">{title}</h3>
+          <button
+            type="button"
+            className="text-left"
+            onClick={() => navigate(`/question/${id}`)}
+          >
+            <h3 className="font-semibold text-base text-left text-gray-800 leading-7">{title}</h3>
+          </button>
           {viewCount && (
             <div className="flex items-center gap-1 text-gray-500 text-xs">
               <Eye size={14} className="flex-shrink-0" />
@@ -87,7 +92,13 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         </div>
         
         {description && (
-          <p className="text-sm text-gray-600 mb-3 text-left line-clamp-2 leading-6">{description}</p>
+          <button
+            type="button"
+            className="mb-3 block text-left"
+            onClick={() => navigate(`/question/${id}`)}
+          >
+            <p className="text-sm text-gray-600 line-clamp-2 leading-6">{description}</p>
+          </button>
         )}
         
         <div className="flex items-center justify-between mb-3">

@@ -43,7 +43,7 @@ const AccountRecovery = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardContent className="space-y-3 p-4">
             <div className="flex items-center gap-2">
-              <ShieldQuestion size={16} className="text-[rgb(73,170,155)]" />
+              <ShieldQuestion size={16} className="app-accent-text" />
               <p className="text-sm font-semibold text-foreground">找回说明</p>
             </div>
             <p className="text-sm leading-6 text-muted-foreground">
@@ -67,12 +67,12 @@ const AccountRecovery = () => {
                     onClick={() => setMethod(item.id as 'phone' | 'email' | 'manual')}
                     className={`flex w-full items-start gap-3 rounded-3xl border px-4 py-4 text-left transition-all ${
                       active
-                        ? 'border-[rgb(121,213,199)] bg-[rgb(236,251,247)]'
+                        ? 'app-soft-border app-soft-surface-bg'
                         : 'border-border bg-background'
                     }`}
                   >
                     <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white shadow-sm">
-                      <Icon size={18} className="text-[rgb(73,170,155)]" />
+                      <Icon size={18} className="app-accent-text" />
                     </div>
                     <div className="flex-1">
                       <p className="text-sm font-semibold text-foreground">{item.title}</p>

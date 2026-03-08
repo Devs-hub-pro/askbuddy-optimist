@@ -28,6 +28,8 @@ import { useUploadAvatar, useUploadCover, useUpdateProfile } from '@/hooks/usePr
 import { useProfileStats } from '@/hooks/useProfileData';
 import { useToast } from '@/hooks/use-toast';
 import { useIsAdmin } from '@/hooks/useHotTopics';
+import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -45,6 +47,7 @@ const Profile = () => {
   const updateProfile = useUpdateProfile();
   const { data: stats } = useProfileStats();
   const { data: isAdmin } = useIsAdmin();
+  usePageScrollMemory('profile');
 
   const isLoggedIn = !!user;
 
@@ -151,8 +154,8 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[100dvh] bg-muted flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-[100dvh] bg-slate-50 pb-16 px-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
+        <PageStateCard variant="loading" title="正在加载个人主页…" description="首次进入可能会稍慢一点。" />
       </div>
     );
   }

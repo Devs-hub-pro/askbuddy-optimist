@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { Search, Check, MessageCircle, Bell, ChevronRight } from 'lucide-react';
+import { Search, MessageCircle, Bell, ChevronRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
 import { useToast } from '@/hooks/use-toast';
@@ -11,21 +11,47 @@ import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { demoConversations } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
+import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 
 const Messages = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [activeTab, setActiveTab] = useState<'chats' | 'notifications'>('chats');
+  const [activeTab, setActiveTab] = useState<'chats' | 'notifications'>(() => {
+    const cached = sessionStorage.getItem('tab:messages');
+    return cached === 'notifications' ? 'notifications' : 'chats';
+  });
   const [showSearch, setShowSearch] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const searchInputRef = useRef<HTMLInputElement>(null);
 
   // Real data hooks
-  const { data: conversations, isLoading: chatsLoading } = useConversations();
-  const { data: notifications, isLoading: notifsLoading } = useNotifications();
+  const {
+    data: conversations,
+    isLoading: chatsLoading,
+    error: chatsError,
+    refetch: refetchConversations,
+  } = useConversations();
+  const {
+    data: notifications,
+    isLoading: notifsLoading,
+    error: notificationsError,
+    refetch: refetchNotifications,
+  } = useNotifications();
   const { data: unreadNotifCount } = useUnreadCount();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
+
+  usePageScrollMemory('messages');
+
+  React.useEffect(() => {
+    sessionStorage.setItem('tab:messages', activeTab);
+  }, [activeTab]);
+
+  React.useEffect(() => {
+    if (activeTab === 'notifications') {
+      setSearchQuery('');
+    }
+  }, [activeTab]);
 
   // Format time
   const formatTime = (dateString: string) => {
@@ -51,10 +77,15 @@ const Messages = () => {
   // Group notifications by type
   const notifGroups = React.useMemo(() => {
     if (!notifications) return [];
+    const keyword = searchQuery.trim().toLowerCase();
     const interactionItems: typeof notifications = [];
     const systemItems: typeof notifications = [];
 
     notifications.forEach(n => {
+      if (keyword) {
+        const bag = `${n.title || ''} ${n.content || ''}`.toLowerCase();
+        if (!bag.includes(keyword)) return;
+      }
       if (['new_answer', 'answer_accepted', 'new_follower'].includes(n.type)) {
         interactionItems.push(n);
       } else {
@@ -70,14 +101,14 @@ const Messages = () => {
 
     if (interactionItems.length > 0) {
       interactionItems.sort(byUnreadAndTime);
-      result.push({ type: 'interaction', title: '互动通知', tone: 'bg-[rgb(236,251,247)] text-[rgb(73,170,155)]', items: interactionItems });
+      result.push({ type: 'interaction', title: '互动通知', tone: 'app-soft-surface-bg app-accent-text', items: interactionItems });
     }
     if (systemItems.length > 0) {
       systemItems.sort(byUnreadAndTime);
       result.push({ type: 'system', title: '系统通知', tone: 'bg-slate-100 text-slate-500', items: systemItems });
     }
     return result;
-  }, [notifications]);
+  }, [notifications, searchQuery]);
 
   const handleChatClick = (partnerId: string) => {
     navigate(`/chat/${partnerId}`);
@@ -103,7 +134,7 @@ const Messages = () => {
   return (
     <div className="min-h-[100dvh] bg-slate-50 pb-16">
       <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm">
-        <div className="bg-[rgb(121,213,199)]" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <div className="app-header-bg" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="px-4 pb-3 pt-2">
             <div className="flex items-center justify-between">
               <div className="flex space-x-7">
@@ -140,13 +171,14 @@ const Messages = () => {
                   setShowSearch(next);
                   if (next) window.setTimeout(() => searchInputRef.current?.focus(), 50);
                 }}
+                aria-label={activeTab === 'chats' ? '搜索会话' : '搜索通知'}
               >
                 <Search size={20} className="text-white" />
               </button>
             </div>
           </div>
         </div>
-        <div className={`overflow-hidden border-t border-white/20 bg-[rgb(223,245,239)] transition-all duration-300 ${showSearch ? 'max-h-20' : 'max-h-0'}`}>
+        <div className={`overflow-hidden border-t border-white/20 app-header-soft-bg transition-all duration-300 ${showSearch ? 'max-h-20' : 'max-h-0'}`}>
           <div className="p-3">
             <div className="flex items-center">
               <div className="relative flex-1">
@@ -154,7 +186,7 @@ const Messages = () => {
                 <input
                   ref={searchInputRef}
                   className="h-11 w-full rounded-2xl bg-white pl-10 pr-4 text-base focus:outline-none"
-                  placeholder="搜索联系人或消息内容"
+                  placeholder={activeTab === 'chats' ? '搜索联系人或消息内容' : '搜索通知标题或内容'}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
@@ -171,7 +203,7 @@ const Messages = () => {
       </div>
 
       <div
-        className="space-y-4 px-4 py-4"
+        className="app-card-stack-gap space-y-4 px-4 py-4"
         style={{ paddingTop: showSearch ? 'calc(env(safe-area-inset-top) + 8.25rem)' : 'calc(env(safe-area-inset-top) + 4.75rem)' }}
       >
         {activeTab === 'chats' && (
@@ -185,6 +217,17 @@ const Messages = () => {
               {chatsLoading && filteredChats.length === 0 ? (
                 <div className="py-6">
                   <PageStateCard variant="loading" compact title="正在加载会话…" />
+                </div>
+              ) : chatsError ? (
+                <div className="py-6">
+                  <PageStateCard
+                    compact
+                    variant="error"
+                    title="会话加载失败"
+                    description={chatsError instanceof Error ? chatsError.message : '请检查网络后重试'}
+                    actionLabel="重试"
+                    onAction={() => refetchConversations()}
+                  />
                 </div>
               ) : filteredChats.length === 0 ? (
                 <div className="py-6">
@@ -200,7 +243,7 @@ const Messages = () => {
                     key={chat.partner_id}
                     className={cn(
                       "surface-card flex items-center rounded-3xl px-4 py-4 cursor-pointer transition-colors active:bg-muted/50",
-                      chat.unread_count > 0 ? 'border border-[rgb(205,239,231)] bg-[rgb(248,253,251)]' : ''
+                      chat.unread_count > 0 ? 'app-soft-border app-soft-muted-bg border' : ''
                     )}
                     onClick={() => handleChatClick(chat.partner_id)}
                   >
@@ -233,23 +276,20 @@ const Messages = () => {
 
         {activeTab === 'notifications' && (
           <div className="space-y-4">
-            <div className="surface-card flex items-center justify-between rounded-3xl px-4 py-3">
-              <div className="text-xs text-muted-foreground">
-                {(unreadNotifCount || 0) > 0 && `${unreadNotifCount} 条未读通知`}
-              </div>
-              <button
-                className="flex items-center text-sm text-[rgb(73,170,155)] disabled:opacity-60"
-                onClick={handleMarkAllRead}
-                disabled={markAllAsRead.isPending || (unreadNotifCount || 0) === 0}
-              >
-                <Check size={14} className="mr-1" />
-                全部已读
-              </button>
-            </div>
-
             {notifsLoading ? (
               <div className="py-4">
                 <PageStateCard variant="loading" compact title="正在加载通知…" />
+              </div>
+            ) : notificationsError ? (
+              <div className="py-4">
+                <PageStateCard
+                  compact
+                  variant="error"
+                  title="通知加载失败"
+                  description={notificationsError instanceof Error ? notificationsError.message : '请检查网络后重试'}
+                  actionLabel="重试"
+                  onAction={() => refetchNotifications()}
+                />
               </div>
             ) : notifGroups.length === 0 ? (
               <div className="py-4">
@@ -266,7 +306,7 @@ const Messages = () => {
                   <div className="px-1 text-xs font-medium text-muted-foreground">
                     <span>{group.title}</span>
                     {group.items.filter(n => !n.is_read).length > 0 && (
-                      <span className="ml-2 text-[rgb(73,170,155)]">
+                      <span className="app-accent-text ml-2">
                         {group.items.filter(n => !n.is_read).length} 条未读
                       </span>
                     )}
@@ -277,7 +317,7 @@ const Messages = () => {
                         key={notification.id}
                         className={cn(
                           "surface-card flex rounded-3xl px-4 py-4 cursor-pointer active:bg-muted/50",
-                          !notification.is_read ? 'border border-[rgb(205,239,231)] bg-[rgb(248,253,251)]' : ''
+                          !notification.is_read ? 'app-soft-border app-soft-muted-bg border' : ''
                         )}
                         onClick={() => handleNotificationClick(notification)}
                       >
@@ -289,7 +329,7 @@ const Messages = () => {
                           <div className="mb-1 mt-1 text-sm text-muted-foreground">{notification.content}</div>
                           <div className="text-xs text-muted-foreground">{formatTime(notification.created_at)}</div>
                         </div>
-                        {!notification.is_read && <div className="mt-2 h-2 w-2 rounded-full bg-[rgb(73,170,155)]" />}
+                        {!notification.is_read && <div className="app-header-bg mt-2 h-2 w-2 rounded-full" />}
                       </div>
                     ))}
                   </div>

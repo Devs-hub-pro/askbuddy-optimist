@@ -1,7 +1,7 @@
 
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Users, Loader2, Search, MoreHorizontal, Plus, Radio, ChevronRight, Sparkles } from 'lucide-react';
+import { Users, Search, MoreHorizontal, Plus, Radio, ChevronRight, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { useMyFollowing } from '@/hooks/useProfileData';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import { useToast } from '@/hooks/use-toast';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const MyCommunity = () => {
   const navigate = useNavigate();
@@ -45,8 +46,8 @@ const MyCommunity = () => {
       <SubPageHeader title="我的社群" />
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="p-5 pt-4">
+          <PageStateCard variant="loading" compact title="正在加载社群列表…" />
         </div>
       ) : (
         <div className="p-5 space-y-4 pb-28">
@@ -58,14 +59,14 @@ const MyCommunity = () => {
                   在这里查看你加入的群组、最新讨论和未读消息，也可以发起自己的兴趣小组。
                 </p>
               </div>
-              <span className="rounded-full bg-[rgb(236,251,247)] px-3 py-1 text-xs font-medium text-[rgb(73,170,155)]">
+              <span className="app-soft-surface-bg app-accent-text rounded-full px-3 py-1 text-xs font-medium">
                 活跃中
               </span>
             </div>
           </div>
           <div className="surface-card rounded-3xl p-4 shadow-sm">
             <div className="grid grid-cols-2 gap-3">
-              <div className="rounded-2xl bg-[rgb(236,251,247)] px-4 py-3">
+              <div className="app-soft-surface-bg rounded-2xl px-4 py-3">
                 <p className="text-xs font-medium text-muted-foreground">我加入的群</p>
                 <p className="mt-1 text-xl font-semibold text-foreground">{groups.length}</p>
               </div>
@@ -109,7 +110,7 @@ const MyCommunity = () => {
                     <div className="flex items-start gap-3">
                       <Avatar className="h-14 w-14 rounded-2xl">
                         <AvatarImage src={group.avatarUrl} />
-                        <AvatarFallback className="rounded-2xl bg-[rgb(223,245,239)] text-[rgb(121,213,199)]">
+                        <AvatarFallback className="app-header-soft-bg app-accent-text rounded-2xl">
                           {group.name[0]}
                         </AvatarFallback>
                       </Avatar>
@@ -118,7 +119,7 @@ const MyCommunity = () => {
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
                               <h3 className="truncate text-base font-semibold text-foreground">{group.name}</h3>
-                              <span className="rounded-full bg-[rgb(236,251,247)] px-2 py-0.5 text-[11px] font-medium text-[rgb(73,170,155)]">
+                              <span className="app-soft-surface-bg app-accent-text rounded-full px-2 py-0.5 text-[11px] font-medium">
                                 {group.topic}
                               </span>
                             </div>
@@ -136,7 +137,7 @@ const MyCommunity = () => {
                         <p className="mt-2 line-clamp-1 text-sm text-muted-foreground">{group.preview}</p>
                         <div className="mt-3 flex items-center justify-between">
                           <span className="inline-flex items-center text-xs text-muted-foreground">
-                            <Sparkles size={12} className="mr-1 text-[rgb(73,170,155)]" />
+                            <Sparkles size={12} className="app-accent-text mr-1" />
                             查看群聊动态
                           </span>
                           <ChevronRight size={16} className="text-muted-foreground" />

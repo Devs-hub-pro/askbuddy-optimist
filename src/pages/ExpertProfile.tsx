@@ -6,7 +6,6 @@ import {
   Calendar,
   CheckCircle,
   ChevronDown,
-  ChevronLeft,
   ChevronUp,
   Clock,
   MapPin,
@@ -21,6 +20,7 @@ import { useExpertDetail } from '@/hooks/useExperts';
 import { demoExperts } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 import { navigateBackOr } from '@/utils/navigation';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const ExpertProfile = () => {
   const { id } = useParams();
@@ -63,16 +63,9 @@ const ExpertProfile = () => {
 
   return (
     <div className="min-h-[100dvh] bg-gray-50 pb-24">
-      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 bg-app-teal shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-        <div className="flex items-center h-12 px-4">
-          <button onClick={() => navigateBackOr(navigate, '/')} className="text-white">
-            <ChevronLeft size={24} />
-          </button>
-          <div className="text-white font-medium text-base ml-2">个人主页</div>
-        </div>
-      </div>
+      <SubPageHeader title="个人主页" onBack={() => navigateBackOr(navigate, '/')} />
 
-      <div style={{ paddingTop: 'calc(env(safe-area-inset-top) + 3.75rem)' }}>
+      <div className="pt-0">
       <div className="relative">
         <div
           className="w-full h-44 bg-cover bg-center"

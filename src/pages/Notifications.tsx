@@ -1,6 +1,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Bell, Check, CheckCheck, Loader2 } from 'lucide-react';
+import { CheckCheck } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '@/hooks/useNotifications';
@@ -10,6 +10,7 @@ import { zhCN } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import PageStateCard from '@/components/common/PageStateCard';
 import { navigateBackOr } from '@/utils/navigation';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const typeIconMap: Record<string, string> = {
   new_answer: '💬',
@@ -63,36 +64,33 @@ const Notifications = () => {
 
   return (
     <div className="min-h-[100dvh] bg-gray-50 pb-8">
-      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm">
-        <div className="bg-[rgb(121,213,199)] text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-          <div className="flex items-center px-4 py-3">
-            <button onClick={() => navigateBackOr(navigate, '/messages')} className="mr-3">
-              <ArrowLeft size={24} />
-            </button>
-            <h1 className="text-base font-semibold flex-1">通知</h1>
-            {unreadCount > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => markAllAsRead.mutate()}
-                disabled={markAllAsRead.isPending}
-                className="text-xs text-white hover:bg-white/15 hover:text-white"
-              >
-                <CheckCheck size={14} className="mr-1" />
-                全部已读
-              </Button>
-            )}
-          </div>
-        </div>
-        <div className="h-1 bg-[rgb(223,245,239)]" />
-      </div>
+      <SubPageHeader
+        title="通知"
+        onBack={() => navigateBackOr(navigate, '/messages')}
+        right={
+          unreadCount > 0 ? (
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => markAllAsRead.mutate()}
+              disabled={markAllAsRead.isPending}
+              className="h-8 rounded-full bg-white/20 px-3 text-xs text-white hover:bg-white/25 hover:text-white"
+            >
+              <CheckCheck size={14} className="mr-1" />
+              全部已读
+            </Button>
+          ) : (
+            <div className="w-10" />
+          )
+        }
+      />
 
       {isLoading ? (
-        <div className="px-4 py-10" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5.25rem)' }}>
+        <div className="px-4 py-6">
           <PageStateCard variant="loading" title="正在加载通知…" compact />
         </div>
       ) : notifications && notifications.length > 0 ? (
-        <div className="space-y-3 px-4 py-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5rem)' }}>
+        <div className="space-y-3 px-4 py-4">
           <div className="surface-card rounded-3xl p-4 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
@@ -101,7 +99,7 @@ const Notifications = () => {
                   这里会显示你的互动提醒、系统消息和订单更新。
                 </p>
               </div>
-              <span className="rounded-full bg-[rgb(236,251,247)] px-3 py-1 text-xs font-medium text-[rgb(73,170,155)]">
+              <span className="app-soft-surface-bg app-accent-text rounded-full px-3 py-1 text-xs font-medium">
                 {unreadCount > 0 ? `${unreadCount} 条未读` : '已读完'}
               </span>
             </div>
@@ -149,7 +147,7 @@ const Notifications = () => {
           ))}
         </div>
       ) : (
-        <div className="px-4 py-10" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5.25rem)' }}>
+        <div className="px-4 py-6">
           <PageStateCard
             variant="empty"
             title="还没有通知"

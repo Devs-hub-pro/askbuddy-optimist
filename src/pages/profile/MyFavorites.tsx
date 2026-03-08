@@ -2,7 +2,6 @@
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Heart } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useMyFavorites } from '@/hooks/useProfileData';
 import { formatDistanceToNow } from 'date-fns';
@@ -33,21 +32,26 @@ const MyFavorites = () => {
           {favorites.map((fav: any) => (
             <Card
               key={fav.id}
-              className="surface-card cursor-pointer rounded-3xl border-none shadow-sm transition-shadow hover:shadow-md"
-              onClick={() => navigate(`/question/${fav.question_id}`)}
+              className="surface-card rounded-3xl border-none shadow-sm transition-shadow hover:shadow-md"
             >
               <CardContent className="p-5">
-                <div className="flex items-start gap-3">
-                  <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-50">
-                    <Heart size={18} className="text-rose-500" />
+                <button
+                  type="button"
+                  className="block w-full text-left"
+                  onClick={() => navigate(`/question/${fav.question_id}`)}
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-rose-50">
+                      <Heart size={18} className="text-rose-500" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <h3 className="line-clamp-2 text-base font-semibold text-slate-900">
+                        {fav.questions?.title || '已删除的问题'}
+                      </h3>
+                      <p className="mt-2 text-xs text-muted-foreground">收藏于 {formatTime(fav.created_at)}</p>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <h3 className="line-clamp-2 text-base font-semibold text-slate-900">
-                      {fav.questions?.title || '已删除的问题'}
-                    </h3>
-                    <p className="mt-2 text-xs text-muted-foreground">收藏于 {formatTime(fav.created_at)}</p>
-                  </div>
-                </div>
+                </button>
               </CardContent>
             </Card>
           ))}

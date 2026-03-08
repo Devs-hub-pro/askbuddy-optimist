@@ -95,8 +95,8 @@ const DraftList: React.FC = () => {
               onClick={() => navigate(`/new?draftId=${draft.id}`)}
             >
               <div className="flex items-start gap-3">
-                <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl bg-[rgb(236,251,247)]">
-                  <FileText size={18} className="text-[rgb(73,170,155)]" />
+                <div className="app-soft-surface-bg flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl">
+                  <FileText size={18} className="app-accent-text" />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-3">

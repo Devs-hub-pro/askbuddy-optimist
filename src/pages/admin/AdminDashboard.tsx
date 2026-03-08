@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, Shield, AlertTriangle, RefreshCcw, Save } from 'lucide-react';
+import { Shield, AlertTriangle, Save } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { Button } from '@/components/ui/button';
@@ -20,6 +20,8 @@ import {
   useUpsertAppConfig,
 } from '@/hooks/useAdmin';
 import { navigateBackOr } from '@/utils/navigation';
+import SubPageHeader from '@/components/layout/SubPageHeader';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -49,23 +51,15 @@ const AdminDashboard = () => {
 
   if (adminChecking || dashboardLoading || reportsLoading || pendingOrdersLoading || configsLoading) {
     return (
-<<<<<<< HEAD
-      <div className="min-h-screen bg-muted flex items-center justify-center">
-=======
-      <div className="min-h-[100dvh] bg-muted flex items-center justify-center">
->>>>>>> a04765d (Update from local working directory)
-        <RefreshCcw className="h-8 w-8 animate-spin text-primary" />
+      <div className="min-h-[100dvh] bg-muted px-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
+        <PageStateCard variant="loading" title="正在加载管理后台…" compact />
       </div>
     );
   }
 
   if (!isAdmin) {
     return (
-<<<<<<< HEAD
-      <div className="min-h-screen bg-muted p-6 flex flex-col items-center justify-center text-center">
-=======
       <div className="min-h-[100dvh] bg-muted p-6 flex flex-col items-center justify-center text-center">
->>>>>>> a04765d (Update from local working directory)
         <Shield className="h-12 w-12 text-muted-foreground mb-4" />
         <h1 className="text-xl font-semibold mb-2">无管理权限</h1>
         <p className="text-sm text-muted-foreground mb-6">当前账号不是管理员，无法访问运营后台。</p>
@@ -97,34 +91,13 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-[100dvh] bg-muted pb-8">
-<<<<<<< HEAD
-      <div className="sticky top-0 z-10 shadow-sm">
-        <div className="bg-app-header text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-=======
-      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm">
-        <div className="bg-[rgb(121,213,199)] text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
->>>>>>> a04765d (Update from local working directory)
-          <div className="flex items-center gap-3 px-4 py-3">
-            <Button variant="ghost" size="icon" onClick={() => navigateBackOr(navigate, '/profile')} className="text-white hover:bg-white/15 hover:text-white">
-              <ArrowLeft size={20} />
-            </Button>
-            <div>
-              <h1 className="text-base font-semibold">管理后台</h1>
-              <p className="text-xs text-white/80">运营配置、举报处理、风控审计</p>
-            </div>
-          </div>
+      <SubPageHeader title="管理后台" onBack={() => navigateBackOr(navigate, '/profile')} />
+
+      <div className="space-y-4 p-4">
+        <div className="surface-card rounded-3xl p-4">
+          <p className="text-sm font-medium text-slate-900">运营配置、举报处理、风控审计</p>
+          <p className="mt-1 text-xs text-muted-foreground">建议每日巡检待支付充值单和内容举报，保持审核链路稳定。</p>
         </div>
-<<<<<<< HEAD
-        <div className="h-1 bg-app-header-light" />
-      </div>
-
-      <div className="p-4 space-y-4">
-=======
-        <div className="h-1 bg-[rgb(223,245,239)]" />
-      </div>
-
-      <div className="space-y-4 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5.25rem)' }}>
->>>>>>> a04765d (Update from local working directory)
         <div className="grid grid-cols-2 gap-3">
           <MetricCard title="待确认充值" value={dashboard?.pending_recharge_orders || 0} />
           <MetricCard title="待处理举报" value={dashboard?.pending_reports || 0} tone="warning" />

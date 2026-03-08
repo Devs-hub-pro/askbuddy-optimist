@@ -51,7 +51,7 @@ const GeneralSettings = () => {
                   在这里统一调整显示、语言和语音视频偏好，让使用体验更贴合你的习惯。
                 </p>
               </div>
-              <Sparkles className="h-5 w-5 text-[rgb(73,170,155)]" />
+              <Sparkles className="app-accent-text h-5 w-5" />
             </div>
           </CardContent>
         </Card>

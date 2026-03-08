@@ -1,17 +1,13 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ChevronLeft, Bell, CheckCheck, Heart, MessageCircle, Reply, Sparkles } from 'lucide-react';
+import { Bell, CheckCheck, Heart, MessageCircle, Reply, Sparkles } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useMarkAllAsRead, useMarkAsRead, useNotifications } from '@/hooks/useNotifications';
-<<<<<<< HEAD
 import { formatTime } from '@/utils/format';
-=======
-import { formatDistanceToNow } from 'date-fns';
-import { zhCN } from 'date-fns/locale';
->>>>>>> a04765d (Update from local working directory)
 import PageStateCard from '@/components/common/PageStateCard';
 import { navigateBackOr } from '@/utils/navigation';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const socialTypes = new Set(['new_like', 'new_comment', 'comment_reply', 'new_answer']);
 
@@ -70,38 +66,15 @@ const DiscoverInteractions = () => {
   const interactions = usingDemo ? demoState : realInteractions;
 
   useEffect(() => {
-<<<<<<< HEAD
-    if (usingDemo) {
-      setDemoState(demoInteractions);
-    }
-=======
     if (usingDemo) setDemoState(demoInteractions);
->>>>>>> a04765d (Update from local working directory)
   }, [usingDemo]);
 
   const unreadCount = interactions.filter((item) => !item.is_read).length;
 
-<<<<<<< HEAD
-=======
-  const formatTime = (dateString: string) => {
-    try {
-      return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
-    } catch {
-      return '刚刚';
-    }
-  };
->>>>>>> a04765d (Update from local working directory)
-
   const handleClick = (item: any) => {
     if (!item.is_read) {
       if (item.id.startsWith('demo-')) {
-<<<<<<< HEAD
-        setDemoState((prev) =>
-          prev.map((entry) => (entry.id === item.id ? { ...entry, is_read: true } : entry)),
-        );
-=======
         setDemoState((prev) => prev.map((entry) => (entry.id === item.id ? { ...entry, is_read: true } : entry)));
->>>>>>> a04765d (Update from local working directory)
       } else {
         markAsRead.mutate(item.id);
       }
@@ -109,30 +82,20 @@ const DiscoverInteractions = () => {
 
     if (item.related_type === 'question' && item.related_id) {
       navigate(`/question/${item.related_id}`);
-<<<<<<< HEAD
       return;
     }
     if (item.related_type === 'post' && item.related_id) {
       navigate('/discover');
-=======
->>>>>>> a04765d (Update from local working directory)
     }
   };
 
   return (
     <div className="min-h-[100dvh] bg-slate-50 pb-6">
-<<<<<<< HEAD
-      <div className="sticky top-0 z-20 bg-[rgb(121,213,199)] shadow-sm">
-=======
-      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 bg-[rgb(121,213,199)] shadow-sm">
->>>>>>> a04765d (Update from local working directory)
-        <div style={{ height: 'env(safe-area-inset-top)' }} />
-        <div className="flex items-center justify-between px-4 h-12">
-          <button onClick={() => navigateBackOr(navigate, '/discover')} className="text-white">
-            <ChevronLeft size={24} />
-          </button>
-          <div className="text-base font-medium text-white">互动提醒</div>
-          {unreadCount > 0 ? (
+      <SubPageHeader
+        title="互动提醒"
+        onBack={() => navigateBackOr(navigate, '/discover')}
+        right={
+          unreadCount > 0 ? (
             <Button
               variant="ghost"
               size="sm"
@@ -150,16 +113,12 @@ const DiscoverInteractions = () => {
             </Button>
           ) : (
             <div className="w-10" />
-          )}
-        </div>
-      </div>
+          )
+        }
+      />
 
-<<<<<<< HEAD
-      <div className="px-4 pt-5">
-=======
-      <div className="px-4 pt-5" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5rem)' }}>
->>>>>>> a04765d (Update from local working directory)
-        <div className="rounded-3xl border border-[#d9efe9] bg-[rgb(223,245,239)] p-4">
+      <div className="px-4 pt-4">
+        <div className="app-header-soft-bg app-soft-border rounded-3xl border p-4">
           <div className="flex items-center gap-2">
             <span className="flex h-8 w-8 items-center justify-center rounded-full bg-white/90">
               <Bell size={16} className="text-app-teal" />
@@ -215,7 +174,7 @@ const DiscoverInteractions = () => {
                 key={item.id}
                 onClick={() => handleClick(item)}
                 className={`surface-card flex w-full items-start gap-3 rounded-3xl border p-4 text-left transition-shadow hover:shadow-md ${
-                  item.is_read ? 'border-slate-100' : 'border-[#d9efe9] bg-[rgb(248,253,251)]'
+                  item.is_read ? 'border-slate-100' : 'app-soft-border app-soft-muted-bg'
                 }`}
               >
                 {item.sender_avatar ? (
@@ -235,7 +194,7 @@ const DiscoverInteractions = () => {
                       <div className="truncate text-sm font-semibold text-slate-900">{item.title}</div>
                       <p className="mt-1 line-clamp-2 text-sm leading-6 text-slate-600">{item.content}</p>
                     </div>
-                    {!item.is_read ? <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-[#ff6b6b]" /> : null}
+                    {!item.is_read ? <span className="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-destructive" /> : null}
                   </div>
                   <div className="mt-2 text-[11px] text-slate-400">{formatTime(item.created_at)}</div>
                 </div>

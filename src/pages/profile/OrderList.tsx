@@ -48,7 +48,7 @@ const OrderList: React.FC = () => {
             key={t.key}
             className={`rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors ${
               tab === t.key
-                ? 'bg-[rgb(236,251,247)] text-[rgb(73,170,155)]'
+                ? 'app-soft-surface-bg app-accent-text'
                 : 'text-muted-foreground hover:bg-muted/50'
             }`}
             onClick={() => setTab(t.key)}

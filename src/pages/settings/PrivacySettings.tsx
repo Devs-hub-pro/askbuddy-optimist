@@ -84,7 +84,7 @@ const PrivacySettings = () => {
                   调整信息展示、社交互动和在线状态，让你的个人资料与聊天更安心。
                 </p>
               </div>
-              <Sparkles className="h-5 w-5 text-[rgb(73,170,155)]" />
+              <Sparkles className="app-accent-text h-5 w-5" />
             </div>
           </CardContent>
         </Card>

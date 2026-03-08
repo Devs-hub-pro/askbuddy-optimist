@@ -35,12 +35,9 @@ const ChannelExpertCard: React.FC<ChannelExpertCardProps> = ({
   onConsult,
 }) => {
   return (
-    <div
-      className="surface-card cursor-pointer rounded-2xl p-3.5 shadow-sm transition-all duration-200 hover:shadow-md"
-      onClick={onOpen}
-    >
+    <div className="surface-card rounded-2xl p-3.5 shadow-sm transition-all duration-200 hover:shadow-md">
       <div className="flex items-start justify-between">
-        <div className="flex items-center gap-2">
+        <button type="button" className="flex items-center gap-2 text-left" onClick={onOpen}>
           <Avatar className={`h-10 w-10 border ${accentBorderClass}`}>
             <AvatarImage src={expert.avatar} alt={expert.name} className="object-cover" />
             <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
@@ -49,7 +46,7 @@ const ChannelExpertCard: React.FC<ChannelExpertCardProps> = ({
             <h3 className="text-sm font-semibold leading-5 text-gray-800">{expert.name}</h3>
             <p className={`text-xs ${accentTextClass}`}>{expert.title}</p>
           </div>
-        </div>
+        </button>
 
         <div className="flex flex-col items-end">
           <div className="flex items-center gap-1 text-yellow-500">
@@ -68,9 +65,13 @@ const ChannelExpertCard: React.FC<ChannelExpertCardProps> = ({
       </div>
 
       <div className="mt-2 flex">
-        <p className={`mr-2 line-clamp-2 flex-1 rounded-r-md border-l-2 pl-2 py-0.5 text-xs leading-5 text-gray-700 ${accentSummaryClass}`}>
+        <button
+          type="button"
+          className={`mr-2 line-clamp-2 flex-1 rounded-r-md border-l-2 pl-2 py-0.5 text-left text-xs leading-5 text-gray-700 ${accentSummaryClass}`}
+          onClick={onOpen}
+        >
           {expert.description}
-        </p>
+        </button>
 
         <Button
           onClick={(e) => {

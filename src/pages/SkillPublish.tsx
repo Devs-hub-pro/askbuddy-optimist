@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { ArrowLeft, CheckCircle, Clock, Loader2, PenSquare, Star, Tags, Upload } from 'lucide-react';
+import { CheckCircle, Clock, Loader2, PenSquare, Star, Tags, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -27,6 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { uploadExpertCoverImage, useExpertByUserId, useSaveExpertProfile } from '@/hooks/useExperts';
 import { navigateBackOr } from '@/utils/navigation';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const skillFormSchema = z.object({
   title: z.string().min(5, { message: '标题至少需要5个字符' }).max(100),
@@ -64,6 +65,16 @@ const categories = [
   },
 ];
 
+const SKILL_DRAFT_KEY = 'skill-publish-draft-v1';
+
+interface SkillDraft {
+  formValues: Partial<z.infer<typeof skillFormSchema>>;
+  step: number;
+  selectedCategory: string;
+  coverImage: string | null;
+  savedAt: string;
+}
+
 const SkillPublish = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -76,6 +87,8 @@ const SkillPublish = () => {
   const [step, setStep] = useState<number>(1);
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [subcategories, setSubcategories] = useState<string[]>([]);
+  const [hydratedDraft, setHydratedDraft] = useState(false);
+  const draftKey = user ? `${SKILL_DRAFT_KEY}:${user.id}` : `${SKILL_DRAFT_KEY}:guest`;
 
   const form = useForm<z.infer<typeof skillFormSchema>>({
     resolver: zodResolver(skillFormSchema),
@@ -109,7 +122,77 @@ const SkillPublish = () => {
       responseTime: existingExpert.response_time || '',
       tags: (existingExpert.tags || []).join(','),
     });
+    setHydratedDraft(true);
   }, [existingExpert, form]);
+
+  useEffect(() => {
+    if (existingExpert) return;
+    const raw = localStorage.getItem(draftKey);
+    if (!raw) {
+      setHydratedDraft(true);
+      return;
+    }
+    try {
+      const draft = JSON.parse(raw) as SkillDraft;
+      form.reset({
+        title: draft.formValues.title || '',
+        category: draft.formValues.category || '',
+        subCategory: draft.formValues.subCategory || '',
+        description: draft.formValues.description || '',
+        price: draft.formValues.price || '',
+        experience: draft.formValues.experience || '',
+        responseTime: draft.formValues.responseTime || '',
+        tags: draft.formValues.tags || '',
+      });
+      setStep(draft.step === 2 ? 2 : 1);
+      setSelectedCategory(draft.selectedCategory || '');
+      const matched = categories.find((item) => item.name === draft.selectedCategory);
+      setSubcategories(matched?.subcategories || []);
+      setCoverImage(draft.coverImage || null);
+    } catch {
+      localStorage.removeItem(draftKey);
+    } finally {
+      setHydratedDraft(true);
+    }
+  }, [draftKey, existingExpert, form]);
+
+  const formValues = form.watch();
+  const isSaving = saveExpertProfile.isPending;
+  const hasPendingContent = Boolean(
+    formValues.title?.trim() ||
+      formValues.description?.trim() ||
+      formValues.category ||
+      formValues.tags?.trim() ||
+      coverImage
+  );
+
+  useEffect(() => {
+    if (!hydratedDraft || existingExpert) return;
+
+    const payload: SkillDraft = {
+      formValues,
+      step,
+      selectedCategory,
+      coverImage,
+      savedAt: new Date().toISOString(),
+    };
+
+    const timer = window.setTimeout(() => {
+      localStorage.setItem(draftKey, JSON.stringify(payload));
+    }, 400);
+
+    return () => window.clearTimeout(timer);
+  }, [hydratedDraft, existingExpert, draftKey, formValues, step, selectedCategory, coverImage]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!hasPendingContent || isSaving) return;
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasPendingContent, isSaving]);
 
   const handleCategoryChange = (value: string) => {
     const category = categories.find((item) => item.name === value);
@@ -165,6 +248,8 @@ const SkillPublish = () => {
         cover_image: coverImageUrl,
       });
 
+      localStorage.removeItem(draftKey);
+
       navigate(existingExpert ? '/profile' : '/');
     } catch {
       // useSaveExpertProfile already shows the error toast.
@@ -183,39 +268,64 @@ const SkillPublish = () => {
     setStep(1);
   };
 
-  const isSaving = saveExpertProfile.isPending;
+  const saveDraft = () => {
+    if (existingExpert) return;
+    const payload: SkillDraft = {
+      formValues,
+      step,
+      selectedCategory,
+      coverImage,
+      savedAt: new Date().toISOString(),
+    };
+    localStorage.setItem(draftKey, JSON.stringify(payload));
+    toast({ title: '草稿已保存', description: '下次进入可继续编辑技能信息。' });
+  };
+
+  const handleBack = () => {
+    if (!hasPendingContent || isSaving) {
+      navigateBackOr(navigate, '/profile');
+      return;
+    }
+    const leave = window.confirm('当前编辑内容会保存为草稿，确定离开吗？');
+    if (!leave) return;
+    saveDraft();
+    navigateBackOr(navigate, '/profile');
+  };
 
   return (
     <div className="bg-slate-50 min-h-[100dvh] pb-8">
-      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm">
-        <div className="bg-app-teal" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-          <div className="flex items-center h-12 px-4">
-            <button onClick={() => navigateBackOr(navigate, '/profile')} className="mr-4 text-white">
-              <ArrowLeft size={20} />
+      <SubPageHeader
+        title={existingExpert ? '编辑专业技能' : '发布您的专业技能'}
+        onBack={handleBack}
+        right={
+          !existingExpert ? (
+            <button
+              type="button"
+              onClick={saveDraft}
+              className="rounded-full bg-white/20 px-3 py-1 text-xs text-white hover:bg-white/25"
+            >
+              存草稿
             </button>
-            <h1 className="text-lg font-medium text-white">{existingExpert ? '编辑专业技能' : '发布您的专业技能'}</h1>
-          </div>
-        </div>
-        <div className="border-b border-app-teal/10 bg-[rgb(223,245,239)] px-4 py-3">
-          <div className="surface-card rounded-3xl p-4">
-            <div className="flex justify-between items-center mb-3">
-              <div className="flex items-center">
-                <div className={`rounded-full h-8 w-8 flex items-center justify-center ${step === 1 ? 'bg-app-teal text-white' : 'bg-gray-200 text-gray-500'}`}>1</div>
-                <div className="h-1 w-12 bg-gray-200 mx-2"></div>
-                <div className={`rounded-full h-8 w-8 flex items-center justify-center ${step === 2 ? 'bg-app-teal text-white' : 'bg-gray-200 text-gray-500'}`}>2</div>
-              </div>
-              <div className="text-sm text-gray-500">{step === 1 ? '基础信息' : '服务设置'}</div>
-            </div>
-            <p className="text-xs leading-5 text-slate-500">
-              {step === 1
-                ? '先补充你的专业背景和服务方向，再进入后续定价与响应设置。'
-                : '完成价格、经验、响应时间和标签后，就可以发布到平台。'}
-            </p>
-          </div>
-        </div>
-      </div>
+          ) : undefined
+        }
+      />
 
-      <div className="px-4 py-6" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 10rem)' }}>
+      <div className="px-4 py-4">
+        <div className="mb-4 surface-card rounded-3xl p-4">
+          <div className="mb-3 flex items-center justify-between">
+            <div className="flex items-center">
+              <div className={`flex h-8 w-8 items-center justify-center rounded-full ${step === 1 ? 'bg-app-teal text-white' : 'bg-gray-200 text-gray-500'}`}>1</div>
+              <div className="mx-2 h-1 w-12 bg-gray-200" />
+              <div className={`flex h-8 w-8 items-center justify-center rounded-full ${step === 2 ? 'bg-app-teal text-white' : 'bg-gray-200 text-gray-500'}`}>2</div>
+            </div>
+            <div className="text-sm text-gray-500">{step === 1 ? '基础信息' : '服务设置'}</div>
+          </div>
+          <p className="text-xs leading-5 text-slate-500">
+            {step === 1
+              ? '先补充你的专业背景和服务方向，再进入后续定价与响应设置。'
+              : '完成价格、经验、响应时间和标签后，就可以发布到平台。'}
+          </p>
+        </div>
 
         {loadingExisting ? (
           <div className="py-12 flex items-center justify-center text-gray-500">

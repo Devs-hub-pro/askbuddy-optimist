@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Wallet, DollarSign, Loader2, Coins, TrendingUp, Receipt } from 'lucide-react';
+import { Wallet, Coins, TrendingUp, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
@@ -9,6 +9,7 @@ import { useMyEarnings } from '@/hooks/useProfileData';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import SubPageHeader from '@/components/layout/SubPageHeader';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const MyEarnings = () => {
   const navigate = useNavigate();
@@ -77,8 +78,8 @@ const MyEarnings = () => {
       </div>
 
       {isLoading ? (
-        <div className="flex items-center justify-center py-10">
-          <Loader2 className="w-8 h-8 animate-spin text-primary" />
+        <div className="px-5 py-6">
+          <PageStateCard variant="loading" compact title="正在加载积分流水…" />
         </div>
       ) : transactions && transactions.length > 0 ? (
         <div className="px-5 pb-5 space-y-3">
@@ -99,12 +100,14 @@ const MyEarnings = () => {
           ))}
         </div>
       ) : (
-        <div className="flex flex-col items-center justify-center rounded-3xl bg-white p-8 mt-2 mx-5 shadow-sm">
-          <DollarSign size={64} className="text-gray-300 mb-4" />
-          <p className="text-gray-500 mb-2">暂无积分记录</p>
-          <Button variant="outline" onClick={() => navigate('/discover')} className="mt-2">
-            了解如何赚取积分
-          </Button>
+        <div className="mx-5 mt-2">
+          <PageStateCard
+            compact
+            title="暂无积分记录"
+            description="你可以先去广场参与互动，或发布内容获取收益。"
+            actionLabel="去发现页"
+            onAction={() => navigate('/discover')}
+          />
         </div>
       )}
 

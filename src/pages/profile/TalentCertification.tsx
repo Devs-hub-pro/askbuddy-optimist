@@ -186,7 +186,7 @@ const TalentCertification = () => {
                 <p className="text-sm font-semibold text-foreground">认证进度</p>
                 <p className="mt-1 text-xs text-muted-foreground">随时查看你的审核状态和当前认证结果。</p>
               </div>
-              <span className="rounded-full bg-[rgb(236,251,247)] px-3 py-1 text-xs font-medium text-[rgb(73,170,155)]">
+              <span className="app-soft-surface-bg app-accent-text rounded-full px-3 py-1 text-xs font-medium">
                 {certificationSummary.approved > 0 ? `${certificationSummary.approved} 项通过` : '待申请'}
               </span>
             </div>

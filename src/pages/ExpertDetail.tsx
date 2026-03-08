@@ -2,8 +2,6 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { 
-  ChevronLeft, 
-  Bell, 
   Award, 
   MessageSquare, 
   Clock, 
@@ -23,6 +21,7 @@ import { getConsultationAmount, useCreateConsultationOrder } from '@/hooks/useCo
 import { demoExperts } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 import { navigateBackOr } from '@/utils/navigation';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const ExpertDetail = () => {
   const { id } = useParams();
@@ -71,18 +70,9 @@ const ExpertDetail = () => {
 
   return (
     <div className="app-container bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-20 min-h-[100dvh]">
-      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 bg-primary shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
-        <div className="flex items-center h-12 px-4">
-          <button onClick={() => navigateBackOr(navigate, '/')} className="text-primary-foreground">
-            <ChevronLeft size={24} />
-          </button>
-          <div className="text-primary-foreground font-medium text-base ml-2">咨询页</div>
-          <div className="flex-1"></div>
-          <button className="text-primary-foreground"><Bell size={20} /></button>
-        </div>
-      </div>
+      <SubPageHeader title="咨询页" onBack={() => navigateBackOr(navigate, '/')} />
       
-      <div className="px-4 pb-6 pt-5 space-y-5" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5.25rem)' }}>
+      <div className="px-4 pb-6 pt-4 space-y-5">
         {/* Expert Header */}
         <div className="surface-card rounded-3xl p-5">
           <div className="flex items-start justify-between mb-4">

@@ -79,7 +79,7 @@ const HelpCenter = () => {
       <SubPageHeader title="帮助中心" />
 
       {/* Search Bar */}
-      <div className="border-b border-[rgb(205,239,231)] bg-[rgb(223,245,239)] px-4 py-3">
+      <div className="app-header-soft-bg app-soft-border border-b px-4 py-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
           <Input 
@@ -102,7 +102,7 @@ const HelpCenter = () => {
                   搜索常见问题、查看使用规则，或直接联系在线客服获取进一步帮助。
                 </p>
               </div>
-              <Sparkles className="h-5 w-5 text-[rgb(73,170,155)]" />
+              <Sparkles className="app-accent-text h-5 w-5" />
             </div>
           </CardContent>
         </Card>

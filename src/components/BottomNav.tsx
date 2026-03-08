@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { Home, Compass, Plus, MessageSquare, User, Star } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUnreadCount } from '@/hooks/useNotifications';
+import { isNativeApp } from '@/utils/platform';
 import { 
   Sheet,
   SheetContent,
@@ -16,6 +17,21 @@ const BottomNav: React.FC = () => {
   const currentPath = location.pathname;
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: unreadCount } = useUnreadCount();
+  const nativeMode = isNativeApp();
+
+  const navigateOrScrollTop = (path: string) => {
+    if (currentPath === path) {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+    navigate(path);
+  };
+
+  const isTabActive = (path: string) => {
+    if (path === '/profile') return currentPath === '/profile' || currentPath.startsWith('/profile/');
+    if (path === '/messages') return currentPath === '/messages' || currentPath.startsWith('/notifications');
+    return currentPath === path;
+  };
 
   const handleNeedClick = () => {
     setIsMenuOpen(false);
@@ -29,24 +45,26 @@ const BottomNav: React.FC = () => {
 
   return (
     <nav 
-      className="fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50 max-w-md mx-auto shadow-[0_-2px_10px_rgba(0,0,0,0.06)]" 
+      className={`fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.06)] ${
+        nativeMode ? '' : 'max-w-md mx-auto'
+      }`}
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
       <div className="flex items-center justify-around h-14">
         <button 
-          onClick={() => navigate('/')} 
-          className={`nav-item flex flex-col items-center justify-center w-1/5 py-1 ${currentPath === '/' ? 'active' : ''}`}
+          onClick={() => navigateOrScrollTop('/')}
+          className={`nav-item flex flex-col items-center justify-center w-1/5 py-1 ${isTabActive('/') ? 'active' : ''}`}
         >
-          <Home size={20} className={currentPath === '/' ? "text-primary" : "text-muted-foreground"} />
-          <span className={`text-[10px] mt-0.5 ${currentPath === '/' ? "text-primary font-medium" : "text-muted-foreground"}`}>首页</span>
+          <Home size={20} className={isTabActive('/') ? "text-primary" : "text-muted-foreground"} />
+          <span className={`text-[10px] mt-0.5 ${isTabActive('/') ? "text-primary font-medium" : "text-muted-foreground"}`}>首页</span>
         </button>
         
         <button 
-          onClick={() => navigate('/discover')} 
-          className={`nav-item flex flex-col items-center justify-center w-1/5 py-1 ${currentPath === '/discover' ? 'active' : ''}`}
+          onClick={() => navigateOrScrollTop('/discover')}
+          className={`nav-item flex flex-col items-center justify-center w-1/5 py-1 ${isTabActive('/discover') ? 'active' : ''}`}
         >
-          <Compass size={20} className={currentPath === '/discover' ? "text-primary" : "text-muted-foreground"} />
-          <span className={`text-[10px] mt-0.5 ${currentPath === '/discover' ? "text-primary font-medium" : "text-muted-foreground"}`}>发现</span>
+          <Compass size={20} className={isTabActive('/discover') ? "text-primary" : "text-muted-foreground"} />
+          <span className={`text-[10px] mt-0.5 ${isTabActive('/discover') ? "text-primary font-medium" : "text-muted-foreground"}`}>发现</span>
         </button>
         
         <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
@@ -81,26 +99,26 @@ const BottomNav: React.FC = () => {
         </Sheet>
         
         <button 
-          onClick={() => navigate('/messages')} 
-          className={`nav-item flex flex-col items-center justify-center w-1/5 py-1 relative ${currentPath === '/messages' ? 'active' : ''}`}
+          onClick={() => navigateOrScrollTop('/messages')}
+          className={`nav-item flex flex-col items-center justify-center w-1/5 py-1 relative ${isTabActive('/messages') ? 'active' : ''}`}
         >
           <div className="relative">
-            <MessageSquare size={20} className={currentPath === '/messages' ? "text-primary" : "text-muted-foreground"} />
+            <MessageSquare size={20} className={isTabActive('/messages') ? "text-primary" : "text-muted-foreground"} />
             {(unreadCount || 0) > 0 && (
               <span className="absolute -top-1 -right-2 min-w-[16px] h-4 bg-destructive rounded-full text-[10px] text-destructive-foreground flex items-center justify-center px-1">
                 {(unreadCount || 0) > 99 ? '99+' : unreadCount}
               </span>
             )}
           </div>
-          <span className={`text-[10px] mt-0.5 ${currentPath === '/messages' ? "text-primary font-medium" : "text-muted-foreground"}`}>消息</span>
+          <span className={`text-[10px] mt-0.5 ${isTabActive('/messages') ? "text-primary font-medium" : "text-muted-foreground"}`}>消息</span>
         </button>
         
         <button 
-          onClick={() => navigate('/profile')} 
-          className={`nav-item flex flex-col items-center justify-center w-1/5 py-1 ${currentPath === '/profile' ? 'active' : ''}`}
+          onClick={() => navigateOrScrollTop('/profile')}
+          className={`nav-item flex flex-col items-center justify-center w-1/5 py-1 ${isTabActive('/profile') ? 'active' : ''}`}
         >
-          <User size={20} className={currentPath === '/profile' ? "text-primary" : "text-muted-foreground"} />
-          <span className={`text-[10px] mt-0.5 ${currentPath === '/profile' ? "text-primary font-medium" : "text-muted-foreground"}`}>我的</span>
+          <User size={20} className={isTabActive('/profile') ? "text-primary" : "text-muted-foreground"} />
+          <span className={`text-[10px] mt-0.5 ${isTabActive('/profile') ? "text-primary font-medium" : "text-muted-foreground"}`}>我的</span>
         </button>
       </div>
     </nav>

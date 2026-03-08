@@ -76,7 +76,7 @@ const ProductFeedback = () => {
                   遇到问题、想提建议或希望优化体验，都可以在这里告诉我们。
                 </p>
               </div>
-              <Sparkles className="h-5 w-5 text-[rgb(73,170,155)]" />
+              <Sparkles className="app-accent-text h-5 w-5" />
             </div>
           </CardContent>
         </Card>

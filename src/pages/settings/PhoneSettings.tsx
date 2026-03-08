@@ -29,18 +29,12 @@ const PhoneSettings = () => {
     <div className="min-h-[100dvh] bg-gray-50">
       <SubPageHeader title="修改手机号" />
 
-<<<<<<< HEAD
-      <div className="space-y-4 p-4">
-        <Card className="surface-card rounded-3xl border-none shadow-sm">
-          <CardContent className="p-4">
-=======
       <div className="space-y-5 p-5">
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardContent className="p-5">
->>>>>>> a04765d (Update from local working directory)
             <div className="flex items-start gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[rgb(236,251,247)]">
-                <Smartphone size={18} className="text-[rgb(73,170,155)]" />
+              <div className="app-soft-surface-bg flex h-11 w-11 items-center justify-center rounded-2xl">
+                <Smartphone size={18} className="app-accent-text" />
               </div>
               <div className="flex-1">
                 <p className="text-xs font-medium text-muted-foreground">当前绑定账号</p>
@@ -54,11 +48,7 @@ const PhoneSettings = () => {
         </Card>
 
         <Card className="surface-card rounded-3xl border-none shadow-sm">
-<<<<<<< HEAD
-          <CardContent className="space-y-4 p-4">
-=======
           <CardContent className="space-y-4 p-5">
->>>>>>> a04765d (Update from local working directory)
             <div>
               <p className="mb-2 text-sm font-medium text-foreground">新手机号</p>
               <Input
@@ -75,7 +65,7 @@ const PhoneSettings = () => {
                 <p className="text-sm font-medium text-foreground">验证码</p>
                 <button
                   type="button"
-                  className="text-xs font-medium text-[rgb(73,170,155)]"
+                  className="app-accent-text text-xs font-medium"
                   onClick={() =>
                     toast({
                       title: '验证码发送功能待接入',
@@ -111,13 +101,9 @@ const PhoneSettings = () => {
         </Card>
 
         <Card className="surface-card rounded-3xl border-none shadow-sm">
-<<<<<<< HEAD
-          <CardContent className="space-y-3 p-4">
-=======
           <CardContent className="space-y-3 p-5">
->>>>>>> a04765d (Update from local working directory)
             <div className="flex items-center gap-2">
-              <ShieldCheck size={16} className="text-[rgb(73,170,155)]" />
+              <ShieldCheck size={16} className="app-accent-text" />
               <p className="text-sm font-semibold text-foreground">安全提醒</p>
             </div>
             <p className="text-sm leading-6 text-muted-foreground">
@@ -125,7 +111,7 @@ const PhoneSettings = () => {
             </p>
             <button
               type="button"
-              className="inline-flex items-center text-sm font-medium text-[rgb(73,170,155)]"
+              className="app-accent-text inline-flex items-center text-sm font-medium"
             >
               <MessageSquareText size={14} className="mr-1.5" />
               查看账号安全建议

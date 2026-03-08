@@ -1,7 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { 
-  ArrowLeft, 
   PlusCircle, 
   Tag, 
   Calendar, 
@@ -44,6 +43,7 @@ import {
 import { useCreateQuestion } from '@/hooks/useQuestions';
 import { useAuth } from '@/contexts/AuthContext';
 import { navigateBackOr } from '@/utils/navigation';
+import SubPageHeader from '@/components/layout/SubPageHeader';
 
 // Define categories with emojis
 const categories = [
@@ -82,9 +82,28 @@ const timeSlots = [
   { id: 'evening', name: '晚上 (19:00-22:00)', value: 'evening' },
 ];
 
+const DRAFT_STORAGE_KEY = 'new-question-draft-v1';
+
+interface QuestionDraft {
+  title: string;
+  description: string;
+  selectedCategory: string;
+  selectedTags: string[];
+  pointReward: string;
+  flexibleTime: boolean;
+  selectedTimeSlots: string[];
+  savedAt: string;
+}
+
+interface AttachmentItem {
+  id: string;
+  file: File;
+  previewUrl: string | null;
+}
+
 const NewQuestion: React.FC = () => {
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
   const createQuestion = useCreateQuestion();
   
   const [title, setTitle] = useState('');
@@ -97,13 +116,48 @@ const NewQuestion: React.FC = () => {
   const [selectedTimeSlots, setSelectedTimeSlots] = useState<string[]>([]);
   const [titleFocused, setTitleFocused] = useState(false);
   const [suggestedTags, setSuggestedTags] = useState<string[]>(['留学', '职场', '考研']);
-  const [attachments, setAttachments] = useState<File[]>([]);
-  
-  // Handle random placeholder for title input
-  const getRandomPlaceholder = () => {
+  const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
+  const [hydratedDraft, setHydratedDraft] = useState(false);
+  const attachmentsRef = useRef<AttachmentItem[]>([]);
+  const draftStorageKey = user ? `${DRAFT_STORAGE_KEY}:${user.id}` : `${DRAFT_STORAGE_KEY}:guest`;
+  const titlePlaceholder = useMemo(() => {
     const randomIndex = Math.floor(Math.random() * placeholderQuestions.length);
     return placeholderQuestions[randomIndex];
-  };
+  }, []);
+  
+  useEffect(() => {
+    attachmentsRef.current = attachments;
+  }, [attachments]);
+
+  useEffect(() => {
+    return () => {
+      attachmentsRef.current.forEach((item) => {
+        if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+      });
+    };
+  }, []);
+
+  useEffect(() => {
+    const raw = localStorage.getItem(draftStorageKey);
+    if (!raw) {
+      setHydratedDraft(true);
+      return;
+    }
+    try {
+      const draft = JSON.parse(raw) as Partial<QuestionDraft>;
+      if (typeof draft.title === 'string') setTitle(draft.title);
+      if (typeof draft.description === 'string') setDescription(draft.description);
+      if (typeof draft.selectedCategory === 'string') setSelectedCategory(draft.selectedCategory);
+      if (Array.isArray(draft.selectedTags)) setSelectedTags(draft.selectedTags);
+      if (typeof draft.pointReward === 'string') setPointReward(draft.pointReward);
+      if (typeof draft.flexibleTime === 'boolean') setFlexibleTime(draft.flexibleTime);
+      if (Array.isArray(draft.selectedTimeSlots)) setSelectedTimeSlots(draft.selectedTimeSlots);
+    } catch {
+      localStorage.removeItem(draftStorageKey);
+    } finally {
+      setHydratedDraft(true);
+    }
+  }, [draftStorageKey]);
   
   // Handle tag selection (max 5)
   const toggleTag = (tag: string) => {
@@ -164,7 +218,12 @@ const NewQuestion: React.FC = () => {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const newFiles = Array.from(event.target.files);
-      setAttachments(prev => [...prev, ...newFiles]);
+      const normalized = newFiles.map((file) => ({
+        id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
+        file,
+        previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
+      }));
+      setAttachments((prev) => [...prev, ...normalized]);
       
       toast({
         title: "文件已添加",
@@ -174,8 +233,14 @@ const NewQuestion: React.FC = () => {
   };
   
   // Remove attachment
-  const removeAttachment = (index: number) => {
-    setAttachments(prev => prev.filter((_, i) => i !== index));
+  const removeAttachment = (attachmentId: string) => {
+    setAttachments((prev) => {
+      const target = prev.find((item) => item.id === attachmentId);
+      if (target?.previewUrl) {
+        URL.revokeObjectURL(target.previewUrl);
+      }
+      return prev.filter((item) => item.id !== attachmentId);
+    });
   };
   
   // Fill example content
@@ -212,6 +277,56 @@ const NewQuestion: React.FC = () => {
     
     setSuggestedTags(suggestedTags.slice(0, 5));
   };
+
+  const hasContent = Boolean(
+    title.trim() ||
+      description.trim() ||
+      selectedCategory ||
+      selectedTags.length > 0 ||
+      attachments.length > 0
+  );
+
+  useEffect(() => {
+    if (!hydratedDraft) return;
+
+    const payload: QuestionDraft = {
+      title,
+      description,
+      selectedCategory,
+      selectedTags,
+      pointReward,
+      flexibleTime,
+      selectedTimeSlots,
+      savedAt: new Date().toISOString(),
+    };
+
+    const timer = window.setTimeout(() => {
+      localStorage.setItem(draftStorageKey, JSON.stringify(payload));
+    }, 400);
+
+    return () => window.clearTimeout(timer);
+  }, [
+    hydratedDraft,
+    draftStorageKey,
+    title,
+    description,
+    selectedCategory,
+    selectedTags,
+    pointReward,
+    flexibleTime,
+    selectedTimeSlots,
+  ]);
+
+  useEffect(() => {
+    const handleBeforeUnload = (event: BeforeUnloadEvent) => {
+      if (!hasContent || createQuestion.isPending) return;
+      event.preventDefault();
+      event.returnValue = '';
+    };
+
+    window.addEventListener('beforeunload', handleBeforeUnload);
+    return () => window.removeEventListener('beforeunload', handleBeforeUnload);
+  }, [hasContent, createQuestion.isPending]);
   
   // Handle form submission
   const handleSubmit = async () => {
@@ -252,6 +367,10 @@ const NewQuestion: React.FC = () => {
       bounty_points: parseInt(pointReward) || 0
     }, {
       onSuccess: () => {
+        localStorage.removeItem(draftStorageKey);
+        attachments.forEach((item) => {
+          if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
+        });
         navigate('/');
       }
     });
@@ -259,37 +378,48 @@ const NewQuestion: React.FC = () => {
   
   // Save as draft
   const saveDraft = () => {
+    const payload: QuestionDraft = {
+      title,
+      description,
+      selectedCategory,
+      selectedTags,
+      pointReward,
+      flexibleTime,
+      selectedTimeSlots,
+      savedAt: new Date().toISOString(),
+    };
+    localStorage.setItem(draftStorageKey, JSON.stringify(payload));
     toast({
       title: "已保存草稿",
-      description: "您可以稍后继续编辑",
+      description: "内容已保存在本地，稍后可继续编辑",
     });
-    navigate('/discover');
+  };
+
+  const handleBack = () => {
+    if (!hasContent || createQuestion.isPending) {
+      navigateBackOr(navigate, '/');
+      return;
+    }
+    const leave = window.confirm('当前内容会自动保存为草稿，确定离开吗？');
+    if (!leave) return;
+    saveDraft();
+    navigateBackOr(navigate, '/');
   };
   
   return (
     <div className="min-h-[100dvh] bg-slate-50 pb-20">
-      {/* Header */}
-      <div 
-        className="fixed left-1/2 top-0 z-[90] flex w-full max-w-md -translate-x-1/2 items-center justify-between border-b border-primary/80 bg-primary px-4 py-3 shadow-sm"
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
-      >
-        <button 
-          onClick={() => navigateBackOr(navigate, '/')} 
-          className="flex items-center text-primary-foreground"
-        >
-          <ArrowLeft size={20} />
-          <span className="ml-2">返回</span>
-        </button>
-        <h1 className="text-lg font-medium text-center flex-1 text-primary-foreground">发布问题</h1>
-        <button 
-          onClick={saveDraft}
-          className="text-primary-foreground/80 text-sm"
-        >
-          存草稿
-        </button>
-      </div>
+      <SubPageHeader
+        title="发布问题"
+        onBack={handleBack}
+        right={
+          <button onClick={saveDraft} className="rounded-full bg-white/20 px-3 py-1 text-xs text-white hover:bg-white/25">
+            存草稿
+          </button>
+        }
+        headerClassName="border-primary/80 bg-primary"
+      />
       
-      <div className="space-y-5 p-4" style={{ paddingTop: 'calc(env(safe-area-inset-top) + 5.75rem)' }}>
+      <div className="space-y-5 p-4 pt-4">
         <div className="surface-card rounded-3xl p-4">
           <div className="flex items-center justify-between gap-3">
             <div>
@@ -324,7 +454,7 @@ const NewQuestion: React.FC = () => {
                   autoSuggestTags();
                 }
               }}
-              placeholder={getRandomPlaceholder()}
+              placeholder={titlePlaceholder}
               maxLength={40}
               className="text-base p-3 border-gray-300 focus:border-app-teal rounded-2xl"
               onFocus={() => setTitleFocused(true)}
@@ -604,15 +734,15 @@ const NewQuestion: React.FC = () => {
               <TabsContent value="image" className="mt-0">
                 <div className="flex flex-wrap gap-3">
                   {/* Display uploaded images */}
-                  {attachments.filter(file => file.type.startsWith('image/')).map((file, index) => (
-                    <div key={index} className="relative h-20 w-20 bg-gray-100 rounded-2xl overflow-hidden">
+                  {attachments.filter((item) => item.file.type.startsWith('image/')).map((item) => (
+                    <div key={item.id} className="relative h-20 w-20 bg-gray-100 rounded-2xl overflow-hidden">
                       <img 
-                        src={URL.createObjectURL(file)} 
-                        alt={`Attachment ${index}`}
+                        src={item.previewUrl || ''}
+                        alt="Attachment"
                         className="h-full w-full object-cover"
                       />
                       <button 
-                        onClick={() => removeAttachment(index)}
+                        onClick={() => removeAttachment(item.id)}
                         className="absolute top-1 right-1 bg-black/50 rounded-full p-1 text-white"
                       >
                         ×
@@ -638,12 +768,12 @@ const NewQuestion: React.FC = () => {
               <TabsContent value="file" className="mt-0">
                 <div className="space-y-3">
                   {/* Display uploaded files */}
-                  {attachments.filter(file => !file.type.startsWith('image/') && !file.type.startsWith('audio/')).map((file, index) => (
-                    <div key={index} className="flex items-center p-2 border rounded-2xl">
+                  {attachments.filter(item => !item.file.type.startsWith('image/') && !item.file.type.startsWith('audio/')).map((item) => (
+                    <div key={item.id} className="flex items-center p-2 border rounded-2xl">
                       <File size={20} className="text-gray-400 mr-2" />
-                      <span className="text-sm truncate flex-1">{file.name}</span>
+                      <span className="text-sm truncate flex-1">{item.file.name}</span>
                       <button 
-                        onClick={() => removeAttachment(index)}
+                        onClick={() => removeAttachment(item.id)}
                         className="text-gray-400 hover:text-gray-600"
                       >
                         ×

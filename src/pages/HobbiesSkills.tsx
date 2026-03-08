@@ -33,12 +33,22 @@ import ChannelExpertCard from '@/components/channel/ChannelExpertCard';
 import ChannelQuestionSkeleton from '@/components/channel/ChannelQuestionSkeleton';
 import ChannelExpertSkeleton from '@/components/channel/ChannelExpertSkeleton';
 import ChannelFloatingActionButton from '@/components/channel/ChannelFloatingActionButton';
-import { demoExperts } from '@/lib/demoData';
+import { demoExperts, demoQuestions } from '@/lib/demoData';
+import {
+  filterExpertsByCategory,
+  mapDemoExpertsByChannel,
+  mapExpertToUIModel,
+  mapQuestionToUIModel,
+  mergeUniqueById,
+} from '@/lib/adapters/contentAdapters';
 
 const HobbiesSkills = () => {
   const navigate = useNavigate();
-  const [activeCategory, setActiveCategory] = useState('all');
-  const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>('everyone');
+  const [activeCategory, setActiveCategory] = useState(() => sessionStorage.getItem('channel:hobbies:category') || 'all');
+  const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>(() => {
+    const cached = sessionStorage.getItem('tab:hobbies');
+    return cached === 'experts' ? 'experts' : 'everyone';
+  });
   const categoryRef = useRef<HTMLDivElement>(null);
   const [showRightIndicator, setShowRightIndicator] = useState(false);
   
@@ -68,6 +78,14 @@ const HobbiesSkills = () => {
     window.addEventListener('resize', checkScroll);
     return () => window.removeEventListener('resize', checkScroll);
   }, []);
+
+  useEffect(() => {
+    sessionStorage.setItem('tab:hobbies', activeTab);
+  }, [activeTab]);
+
+  useEffect(() => {
+    sessionStorage.setItem('channel:hobbies:category', activeCategory);
+  }, [activeCategory]);
 
   const scrollCategories = (direction: 'left' | 'right') => {
     if (categoryRef.current) {
@@ -163,36 +181,19 @@ const HobbiesSkills = () => {
     }
   ];
 
-  const mappedDbExperts = (dbExperts || []).map(e => ({
-    id: e.id, name: e.nickname || '专家', avatar: e.avatar_url || 'https://randomuser.me/api/portraits/lego/1.jpg',
-    title: e.title, description: e.bio || '', tags: e.tags,
-    category: e.category || '',
-    rating: Number(e.rating), responseRate: `${e.response_rate}%`, orderCount: `${e.order_count}单`,
-  }));
+  const dbExpertModels = (dbExperts || []).map((item) => mapExpertToUIModel(item));
+  const demoExpertModels = mapDemoExpertsByChannel(demoExperts, 'hobbies-skills', { categoryFallback: 'art' });
+  const fallbackExpertModels = mergeUniqueById(
+    demoExpertModels,
+    allExperts.map((item) => mapExpertToUIModel(item, { categoryFallback: item.category }))
+  );
+  const expertSource = dbExpertModels.length > 0 ? dbExpertModels : fallbackExpertModels;
+  const filteredExperts = filterExpertsByCategory(expertSource, activeCategory);
 
-  const mappedDemoExperts = demoExperts
-    .filter((expert) => expert.category === 'hobbies-skills')
-    .map((expert) => ({
-      id: expert.id,
-      name: expert.nickname || '测试专家',
-      avatar: expert.avatar_url || 'https://randomuser.me/api/portraits/lego/1.jpg',
-      title: expert.title,
-      description: expert.bio || '',
-      tags: expert.tags,
-      category: activeCategory === 'all' ? 'all' : 'art',
-      rating: Number(expert.rating),
-      responseRate: `${expert.response_rate}%`,
-      orderCount: `${expert.order_count}单`,
-    }));
-
-  const fallbackExperts = [
-    ...mappedDemoExperts,
-    ...(activeCategory === 'all' ? allExperts : allExperts.filter(expert => expert.category === activeCategory)),
-  ];
-
-  const filteredExperts = mappedDbExperts.length > 0 ? mappedDbExperts : fallbackExperts;
-
-  const filteredQuestions = questions || [];
+  const filteredQuestions = mergeUniqueById(
+    (questions || []).map((item) => mapQuestionToUIModel(item)),
+    demoQuestions.map((item) => mapQuestionToUIModel(item))
+  );
   const featuredQuestion = filteredQuestions[0];
   const featuredExpert = filteredExperts[0];
 
@@ -210,8 +211,7 @@ const HobbiesSkills = () => {
   };
 
   const handleViewExpertProfile = (expertId: string) => {
-    const targetId = expertId.startsWith('demo-expert-') ? expertId : 'demo-expert-4';
-    navigate(`/expert-profile/${targetId}`);
+    navigate(`/expert-profile/${expertId}`);
   };
 
   return (
@@ -255,13 +255,13 @@ const HobbiesSkills = () => {
                     title={question.title}
                     description={question.content || undefined}
                     asker={{
-                      name: question.profile_nickname || '匿名用户',
-                      avatar: question.profile_avatar || 'https://randomuser.me/api/portraits/lego/1.jpg'
+                      name: question.askerName,
+                      avatar: question.askerAvatar
                     }}
-                    time={formatTime(question.created_at)}
+                    time={formatTime(question.createdAt)}
                     tags={question.tags || []}
-                    points={question.bounty_points}
-                    viewCount={formatViewCount(question.view_count)}
+                    points={question.bountyPoints}
+                    viewCount={formatViewCount(question.viewCount)}
                     delay={0.3 + index * 0.1}
                   />
                 ))}
@@ -270,7 +270,7 @@ const HobbiesSkills = () => {
           </TabsContent>
           
           <TabsContent value="experts" className="mt-0">
-            {isLoading ? (
+            {isLoadingExperts ? (
               <ChannelExpertSkeleton />
             ) : (
               <div className="space-y-3">
@@ -284,7 +284,7 @@ const HobbiesSkills = () => {
                     accentSummaryClass="border-rose-200 bg-rose-50/50"
                     ctaClassName="bg-gradient-to-r from-rose-500 to-pink-400"
                     onOpen={() => handleViewExpertProfile(expert.id)}
-                    onConsult={() => navigate(`/expert/${expert.id.startsWith('demo-expert-') ? expert.id : 'demo-expert-4'}`)}
+                    onConsult={() => navigate(`/expert/${expert.id}`)}
                   />
                 ))}
               </div>

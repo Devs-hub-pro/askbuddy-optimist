@@ -1,6 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { demoExperts, demoQuestions } from '@/lib/demoData';
+import {
+  mapDemoQuestionsForSearch,
+  mapDemoUsersForSearch,
+  mergeUniqueById,
+} from '@/lib/adapters/contentAdapters';
 
 const isMissingRpcError = (error: unknown, functionName: string) => {
   const message = error instanceof Error ? error.message : String(error || '');
@@ -106,29 +111,8 @@ export const useSearch = (query: string) => {
       const users = (usersResult.data || []) as SearchUser[];
 
       if (questionsData.length === 0) {
-        const demoMatchedQuestions = demoQuestions
-          .filter((item) => {
-            const bag = [item.title, item.content || '', ...(item.tags || [])].join(' ').toLowerCase();
-            return bag.includes(normalizedQuery);
-          })
-          .map((item) => ({
-            ...item,
-            category: item.tags?.[0] || null,
-          })) as SearchQuestion[];
-
-        const demoMatchedUsers = demoExperts
-          .filter((item) => {
-            const bag = [item.nickname || '', item.title || '', item.bio || '', ...(item.tags || [])].join(' ').toLowerCase();
-            return bag.includes(normalizedQuery);
-          })
-          .slice(0, 10)
-          .map((item) => ({
-            id: item.id,
-            user_id: item.user_id,
-            nickname: item.nickname,
-            avatar_url: item.avatar_url,
-            bio: item.bio,
-          })) as SearchUser[];
+        const demoMatchedQuestions = mapDemoQuestionsForSearch(demoQuestions, normalizedQuery) as SearchQuestion[];
+        const demoMatchedUsers = mapDemoUsersForSearch(demoExperts, normalizedQuery) as SearchUser[];
 
         return {
           questions: demoMatchedQuestions,
@@ -170,19 +154,8 @@ export const useSearch = (query: string) => {
         answers_count: answerCountMap.get(item.id) || 0,
       })) as SearchQuestion[];
 
-      const demoMatchedQuestions = demoQuestions
-        .filter((item) => {
-          const bag = [item.title, item.content || '', ...(item.tags || [])].join(' ').toLowerCase();
-          return bag.includes(normalizedQuery);
-        })
-        .map((item) => ({
-          ...item,
-          category: item.tags?.[0] || null,
-        })) as SearchQuestion[];
-
-      const mergedQuestions = [...questions, ...demoMatchedQuestions].filter((item, index, arr) => (
-        arr.findIndex((target) => target.id === item.id) === index
-      ));
+      const demoMatchedQuestions = mapDemoQuestionsForSearch(demoQuestions, normalizedQuery) as SearchQuestion[];
+      const mergedQuestions = mergeUniqueById(questions, demoMatchedQuestions);
 
       return {
         questions: mergedQuestions,

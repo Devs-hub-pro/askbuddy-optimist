@@ -4,6 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
 import SwipeBackWrapper from "./components/SwipeBackWrapper";
 import BrandSplashScreen from "./components/layout/BrandSplashScreen";
+import { isNativeApp } from "./utils/platform";
 
 const queryClient = new QueryClient();
 const Index = lazy(() => import("./pages/Index"));
@@ -62,9 +63,9 @@ const BlacklistSettings = lazy(() => import("./pages/settings/BlacklistSettings"
 const AdminDashboard = lazy(() => import("./pages/admin/AdminDashboard"));
 
 const RouteLoadingFallback = () => (
-  <div className="flex min-h-[100dvh] items-center justify-center bg-slate-50 px-4">
+  <div className="animate-app-fade flex min-h-[100dvh] items-center justify-center bg-slate-50 px-4">
     <div className="surface-card w-full max-w-sm rounded-3xl px-6 py-8 text-center shadow-sm">
-      <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-[rgb(205,239,231)] border-t-[rgb(73,170,155)]" />
+      <div className="mx-auto mb-4 h-10 w-10 animate-spin rounded-full border-2 border-[rgb(205,239,231)] border-t-[rgb(121,213,199)]" />
       <div className="text-base font-semibold text-slate-900">正在加载页面…</div>
       <div className="mt-2 text-sm text-slate-500">首次打开新页面时会稍慢一点。</div>
     </div>
@@ -86,6 +87,11 @@ function App() {
     }, 220);
 
     return () => window.clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    document.body.dataset.nativeApp = isNativeApp() ? 'true' : 'false';
   }, []);
 
   return (

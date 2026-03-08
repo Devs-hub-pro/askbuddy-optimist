@@ -1,8 +1,8 @@
 
 import React from "react";
 import { ChevronLeft, Bell, Eye, Award } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { isNativeApp } from "@/utils/platform";
 
 interface HeaderProps {
   title: string;
@@ -16,9 +16,11 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({
   title, asker, time, viewCount, points, onBack, onViewUser
-}) => (
+}) => {
+  const nativeMode = isNativeApp();
+  return (
   <>
-    <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 animate-fade-in">
+    <div className={`fixed top-0 z-[90] w-full animate-fade-in ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`}>
       <div className="bg-app-teal shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex items-center h-12 px-4">
           <button onClick={onBack} className="text-white" aria-label="返回上一页">
@@ -58,6 +60,7 @@ const Header: React.FC<HeaderProps> = ({
     </div>
     <div aria-hidden style={{ height: 'calc(env(safe-area-inset-top) + 7.75rem)' }} />
   </>
-);
+  );
+};
 
 export default Header;

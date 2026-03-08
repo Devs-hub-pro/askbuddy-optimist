@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { CheckCircle, Clock, Loader2, PenSquare, Star, Tags, Upload } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -26,7 +26,7 @@ import * as z from 'zod';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { uploadExpertCoverImage, useExpertByUserId, useSaveExpertProfile } from '@/hooks/useExperts';
-import { navigateBackOr } from '@/utils/navigation';
+import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const skillFormSchema = z.object({
@@ -77,6 +77,7 @@ interface SkillDraft {
 
 const SkillPublish = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
   const saveExpertProfile = useSaveExpertProfile();
@@ -221,7 +222,7 @@ const SkillPublish = () => {
         description: '登录后才可以发布技能',
         variant: 'destructive',
       });
-      navigate('/auth');
+      navigateToAuthWithReturn(navigate, location);
       return;
     }
 
@@ -268,7 +269,7 @@ const SkillPublish = () => {
     setStep(1);
   };
 
-  const saveDraft = () => {
+  const saveDraft = (options?: { silent?: boolean }) => {
     if (existingExpert) return;
     const payload: SkillDraft = {
       formValues,
@@ -278,18 +279,20 @@ const SkillPublish = () => {
       savedAt: new Date().toISOString(),
     };
     localStorage.setItem(draftKey, JSON.stringify(payload));
-    toast({ title: '草稿已保存', description: '下次进入可继续编辑技能信息。' });
+    if (!options?.silent) {
+      toast({ title: '草稿已保存', description: '下次进入可继续编辑技能信息。' });
+    }
   };
 
   const handleBack = () => {
     if (!hasPendingContent || isSaving) {
-      navigateBackOr(navigate, '/profile');
+      navigateBackOr(navigate, '/profile', { location });
       return;
     }
     const leave = window.confirm('当前编辑内容会保存为草稿，确定离开吗？');
     if (!leave) return;
-    saveDraft();
-    navigateBackOr(navigate, '/profile');
+    saveDraft({ silent: true });
+    navigateBackOr(navigate, '/profile', { location });
   };
 
   return (

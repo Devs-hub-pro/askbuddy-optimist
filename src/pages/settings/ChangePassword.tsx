@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Lock, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ import { navigateBackOr } from '@/utils/navigation';
 
 const ChangePassword = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -34,7 +35,7 @@ const ChangePassword = () => {
       const { error } = await supabase.auth.updateUser({ password: newPassword });
       if (error) throw error;
       toast({ title: '密码修改成功' });
-      navigateBackOr(navigate, '/settings/account');
+      navigateBackOr(navigate, '/settings/account', { location });
     } catch (error: any) {
       toast({ title: '修改失败', description: error.message, variant: 'destructive' });
     } finally {

@@ -5,17 +5,12 @@ import { useSwipeBack } from '@/hooks/useSwipeBack';
 const SwipeBackWrapper: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { pathname } = useLocation();
 
-  // 仅在“二级及更深页面”启用，一级主 Tab 和频道首页禁用，避免误触。
-  const swipeBackEnabled = ![
-    '/',
-    '/discover',
-    '/messages',
-    '/profile',
-    '/education',
-    '/career',
-    '/lifestyle',
-    '/hobbies',
-  ].includes(pathname);
+  // 仅在适合的二级页/详情页启用，一级主 Tab 与输入发布页禁用，减少误触返回。
+  const swipeBackEnabled =
+    /^\/(question|topic|expert|expert-profile|chat)\//.test(pathname) ||
+    /^\/(city-selector|notifications|discover\/interactions)$/.test(pathname) ||
+    /^\/profile\//.test(pathname) ||
+    /^\/settings\//.test(pathname);
 
   useSwipeBack({ threshold: 80, enabled: swipeBackEnabled });
   return <>{children}</>;

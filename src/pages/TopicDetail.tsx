@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { MessageCircle, Heart, Send, Users, Loader2, Trash2, Star } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -12,12 +12,13 @@ import { zhCN } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import PageStateCard from '@/components/common/PageStateCard';
-import { navigateBackOr } from '@/utils/navigation';
+import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const TopicDetail = () => {
   const { topicId } = useParams<{ topicId: string }>();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [newComment, setNewComment] = useState('');
 
@@ -77,7 +78,7 @@ const TopicDetail = () => {
           title="暂时无法打开专题"
           description="内容可能已下线，或当前链接已失效。"
           actionLabel="返回上页"
-          onAction={() => navigateBackOr(navigate, '/')}
+          onAction={() => navigateBackOr(navigate, '/', { location })}
         />
       </div>
     );
@@ -95,7 +96,7 @@ const TopicDetail = () => {
 
   return (
     <div className="app-container min-h-[100dvh] bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-24">
-      <SubPageHeader title={topic.title} onBack={() => navigateBackOr(navigate, '/')} headerClassName="border-white/10 bg-app-teal" />
+      <SubPageHeader title={topic.title} onBack={() => navigateBackOr(navigate, '/', { location })} headerClassName="border-white/10 bg-app-teal" />
 
       <div className="px-4 pt-4">
         <div className="surface-card rounded-3xl overflow-hidden">
@@ -303,7 +304,7 @@ const TopicDetail = () => {
           </div>
         ) : (
           <Button
-            onClick={() => navigate('/auth')}
+            onClick={() => navigateToAuthWithReturn(navigate, location)}
             className="w-full"
             variant="outline"
           >

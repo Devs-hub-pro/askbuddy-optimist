@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   Award,
   Briefcase,
@@ -25,6 +25,7 @@ import SubPageHeader from '@/components/layout/SubPageHeader';
 const ExpertProfile = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const isDemoExpert = !!id?.startsWith('demo-expert-');
   const { data: expert, isLoading, error } = useExpertDetail(isDemoExpert ? '' : id || '');
   const [isBioExpanded, setIsBioExpanded] = useState(false);
@@ -46,7 +47,7 @@ const ExpertProfile = () => {
           title="暂时无法打开个人主页"
           description="该专家可能已下架，或当前链接已失效。"
           actionLabel="回到首页"
-          onAction={() => navigate('/')}
+          onAction={() => navigateBackOr(navigate, '/', { location })}
         />
       </div>
     );
@@ -63,7 +64,7 @@ const ExpertProfile = () => {
 
   return (
     <div className="min-h-[100dvh] bg-gray-50 pb-24">
-      <SubPageHeader title="个人主页" onBack={() => navigateBackOr(navigate, '/')} />
+      <SubPageHeader title="个人主页" onBack={() => navigateBackOr(navigate, '/', { location })} />
 
       <div className="pt-0">
       <div className="relative">

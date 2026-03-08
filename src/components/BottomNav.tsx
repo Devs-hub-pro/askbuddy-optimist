@@ -18,9 +18,13 @@ const BottomNav: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const { data: unreadCount } = useUnreadCount();
   const nativeMode = isNativeApp();
+  const dispatchTabReselect = (path: string) => {
+    window.dispatchEvent(new CustomEvent('app:tab-reselect', { detail: { path } }));
+  };
 
   const navigateOrScrollTop = (path: string) => {
-    if (currentPath === path) {
+    if (isTabActive(path)) {
+      dispatchTabReselect(path);
       window.scrollTo({ top: 0, behavior: 'smooth' });
       return;
     }

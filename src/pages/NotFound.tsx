@@ -26,7 +26,7 @@ const NotFound = () => {
           你访问的页面可能已被移除，或当前链接已失效。
         </p>
         <div className="mt-5 flex gap-3">
-          <Button variant="outline" className="flex-1 rounded-full" onClick={() => navigateBackOr(navigate, "/")}>
+          <Button variant="outline" className="flex-1 rounded-full" onClick={() => navigateBackOr(navigate, "/", { location })}>
             返回上页
           </Button>
           <Button className="flex-1 rounded-full" onClick={() => navigate("/")}>

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   Upload, 
   User, 
@@ -47,14 +47,17 @@ import { useUpdateProfile, useUploadAvatar } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/use-toast';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import PageStateCard from '@/components/common/PageStateCard';
+import { navigateToAuthWithReturn } from '@/utils/navigation';
 
 const EditProfile = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, profile, loading: authLoading } = useAuth();
   const updateProfile = useUpdateProfile();
   const uploadAvatar = useUploadAvatar();
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const tempPreviewUrlRef = useRef<string | null>(null);
 
   const [avatarType, setAvatarType] = useState('image'); // 'image', 'gif', 'video'
   const [avatarPreview, setAvatarPreview] = useState('');
@@ -85,9 +88,9 @@ const EditProfile = () => {
   // Redirect if not logged in
   useEffect(() => {
     if (!authLoading && !user) {
-      navigate('/auth');
+      navigateToAuthWithReturn(navigate, location);
     }
-  }, [authLoading, user, navigate]);
+  }, [authLoading, user, navigate, location]);
   
   // Mock data
   const educationList = [
@@ -129,6 +132,10 @@ const EditProfile = () => {
     try {
       // Show preview immediately
       const previewUrl = URL.createObjectURL(file);
+      if (tempPreviewUrlRef.current) {
+        URL.revokeObjectURL(tempPreviewUrlRef.current);
+      }
+      tempPreviewUrlRef.current = previewUrl;
       setAvatarPreview(previewUrl);
 
       // Upload to storage
@@ -137,12 +144,29 @@ const EditProfile = () => {
       // Update profile with new avatar URL
       await updateProfile.mutateAsync({ avatar_url: publicUrl });
       setAvatarPreview(publicUrl);
+      if (tempPreviewUrlRef.current) {
+        URL.revokeObjectURL(tempPreviewUrlRef.current);
+        tempPreviewUrlRef.current = null;
+      }
       setHasChanges(false);
     } catch (error) {
       // Revert preview on error
+      if (tempPreviewUrlRef.current) {
+        URL.revokeObjectURL(tempPreviewUrlRef.current);
+        tempPreviewUrlRef.current = null;
+      }
       setAvatarPreview(profile?.avatar_url || '');
     }
   };
+
+  useEffect(() => {
+    return () => {
+      if (tempPreviewUrlRef.current) {
+        URL.revokeObjectURL(tempPreviewUrlRef.current);
+        tempPreviewUrlRef.current = null;
+      }
+    };
+  }, []);
 
   // Handle save
   const handleSave = async () => {

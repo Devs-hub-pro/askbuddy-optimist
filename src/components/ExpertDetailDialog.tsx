@@ -24,9 +24,10 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
 import { getConsultationAmount, useCreateConsultationOrder } from '@/hooks/useConsultationOrders';
+import { navigateToAuthWithReturn } from '@/utils/navigation';
 
 interface ExpertDetailProps {
   id: string;
@@ -70,6 +71,7 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [selectedConsultType, setSelectedConsultType] = useState<'text' | 'voice' | 'video'>('text');
   const navigate = useNavigate();
+  const currentLocation = useLocation();
   const { user } = useAuth();
   const createOrder = useCreateConsultationOrder();
   const amounts = {
@@ -238,7 +240,7 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
               variant="outline" 
               className="flex-1 rounded-full bg-green-50 text-green-600 border-green-100 hover:bg-green-100 hover:text-green-700"
               onClick={() => {
-                if (!user) { navigate('/auth'); return; }
+                if (!user) { navigateToAuthWithReturn(navigate, currentLocation); return; }
                 createOrder.mutate(
                   { expertId: id, consultType: selectedConsultType },
                   {

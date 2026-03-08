@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { navigateBackOr } from '@/utils/navigation';
 
 interface SwipeBackOptions {
   threshold?: number; // 触发返回的最小滑动距离
@@ -56,9 +57,9 @@ export function useSwipeBack(options: SwipeBackOptions = {}) {
       const touch = e.changedTouches[0];
       const deltaX = touch.clientX - touchStartX.current;
       
-      // 如果右滑距离超过阈值，触发返回
+      // 如果右滑距离超过阈值，触发安全返回
       if (deltaX > threshold) {
-        navigate(-1);
+        navigateBackOr(navigate, '/', { location });
       }
       
       isSwiping.current = false;
@@ -73,10 +74,16 @@ export function useSwipeBack(options: SwipeBackOptions = {}) {
       document.removeEventListener('touchmove', handleTouchMove);
       document.removeEventListener('touchend', handleTouchEnd);
     };
-  }, [enabled, threshold, navigate, location.pathname]);
+  }, [enabled, threshold, navigate, location]);
 }
 
 const shouldIgnoreSwipeStart = (target: HTMLElement) => {
+  // 输入法弹起时禁用，避免编辑时误触返回
+  if (typeof window !== 'undefined' && window.visualViewport) {
+    const viewportGap = window.innerHeight - window.visualViewport.height;
+    if (viewportGap > 140) return true;
+  }
+
   // 在输入控件或可编辑区域触摸时不触发返回
   if (target.closest('input, textarea, select, [contenteditable="true"]')) {
     return true;

@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useLocation } from 'react-router-dom';
 import { 
   Award, 
   MessageSquare, 
@@ -20,12 +20,13 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getConsultationAmount, useCreateConsultationOrder } from '@/hooks/useConsultationOrders';
 import { demoExperts } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
-import { navigateBackOr } from '@/utils/navigation';
+import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const ExpertDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const [isDescriptionExpanded, setIsDescriptionExpanded] = useState(false);
   const [selectedConsultType, setSelectedConsultType] = useState<'text' | 'voice' | 'video'>('text');
@@ -53,7 +54,7 @@ const ExpertDetail = () => {
           title="暂时无法打开达人信息"
           description="该专家可能已下架，或当前链接已失效。"
           actionLabel="返回上页"
-          onAction={() => navigateBackOr(navigate, '/')}
+          onAction={() => navigateBackOr(navigate, '/', { location })}
         />
       </div>
     );
@@ -70,7 +71,7 @@ const ExpertDetail = () => {
 
   return (
     <div className="app-container bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-20 min-h-[100dvh]">
-      <SubPageHeader title="咨询页" onBack={() => navigateBackOr(navigate, '/')} />
+      <SubPageHeader title="咨询页" onBack={() => navigateBackOr(navigate, '/', { location })} />
       
       <div className="px-4 pb-6 pt-4 space-y-5">
         {/* Expert Header */}
@@ -203,7 +204,7 @@ const ExpertDetail = () => {
           variant="outline"
           className="flex-1 rounded-full"
           onClick={() => {
-            if (!user) { navigate('/auth'); return; }
+            if (!user) { navigateToAuthWithReturn(navigate, location); return; }
             setShowOrderDialog(true);
           }}
         >
@@ -212,7 +213,7 @@ const ExpertDetail = () => {
         <Button
           className="flex-1 rounded-full"
           onClick={() => {
-            if (!user) { navigate('/auth'); return; }
+            if (!user) { navigateToAuthWithReturn(navigate, location); return; }
             navigate(`/chat/${resolvedExpert.user_id}`);
           }}
         >

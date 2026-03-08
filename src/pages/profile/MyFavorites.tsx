@@ -11,7 +11,7 @@ import PageStateCard from '@/components/common/PageStateCard';
 
 const MyFavorites = () => {
   const navigate = useNavigate();
-  const { data: favorites, isLoading } = useMyFavorites();
+  const { data: favorites, isLoading, error, refetch } = useMyFavorites();
 
   const formatTime = (dateString: string) => {
     try {
@@ -26,6 +26,16 @@ const MyFavorites = () => {
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
           <PageStateCard variant="loading" compact title="正在加载收藏…" className="w-full max-w-sm" />
+        </div>
+      ) : error ? (
+        <div className="p-5 pt-20">
+          <PageStateCard
+            variant="error"
+            title="收藏加载失败"
+            description={error instanceof Error ? error.message : '请检查网络后重试'}
+            actionLabel="重试"
+            onAction={() => refetch()}
+          />
         </div>
       ) : favorites && favorites.length > 0 ? (
         <div className="p-4 space-y-4">

@@ -14,7 +14,7 @@ import PageStateCard from '@/components/common/PageStateCard';
 const MyEarnings = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const { data: transactions, isLoading } = useMyEarnings();
+  const { data: transactions, isLoading, error, refetch } = useMyEarnings();
 
   const formatTime = (dateString: string) => {
     try {
@@ -80,6 +80,17 @@ const MyEarnings = () => {
       {isLoading ? (
         <div className="px-5 py-6">
           <PageStateCard variant="loading" compact title="正在加载积分流水…" />
+        </div>
+      ) : error ? (
+        <div className="mx-5 mt-2">
+          <PageStateCard
+            compact
+            variant="error"
+            title="积分流水加载失败"
+            description={error instanceof Error ? error.message : '请检查网络后重试'}
+            actionLabel="重试"
+            onAction={() => refetch()}
+          />
         </div>
       ) : transactions && transactions.length > 0 ? (
         <div className="px-5 pb-5 space-y-3">

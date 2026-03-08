@@ -12,10 +12,12 @@ import { zhCN } from 'date-fns/locale';
 import { demoConversations } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
+import { isNativeApp } from '@/utils/platform';
 
 const Messages = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const nativeMode = isNativeApp();
   const [activeTab, setActiveTab] = useState<'chats' | 'notifications'>(() => {
     const cached = sessionStorage.getItem('tab:messages');
     return cached === 'notifications' ? 'notifications' : 'chats';
@@ -133,7 +135,7 @@ const Messages = () => {
 
   return (
     <div className="min-h-[100dvh] bg-slate-50 pb-16">
-      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm">
+      <div className={`fixed top-0 z-[90] w-full shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`}>
         <div className="app-header-bg" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="px-4 pb-3 pt-2">
             <div className="flex items-center justify-between">
@@ -203,13 +205,13 @@ const Messages = () => {
       </div>
 
       <div
-        className="app-card-stack-gap space-y-4 px-4 py-4"
+        className="app-card-stack-gap app-page-padding space-y-4 py-4"
         style={{ paddingTop: showSearch ? 'calc(env(safe-area-inset-top) + 8.25rem)' : 'calc(env(safe-area-inset-top) + 4.75rem)' }}
       >
         {activeTab === 'chats' && (
           <div className="space-y-3">
             <div className="flex items-center justify-between px-1">
-              <p className="text-xs font-medium text-muted-foreground">最近会话</p>
+              <p className="app-section-subtitle mt-0 font-medium text-muted-foreground">最近会话</p>
               {filteredChats.length > 0 && (
                 <p className="text-xs text-muted-foreground">{filteredChats.length} 个会话</p>
               )}

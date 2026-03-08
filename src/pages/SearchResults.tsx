@@ -12,8 +12,10 @@ import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { navigateBackOr } from '@/utils/navigation';
 import PageStateCard from '@/components/common/PageStateCard';
+import { isNativeApp } from '@/utils/platform';
 
 const SEARCH_HISTORY_KEY = 'searchHistory';
+const LEGACY_SEARCH_HISTORY_KEY = 'searchHistory';
 const channelThemes = {
   education: {
     title: '教育学习搜索',
@@ -85,9 +87,11 @@ const channelThemes = {
 const SearchResults = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const nativeMode = isNativeApp();
   const searchParams = new URLSearchParams(location.search);
   const initialQuery = searchParams.get('q') || '';
   const channel = searchParams.get('channel') || 'default';
+  const historyStorageKey = `${SEARCH_HISTORY_KEY}:${channel}`;
   const theme = channelThemes[channel as keyof typeof channelThemes] || channelThemes.default;
   const tabStorageKey = `tab:search:${channel}`;
 
@@ -101,6 +105,15 @@ const SearchResults = () => {
   const [questionSort, setQuestionSort] = useState<'relevance' | 'latest' | 'hot'>('relevance');
   const [questionCategoryFilter, setQuestionCategoryFilter] = useState<string>('全部');
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const placeholder = channel === 'education'
+    ? '搜院校、专业、申请问题'
+    : channel === 'career'
+      ? '搜简历、面试、求职问题'
+      : channel === 'lifestyle'
+        ? '搜租房、法律、生活服务'
+        : channel === 'hobbies'
+          ? '搜摄影、音乐、技能话题'
+          : '搜索问题/话题/用户';
   const contentTopOffset = 'calc(env(safe-area-inset-top) + 8rem)';
 
   const { data: results, isLoading, error, refetch } = useSearch(debouncedQuery);
@@ -119,11 +132,6 @@ const SearchResults = () => {
     if (debouncedQuery) {
       newParams.set('q', debouncedQuery);
       navigate({ pathname: location.pathname, search: newParams.toString() }, { replace: true });
-      setRecentSearches((current) => {
-        const next = [debouncedQuery, ...current.filter((item) => item !== debouncedQuery)].slice(0, 8);
-        localStorage.setItem(SEARCH_HISTORY_KEY, JSON.stringify(next));
-        return next;
-      });
     } else if (searchParams.get('q')) {
       newParams.delete('q');
       navigate({ pathname: location.pathname, search: newParams.toString() }, { replace: true });
@@ -131,7 +139,7 @@ const SearchResults = () => {
   }, [debouncedQuery, location.pathname, location.search, navigate]);
 
   useEffect(() => {
-    const stored = localStorage.getItem(SEARCH_HISTORY_KEY);
+    const stored = localStorage.getItem(historyStorageKey) || localStorage.getItem(LEGACY_SEARCH_HISTORY_KEY);
     if (!stored) return;
     try {
       const parsed = JSON.parse(stored);
@@ -139,9 +147,9 @@ const SearchResults = () => {
         setRecentSearches(parsed.filter((item): item is string => typeof item === 'string'));
       }
     } catch {
-      localStorage.removeItem(SEARCH_HISTORY_KEY);
+      localStorage.removeItem(historyStorageKey);
     }
-  }, []);
+  }, [historyStorageKey]);
 
   useEffect(() => {
     sessionStorage.setItem(tabStorageKey, activeTab);
@@ -151,9 +159,20 @@ const SearchResults = () => {
     setSearchQuery(value);
   };
 
+  const commitSearch = (term: string) => {
+    const normalized = term.trim();
+    if (!normalized) return;
+    setSearchQuery(normalized);
+    setDebouncedQuery(normalized);
+    setRecentSearches((current) => {
+      const next = [normalized, ...current.filter((item) => item.toLowerCase() !== normalized.toLowerCase())].slice(0, 8);
+      localStorage.setItem(historyStorageKey, JSON.stringify(next));
+      return next;
+    });
+  };
+
   const handleTopicSelect = (topic: string) => {
-    setSearchQuery(topic);
-    setDebouncedQuery(topic);
+    commitSearch(topic);
   };
 
   const totalResults = (results?.questions.length || 0) + (results?.topics.length || 0) + (results?.users.length || 0);
@@ -216,10 +235,10 @@ const SearchResults = () => {
   return (
     <div className={`app-container min-h-[100dvh] pb-8 ${theme.pageClass}`}>
       {/* Header */}
-      <div className={`fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm ${theme.headerClass}`}>
+      <div className={`fixed top-0 z-[90] w-full shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'} ${theme.headerClass}`}>
         <div style={{ height: 'env(safe-area-inset-top)' }} />
         <div className="flex items-center justify-between h-12 px-4">
-          <button onClick={() => navigateBackOr(navigate, theme.backTo)} className="text-white">
+          <button onClick={() => navigateBackOr(navigate, theme.backTo, { location })} className="text-white">
             <ChevronLeft size={24} />
           </button>
           <div className="text-white font-medium text-base">{theme.title}</div>
@@ -229,7 +248,8 @@ const SearchResults = () => {
         <div className={`shadow-[0_1px_0_rgba(15,23,42,0.03)] ${theme.searchStripClass}`}>
           <SearchBar
             onSearch={handleSearch}
-            placeholder="搜索问题/话题/用户"
+            onSubmit={commitSearch}
+            placeholder={placeholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             accentRingClassName={theme.accentRingClass}
@@ -279,7 +299,7 @@ const SearchResults = () => {
                     className="text-xs text-muted-foreground"
                     onClick={() => {
                       setRecentSearches([]);
-                      localStorage.removeItem(SEARCH_HISTORY_KEY);
+                      localStorage.removeItem(historyStorageKey);
                     }}
                   >
                     清空
@@ -290,9 +310,25 @@ const SearchResults = () => {
                     <button
                       key={`${topic}-${i}`}
                       onClick={() => handleTopicSelect(topic)}
-                      className={`rounded-full border bg-white px-3 py-1.5 text-sm shadow-sm transition-colors hover:bg-gray-50 ${theme.historyChipClass}`}
+                      className={`inline-flex items-center gap-1 rounded-full border bg-white px-3 py-1.5 text-sm shadow-sm transition-colors hover:bg-gray-50 ${theme.historyChipClass}`}
                     >
                       {topic}
+                      <span
+                        role="button"
+                        aria-label={`删除最近搜索 ${topic}`}
+                        className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                        onClick={(event) => {
+                          event.preventDefault();
+                          event.stopPropagation();
+                          setRecentSearches((current) => {
+                            const next = current.filter((item) => item !== topic);
+                            localStorage.setItem(historyStorageKey, JSON.stringify(next));
+                            return next;
+                          });
+                        }}
+                      >
+                        ×
+                      </span>
                     </button>
                   ))}
                 </div>
@@ -366,7 +402,7 @@ const SearchResults = () => {
                   </button>
                 ))}
               </div>
-              <Button onClick={() => navigate(theme.backTo)} variant="outline" className="app-soft-border app-accent-text border hover:app-soft-surface-bg">
+              <Button onClick={() => navigateBackOr(navigate, theme.backTo, { location })} variant="outline" className="app-soft-border app-accent-text border hover:app-soft-surface-bg">
                 返回上页
               </Button>
             </div>
@@ -608,8 +644,12 @@ const UserCard = ({ user: u, navigate }: { user: SearchUser; navigate: ReturnTyp
     <div className="flex items-center gap-2">
       <button
         type="button"
-        className="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-600"
-        onClick={() => navigate(`/chat/${u.user_id}`)}
+        className="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={!u.user_id}
+        onClick={() => {
+          if (!u.user_id) return;
+          navigate(`/chat/${u.user_id}`);
+        }}
       >
         私信
       </button>

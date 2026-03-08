@@ -32,6 +32,7 @@ import ChannelQuestionSkeleton from '@/components/channel/ChannelQuestionSkeleto
 import ChannelExpertSkeleton from '@/components/channel/ChannelExpertSkeleton';
 import ChannelFloatingActionButton from '@/components/channel/ChannelFloatingActionButton';
 import { demoExperts, demoQuestions } from '@/lib/demoData';
+import PageStateCard from '@/components/common/PageStateCard';
 import {
   filterExpertsByCategory,
   mapDemoExpertsByChannel,
@@ -50,8 +51,18 @@ const EducationLearning = () => {
   const categoryRef = useRef<HTMLDivElement>(null);
   const [showRightIndicator, setShowRightIndicator] = useState(false);
   
-  const { data: questions, isLoading } = useQuestions('教育学习');
-  const { data: dbExperts, isLoading: isLoadingExperts } = useExperts('教育学习');
+  const {
+    data: questions,
+    isLoading,
+    error: questionsError,
+    refetch: refetchQuestions,
+  } = useQuestions('教育学习');
+  const {
+    data: dbExperts,
+    isLoading: isLoadingExperts,
+    error: expertsError,
+    refetch: refetchExperts,
+  } = useExperts('教育学习');
 
   const formatTime = (dateString: string) => {
     try {
@@ -250,6 +261,22 @@ const EducationLearning = () => {
           <TabsContent value="everyone" className="mt-0">
             {isLoading ? (
               <ChannelQuestionSkeleton />
+            ) : questionsError ? (
+              <PageStateCard
+                compact
+                variant="error"
+                title="问题加载失败"
+                description={questionsError instanceof Error ? questionsError.message : '请检查网络后重试'}
+                actionLabel="重试"
+                onAction={() => refetchQuestions()}
+              />
+            ) : filteredQuestions.length === 0 ? (
+              <PageStateCard
+                compact
+                variant="empty"
+                title="还没有相关问题"
+                description="先发布一个问题，或者切换其它子类目看看。"
+              />
             ) : (
               <div className="space-y-4">
                 {filteredQuestions.map((question, index) => (
@@ -276,6 +303,22 @@ const EducationLearning = () => {
           <TabsContent value="experts" className="mt-0">
             {isLoadingExperts ? (
               <ChannelExpertSkeleton />
+            ) : expertsError ? (
+              <PageStateCard
+                compact
+                variant="error"
+                title="专家加载失败"
+                description={expertsError instanceof Error ? expertsError.message : '请稍后重试'}
+                actionLabel="重试"
+                onAction={() => refetchExperts()}
+              />
+            ) : filteredExperts.length === 0 ? (
+              <PageStateCard
+                compact
+                variant="empty"
+                title="该分类暂时没有专家"
+                description="可以切换分类，或先浏览大家都在问。"
+              />
             ) : (
               <div className="space-y-3">
                 {filteredExperts.map((expert) => (

@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Shield, AlertTriangle, Save } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
@@ -25,6 +25,7 @@ import PageStateCard from '@/components/common/PageStateCard';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: isAdmin, isLoading: adminChecking } = useIsAdmin();
   const { toast } = useToast();
   const { data: dashboard, isLoading: dashboardLoading } = useAdminDashboard();
@@ -63,7 +64,7 @@ const AdminDashboard = () => {
         <Shield className="h-12 w-12 text-muted-foreground mb-4" />
         <h1 className="text-xl font-semibold mb-2">无管理权限</h1>
         <p className="text-sm text-muted-foreground mb-6">当前账号不是管理员，无法访问运营后台。</p>
-        <Button onClick={() => navigateBackOr(navigate, '/profile')}>返回</Button>
+        <Button onClick={() => navigateBackOr(navigate, '/profile', { location })}>返回</Button>
       </div>
     );
   }
@@ -91,7 +92,7 @@ const AdminDashboard = () => {
 
   return (
     <div className="min-h-[100dvh] bg-muted pb-8">
-      <SubPageHeader title="管理后台" onBack={() => navigateBackOr(navigate, '/profile')} />
+      <SubPageHeader title="管理后台" onBack={() => navigateBackOr(navigate, '/profile', { location })} />
 
       <div className="space-y-4 p-4">
         <div className="surface-card rounded-3xl p-4">

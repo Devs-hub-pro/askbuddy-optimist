@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { ChevronLeft, Image, Smile, Loader2 } from 'lucide-react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useMessagesWithUser, useSendMessage, useMarkMessagesAsRead } from '@/hooks/useMessages';
 import { useAuth } from '@/contexts/AuthContext';
@@ -10,10 +10,11 @@ import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { demoConversations, demoMessagesByPartner } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
-import { navigateBackOr } from '@/utils/navigation';
+import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 
 const ChatDetail: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { chatId } = useParams<{ chatId: string }>();
   const { user } = useAuth();
   const [inputValue, setInputValue] = useState('');
@@ -120,8 +121,15 @@ const ChatDetail: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center">
-        <p className="text-muted-foreground">请先登录</p>
+      <div className="min-h-[100dvh] flex items-center justify-center p-4">
+        <PageStateCard
+          compact
+          variant="empty"
+          title="登录后查看私信"
+          description="登录后可查看历史会话并继续聊天。"
+          actionLabel="去登录"
+          onAction={() => navigateToAuthWithReturn(navigate, location)}
+        />
       </div>
     );
   }
@@ -130,7 +138,7 @@ const ChatDetail: React.FC = () => {
     <div className="flex h-[100dvh] flex-col overflow-hidden bg-slate-50">
       <div className="flex-shrink-0 bg-[rgb(121,213,199)] shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex h-12 items-center px-4">
-          <button onClick={() => navigateBackOr(navigate, '/messages')} className="rounded-full p-1 text-white/95 -ml-1">
+          <button onClick={() => navigateBackOr(navigate, '/messages', { location })} className="rounded-full p-1 text-white/95 -ml-1">
             <ChevronLeft size={24} />
           </button>
           <div className="ml-2 flex items-center gap-2">

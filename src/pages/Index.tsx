@@ -18,6 +18,7 @@ import PageStateCard from '@/components/common/PageStateCard';
 import ChannelExpertCard from '@/components/channel/ChannelExpertCard';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 import { mapExpertToUIModel, mapQuestionToUIModel, mergeUniqueById } from '@/lib/adapters/contentAdapters';
+import { isNativeApp } from '@/utils/platform';
 
 interface LocationState {
   location?: string;
@@ -27,6 +28,7 @@ const Index = () => {
   const routeLocation = useLocation();
   const navigate = useNavigate();
   const locationState = routeLocation.state as LocationState;
+  const nativeMode = isNativeApp();
   
   const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>(() => {
     const cached = sessionStorage.getItem('tab:index');
@@ -135,7 +137,7 @@ const Index = () => {
   };
 
   const fixedHeader = (
-    <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm">
+    <div className={`fixed top-0 z-[90] w-full shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`}>
       <div className="app-header-bg">
         <div style={{ height: 'env(safe-area-inset-top)' }} />
         <div className="flex h-12 items-center justify-between px-4">
@@ -202,7 +204,7 @@ const Index = () => {
         <CategorySection />
       
         <div className="mb-6 pt-3">
-        <div className="mb-4 flex items-start justify-between gap-3 px-4">
+        <div className="mb-4 app-page-padding flex items-start justify-between gap-3">
           <div>
             <div className="flex items-center gap-2">
               <span className="flex h-8 w-8 items-center justify-center rounded-full bg-amber-50">
@@ -212,7 +214,7 @@ const Index = () => {
                 问问热榜
               </h2>
             </div>
-            <p className="mt-1 text-xs leading-5 text-muted-foreground">
+            <p className="app-section-subtitle">
               左右滑动浏览专题，点进去可继续阅读和讨论。
             </p>
           </div>
@@ -342,7 +344,7 @@ const Index = () => {
         )}
       </div>
       
-      <div className="bg-white px-4 pb-20 pt-2">
+      <div className="bg-white app-page-padding pb-20 pt-2">
         <div className="relative mb-5 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-px after:bg-gray-200">
           <div className="flex gap-6">
             <button 

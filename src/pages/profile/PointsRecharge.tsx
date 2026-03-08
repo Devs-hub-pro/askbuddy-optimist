@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Coins, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,6 +14,7 @@ import {
 } from '@/hooks/usePayments';
 import { useIsAdmin } from '@/hooks/useHotTopics';
 import SubPageHeader from '@/components/layout/SubPageHeader';
+import { navigateToAuthWithReturn } from '@/utils/navigation';
 
 const RECHARGE_OPTIONS = [
   { amount: 10, price: '¥1', label: '10积分', popular: false },
@@ -32,6 +33,7 @@ const PAYMENT_PROVIDERS: Array<{ key: RechargeProvider; label: string; badge: st
 
 const PointsRecharge = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, profile } = useAuth();
   const { toast } = useToast();
   const { data: isAdmin } = useIsAdmin();
@@ -44,7 +46,7 @@ const PointsRecharge = () => {
 
   const handleRecharge = async () => {
     if (!user) {
-      navigate('/auth');
+      navigateToAuthWithReturn(navigate, location);
       return;
     }
 

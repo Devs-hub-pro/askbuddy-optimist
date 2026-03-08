@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Bell, CheckCheck, Heart, MessageCircle, Reply, Sparkles } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -53,6 +53,7 @@ const iconMap = {
 
 const DiscoverInteractions = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: notifications = [], isLoading } = useNotifications();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
@@ -93,7 +94,7 @@ const DiscoverInteractions = () => {
     <div className="min-h-[100dvh] bg-slate-50 pb-6">
       <SubPageHeader
         title="互动提醒"
-        onBack={() => navigateBackOr(navigate, '/discover')}
+        onBack={() => navigateBackOr(navigate, '/discover', { location })}
         right={
           unreadCount > 0 ? (
             <Button

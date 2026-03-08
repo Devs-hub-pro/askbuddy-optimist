@@ -6,7 +6,7 @@ import AnswerList from "@/components/question/AnswerList";
 import ShareDialog from "@/components/question/ShareDialog";
 import BottomBar from "@/components/question/BottomBar";
 import AnswerDialog from "@/components/AnswerDialog";
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
 import { Users } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useQuestionDetail, useCreateAnswer, useToggleFavorite } from "@/hooks/useQuestions";
@@ -17,7 +17,7 @@ import { zhCN } from 'date-fns/locale';
 import { useSubmitContentReport } from '@/hooks/useModeration';
 import { demoQuestionDetails } from '@/lib/demoData';
 import PageStateCard from "@/components/common/PageStateCard";
-import { navigateBackOr } from '@/utils/navigation';
+import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 
 // 分享选项
 const SHARE_OPTIONS = [
@@ -30,6 +30,7 @@ const SHARE_OPTIONS = [
 const QuestionDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { user } = useAuth();
   const isDemoQuestion = !!id?.startsWith('demo-question-');
@@ -86,7 +87,7 @@ const QuestionDetail = () => {
           title="暂时无法加载问题"
           description="链接可能已失效，或当前网络不稳定。"
           actionLabel="返回上页"
-          onAction={() => navigateBackOr(navigate, '/')}
+          onAction={() => navigateBackOr(navigate, '/', { location })}
         />
       </div>
     );
@@ -98,7 +99,7 @@ const QuestionDetail = () => {
   const handleAnswerDialogSubmit = (payload: { timeSlots: string[]; message: string }) => {
     if (!user) {
       toast({ title: "请先登录", variant: "destructive" });
-      navigate('/auth');
+      navigateToAuthWithReturn(navigate, location);
       return;
     }
 
@@ -129,7 +130,7 @@ const QuestionDetail = () => {
   const handleCollect = () => {
     if (!user) {
       toast({ title: "请先登录", variant: "destructive" });
-      navigate('/auth');
+      navigateToAuthWithReturn(navigate, location);
       return;
     }
     if (isDemoQuestion) {
@@ -151,7 +152,7 @@ const QuestionDetail = () => {
   const handleReportQuestion = () => {
     if (!user) {
       toast({ title: "请先登录", variant: "destructive" });
-      navigate('/auth');
+      navigateToAuthWithReturn(navigate, location);
       return;
     }
     if (isDemoQuestion) {
@@ -220,7 +221,7 @@ const QuestionDetail = () => {
         time={formatTime(question.created_at)}
         viewCount={formatViewCount(question.view_count)}
         points={question.bounty_points}
-        onBack={() => navigateBackOr(navigate, '/')}
+        onBack={() => navigateBackOr(navigate, '/', { location })}
         onViewUser={handleViewUserProfile}
       />
       <div className="mx-4 mb-5 mt-4 surface-card rounded-3xl p-5 animate-fade-in">

@@ -19,9 +19,11 @@ import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import PageStateCard from '@/components/common/PageStateCard';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
+import { isNativeApp } from '@/utils/platform';
 
 const Discover: React.FC = () => {
   const navigate = useNavigate();
+  const nativeMode = isNativeApp();
   const [activeTab, setActiveTab] = useState<'following' | 'recommended' | 'local'>(() => {
     const cached = sessionStorage.getItem('tab:discover');
     if (cached === 'following' || cached === 'local' || cached === 'recommended') return cached;
@@ -135,7 +137,7 @@ const Discover: React.FC = () => {
   return (
     <div className="pb-16 min-h-[100dvh] bg-slate-50">
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'following' | 'recommended' | 'local')} className="w-full">
-        <div className="app-header-bg fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+        <div className={`app-header-bg fixed top-0 z-[90] w-full shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`} style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="flex items-center justify-between px-4 py-3">
             <div className="flex-1">
               <TabsList className="h-10 w-full justify-start rounded-none bg-transparent p-0">
@@ -453,11 +455,11 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, formatTim
       )}
 
       {/* Posts Feed */}
-      <div className="px-4 pt-4">
+      <div className="app-page-padding pt-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-sm font-semibold text-slate-900">广场动态</h3>
-            <p className="mt-1 text-xs text-slate-500">更轻量、更即时，适合随手分享和互动</p>
+            <h3 className="app-section-title text-sm">广场动态</h3>
+            <p className="app-section-subtitle mt-1">更轻量、更即时，适合随手分享和互动</p>
           </div>
           <div className="flex items-center gap-2 rounded-full bg-white p-1 shadow-sm">
             <button
@@ -476,7 +478,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, formatTim
         </div>
       </div>
 
-      <div className="mt-4 space-y-3 px-4">
+      <div className="mt-4 app-page-padding space-y-3">
         {isLoading ? (
           [1, 2, 3].map(i => (
             <div key={i} className="surface-card rounded-3xl border border-slate-100 p-4 animate-pulse-soft">

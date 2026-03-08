@@ -162,6 +162,18 @@
   .app-card-stack-gap {
     gap: var(--app-space-3);
   }
+
+  .app-page-padding {
+    @apply px-4;
+  }
+
+  .app-section-title {
+    @apply text-base font-semibold text-slate-900;
+  }
+
+  .app-section-subtitle {
+    @apply mt-1 text-xs leading-5 text-slate-500;
+  }
 }
 
 body[data-native-app='true'] .app-container {

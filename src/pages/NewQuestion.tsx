@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   PlusCircle, 
   Tag, 
@@ -42,7 +42,7 @@ import {
 } from "@/components/ui/drawer";
 import { useCreateQuestion } from '@/hooks/useQuestions';
 import { useAuth } from '@/contexts/AuthContext';
-import { navigateBackOr } from '@/utils/navigation';
+import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 
 // Define categories with emojis
@@ -103,6 +103,7 @@ interface AttachmentItem {
 
 const NewQuestion: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const createQuestion = useCreateQuestion();
   
@@ -336,7 +337,7 @@ const NewQuestion: React.FC = () => {
         description: "登录后才能发布问题",
         variant: "destructive"
       });
-      navigate('/auth');
+      navigateToAuthWithReturn(navigate, location);
       return;
     }
 
@@ -377,7 +378,7 @@ const NewQuestion: React.FC = () => {
   };
   
   // Save as draft
-  const saveDraft = () => {
+  const saveDraft = (options?: { silent?: boolean }) => {
     const payload: QuestionDraft = {
       title,
       description,
@@ -389,21 +390,23 @@ const NewQuestion: React.FC = () => {
       savedAt: new Date().toISOString(),
     };
     localStorage.setItem(draftStorageKey, JSON.stringify(payload));
-    toast({
-      title: "已保存草稿",
-      description: "内容已保存在本地，稍后可继续编辑",
-    });
+    if (!options?.silent) {
+      toast({
+        title: "已保存草稿",
+        description: "内容已保存在本地，稍后可继续编辑",
+      });
+    }
   };
 
   const handleBack = () => {
     if (!hasContent || createQuestion.isPending) {
-      navigateBackOr(navigate, '/');
+      navigateBackOr(navigate, '/', { location });
       return;
     }
     const leave = window.confirm('当前内容会自动保存为草稿，确定离开吗？');
     if (!leave) return;
-    saveDraft();
-    navigateBackOr(navigate, '/');
+    saveDraft({ silent: true });
+    navigateBackOr(navigate, '/', { location });
   };
   
   return (

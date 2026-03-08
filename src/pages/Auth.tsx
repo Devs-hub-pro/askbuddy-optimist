@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Mail, Lock, User, Eye, EyeOff, Loader2, KeyRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -10,12 +10,16 @@ import { InputOTP, InputOTPGroup, InputOTPSlot } from '@/components/ui/input-otp
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
-import { navigateBackOr } from '@/utils/navigation';
+import { getReturnPathFromAuthState, navigateBackOr } from '@/utils/navigation';
+import { isNativeApp } from '@/utils/platform';
 
 const Auth = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const { signIn } = useAuth();
+  const returnPath = getReturnPathFromAuthState(location.state, '/profile');
+  const nativeMode = isNativeApp();
   
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
   const [showPassword, setShowPassword] = useState(false);
@@ -72,7 +76,7 @@ const Auth = () => {
       });
     } else {
       toast({ title: '登录成功', description: '欢迎回来！' });
-      navigate('/profile');
+      navigate(returnPath, { replace: true });
     }
   };
 
@@ -165,7 +169,7 @@ const Auth = () => {
       setLoginForm({ email: pendingEmail, password: '' });
     } else {
       toast({ title: '验证成功', description: '欢迎加入问问！' });
-      navigate('/profile');
+      navigate(returnPath, { replace: true });
     }
   };
 
@@ -253,10 +257,10 @@ const Auth = () => {
     <div className="min-h-[100dvh] bg-gradient-to-b from-[rgb(236,251,247)] to-white">
       {/* Header */}
       <div
-        className="fixed left-1/2 top-0 z-[90] flex w-full max-w-md -translate-x-1/2 items-center bg-gradient-to-b from-[rgb(236,251,247)] to-white p-4 shadow-sm"
+        className={`fixed top-0 z-[90] flex w-full items-center bg-gradient-to-b from-[rgb(236,251,247)] to-white p-4 shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`}
         style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
       >
-        <Button variant="ghost" size="icon" onClick={() => navigateBackOr(navigate, '/')}>
+        <Button variant="ghost" size="icon" onClick={() => navigateBackOr(navigate, '/', { location })}>
           <ChevronLeft size={24} />
         </Button>
         <span className="ml-2 text-lg font-medium">登录 / 注册</span>

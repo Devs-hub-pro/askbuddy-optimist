@@ -1,8 +1,9 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { navigateBackOr } from '@/utils/navigation';
+import { isNativeApp } from '@/utils/platform';
 
 interface SubPageHeaderProps {
   title: string;
@@ -13,11 +14,13 @@ interface SubPageHeaderProps {
 
 const SubPageHeader: React.FC<SubPageHeaderProps> = ({ title, right, onBack, headerClassName }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const nativeMode = isNativeApp();
 
   return (
     <>
       <div
-        className={`fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 border-b border-white/20 app-header-bg text-white shadow-sm ${headerClassName || ''}`}
+        className={`fixed top-0 z-[90] w-full border-b border-white/20 app-header-bg text-white shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'} ${headerClassName || ''}`}
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
         <div className="flex items-center justify-between px-4 py-3">
@@ -25,7 +28,7 @@ const SubPageHeader: React.FC<SubPageHeaderProps> = ({ title, right, onBack, hea
             <Button
               variant="ghost"
               size="icon"
-              onClick={onBack || (() => navigateBackOr(navigate, '/'))}
+              onClick={onBack || (() => navigateBackOr(navigate, '/', { location }))}
               className="mr-2 shrink-0 text-white hover:bg-white/15 hover:text-white"
             >
               <ArrowLeft size={24} />

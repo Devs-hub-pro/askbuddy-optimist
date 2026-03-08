@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 
 interface SearchBarProps {
   onSearch?: (value: string) => void;
+  onSubmit?: (value: string) => void;
   placeholder?: string;
   className?: string;
   value?: string;
@@ -21,6 +22,7 @@ interface SearchBarProps {
 
 const SearchBar: React.FC<SearchBarProps> = ({ 
   onSearch, 
+  onSubmit,
   placeholder = "搜索问题/达人/话题", 
   className = "",
   value,
@@ -65,6 +67,11 @@ const SearchBar: React.FC<SearchBarProps> = ({
 
   const handleSearch = () => {
     if (searchValue.trim() === '') return;
+
+    if (onSubmit) {
+      onSubmit(searchValue.trim());
+      return;
+    }
     
     // If we're already on a search page, use the provided onSearch function
     if (location.pathname.includes('/search')) {

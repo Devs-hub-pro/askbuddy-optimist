@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Settings,
   FileText,
@@ -30,9 +30,11 @@ import { useToast } from '@/hooks/use-toast';
 import { useIsAdmin } from '@/hooks/useHotTopics';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 import PageStateCard from '@/components/common/PageStateCard';
+import { navigateToAuthWithReturn } from '@/utils/navigation';
 
 const Profile = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, profile, loading, signOut } = useAuth();
   const { toast } = useToast();
   const [showSettingsMenu, setShowSettingsMenu] = useState(false);
@@ -304,7 +306,7 @@ const Profile = () => {
                 </Avatar>
                 <Button 
                   className="mb-1 rounded-full px-6 font-medium shadow-sm"
-                  onClick={() => navigate('/auth')}
+                  onClick={() => navigateToAuthWithReturn(navigate, location)}
                 >
                   登录 / 注册
                 </Button>
@@ -326,7 +328,7 @@ const Profile = () => {
                   className={`flex flex-col items-center py-4 hover:bg-muted/50 transition-colors active:bg-muted ${
                     index < profileStats.length - 1 ? 'border-r border-border' : ''
                   }`}
-                  onClick={() => isLoggedIn ? navigate(item.route) : navigate('/auth')}
+                  onClick={() => isLoggedIn ? navigate(item.route) : navigateToAuthWithReturn(navigate, location)}
                 >
                   <span className="text-xl font-bold text-foreground">{item.count}</span>
                   <span className="text-xs text-muted-foreground mt-0.5">{item.label}</span>
@@ -352,7 +354,7 @@ const Profile = () => {
                 <button 
                   key={index}
                   className="flex flex-col items-center justify-center rounded-2xl py-3 hover:bg-muted/60 transition-colors active:scale-95"
-                  onClick={() => isLoggedIn ? item.onClick() : navigate('/auth')}
+                  onClick={() => isLoggedIn ? item.onClick() : navigateToAuthWithReturn(navigate, location)}
                 >
                   <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mb-2 shadow-sm">
                     {item.icon}

@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { CheckCheck } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -9,7 +9,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import PageStateCard from '@/components/common/PageStateCard';
-import { navigateBackOr } from '@/utils/navigation';
+import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const typeIconMap: Record<string, string> = {
@@ -22,6 +22,7 @@ const typeIconMap: Record<string, string> = {
 
 const Notifications = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { data: notifications, isLoading } = useNotifications();
   const markAsRead = useMarkAsRead();
@@ -54,7 +55,7 @@ const Notifications = () => {
           title="登录后查看通知"
           description="互动提醒、系统通知和订单更新都会在这里显示。"
           actionLabel="去登录"
-          onAction={() => navigate('/auth')}
+          onAction={() => navigateToAuthWithReturn(navigate, location)}
         />
       </div>
     );
@@ -66,7 +67,7 @@ const Notifications = () => {
     <div className="min-h-[100dvh] bg-gray-50 pb-8">
       <SubPageHeader
         title="通知"
-        onBack={() => navigateBackOr(navigate, '/messages')}
+        onBack={() => navigateBackOr(navigate, '/messages', { location })}
         right={
           unreadCount > 0 ? (
             <Button

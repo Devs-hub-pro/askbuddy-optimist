@@ -11,7 +11,7 @@ import PageStateCard from '@/components/common/PageStateCard';
 
 const MyFollowing = () => {
   const navigate = useNavigate();
-  const { data: following, isLoading } = useMyFollowing();
+  const { data: following, isLoading, error, refetch } = useMyFollowing();
 
   return (
     <div className="pb-8 min-h-[100dvh] bg-gray-50">
@@ -20,6 +20,16 @@ const MyFollowing = () => {
       {isLoading ? (
         <div className="flex items-center justify-center py-20">
           <PageStateCard variant="loading" compact title="正在加载关注…" className="w-full max-w-sm" />
+        </div>
+      ) : error ? (
+        <div className="p-5 pt-20">
+          <PageStateCard
+            variant="error"
+            title="关注列表加载失败"
+            description={error instanceof Error ? error.message : '请检查网络后重试'}
+            actionLabel="重试"
+            onAction={() => refetch()}
+          />
         </div>
       ) : following && following.length > 0 ? (
         <div className="p-4 space-y-4">

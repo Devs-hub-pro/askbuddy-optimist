@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SearchBar from '@/components/SearchBar';
+import { isNativeApp } from '@/utils/platform';
 
 interface ChannelCategory {
   id: string;
@@ -73,6 +74,7 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
   children,
 }) => {
   const navigate = useNavigate();
+  const nativeMode = isNativeApp();
   const [isSearchCollapsed, setIsSearchCollapsed] = useState(false);
 
   useEffect(() => {
@@ -86,7 +88,7 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
 
   return (
     <div className={`app-container pb-20 ${pageClassName}`}>
-      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 animate-fade-in">
+      <div className={`fixed top-0 z-[90] w-full animate-fade-in ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`}>
         <div className={`${headerGradientClass} shadow-sm`}>
           <div style={{ height: 'env(safe-area-inset-top)' }} />
           <div className="flex items-center h-12 px-4">

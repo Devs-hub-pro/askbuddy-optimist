@@ -1,6 +1,6 @@
 
 import React, { useMemo, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Award, Check, ChevronRight, Loader2, UploadCloud, CalendarDays, Clock3, XCircle, ShieldCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -14,6 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import { useUploadPostMedia } from '@/hooks/usePostMediaUpload';
+import { navigateToAuthWithReturn } from '@/utils/navigation';
 
 const CERT_TYPES = [
   { key: 'education', title: '教育认证', desc: '适用于在校学生、教师等教育工作者', colorClass: 'text-primary' },
@@ -59,6 +60,7 @@ const CERT_FORM_CONFIG = {
 
 const TalentCertification = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -238,7 +240,7 @@ const TalentCertification = () => {
                       className="flex w-full items-center justify-between p-5 text-left"
                       onClick={() => {
                         if (status === 'none' || status === 'rejected') {
-                          if (!user) { navigate('/auth'); return; }
+                          if (!user) { navigateToAuthWithReturn(navigate, location); return; }
                           setApplyDialog(type.key);
                         }
                       }}

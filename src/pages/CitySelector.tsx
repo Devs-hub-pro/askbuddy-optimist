@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ChevronLeft, Search, MapPin, X } from 'lucide-react';
 import { mainlandCities, overseasRegions, alphabet, hotLocations } from '../utils/locationData';
 import { Input } from '@/components/ui/input';
 import { navigateBackOr } from '@/utils/navigation';
+import { isNativeApp } from '@/utils/platform';
 
 const CitySelector = () => {
   const navigate = useNavigate();
+  const location = useLocation();
+  const nativeMode = isNativeApp();
   const [activeTab, setActiveTab] = useState<'mainland' | 'overseas'>('mainland');
   const [searchKeyword, setSearchKeyword] = useState('');
   const [filteredLocations, setFilteredLocations] = useState<string[]>([]);
@@ -88,11 +91,11 @@ const CitySelector = () => {
   return (
     <div className="min-h-[100dvh] bg-gray-50">
       {/* Header */}
-      <div className="fixed left-1/2 top-0 z-[90] w-full max-w-md -translate-x-1/2 shadow-sm">
+      <div className={`fixed top-0 z-[90] w-full shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`}>
         <div className="app-header-bg text-white" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="flex items-center h-12 px-4">
             <button 
-              onClick={() => navigateBackOr(navigate, '/')}
+              onClick={() => navigateBackOr(navigate, '/', { location })}
               className="p-2 -ml-2 mr-2 rounded-full hover:bg-white/15"
             >
               <ChevronLeft size={20} />

@@ -71,7 +71,8 @@ const CategorySection: React.FC = () => {
         {categories.map((category, index) => {
           const IconComponent = iconMap[category.icon] || HelpCircle;
           return (
-            <div 
+            <button
+              type="button"
               key={category.id}
               className="flex flex-col items-center animate-slide-up cursor-pointer"
               style={{ animationDelay: `${index * 0.1 + 0.2}s` }}
@@ -81,7 +82,7 @@ const CategorySection: React.FC = () => {
                 <IconComponent size={22} />
               </div>
               <span className="text-xs text-center font-semibold leading-5 tracking-[-0.01em]">{category.name}</span>
-            </div>
+            </button>
           );
         })}
       </div>

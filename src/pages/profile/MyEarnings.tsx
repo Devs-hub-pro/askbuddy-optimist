@@ -11,6 +11,14 @@ import { zhCN } from 'date-fns/locale';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import PageStateCard from '@/components/common/PageStateCard';
 
+interface PointsTransactionItem {
+  id: string;
+  amount: number;
+  type: string;
+  description: string | null;
+  created_at: string;
+}
+
 const MyEarnings = () => {
   const navigate = useNavigate();
   const { profile } = useAuth();
@@ -22,12 +30,13 @@ const MyEarnings = () => {
     } catch { return '刚刚'; }
   };
 
-  const positiveTransactions = (transactions || []).filter((tx: any) => tx.amount > 0);
-  const monthlyIncome = positiveTransactions.reduce((sum: number, tx: any) => sum + Number(tx.amount || 0), 0);
+  const resolvedTransactions = (transactions || []) as PointsTransactionItem[];
+  const positiveTransactions = resolvedTransactions.filter((tx) => tx.amount > 0);
+  const monthlyIncome = positiveTransactions.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
   const totalRecords = transactions?.length || 0;
 
   return (
-    <div className="pb-8 min-h-[100dvh] bg-gray-50">
+    <div className="pb-8 min-h-[100dvh] bg-slate-50">
       <SubPageHeader title="我的收益" />
 
       <div className="p-5 pt-4 space-y-4">
@@ -95,14 +104,14 @@ const MyEarnings = () => {
       ) : transactions && transactions.length > 0 ? (
         <div className="px-5 pb-5 space-y-3">
           <div className="px-1">
-            <h3 className="font-medium text-sm text-gray-600">积分流水</h3>
-            <p className="mt-1 text-xs text-gray-400">按时间倒序展示你的收入、奖励和扣费记录。</p>
+            <h3 className="text-sm font-medium text-slate-600">积分流水</h3>
+            <p className="mt-1 text-xs text-slate-400">按时间倒序展示你的收入、奖励和扣费记录。</p>
           </div>
-          {transactions.map((tx: any) => (
+          {resolvedTransactions.map((tx) => (
             <div key={tx.id} className="surface-card rounded-3xl p-4 shadow-sm flex items-center justify-between">
               <div>
-                <p className="text-sm font-medium text-gray-900">{tx.description || tx.type}</p>
-                <p className="text-xs text-gray-400">{formatTime(tx.created_at)}</p>
+                <p className="text-sm font-medium text-slate-900">{tx.description || tx.type}</p>
+                <p className="text-xs text-slate-400">{formatTime(tx.created_at)}</p>
               </div>
               <span className={`text-sm font-bold ${tx.amount > 0 ? 'text-green-600' : 'text-red-500'}`}>
                 {tx.amount > 0 ? '+' : ''}{tx.amount}

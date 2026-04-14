@@ -28,6 +28,15 @@ const tabs = [
   { key: "paid", label: "已支付" },
 ];
 
+interface OrderItem {
+  id: string;
+  status: string;
+  order_type: string;
+  amount: number;
+  cash_amount?: number | null;
+  created_at: string;
+}
+
 const OrderList: React.FC = () => {
   const navigate = useNavigate();
   const [tab, setTab] = useState<string>("all");
@@ -65,7 +74,7 @@ const OrderList: React.FC = () => {
         </div>
       ) : orders && orders.length > 0 ? (
         <div className="mt-5 space-y-4">
-          {orders.map((order) => {
+          {(orders as OrderItem[]).map((order) => {
             const status = statusMap[order.status] || statusMap.pending;
             return (
               <Card key={order.id} className="surface-card rounded-3xl border-none shadow-sm">
@@ -90,7 +99,7 @@ const OrderList: React.FC = () => {
                     <div className="shrink-0 text-right">
                       <p className="text-xs text-muted-foreground">订单金额</p>
                       <p className="mt-1 text-base font-semibold text-foreground">
-                        ￥{typeof (order as any).cash_amount === 'number' ? (order as any).cash_amount : order.amount}
+                        ￥{typeof order.cash_amount === 'number' ? order.cash_amount : order.amount}
                       </p>
                     </div>
                   </div>

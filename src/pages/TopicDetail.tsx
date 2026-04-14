@@ -21,6 +21,7 @@ const TopicDetail = () => {
   const location = useLocation();
   const { user } = useAuth();
   const [newComment, setNewComment] = useState('');
+  const fromHotRank = Boolean((location.state as { fromHotRank?: boolean } | null)?.fromHotRank);
 
   const { data, isLoading, error } = useTopicDetail(topicId || '');
   const createDiscussion = useCreateDiscussion();
@@ -62,6 +63,15 @@ const TopicDetail = () => {
     }
   };
 
+  const handleBack = () => {
+    if (fromHotRank) {
+      sessionStorage.setItem('page-scroll-memory:index', '0');
+      navigate('/', { replace: true });
+      return;
+    }
+    navigateBackOr(navigate, '/', { location });
+  };
+
   if (isLoading) {
     return (
       <div className="min-h-[100dvh] bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
@@ -78,7 +88,7 @@ const TopicDetail = () => {
           title="暂时无法打开专题"
           description="内容可能已下线，或当前链接已失效。"
           actionLabel="返回上页"
-          onAction={() => navigateBackOr(navigate, '/', { location })}
+          onAction={handleBack}
         />
       </div>
     );
@@ -96,7 +106,7 @@ const TopicDetail = () => {
 
   return (
     <div className="app-container min-h-[100dvh] bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-24">
-      <SubPageHeader title={topic.title} onBack={() => navigateBackOr(navigate, '/', { location })} headerClassName="border-white/10 bg-app-teal" />
+      <SubPageHeader title={topic.title} onBack={handleBack} headerClassName="border-white/10 bg-app-teal" />
 
       <div className="px-4 pt-4">
         <div className="surface-card rounded-3xl overflow-hidden">

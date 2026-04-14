@@ -34,7 +34,7 @@ const AccountSecurity = () => {
   ];
 
   return (
-    <div className="min-h-[100dvh] bg-gray-50">
+    <div className="min-h-[100dvh] bg-slate-50">
       <SubPageHeader title="账号与安全" />
 
       <div className="space-y-4 p-4">

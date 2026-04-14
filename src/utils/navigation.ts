@@ -44,6 +44,39 @@ const getCurrentEntryState = () => {
   return state?.usr ?? null;
 };
 
+const resolveRouteFallback = (pathname: string, search = ''): string | null => {
+  if (/^\/chat\//.test(pathname)) return '/messages';
+  if (pathname === '/notifications') return '/messages';
+  if (pathname === '/discover/interactions') return '/discover';
+  if (pathname === '/education/search') return '/education';
+  if (pathname === '/search') {
+    const channel = new URLSearchParams(search).get('channel');
+    if (channel === 'education') return '/education';
+    if (channel === 'career') return '/career';
+    if (channel === 'lifestyle') return '/lifestyle';
+    if (channel === 'hobbies') return '/hobbies';
+    return '/';
+  }
+  if (pathname === '/new') return '/';
+  if (pathname === '/skill-publish') return '/profile';
+  if (/^\/profile\/community\/[^/]+\/info$/.test(pathname)) {
+    const match = pathname.match(/^\/profile\/community\/([^/]+)\/info$/);
+    return match ? `/profile/community/${match[1]}` : '/profile/community';
+  }
+  if (/^\/profile\/community\/[^/]+$/.test(pathname)) return '/profile/community';
+  if (/^\/profile\//.test(pathname)) return '/profile';
+  if (/^\/settings\//.test(pathname)) return '/profile';
+  if (pathname === '/city-selector') return '/';
+  if (/^\/(question|topic|expert|expert-profile)\//.test(pathname)) return '/';
+  if (/^\/(education|career|lifestyle|hobbies)$/.test(pathname)) return '/';
+  return null;
+};
+
+export const getFallbackPathForRoute = (pathname: string, search = '', fallbackPath = '/') => {
+  const routeFallback = resolveRouteFallback(pathname, search);
+  return routeFallback || fallbackPath;
+};
+
 export const buildFromState = (location: Pick<LocationLike, 'pathname' | 'search' | 'hash'>) => ({
   from: {
     pathname: location.pathname,
@@ -58,7 +91,9 @@ export const navigateToAuthWithReturn = (navigate: NavigateFunction, location: P
 
 export const getReturnPathFromAuthState = (state: unknown, fallbackPath = '/profile') => {
   const from = extractFromState(state);
-  return from || fallbackPath;
+  if (!from) return fallbackPath;
+  if (from === '/auth') return fallbackPath;
+  return from;
 };
 
 export const navigateBackOr = (
@@ -70,8 +105,10 @@ export const navigateBackOr = (
   const stateFromEntry = getCurrentEntryState();
   const fromTarget = extractFromState(stateFromLocation) || extractFromState(stateFromEntry);
   const currentPath = options?.location?.pathname;
+  const currentSearch = options?.location?.search || '';
+  const computedFallback = getFallbackPathForRoute(currentPath || '', currentSearch, fallbackPath);
 
-  if (fromTarget && fromTarget !== currentPath) {
+  if (fromTarget && fromTarget !== currentPath && fromTarget !== '/auth') {
     navigate(fromTarget, { replace: true });
     return;
   }
@@ -81,5 +118,5 @@ export const navigateBackOr = (
     return;
   }
 
-  navigate(fallbackPath, { replace: true });
+  navigate(computedFallback, { replace: true });
 };

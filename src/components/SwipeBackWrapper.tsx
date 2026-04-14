@@ -8,7 +8,7 @@ const SwipeBackWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   // 仅在适合的二级页/详情页启用，一级主 Tab 与输入发布页禁用，减少误触返回。
   const swipeBackEnabled =
     /^\/(question|topic|expert|expert-profile|chat)\//.test(pathname) ||
-    /^\/(city-selector|notifications|discover\/interactions)$/.test(pathname) ||
+    /^\/(city-selector|notifications|discover\/interactions|search|education\/search|new|skill-publish|education|career|lifestyle|hobbies)$/.test(pathname) ||
     /^\/profile\//.test(pathname) ||
     /^\/settings\//.test(pathname);
 

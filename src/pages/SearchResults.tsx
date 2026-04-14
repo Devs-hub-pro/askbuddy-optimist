@@ -6,16 +6,16 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import SearchBar from "@/components/SearchBar";
-import { useSearch, popularSearchTerms, type SearchQuestion, type SearchTopic, type SearchUser } from '@/hooks/useSearch';
+import { getSearchRelatedTerms, useSearch, popularSearchTerms, type SearchQuestion, type SearchTopic, type SearchUser } from '@/hooks/useSearch';
 import { demoExperts, demoQuestions } from '@/lib/demoData';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
-import { navigateBackOr } from '@/utils/navigation';
+import { buildFromState, navigateBackOr } from '@/utils/navigation';
 import PageStateCard from '@/components/common/PageStateCard';
 import { isNativeApp } from '@/utils/platform';
+import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 
 const SEARCH_HISTORY_KEY = 'searchHistory';
-const LEGACY_SEARCH_HISTORY_KEY = 'searchHistory';
 const channelThemes = {
   education: {
     title: '教育学习搜索',
@@ -94,6 +94,7 @@ const SearchResults = () => {
   const historyStorageKey = `${SEARCH_HISTORY_KEY}:${channel}`;
   const theme = channelThemes[channel as keyof typeof channelThemes] || channelThemes.default;
   const tabStorageKey = `tab:search:${channel}`;
+  usePageScrollMemory(`search:${channel}`);
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
@@ -105,6 +106,7 @@ const SearchResults = () => {
   const [questionSort, setQuestionSort] = useState<'relevance' | 'latest' | 'hot'>('relevance');
   const [questionCategoryFilter, setQuestionCategoryFilter] = useState<string>('全部');
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
+  const [searchFocused, setSearchFocused] = useState(false);
   const placeholder = channel === 'education'
     ? '搜院校、专业、申请问题'
     : channel === 'career'
@@ -129,17 +131,18 @@ const SearchResults = () => {
   // Sync URL
   useEffect(() => {
     const newParams = new URLSearchParams(location.search);
+    const currentQuery = newParams.get('q') || '';
     if (debouncedQuery) {
       newParams.set('q', debouncedQuery);
       navigate({ pathname: location.pathname, search: newParams.toString() }, { replace: true });
-    } else if (searchParams.get('q')) {
+    } else if (currentQuery) {
       newParams.delete('q');
       navigate({ pathname: location.pathname, search: newParams.toString() }, { replace: true });
     }
   }, [debouncedQuery, location.pathname, location.search, navigate]);
 
   useEffect(() => {
-    const stored = localStorage.getItem(historyStorageKey) || localStorage.getItem(LEGACY_SEARCH_HISTORY_KEY);
+    const stored = localStorage.getItem(historyStorageKey) || localStorage.getItem(SEARCH_HISTORY_KEY);
     if (!stored) return;
     try {
       const parsed = JSON.parse(stored);
@@ -173,30 +176,61 @@ const SearchResults = () => {
 
   const handleTopicSelect = (topic: string) => {
     commitSearch(topic);
+    setSearchFocused(false);
   };
 
   const totalResults = (results?.questions.length || 0) + (results?.topics.length || 0) + (results?.users.length || 0);
   const noResults = debouncedQuery.trim() && !isLoading && totalResults === 0;
   const showError = debouncedQuery.trim() && !!error;
-  const showSuggestions = searchQuery.trim().length > 0 && searchQuery !== debouncedQuery;
+  const showSuggestions = searchFocused && searchQuery.trim().length > 0;
+  const showDefaultState = !debouncedQuery.trim() && !showSuggestions;
 
   const suggestionTerms = useMemo(() => {
     const keyword = searchQuery.trim().toLowerCase();
     if (!keyword) return [] as string[];
 
-    const candidates = [
-      ...recentSearches,
-      ...popularSearchTerms,
-      ...demoQuestions.flatMap((item) => [item.title, ...(item.tags || [])]),
-      ...demoExperts.flatMap((item) => [item.title || '', ...(item.tags || [])]),
+    const relatedTerms = getSearchRelatedTerms(searchQuery);
+    const candidates: Array<{ term: string; source: 'recent' | 'popular' | 'related' | 'content' }> = [
+      ...recentSearches.map((term) => ({ term, source: 'recent' as const })),
+      ...popularSearchTerms.map((term) => ({ term, source: 'popular' as const })),
+      ...relatedTerms.map((term) => ({ term, source: 'related' as const })),
+      ...demoQuestions.flatMap((item) => [item.title, ...(item.tags || [])]).map((term) => ({ term, source: 'content' as const })),
+      ...demoExperts.flatMap((item) => [item.title || '', ...(item.tags || [])]).map((term) => ({ term, source: 'content' as const })),
     ];
 
-    return candidates
-      .map((item) => item.trim())
-      .filter((item) => item.length > 0 && item.toLowerCase().includes(keyword))
-      .filter((item, index, arr) => arr.findIndex((entry) => entry.toLowerCase() === item.toLowerCase()) === index)
-      .slice(0, 6);
+    const scoreBySource = { recent: 45, related: 35, popular: 28, content: 12 } as const;
+    const bestScoreByTerm = new Map<string, number>();
+    const labelByTerm = new Map<string, string>();
+
+    candidates.forEach(({ term, source }) => {
+      const normalized = term.trim();
+      if (!normalized) return;
+
+      const lower = normalized.toLowerCase();
+      if (!lower.includes(keyword)) return;
+
+      let score = scoreBySource[source];
+      if (lower === keyword) score += 50;
+      if (lower.startsWith(keyword)) score += 30;
+      if (normalized.length <= 6) score += 8;
+
+      const previous = bestScoreByTerm.get(lower) ?? -1;
+      if (score > previous) {
+        bestScoreByTerm.set(lower, score);
+        labelByTerm.set(lower, normalized);
+      }
+    });
+
+    return Array.from(bestScoreByTerm.entries())
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 8)
+      .map(([lower]) => labelByTerm.get(lower) || lower);
   }, [searchQuery, recentSearches]);
+
+  const relatedTerms = useMemo(() => {
+    if (!debouncedQuery.trim()) return [] as string[];
+    return getSearchRelatedTerms(debouncedQuery);
+  }, [debouncedQuery]);
 
   const questionCategoryOptions = useMemo(() => {
     const categories = (results?.questions || [])
@@ -242,7 +276,12 @@ const SearchResults = () => {
             <ChevronLeft size={24} />
           </button>
           <div className="text-white font-medium text-base">{theme.title}</div>
-          <button className="text-white" onClick={() => navigate('/notifications')}><Bell size={20} /></button>
+          <button
+            className="text-white"
+            onClick={() => navigate('/notifications', { state: buildFromState(location) })}
+          >
+            <Bell size={20} />
+          </button>
         </div>
 
         <div className={`shadow-[0_1px_0_rgba(15,23,42,0.03)] ${theme.searchStripClass}`}>
@@ -252,6 +291,7 @@ const SearchResults = () => {
             placeholder={placeholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
+            onFocusChange={setSearchFocused}
             accentRingClassName={theme.accentRingClass}
             inputAccentClassName={theme.inputAccentClass}
             inputBorderClassName={theme.inputBorderClass}
@@ -263,7 +303,7 @@ const SearchResults = () => {
 
       <div className="p-4" style={{ paddingTop: contentTopOffset }}>
         {showSuggestions && (
-          <div className="mb-4 rounded-2xl border border-border bg-card p-3 shadow-sm">
+          <div className="mb-4 surface-card rounded-2xl p-3">
             <p className="mb-2 text-xs font-medium text-muted-foreground">搜索建议</p>
             <div className="space-y-1">
               {suggestionTerms.length > 0 ? (
@@ -271,7 +311,7 @@ const SearchResults = () => {
                   <button
                     key={term}
                     type="button"
-                    className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-muted"
+                    className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50"
                     onClick={() => handleTopicSelect(term)}
                   >
                     <span className="line-clamp-1">{term}</span>
@@ -286,7 +326,7 @@ const SearchResults = () => {
         )}
 
         {/* No query: show popular terms */}
-        {!debouncedQuery.trim() && (
+        {showDefaultState && (
           <>
             {recentSearches.length > 0 && (
               <>
@@ -344,7 +384,7 @@ const SearchResults = () => {
                 <button
                   key={i}
                   onClick={() => handleTopicSelect(topic)}
-                  className="bg-white text-gray-700 text-sm px-3 py-1.5 rounded-full border border-gray-200 hover:bg-gray-50 transition-colors shadow-sm"
+                  className="rounded-full border app-soft-border bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
                 >
                   {topic}
                 </button>
@@ -353,7 +393,7 @@ const SearchResults = () => {
           </>
         )}
 
-        {showError && (
+        {showError && !showSuggestions && (
           <PageStateCard
             variant="error"
             compact
@@ -365,7 +405,7 @@ const SearchResults = () => {
         )}
 
         {/* Loading */}
-        {isLoading && debouncedQuery.trim() && !showError && (
+        {isLoading && debouncedQuery.trim() && !showError && !showSuggestions && (
           <div className="space-y-4">
             {[1, 2, 3].map((i) => (
               <div key={i} className="surface-card rounded-2xl p-4 shadow-sm space-y-3">
@@ -381,15 +421,15 @@ const SearchResults = () => {
         )}
 
         {/* No results */}
-        {noResults && !showError && (
-          <div className="surface-card rounded-2xl p-6 text-center shadow-sm">
+        {noResults && !showError && !showSuggestions && (
+          <div className="surface-card rounded-2xl p-6 text-center">
             <div className="flex flex-col items-center">
-              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mb-4">
-                <User size={32} className="text-gray-400" />
+              <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full app-soft-muted-bg">
+                <User size={32} className="text-slate-400" />
               </div>
-              <h3 className="text-lg font-medium text-gray-700 mb-2">未找到匹配结果</h3>
-              <p className="text-gray-500 max-w-xs mb-4">
-                尝试使用不同的关键词，或者直接提问
+              <h3 className="mb-2 text-lg font-medium text-slate-700">未找到匹配结果</h3>
+              <p className="mb-4 max-w-xs text-slate-500">
+                可换一个关键词，或直接发布问题让专家看到
               </p>
               <div className="mb-4 flex flex-wrap justify-center gap-2">
                 {popularSearchTerms.slice(0, 4).map((term) => (
@@ -402,7 +442,39 @@ const SearchResults = () => {
                   </button>
                 ))}
               </div>
-              <Button onClick={() => navigateBackOr(navigate, theme.backTo, { location })} variant="outline" className="app-soft-border app-accent-text border hover:app-soft-surface-bg">
+              {relatedTerms.length > 0 && (
+                <div className="mb-4 flex flex-wrap justify-center gap-2">
+                  {relatedTerms.slice(0, 4).map((term) => (
+                    <button
+                      key={term}
+                      onClick={() => handleTopicSelect(term)}
+                      className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50"
+                    >
+                      改搜 {term}
+                    </button>
+                  ))}
+                </div>
+              )}
+              <div className="mb-3 grid w-full max-w-sm grid-cols-2 gap-2">
+                <Button
+                  onClick={() => navigate('/new', { state: buildFromState(location) })}
+                  className="h-10 rounded-full"
+                >
+                  去发布问题
+                </Button>
+                <Button
+                  variant="outline"
+                  onClick={() => navigate('/discover', { state: buildFromState(location) })}
+                  className="h-10 rounded-full app-soft-border border"
+                >
+                  去找专家
+                </Button>
+              </div>
+              <Button
+                onClick={() => navigateBackOr(navigate, theme.backTo, { location })}
+                variant="ghost"
+                className="h-9 text-sm text-slate-500"
+              >
                 返回上页
               </Button>
             </div>
@@ -410,16 +482,16 @@ const SearchResults = () => {
         )}
 
         {/* Results */}
-        {debouncedQuery.trim() && !isLoading && !showError && totalResults > 0 && (
+        {debouncedQuery.trim() && !isLoading && !showError && !showSuggestions && totalResults > 0 && (
           <>
             <div className="mb-4">
               <h2 className="text-lg font-bold">"{debouncedQuery}" 的搜索结果</h2>
             </div>
 
-            <div className="mb-4 space-y-2 rounded-2xl border border-slate-100 bg-white/90 p-3 shadow-sm">
+            <div className="mb-4 space-y-2 rounded-2xl border app-soft-border bg-white/90 p-3 shadow-sm">
               <div className="flex items-center justify-between">
                 <p className="text-xs font-medium text-slate-500">问题排序</p>
-                <div className="flex items-center gap-1 rounded-full bg-slate-100 p-1">
+                <div className="flex items-center gap-1 rounded-full app-soft-muted-bg p-1">
                   {[
                     { key: 'relevance', label: '综合' },
                     { key: 'latest', label: '最新' },
@@ -457,7 +529,7 @@ const SearchResults = () => {
             </div>
 
             <Tabs defaultValue="all" value={activeTab} onValueChange={(v) => setActiveTab(v as typeof activeTab)}>
-              <TabsList className="w-full bg-gray-100 p-1 rounded-full mb-4">
+              <TabsList className="mb-4 w-full rounded-full app-soft-muted-bg p-1">
                 <TabsTrigger value="all" className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
                   全部({totalResults})
                 </TabsTrigger>
@@ -479,7 +551,7 @@ const SearchResults = () => {
                     questions={filteredSortedQuestions.slice(0, 3)}
                     onViewMore={() => setActiveTab('questions')}
                     showMore={filteredSortedQuestions.length > 3}
-                    navigate={navigate}
+                    onOpenQuestion={(id) => navigate(`/question/${id}`, { state: buildFromState(location) })}
                   />
                 )}
                 {results && results.topics.length > 0 && (
@@ -487,7 +559,7 @@ const SearchResults = () => {
                     topics={results.topics.slice(0, 2)}
                     onViewMore={() => setActiveTab('topics')}
                     showMore={results.topics.length > 2}
-                    navigate={navigate}
+                    onOpenTopic={(id) => navigate(`/topic/${id}`, { state: buildFromState(location) })}
                   />
                 )}
                 {results && results.users.length > 0 && (
@@ -495,7 +567,7 @@ const SearchResults = () => {
                     users={results.users.slice(0, 3)}
                     onViewMore={() => setActiveTab('users')}
                     showMore={results.users.length > 3}
-                    navigate={navigate}
+                    onOpenChat={(id) => navigate(`/chat/${id}`, { state: buildFromState(location) })}
                   />
                 )}
               </TabsContent>
@@ -503,25 +575,64 @@ const SearchResults = () => {
               {/* Questions tab */}
               <TabsContent value="questions" className="mt-0 space-y-3">
                 {filteredSortedQuestions.map((q) => (
-                  <QuestionCard key={q.id} question={q} navigate={navigate} />
+                  <QuestionCard
+                    key={q.id}
+                    question={q}
+                    onOpenQuestion={(id) => navigate(`/question/${id}`, { state: buildFromState(location) })}
+                  />
                 ))}
-                {filteredSortedQuestions.length === 0 && <EmptyHint text="当前筛选下没有匹配的问题" />}
+                {filteredSortedQuestions.length === 0 && (
+                  <ResultEmptyState
+                    title="当前筛选下没有匹配的问题"
+                    description="试试切换排序或分类，也可以去发布一个新问题。"
+                    actionLabel="去发布问题"
+                    onAction={() => navigate('/new', { state: buildFromState(location) })}
+                    secondaryLabel="回到全部"
+                    onSecondary={() => setActiveTab('all')}
+                  />
+                )}
               </TabsContent>
 
               {/* Topics tab */}
               <TabsContent value="topics" className="mt-0 space-y-3">
                 {results?.topics.map((t) => (
-                  <TopicCard key={t.id} topic={t} navigate={navigate} />
+                  <TopicCard
+                    key={t.id}
+                    topic={t}
+                    onOpenTopic={(id) => navigate(`/topic/${id}`, { state: buildFromState(location) })}
+                  />
                 ))}
-                {results?.topics.length === 0 && <EmptyHint text="没有匹配的话题" />}
+                {results?.topics.length === 0 && (
+                  <ResultEmptyState
+                    title="没有匹配的话题"
+                    description="可以换一个关键词，或先看看推荐内容。"
+                    actionLabel="去发现页"
+                    onAction={() => navigate('/discover', { state: buildFromState(location) })}
+                    secondaryLabel="回到全部"
+                    onSecondary={() => setActiveTab('all')}
+                  />
+                )}
               </TabsContent>
 
               {/* Users tab */}
               <TabsContent value="users" className="mt-0 space-y-3">
                 {results?.users.map((u) => (
-                  <UserCard key={u.id} user={u} navigate={navigate} />
+                  <UserCard
+                    key={u.id}
+                    user={u}
+                    onOpenChat={(id) => navigate(`/chat/${id}`, { state: buildFromState(location) })}
+                  />
                 ))}
-                {results?.users.length === 0 && <EmptyHint text="没有匹配的用户" />}
+                {results?.users.length === 0 && (
+                  <ResultEmptyState
+                    title="没有匹配的用户"
+                    description="可先查看问题和话题，或到发现页找达人。"
+                    actionLabel="去找专家"
+                    onAction={() => navigate('/discover', { state: buildFromState(location) })}
+                    secondaryLabel="回到全部"
+                    onSecondary={() => setActiveTab('all')}
+                  />
+                )}
               </TabsContent>
             </Tabs>
           </>
@@ -534,27 +645,65 @@ const SearchResults = () => {
 
 // --- Sub-components ---
 
-const EmptyHint = ({ text }: { text: string }) => (
-  <div className="text-center py-8 text-gray-400 text-sm">{text}</div>
+const ResultEmptyState = ({
+  title,
+  description,
+  actionLabel,
+  onAction,
+  secondaryLabel,
+  onSecondary,
+}: {
+  title: string;
+  description: string;
+  actionLabel: string;
+  onAction: () => void;
+  secondaryLabel: string;
+  onSecondary: () => void;
+}) => (
+  <PageStateCard
+    compact
+    title={title}
+    description={description}
+    actionLabel={actionLabel}
+    onAction={onAction}
+    secondaryActionLabel={secondaryLabel}
+    onSecondaryAction={onSecondary}
+  />
 );
 
-const QuestionCard = ({ question: q, navigate }: { question: SearchQuestion; navigate: ReturnType<typeof useNavigate> }) => {
+const QuestionCard = ({ question: q, onOpenQuestion }: { question: SearchQuestion; onOpenQuestion: (id: string) => void }) => {
   const timeAgo = formatDistanceToNow(new Date(q.created_at), { addSuffix: true, locale: zhCN });
+  const isActionTarget = (target: EventTarget | null) =>
+    target instanceof HTMLElement && !!target.closest('[data-card-action="true"]');
   return (
-    <div className="surface-card rounded-2xl p-4 shadow-sm transition-all hover:shadow-md">
+    <div
+      className="surface-card cursor-pointer rounded-2xl p-4 transition-all hover:shadow-md"
+      role="button"
+      tabIndex={0}
+      onClick={(event) => {
+        if (isActionTarget(event.target)) return;
+        onOpenQuestion(q.id);
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onOpenQuestion(q.id);
+        }
+      }}
+    >
       <div className="flex items-start justify-between mb-2">
-        <button type="button" className="flex-1 text-left" onClick={() => navigate(`/question/${q.id}`)}>
-          <h3 className="font-semibold text-base text-gray-800">{q.title}</h3>
-        </button>
-        <div className="flex items-center gap-1 text-gray-500 text-xs ml-2 flex-shrink-0">
+        <div className="flex-1 text-left">
+          <h3 className="text-base font-semibold text-slate-800">{q.title}</h3>
+        </div>
+        <div className="ml-2 flex shrink-0 items-center gap-1 text-xs text-slate-500">
           <Eye size={14} />
           <span>{q.view_count}</span>
         </div>
       </div>
       {q.content && (
-        <button type="button" className="mb-3 block w-full text-left" onClick={() => navigate(`/question/${q.id}`)}>
-          <p className="line-clamp-2 text-sm text-gray-600">{q.content}</p>
-        </button>
+        <div className="mb-3 block w-full text-left">
+          <p className="line-clamp-2 text-sm text-slate-600">{q.content}</p>
+        </div>
       )}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -562,8 +711,8 @@ const QuestionCard = ({ question: q, navigate }: { question: SearchQuestion; nav
             <AvatarImage src={q.profile_avatar || ''} />
             <AvatarFallback className="text-xs">{(q.profile_nickname || '匿')[0]}</AvatarFallback>
           </Avatar>
-          <span className="text-xs text-gray-500">{q.profile_nickname}</span>
-          <span className="text-xs text-gray-400">{timeAgo}</span>
+          <span className="text-xs text-slate-500">{q.profile_nickname}</span>
+          <span className="text-xs text-slate-400">{timeAgo}</span>
         </div>
         <div className="flex items-center gap-2">
           {q.bounty_points > 0 && (
@@ -574,8 +723,13 @@ const QuestionCard = ({ question: q, navigate }: { question: SearchQuestion; nav
           )}
           <button
             type="button"
-            className="flex items-center gap-1 rounded-full border border-slate-200 px-2 py-0.5 text-xs text-gray-500"
-            onClick={() => navigate(`/question/${q.id}`)}
+            data-card-action="true"
+            className="flex items-center gap-1 rounded-full border border-slate-200 px-2 py-0.5 text-xs text-slate-500"
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              onOpenQuestion(q.id);
+            }}
           >
             <MessageCircle size={12} />
             {q.answers_count || 0}
@@ -595,33 +749,48 @@ const QuestionCard = ({ question: q, navigate }: { question: SearchQuestion; nav
   );
 };
 
-const TopicCard = ({ topic: t, navigate }: { topic: SearchTopic; navigate: ReturnType<typeof useNavigate> }) => (
-  <div className="surface-card overflow-hidden rounded-2xl shadow-sm transition-all hover:shadow-md">
+const TopicCard = ({ topic: t, onOpenTopic }: { topic: SearchTopic; onOpenTopic: (id: string) => void }) => (
+  <div
+    className="surface-card cursor-pointer overflow-hidden rounded-2xl transition-all hover:shadow-md"
+    role="button"
+    tabIndex={0}
+    onClick={(event) => {
+      const isActionTarget =
+        event.target instanceof HTMLElement && !!event.target.closest('[data-card-action="true"]');
+      if (isActionTarget) return;
+      onOpenTopic(t.id);
+    }}
+    onKeyDown={(event) => {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        onOpenTopic(t.id);
+      }
+    }}
+  >
     {t.cover_image && (
-      <button type="button" className="block w-full" onClick={() => navigate(`/topic/${t.id}`)}>
-        <img src={t.cover_image} alt={t.title} className="h-32 w-full object-cover" />
-      </button>
+      <img src={t.cover_image} alt={t.title} className="h-32 w-full object-cover" />
     )}
     <div className="p-3">
-      <button type="button" className="text-left" onClick={() => navigate(`/topic/${t.id}`)}>
-        <h3 className="mb-1 text-sm font-semibold text-gray-800">{t.title}</h3>
-      </button>
+      <h3 className="mb-1 text-sm font-semibold text-slate-800">{t.title}</h3>
       {t.description && (
-        <button type="button" className="mb-2 block text-left" onClick={() => navigate(`/topic/${t.id}`)}>
-          <p className="line-clamp-1 text-xs text-gray-500">{t.description}</p>
-        </button>
+        <p className="mb-2 line-clamp-1 text-xs text-slate-500">{t.description}</p>
       )}
-      <div className="flex items-center justify-between gap-3 text-xs text-gray-400">
-        <span className="flex items-center gap-1 text-gray-500">
+      <div className="flex items-center justify-between gap-3 text-xs text-slate-400">
+        <span className="flex items-center gap-1 text-slate-500">
           <MessageCircle size={12} />
           {t.discussions_count} 讨论
         </span>
         <div className="flex items-center gap-2">
-          {t.category && <span className="rounded-full bg-gray-100 px-2 py-0.5">{t.category}</span>}
+          {t.category && <span className="rounded-full app-soft-muted-bg px-2 py-0.5">{t.category}</span>}
           <button
             type="button"
+            data-card-action="true"
             className="rounded-full border border-slate-200 px-2 py-0.5 text-[11px] text-slate-600"
-            onClick={() => navigate(`/topic/${t.id}`)}
+            onClick={(event) => {
+              event.preventDefault();
+              event.stopPropagation();
+              onOpenTopic(t.id);
+            }}
           >
             查看
           </button>
@@ -631,15 +800,15 @@ const TopicCard = ({ topic: t, navigate }: { topic: SearchTopic; navigate: Retur
   </div>
 );
 
-const UserCard = ({ user: u, navigate }: { user: SearchUser; navigate: ReturnType<typeof useNavigate> }) => (
-  <div className="surface-card flex items-center gap-3 rounded-2xl p-4 shadow-sm">
+const UserCard = ({ user: u, onOpenChat }: { user: SearchUser; onOpenChat: (id: string) => void }) => (
+  <div className="surface-card flex items-center gap-3 rounded-2xl p-4">
     <Avatar className="w-12 h-12">
       <AvatarImage src={u.avatar_url || ''} />
       <AvatarFallback>{(u.nickname || '用')[0]}</AvatarFallback>
     </Avatar>
     <div className="flex-1 min-w-0">
-      <h3 className="font-medium text-sm text-gray-800">{u.nickname || '匿名用户'}</h3>
-      {u.bio && <p className="text-xs text-gray-500 line-clamp-1">{u.bio}</p>}
+      <h3 className="text-sm font-medium text-slate-800">{u.nickname || '匿名用户'}</h3>
+      {u.bio && <p className="line-clamp-1 text-xs text-slate-500">{u.bio}</p>}
     </div>
     <div className="flex items-center gap-2">
       <button
@@ -648,7 +817,7 @@ const UserCard = ({ user: u, navigate }: { user: SearchUser; navigate: ReturnTyp
         disabled={!u.user_id}
         onClick={() => {
           if (!u.user_id) return;
-          navigate(`/chat/${u.user_id}`);
+          onOpenChat(u.user_id);
         }}
       >
         私信
@@ -661,12 +830,12 @@ const QuestionSection = ({
   questions,
   onViewMore,
   showMore,
-  navigate,
+  onOpenQuestion,
 }: {
   questions: SearchQuestion[];
   onViewMore: () => void;
   showMore: boolean;
-  navigate: ReturnType<typeof useNavigate>;
+  onOpenQuestion: (id: string) => void;
 }) => (
   <div>
     <div className="flex items-center justify-between mb-2">
@@ -675,14 +844,14 @@ const QuestionSection = ({
         相关问题
       </h3>
       {showMore && (
-        <Button variant="ghost" size="sm" className="text-xs text-gray-500" onClick={onViewMore}>
+        <Button variant="ghost" size="sm" className="text-xs text-slate-500" onClick={onViewMore}>
           查看更多
         </Button>
       )}
     </div>
     <div className="space-y-3">
       {questions.map((q) => (
-        <QuestionCard key={q.id} question={q} navigate={navigate} />
+        <QuestionCard key={q.id} question={q} onOpenQuestion={onOpenQuestion} />
       ))}
     </div>
   </div>
@@ -692,25 +861,25 @@ const TopicSection = ({
   topics,
   onViewMore,
   showMore,
-  navigate,
+  onOpenTopic,
 }: {
   topics: SearchTopic[];
   onViewMore: () => void;
   showMore: boolean;
-  navigate: ReturnType<typeof useNavigate>;
+  onOpenTopic: (id: string) => void;
 }) => (
   <div>
     <div className="flex items-center justify-between mb-2">
-      <h3 className="text-base font-semibold">🔥 相关话题</h3>
+      <h3 className="text-base font-semibold text-slate-800">🔥 相关话题</h3>
       {showMore && (
-        <Button variant="ghost" size="sm" className="text-xs text-gray-500" onClick={onViewMore}>
+        <Button variant="ghost" size="sm" className="text-xs text-slate-500" onClick={onViewMore}>
           查看更多
         </Button>
       )}
     </div>
     <div className="space-y-3">
       {topics.map((t) => (
-        <TopicCard key={t.id} topic={t} navigate={navigate} />
+        <TopicCard key={t.id} topic={t} onOpenTopic={onOpenTopic} />
       ))}
     </div>
   </div>
@@ -720,25 +889,25 @@ const UserSection = ({
   users,
   onViewMore,
   showMore,
-  navigate,
+  onOpenChat,
 }: {
   users: SearchUser[];
   onViewMore: () => void;
   showMore: boolean;
-  navigate: ReturnType<typeof useNavigate>;
+  onOpenChat: (id: string) => void;
 }) => (
   <div>
     <div className="flex items-center justify-between mb-2">
-      <h3 className="text-base font-semibold">👤 相关用户</h3>
+      <h3 className="text-base font-semibold text-slate-800">👤 相关用户</h3>
       {showMore && (
-        <Button variant="ghost" size="sm" className="text-xs text-gray-500" onClick={onViewMore}>
+        <Button variant="ghost" size="sm" className="text-xs text-slate-500" onClick={onViewMore}>
           查看更多
         </Button>
       )}
     </div>
     <div className="space-y-3">
       {users.map((u) => (
-        <UserCard key={u.id} user={u} navigate={navigate} />
+        <UserCard key={u.id} user={u} onOpenChat={onOpenChat} />
       ))}
     </div>
   </div>

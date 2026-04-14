@@ -39,14 +39,17 @@ export interface Answer {
 }
 
 export const useQuestions = (category?: string) => {
+  const LIST_LIMIT = 24;
+
   return useQuery({
     queryKey: ['questions', category],
     queryFn: async () => {
       let query = supabase
         .from('questions')
-        .select('*')
+        .select('id, title, content, category, tags, bounty_points, status, view_count, user_id, created_at, updated_at')
         .eq('is_hidden', false)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(LIST_LIMIT);
 
       if (category) {
         query = query.eq('category', category);
@@ -92,6 +95,8 @@ export const useQuestions = (category?: string) => {
         } as Question;
       });
     },
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
   });
 };
 

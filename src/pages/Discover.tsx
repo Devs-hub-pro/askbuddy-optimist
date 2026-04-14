@@ -1,11 +1,21 @@
 
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Image, Heart, MessageCircle, Share2, Bell, SmilePlus, Hash, Send, Loader2, X, MapPin, Trash2, MoreHorizontal, PenSquare, Flame } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Input } from '@/components/ui/input';
@@ -20,9 +30,11 @@ import { zhCN } from 'date-fns/locale';
 import PageStateCard from '@/components/common/PageStateCard';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 import { isNativeApp } from '@/utils/platform';
+import { buildFromState } from '@/utils/navigation';
 
 const Discover: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const nativeMode = isNativeApp();
   const [activeTab, setActiveTab] = useState<'following' | 'recommended' | 'local'>(() => {
     const cached = sessionStorage.getItem('tab:discover');
@@ -32,9 +44,27 @@ const Discover: React.FC = () => {
   const [showNotification, setShowNotification] = useState(true);
   const [currentLocation, setCurrentLocation] = useState('深圳');
   const { user, profile } = useAuth();
-  const { data: posts, isLoading } = usePosts();
-  const { data: followingPosts, isLoading: followingLoading } = useFollowingPosts();
-  const { data: localPosts, isLoading: localLoading } = useLocalPosts(currentLocation);
+  const {
+    data: posts,
+    isLoading,
+    isError: postsError,
+    error: postsErrorDetail,
+    refetch: retryPosts,
+  } = usePosts();
+  const {
+    data: followingPosts,
+    isLoading: followingLoading,
+    isError: followingError,
+    error: followingErrorDetail,
+    refetch: retryFollowingPosts,
+  } = useFollowingPosts();
+  const {
+    data: localPosts,
+    isLoading: localLoading,
+    isError: localError,
+    error: localErrorDetail,
+    refetch: retryLocalPosts,
+  } = useLocalPosts(currentLocation);
 
   const plazaTopics = [
     { id: 'topic-1', name: '留学申请', hint: '经验帖最多' },
@@ -52,12 +82,24 @@ const Discover: React.FC = () => {
   const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const [selectedImages, setSelectedImages] = useState<File[]>([]);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [showComposerLeaveDialog, setShowComposerLeaveDialog] = useState(false);
   const previewsRef = useRef<string[]>([]);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const createPost = useCreatePost();
   const uploadMedia = useUploadPostMedia();
 
   const sampleEmojis = ['😊', '😂', '😍', '🤔', '👍', '🎉', '❤️', '😭', '🔥', '✨', '🙏', '👏', '🌹', '🤗', '😁'];
+  const hasComposerContent = Boolean(newPostContent.trim() || newPostTags.length > 0 || selectedImages.length > 0);
+
+  const resetComposer = () => {
+    imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+    setSelectedImages([]);
+    setImagePreviews([]);
+    setShowEmojiPicker(false);
+    setNewPostContent('');
+    setNewPostTags([]);
+    setNewTagInput('');
+  };
 
   useEffect(() => {
     const syncLocation = () => {
@@ -93,13 +135,8 @@ const Discover: React.FC = () => {
       imageUrls = await uploadMedia.mutateAsync(selectedImages);
     }
     await createPost.mutateAsync({ content: newPostContent, topics: newPostTags, images: imageUrls });
-    imagePreviews.forEach((url) => URL.revokeObjectURL(url));
     setIsPostDialogOpen(false);
-    setNewPostContent('');
-    setNewPostTags([]);
-    setNewTagInput('');
-    setSelectedImages([]);
-    setImagePreviews([]);
+    resetComposer();
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -164,7 +201,7 @@ const Discover: React.FC = () => {
                 className="relative flex h-9 w-9 items-center justify-center rounded-full bg-white/20 text-white transition-colors hover:bg-white/25"
                 onClick={() => {
                   setShowNotification(false);
-                  navigate('/discover/interactions');
+                  navigate('/discover/interactions', { state: buildFromState(location) });
                 }}
               >
                 <Bell size={18} />
@@ -188,6 +225,11 @@ const Discover: React.FC = () => {
             <DiscoverFeed
               posts={followingPosts || []}
               isLoading={followingLoading}
+              hasError={followingError}
+              errorText={followingErrorDetail instanceof Error ? followingErrorDetail.message : undefined}
+              onRetry={() => {
+                void retryFollowingPosts();
+              }}
               formatTime={formatTime}
               emptyText="暂无关注用户的动态，去关注感兴趣的人吧"
               showComposer
@@ -203,6 +245,11 @@ const Discover: React.FC = () => {
           <DiscoverFeed
             posts={posts || []}
             isLoading={isLoading}
+            hasError={postsError}
+            errorText={postsErrorDetail instanceof Error ? postsErrorDetail.message : undefined}
+            onRetry={() => {
+              void retryPosts();
+            }}
             formatTime={formatTime}
             showComposer
             onQuickPost={() => setIsPostDialogOpen(true)}
@@ -216,6 +263,11 @@ const Discover: React.FC = () => {
           <DiscoverFeed
             posts={localPosts || []}
             isLoading={localLoading}
+            hasError={localError}
+            errorText={localErrorDetail instanceof Error ? localErrorDetail.message : undefined}
+            onRetry={() => {
+              void retryLocalPosts();
+            }}
             formatTime={formatTime}
             emptyText={`还没有“${currentLocation}”的同城动态`}
             showComposer
@@ -232,10 +284,11 @@ const Discover: React.FC = () => {
         open={isPostDialogOpen}
         onOpenChange={(open) => {
           if (!open) {
-            imagePreviews.forEach((url) => URL.revokeObjectURL(url));
-            setSelectedImages([]);
-            setImagePreviews([]);
-            setShowEmojiPicker(false);
+            if (hasComposerContent && !createPost.isPending && !uploadMedia.isPending) {
+              setShowComposerLeaveDialog(true);
+              return;
+            }
+            resetComposer();
           }
           setIsPostDialogOpen(open);
         }}
@@ -321,6 +374,30 @@ const Discover: React.FC = () => {
         </DialogContent>
       </Dialog>
 
+      <AlertDialog open={showComposerLeaveDialog} onOpenChange={setShowComposerLeaveDialog}>
+        <AlertDialogContent className="w-[88%] max-w-sm rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>放弃本次动态编辑？</AlertDialogTitle>
+            <AlertDialogDescription>
+              你当前填写的内容还没有发布，确认离开将清空本次编辑内容。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:gap-2">
+            <AlertDialogCancel className="rounded-full">继续编辑</AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                setShowComposerLeaveDialog(false);
+                setIsPostDialogOpen(false);
+                resetComposer();
+              }}
+            >
+              放弃编辑
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       <BottomNav />
     </div>
   );
@@ -330,6 +407,9 @@ const Discover: React.FC = () => {
 interface DiscoverFeedProps {
   posts: PostWithProfile[];
   isLoading: boolean;
+  hasError?: boolean;
+  errorText?: string;
+  onRetry?: () => void;
   formatTime: (d: string) => string;
   emptyText?: string;
   showComposer?: boolean;
@@ -339,7 +419,7 @@ interface DiscoverFeedProps {
   locationLabel?: string;
 }
 
-const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, formatTime, emptyText, showComposer, onQuickPost, topicChips = [], tabLabel, locationLabel }) => {
+const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, hasError, errorText, onRetry, formatTime, emptyText, showComposer, onQuickPost, topicChips = [], tabLabel, locationLabel }) => {
   const [expandedComments, setExpandedComments] = useState<{ [key: string]: boolean }>({});
   const [commentInputs, setCommentInputs] = useState<{ [key: string]: string }>({});
   const [sortMode, setSortMode] = useState<'latest' | 'hot'>('latest');
@@ -406,22 +486,22 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, formatTim
                 <Avatar className="h-9 w-9 border border-slate-100">
                   <AvatarFallback>发</AvatarFallback>
                 </Avatar>
-                <div className="flex-1 rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-500 transition-colors hover:bg-slate-200">
+                <div className="app-soft-muted-bg flex-1 rounded-full px-4 py-2 text-sm text-slate-500 transition-colors hover:bg-slate-200">
                   分享此刻的想法、经验或正在发生的事
                 </div>
               </button>
 
               <div className="mt-2.5 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-2 text-xs text-slate-500">
-                  <button className="flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1.5 hover:text-slate-700" onClick={onQuickPost}>
+                  <button className="app-soft-muted-bg flex items-center gap-1 rounded-full px-2.5 py-1.5 hover:text-slate-700" onClick={onQuickPost}>
                     <Image size={14} />
                     图片
                   </button>
-                  <button className="flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1.5 hover:text-slate-700" onClick={onQuickPost}>
+                  <button className="app-soft-muted-bg flex items-center gap-1 rounded-full px-2.5 py-1.5 hover:text-slate-700" onClick={onQuickPost}>
                     <Hash size={14} />
                     话题
                   </button>
-                  <button className="flex items-center gap-1 rounded-full bg-slate-50 px-2.5 py-1.5 hover:text-slate-700" onClick={onQuickPost}>
+                  <button className="app-soft-muted-bg flex items-center gap-1 rounded-full px-2.5 py-1.5 hover:text-slate-700" onClick={onQuickPost}>
                     <MapPin size={14} />
                     同城
                   </button>
@@ -478,10 +558,19 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, formatTim
         </div>
       </div>
 
-      <div className="mt-4 app-page-padding space-y-3">
-        {isLoading ? (
+      <div className="mt-4 app-page-padding app-card-stack-gap space-y-3">
+        {hasError ? (
+          <PageStateCard
+            variant="error"
+            compact
+            title="广场内容加载失败"
+            description={errorText || '网络开小差了，稍后再试一次。'}
+            actionLabel="重试"
+            onAction={onRetry}
+          />
+        ) : isLoading ? (
           [1, 2, 3].map(i => (
-            <div key={i} className="surface-card rounded-3xl border border-slate-100 p-4 animate-pulse-soft">
+            <div key={i} className="surface-card app-soft-border rounded-3xl border p-4 animate-pulse-soft">
               <div className="flex items-center gap-3 mb-3">
                 <div className="h-10 w-10 rounded-full bg-slate-100" />
                 <div className="flex-1">
@@ -503,7 +592,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, formatTim
           sortedPosts.map((post, index) => (
             <div
               key={post.id}
-              className="surface-card rounded-3xl border border-slate-100 p-4 opacity-0 animate-slide-up transition-shadow duration-200 hover:shadow-md"
+              className="surface-card app-soft-border rounded-3xl border p-4 opacity-0 animate-slide-up transition-shadow duration-200 hover:shadow-md"
               style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'forwards' }}
             >
               {/* Author info */}
@@ -519,7 +608,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, formatTim
                 {user && user.id === post.user_id && (
                   <div className="relative">
                     <button
-                      className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-50 transition-colors hover:bg-slate-100"
+                      className="app-soft-muted-bg flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-slate-100"
                       onClick={() => setMenuOpenId(menuOpenId === post.id ? null : post.id)}
                     >
                       <MoreHorizontal size={18} className="text-muted-foreground" />
@@ -566,7 +655,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, formatTim
               </div>
 
               {/* Interaction buttons */}
-              <div className="rounded-2xl border border-slate-100 bg-slate-50 p-1">
+              <div className="app-soft-border app-soft-muted-bg rounded-2xl border p-1">
                 <div className="flex justify-between">
                 <button
                   className="flex flex-1 items-center justify-center gap-1 rounded-xl px-2 py-2 text-sm text-muted-foreground transition-colors hover:bg-white hover:text-pink-500"

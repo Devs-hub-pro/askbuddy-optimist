@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { navigateBackOr } from '@/utils/navigation';
+import { getFallbackPathForRoute, navigateBackOr } from '@/utils/navigation';
 
 interface SwipeBackOptions {
   threshold?: number; // 触发返回的最小滑动距离
@@ -59,7 +59,7 @@ export function useSwipeBack(options: SwipeBackOptions = {}) {
       
       // 如果右滑距离超过阈值，触发安全返回
       if (deltaX > threshold) {
-        navigateBackOr(navigate, '/', { location });
+        navigateBackOr(navigate, getFallbackPathForRoute(location.pathname, location.search), { location });
       }
       
       isSwiping.current = false;
@@ -91,6 +91,11 @@ const shouldIgnoreSwipeStart = (target: HTMLElement) => {
 
   // 弹窗/抽屉/Sheet/Popover 等浮层开启时禁用
   if (document.querySelector('[data-state="open"][role="dialog"], [data-radix-popper-content-wrapper]')) {
+    return true;
+  }
+
+  // 轮播、横滑 Tabs、滑块等交互区内不触发返回，避免误触
+  if (target.closest('[role="slider"], [data-orientation="horizontal"], .embla, [data-horizontal-scroll="true"]')) {
     return true;
   }
 

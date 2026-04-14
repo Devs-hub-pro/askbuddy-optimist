@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { buildFromState } from '@/utils/navigation';
 
 interface SearchBarProps {
   onSearch?: (value: string) => void;
@@ -18,6 +19,7 @@ interface SearchBarProps {
   inputBorderClassName?: string;
   iconClassName?: string;
   navigateToPath?: string;
+  onFocusChange?: (focused: boolean) => void;
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ 
@@ -34,6 +36,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
   inputBorderClassName = 'border-gray-200',
   iconClassName = 'text-gray-400',
   navigateToPath,
+  onFocusChange,
 }) => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -81,16 +84,16 @@ const SearchBar: React.FC<SearchBarProps> = ({
     } else {
       if (navigateToPath) {
         const separator = navigateToPath.includes('?') ? '&' : '?';
-        navigate(`${navigateToPath}${separator}q=${encodeURIComponent(searchValue)}`);
+        navigate(`${navigateToPath}${separator}q=${encodeURIComponent(searchValue)}`, { state: buildFromState(location) });
         return;
       }
 
       // Navigate to the appropriate search page
       if (isEducation) {
-        navigate(`/education/search?q=${encodeURIComponent(searchValue)}`);
+        navigate(`/education/search?q=${encodeURIComponent(searchValue)}`, { state: buildFromState(location) });
       } else {
         // Global search
-        navigate(`/search?q=${encodeURIComponent(searchValue)}`);
+        navigate(`/search?q=${encodeURIComponent(searchValue)}`, { state: buildFromState(location) });
       }
     }
   };
@@ -98,22 +101,24 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const handleNavigateToSearch = () => {
     if (location.pathname.includes('/search')) return;
     if (navigateToPath) {
-      navigate(navigateToPath);
+      navigate(navigateToPath, { state: buildFromState(location) });
       return;
     }
     if (isEducation) {
-      navigate('/education/search');
+      navigate('/education/search', { state: buildFromState(location) });
       return;
     }
-    navigate('/search');
+    navigate('/search', { state: buildFromState(location) });
   };
 
   const handleFocus = () => {
     setIsFocused(true);
+    onFocusChange?.(true);
   };
 
   const handleBlur = () => {
     setIsFocused(false);
+    onFocusChange?.(false);
   };
 
   return (

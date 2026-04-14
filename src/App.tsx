@@ -40,6 +40,7 @@ const MyFollowing = lazy(() => import("./pages/profile/MyFollowing"));
 const MyEarnings = lazy(() => import("./pages/profile/MyEarnings"));
 const MyCommunity = lazy(() => import("./pages/profile/MyCommunity"));
 const CommunityGroupDetail = lazy(() => import("./pages/profile/CommunityGroupDetail"));
+const CommunityChat = lazy(() => import("./pages/profile/CommunityChat"));
 const MyDrafts = lazy(() => import("./pages/profile/MyDrafts"));
 const TalentCertification = lazy(() => import("./pages/profile/TalentCertification"));
 const PointsRecharge = lazy(() => import("./pages/profile/PointsRecharge"));
@@ -94,6 +95,13 @@ function App() {
     document.body.dataset.nativeApp = isNativeApp() ? 'true' : 'false';
   }, []);
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    if ('scrollRestoration' in window.history) {
+      window.history.scrollRestoration = 'manual';
+    }
+  }, []);
+
   return (
     <QueryClientProvider client={queryClient}>
       <Router>
@@ -134,7 +142,8 @@ function App() {
                 <Route path="/profile/following" element={<MyFollowing />} />
                 <Route path="/profile/earnings" element={<MyEarnings />} />
                 <Route path="/profile/community" element={<MyCommunity />} />
-                <Route path="/profile/community/:groupId" element={<CommunityGroupDetail />} />
+                <Route path="/profile/community/:groupId" element={<CommunityChat />} />
+                <Route path="/profile/community/:groupId/info" element={<CommunityGroupDetail />} />
                 <Route path="/profile/drafts" element={<MyDrafts />} />
                 <Route path="/profile/talent-certification" element={<TalentCertification />} />
                 <Route path="/profile/recharge" element={<PointsRecharge />} />

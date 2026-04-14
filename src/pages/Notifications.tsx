@@ -4,12 +4,13 @@ import { CheckCheck } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useNotifications, useMarkAsRead, useMarkAllAsRead } from '@/hooks/useNotifications';
+import type { Notification } from '@/hooks/useNotifications';
 import { useAuth } from '@/contexts/AuthContext';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import PageStateCard from '@/components/common/PageStateCard';
-import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
+import { buildFromState, navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const typeIconMap: Record<string, string> = {
@@ -24,7 +25,13 @@ const Notifications = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const { data: notifications, isLoading } = useNotifications();
+  const {
+    data: notifications,
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useNotifications();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
 
@@ -36,27 +43,33 @@ const Notifications = () => {
     }
   };
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: Notification) => {
     if (!notification.is_read) {
       markAsRead.mutate(notification.id);
     }
     if (notification.related_type === 'question' && notification.related_id) {
-      navigate(`/question/${notification.related_id}`);
+      navigate(`/question/${notification.related_id}`, { state: buildFromState(location) });
     } else if (notification.related_type === 'user' && notification.related_id) {
-      navigate(`/expert-profile/${notification.related_id}`);
+      navigate(`/expert-profile/${notification.related_id}`, { state: buildFromState(location) });
     }
   };
 
   if (!user) {
     return (
-      <div className="min-h-[100dvh] bg-gray-50 flex items-center justify-center p-4">
-        <PageStateCard
-          variant="empty"
-          title="登录后查看通知"
-          description="互动提醒、系统通知和订单更新都会在这里显示。"
-          actionLabel="去登录"
-          onAction={() => navigateToAuthWithReturn(navigate, location)}
+      <div className="min-h-[100dvh] bg-slate-50 pb-8">
+        <SubPageHeader
+          title="通知"
+          onBack={() => navigateBackOr(navigate, '/messages', { location })}
         />
+        <div className="px-4 py-6">
+          <PageStateCard
+            variant="empty"
+            title="登录后查看通知"
+            description="互动提醒、系统通知和订单更新都会在这里显示。"
+            actionLabel="去登录"
+            onAction={() => navigateToAuthWithReturn(navigate, location)}
+          />
+        </div>
       </div>
     );
   }
@@ -64,7 +77,7 @@ const Notifications = () => {
   const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
 
   return (
-    <div className="min-h-[100dvh] bg-gray-50 pb-8">
+    <div className="min-h-[100dvh] bg-slate-50 pb-8">
       <SubPageHeader
         title="通知"
         onBack={() => navigateBackOr(navigate, '/messages', { location })}
@@ -86,7 +99,20 @@ const Notifications = () => {
         }
       />
 
-      {isLoading ? (
+      {isError ? (
+        <div className="px-4 py-6">
+          <PageStateCard
+            variant="error"
+            title="通知加载失败"
+            description={error instanceof Error ? error.message : '网络开小差了，请稍后重试。'}
+            actionLabel="重试"
+            onAction={() => {
+              void refetch();
+            }}
+            compact
+          />
+        </div>
+      ) : isLoading ? (
         <div className="px-4 py-6">
           <PageStateCard variant="loading" title="正在加载通知…" compact />
         </div>
@@ -110,8 +136,8 @@ const Notifications = () => {
               key={notification.id}
               onClick={() => handleNotificationClick(notification)}
               className={cn(
-                "surface-card flex cursor-pointer items-start gap-3 rounded-3xl p-4 shadow-sm transition-colors hover:bg-gray-50",
-                !notification.is_read && "border border-blue-100 bg-blue-50/40"
+                "surface-card flex cursor-pointer items-start gap-3 rounded-3xl p-4 shadow-sm transition-colors hover:bg-slate-50",
+                !notification.is_read && "app-soft-border border app-soft-muted-bg"
               )}
             >
               <div className="relative">

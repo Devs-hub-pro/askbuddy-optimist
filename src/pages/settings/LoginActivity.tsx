@@ -15,7 +15,7 @@ const LoginActivity = () => {
   const { toast } = useToast();
 
   return (
-    <div className="min-h-[100dvh] bg-gray-50">
+    <div className="min-h-[100dvh] bg-slate-50">
       <SubPageHeader title="登录活动" />
 
       <div className="space-y-5 p-5">

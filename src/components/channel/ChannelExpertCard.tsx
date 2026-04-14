@@ -34,10 +34,27 @@ const ChannelExpertCard: React.FC<ChannelExpertCardProps> = ({
   onOpen,
   onConsult,
 }) => {
+  const isActionTarget = (target: EventTarget | null) =>
+    target instanceof HTMLElement && !!target.closest('[data-card-action="true"]');
+
   return (
-    <div className="surface-card rounded-2xl p-3.5 shadow-sm transition-all duration-200 hover:shadow-md">
+    <div
+      className="surface-card cursor-pointer rounded-2xl p-3.5 shadow-sm transition-all duration-200 hover:shadow-md"
+      role="button"
+      tabIndex={0}
+      onClick={(event) => {
+        if (isActionTarget(event.target)) return;
+        onOpen();
+      }}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onOpen();
+        }
+      }}
+    >
       <div className="flex items-start justify-between">
-        <button type="button" className="flex items-center gap-2 text-left" onClick={onOpen}>
+        <div className="flex items-center gap-2 text-left">
           <Avatar className={`h-10 w-10 border ${accentBorderClass}`}>
             <AvatarImage src={expert.avatar} alt={expert.name} className="object-cover" />
             <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
@@ -46,7 +63,7 @@ const ChannelExpertCard: React.FC<ChannelExpertCardProps> = ({
             <h3 className="text-sm font-semibold leading-5 text-gray-800">{expert.name}</h3>
             <p className={`text-xs ${accentTextClass}`}>{expert.title}</p>
           </div>
-        </button>
+        </div>
 
         <div className="flex flex-col items-end">
           <div className="flex items-center gap-1 text-yellow-500">
@@ -65,20 +82,19 @@ const ChannelExpertCard: React.FC<ChannelExpertCardProps> = ({
       </div>
 
       <div className="mt-2 flex">
-        <button
-          type="button"
+        <div
           className={`mr-2 line-clamp-2 flex-1 rounded-r-md border-l-2 pl-2 py-0.5 text-left text-xs leading-5 text-gray-700 ${accentSummaryClass}`}
-          onClick={onOpen}
         >
           {expert.description}
-        </button>
+        </div>
 
         <Button
+          data-card-action="true"
           onClick={(e) => {
             e.stopPropagation();
             onConsult();
           }}
-          className={`h-auto rounded-full px-3 py-1.5 text-xs text-white shadow-md transition-all hover:shadow-lg active:translate-y-0 ${ctaClassName}`}
+          className={`h-9 min-w-[94px] rounded-full px-3 text-xs text-white shadow-md transition-all hover:shadow-lg active:translate-y-0 ${ctaClassName}`}
         >
           <MessageSquare size={10} className="mr-1" />
           找我问问

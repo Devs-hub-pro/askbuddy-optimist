@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { Bell, MessageSquare, BellRing, BellOff, Mail, Loader2, Sparkles } from 'lucide-react';
+import { Bell, MessageSquare, BellRing, BellOff, Mail, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useUserSettings, useSaveNotificationSettings, NotificationPrefs } from '@/hooks/useUserSettings';
 import SubPageHeader from '@/components/layout/SubPageHeader';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const NotificationSettings = () => {
   const { data: userSettings, isLoading } = useUserSettings();
@@ -37,8 +38,11 @@ const NotificationSettings = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-[100dvh] bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-[100dvh] bg-slate-50">
+        <SubPageHeader title="通知设置" />
+        <div className="px-4 py-6">
+          <PageStateCard variant="loading" compact title="正在加载通知设置…" />
+        </div>
       </div>
     );
   }
@@ -54,7 +58,7 @@ const NotificationSettings = () => {
   );
 
   return (
-    <div className="min-h-[100dvh] bg-gray-50">
+    <div className="min-h-[100dvh] bg-slate-50">
       <SubPageHeader title="通知设置" />
 
       <div className="space-y-4 p-4">

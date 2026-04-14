@@ -162,7 +162,7 @@ const Profile = () => {
     );
   }
 
-  const coverUrl = (profile as any)?.cover_url;
+  const coverUrl = profile?.cover_url || null;
   if (isAdmin) {
     supportItems.push({
       icon: <Settings size={18} className="text-emerald-600" />,
@@ -351,9 +351,9 @@ const Profile = () => {
             </h3>
             <div className="grid grid-cols-4 gap-2">
               {commonFeatures.map((item, index) => (
-                <button 
+                <button
                   key={index}
-                  className="flex flex-col items-center justify-center rounded-2xl py-3 hover:bg-muted/60 transition-colors active:scale-95"
+                  className="flex h-[92px] flex-col items-center justify-center rounded-2xl py-3 transition-colors hover:bg-muted/60 active:scale-95"
                   onClick={() => isLoggedIn ? item.onClick() : navigateToAuthWithReturn(navigate, location)}
                 >
                   <div className="w-12 h-12 rounded-2xl bg-muted flex items-center justify-center mb-2 shadow-sm">

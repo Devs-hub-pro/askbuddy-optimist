@@ -4,7 +4,8 @@ import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import ExpertDetailDialog from './ExpertDetailDialog';
 import AnswerDialog from "./AnswerDialog";
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { buildFromState } from '@/utils/navigation';
 
 interface QuestionCardProps {
   id: string;
@@ -38,6 +39,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
 }) => {
   const [showAnswerDialog, setShowAnswerDialog] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
 
   // Create unique expert data for the asker based on their properties
   const askerExpertData = {
@@ -68,21 +70,29 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
     console.log("回答者可回答时间段:", payload.timeSlots, "留言:", payload.message);
     // 可弹出Toast告知提交或继续交互
   };
+  const isActionTarget = (target: EventTarget | null) =>
+    target instanceof HTMLElement && !!target.closest('[data-card-action="true"]');
 
   return (
     <>
       <div
-        className="surface-card p-4 transition-all duration-300 animate-fade-in hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
+        className="surface-card cursor-pointer rounded-3xl p-4 transition-all duration-300 animate-fade-in hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
         style={{ animationDelay: `${delay}s` }}
+        role="button"
+        tabIndex={0}
+        onClick={(event) => {
+          if (isActionTarget(event.target)) return;
+          navigate(`/question/${id}`, { state: buildFromState(location) });
+        }}
+        onKeyDown={(event) => {
+          if (event.key === 'Enter' || event.key === ' ') {
+            event.preventDefault();
+            navigate(`/question/${id}`, { state: buildFromState(location) });
+          }
+        }}
       >
         <div className="flex items-start justify-between mb-2">
-          <button
-            type="button"
-            className="text-left"
-            onClick={() => navigate(`/question/${id}`)}
-          >
-            <h3 className="font-semibold text-base text-left text-gray-800 leading-7">{title}</h3>
-          </button>
+          <h3 className="font-semibold text-base text-left text-gray-800 leading-7">{title}</h3>
           {viewCount && (
             <div className="flex items-center gap-1 text-gray-500 text-xs">
               <Eye size={14} className="flex-shrink-0" />
@@ -92,28 +102,24 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         </div>
         
         {description && (
-          <button
-            type="button"
-            className="mb-3 block text-left"
-            onClick={() => navigate(`/question/${id}`)}
-          >
-            <p className="text-sm text-gray-600 line-clamp-2 leading-6">{description}</p>
-          </button>
+          <p className="mb-3 text-sm text-gray-600 line-clamp-2 leading-6">{description}</p>
         )}
         
         <div className="flex items-center justify-between mb-3">
-          <ExpertDetailDialog {...askerExpertData}>
-            <div className="flex items-center gap-2 cursor-pointer">
-              <Avatar className="w-8 h-8 border border-gray-100">
-                <AvatarImage src={asker.avatar} alt={asker.name} className="object-cover" />
-                <AvatarFallback>{asker.name.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <div className="text-left">
-                <div className="text-xs font-medium text-gray-700">{asker.name}</div>
-                <div className="text-xs text-gray-500">{time}</div>
+          <div data-card-action="true" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+            <ExpertDetailDialog {...askerExpertData}>
+              <div className="flex items-center gap-2 cursor-pointer" data-card-action="true">
+                <Avatar className="w-8 h-8 border border-gray-100">
+                  <AvatarImage src={asker.avatar} alt={asker.name} className="object-cover" />
+                  <AvatarFallback>{asker.name.charAt(0)}</AvatarFallback>
+                </Avatar>
+                <div className="text-left">
+                  <div className="text-xs font-medium text-gray-700">{asker.name}</div>
+                  <div className="text-xs text-gray-500">{time}</div>
+                </div>
               </div>
-            </div>
-          </ExpertDetailDialog>
+            </ExpertDetailDialog>
+          </div>
           
           <span className="flex items-center gap-1 bg-gradient-to-r from-yellow-50 to-orange-50 text-amber-600 text-xs px-2.5 py-1 rounded-full font-medium border border-amber-100 shadow-sm">
             <Award size={14} className="text-amber-500" />
@@ -132,6 +138,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           
           <div className="flex items-center gap-2">
             <button 
+              data-card-action="true"
               className="bg-gradient-to-r from-blue-500 to-app-blue text-white px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0"
               onClick={e => {
                 e.stopPropagation();

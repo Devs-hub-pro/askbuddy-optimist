@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   Award,
@@ -19,8 +19,13 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/component
 import { useExpertDetail } from '@/hooks/useExperts';
 import { demoExperts } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
-import { navigateBackOr } from '@/utils/navigation';
+import { buildFromState, navigateBackOr } from '@/utils/navigation';
 import SubPageHeader from '@/components/layout/SubPageHeader';
+import { isNativeApp } from '@/utils/platform';
+
+type EducationItem = string | { school?: string; degree?: string };
+type ExperienceItem = string | { company?: string; position?: string; title?: string };
+type TimeSlotItem = string | { day?: string; time?: string; label?: string };
 
 const ExpertProfile = () => {
   const { id } = useParams();
@@ -28,8 +33,13 @@ const ExpertProfile = () => {
   const location = useLocation();
   const isDemoExpert = !!id?.startsWith('demo-expert-');
   const { data: expert, isLoading, error } = useExpertDetail(isDemoExpert ? '' : id || '');
+  const nativeMode = isNativeApp();
   const [isBioExpanded, setIsBioExpanded] = useState(false);
   const resolvedExpert = isDemoExpert ? demoExperts.find((item) => item.id === id) : expert;
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [id]);
 
   if (!isDemoExpert && isLoading) {
     return (
@@ -53,9 +63,9 @@ const ExpertProfile = () => {
     );
   }
 
-  const education = Array.isArray(resolvedExpert.education) ? resolvedExpert.education : [];
-  const experience = Array.isArray(resolvedExpert.experience) ? resolvedExpert.experience : [];
-  const timeSlots = Array.isArray(resolvedExpert.available_time_slots) ? resolvedExpert.available_time_slots : [];
+  const education = (Array.isArray(resolvedExpert.education) ? resolvedExpert.education : []) as EducationItem[];
+  const experience = (Array.isArray(resolvedExpert.experience) ? resolvedExpert.experience : []) as ExperienceItem[];
+  const timeSlots = (Array.isArray(resolvedExpert.available_time_slots) ? resolvedExpert.available_time_slots : []) as TimeSlotItem[];
   const displayName = resolvedExpert.nickname || '专家';
   const responseRate = `${Number(resolvedExpert.response_rate || 0)}%`;
   const coverImage =
@@ -63,7 +73,7 @@ const ExpertProfile = () => {
     'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&h=480&q=80';
 
   return (
-    <div className="min-h-[100dvh] bg-gray-50 pb-24">
+    <div className="min-h-[100dvh] bg-slate-50 pb-24">
       <SubPageHeader title="个人主页" onBack={() => navigateBackOr(navigate, '/', { location })} />
 
       <div className="pt-0">
@@ -103,13 +113,13 @@ const ExpertProfile = () => {
 
               <Button
                 className="rounded-full bg-gradient-to-r from-green-500 to-teal-500 text-white"
-                onClick={() => navigate(`/expert/${resolvedExpert.id}`)}
+                onClick={() => navigate(`/expert/${resolvedExpert.id}`, { state: buildFromState(location) })}
               >
                 前往咨询页
               </Button>
             </div>
 
-            <div className="grid grid-cols-4 gap-3 mt-5 bg-gray-50 rounded-xl p-3">
+            <div className="grid grid-cols-4 gap-3 mt-5 bg-slate-50 rounded-xl p-3">
               <div className="text-center">
                 <div className="flex items-center justify-center text-yellow-500 gap-1 font-semibold">
                   <Star size={14} />
@@ -206,7 +216,7 @@ const ExpertProfile = () => {
                   教育经历
                 </div>
                 <div className="space-y-2">
-                  {education.map((item: any, index: number) => (
+                  {education.map((item, index: number) => (
                     <div key={`edu-${index}`} className="bg-blue-50 rounded-xl p-3 text-sm text-gray-700">
                       {typeof item === 'string' ? item : `${item.school || ''} ${item.degree || ''}`.trim()}
                     </div>
@@ -222,7 +232,7 @@ const ExpertProfile = () => {
                   工作经历
                 </div>
                 <div className="space-y-2">
-                  {experience.map((item: any, index: number) => (
+                  {experience.map((item, index: number) => (
                     <div key={`exp-${index}`} className="bg-purple-50 rounded-xl p-3 text-sm text-gray-700">
                       {typeof item === 'string' ? item : `${item.company || ''} ${item.position || item.title || ''}`.trim()}
                     </div>
@@ -237,7 +247,7 @@ const ExpertProfile = () => {
           <div className="surface-card rounded-3xl p-5">
             <h2 className="text-base font-semibold text-gray-800 mb-3">可预约时间</h2>
             <div className="space-y-2">
-              {timeSlots.map((slot: any, index: number) => (
+              {timeSlots.map((slot, index: number) => (
                 <div key={`slot-${index}`} className="bg-amber-50 rounded-xl p-3 text-sm text-gray-700">
                   {typeof slot === 'string'
                     ? slot
@@ -249,18 +259,21 @@ const ExpertProfile = () => {
         )}
       </div>
 
-      <div className="fixed bottom-0 left-0 right-0 bg-white/98 border-t p-3 flex gap-3 backdrop-blur-sm" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}>
+      <div
+        className={`fixed bottom-0 z-[60] border-t bg-white/98 p-3 backdrop-blur-sm ${nativeMode ? 'left-0 right-0' : 'left-1/2 right-auto w-full max-w-md -translate-x-1/2'} flex gap-3`}
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
+      >
         <Button
           variant="outline"
           className="flex-1 rounded-full"
-          onClick={() => navigate('/messages')}
+          onClick={() => navigate('/messages', { state: buildFromState(location) })}
         >
           <MessageSquare size={16} className="mr-2" />
           返回消息
         </Button>
         <Button
           className="flex-1 rounded-full bg-gradient-to-r from-green-500 to-teal-500"
-          onClick={() => navigate(`/expert/${resolvedExpert.id}`)}
+          onClick={() => navigate(`/expert/${resolvedExpert.id}`, { state: buildFromState(location) })}
         >
           进入咨询页
         </Button>

@@ -4,9 +4,10 @@ import { Bell, CheckCheck, Heart, MessageCircle, Reply, Sparkles } from 'lucide-
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { useMarkAllAsRead, useMarkAsRead, useNotifications } from '@/hooks/useNotifications';
+import type { Notification } from '@/hooks/useNotifications';
 import { formatTime } from '@/utils/format';
 import PageStateCard from '@/components/common/PageStateCard';
-import { navigateBackOr } from '@/utils/navigation';
+import { buildFromState, navigateBackOr } from '@/utils/navigation';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const socialTypes = new Set(['new_like', 'new_comment', 'comment_reply', 'new_answer']);
@@ -51,10 +52,21 @@ const iconMap = {
   new_answer: { icon: Sparkles, color: 'text-amber-500', bg: 'bg-amber-50' },
 } as const;
 
+type InteractionItem = Pick<
+  Notification,
+  'id' | 'title' | 'content' | 'created_at' | 'is_read' | 'related_type' | 'related_id' | 'sender_id' | 'sender_nickname' | 'sender_avatar' | 'type'
+>;
+
 const DiscoverInteractions = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { data: notifications = [], isLoading } = useNotifications();
+  const {
+    data: notifications = [],
+    isLoading,
+    isError,
+    error,
+    refetch,
+  } = useNotifications();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
   const [demoState, setDemoState] = useState(demoInteractions);
@@ -64,7 +76,7 @@ const DiscoverInteractions = () => {
     return filtered;
   }, [notifications]);
   const usingDemo = realInteractions.length === 0;
-  const interactions = usingDemo ? demoState : realInteractions;
+  const interactions: InteractionItem[] = usingDemo ? demoState : realInteractions;
 
   useEffect(() => {
     if (usingDemo) setDemoState(demoInteractions);
@@ -72,7 +84,7 @@ const DiscoverInteractions = () => {
 
   const unreadCount = interactions.filter((item) => !item.is_read).length;
 
-  const handleClick = (item: any) => {
+  const handleClick = (item: InteractionItem) => {
     if (!item.is_read) {
       if (item.id.startsWith('demo-')) {
         setDemoState((prev) => prev.map((entry) => (entry.id === item.id ? { ...entry, is_read: true } : entry)));
@@ -82,7 +94,7 @@ const DiscoverInteractions = () => {
     }
 
     if (item.related_type === 'question' && item.related_id) {
-      navigate(`/question/${item.related_id}`);
+      navigate(`/question/${item.related_id}`, { state: buildFromState(location) });
       return;
     }
     if (item.related_type === 'post' && item.related_id) {
@@ -147,7 +159,18 @@ const DiscoverInteractions = () => {
       </div>
 
       <div className="mt-4 space-y-3 px-4">
-        {isLoading && notifications.length === 0 ? (
+        {isError ? (
+          <PageStateCard
+            variant="error"
+            compact
+            title="互动提醒加载失败"
+            description={error instanceof Error ? error.message : '网络开小差了，请稍后重试。'}
+            actionLabel="重试"
+            onAction={() => {
+              void refetch();
+            }}
+          />
+        ) : isLoading && notifications.length === 0 ? (
           [1, 2, 3].map((item) => (
             <div key={item} className="surface-card rounded-3xl p-4 animate-pulse-soft">
               <div className="flex items-center gap-3">

@@ -49,7 +49,6 @@
   
   * {
     @apply border-border;
-    scroll-behavior: smooth;
   }
 
   body {

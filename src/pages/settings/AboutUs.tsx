@@ -14,7 +14,7 @@ import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const AboutUs = () => {
   return (
-    <div className="min-h-[100dvh] bg-gray-50 pb-8">
+    <div className="min-h-[100dvh] bg-slate-50 pb-8">
       <SubPageHeader title="关于我们" />
 
       <div className="p-4 bg-gradient-to-r from-[rgb(121,213,199)] to-[rgb(160,237,224)] text-center text-white rounded-b-3xl">
@@ -101,7 +101,7 @@ const AboutUs = () => {
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
-              <a href="mailto:support@example.com" className="flex items-center justify-between rounded-2xl p-3 hover:bg-gray-50 transition-colors">
+              <a href="mailto:support@example.com" className="flex items-center justify-between rounded-2xl p-3 hover:bg-slate-50 transition-colors">
                 <div className="flex items-center">
                   <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center mr-3">
                     <Mail size={16} className="text-app-blue" />
@@ -111,7 +111,7 @@ const AboutUs = () => {
                 <ChevronRight size={16} className="text-gray-400" />
               </a>
               
-              <a href="#" className="flex items-center justify-between rounded-2xl p-3 hover:bg-gray-50 transition-colors">
+              <a href="#" className="flex items-center justify-between rounded-2xl p-3 hover:bg-slate-50 transition-colors">
                 <div className="flex items-center">
                   <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3">
                     <Github size={16} className="text-gray-700" />
@@ -121,7 +121,7 @@ const AboutUs = () => {
                 <ChevronRight size={16} className="text-gray-400" />
               </a>
               
-              <a href="#" className="flex items-center justify-between rounded-2xl p-3 hover:bg-gray-50 transition-colors">
+              <a href="#" className="flex items-center justify-between rounded-2xl p-3 hover:bg-slate-50 transition-colors">
                 <div className="flex items-center">
                   <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center mr-3">
                     <Twitter size={16} className="text-blue-400" />
@@ -132,7 +132,7 @@ const AboutUs = () => {
               </a>
             </div>
           </CardContent>
-          <CardFooter className="bg-gray-50 px-4 py-3 flex justify-between">
+          <CardFooter className="bg-slate-50 px-4 py-3 flex justify-between">
             <span className="text-sm text-gray-500">© 2026 找人问问</span>
             <div className="flex space-x-4">
               <a href="#" className="text-sm text-gray-500 hover:text-app-blue">服务条款</a>

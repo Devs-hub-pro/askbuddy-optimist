@@ -34,6 +34,16 @@ import {
 } from "@/components/ui/popover";
 import { toast } from "@/components/ui/use-toast";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Drawer,
   DrawerContent,
   DrawerHeader,
@@ -83,6 +93,7 @@ const timeSlots = [
 ];
 
 const DRAFT_STORAGE_KEY = 'new-question-draft-v1';
+const MAX_ATTACHMENTS = 6;
 
 interface QuestionDraft {
   title: string;
@@ -119,6 +130,7 @@ const NewQuestion: React.FC = () => {
   const [suggestedTags, setSuggestedTags] = useState<string[]>(['留学', '职场', '考研']);
   const [attachments, setAttachments] = useState<AttachmentItem[]>([]);
   const [hydratedDraft, setHydratedDraft] = useState(false);
+  const [showLeaveDialog, setShowLeaveDialog] = useState(false);
   const attachmentsRef = useRef<AttachmentItem[]>([]);
   const draftStorageKey = user ? `${DRAFT_STORAGE_KEY}:${user.id}` : `${DRAFT_STORAGE_KEY}:guest`;
   const titlePlaceholder = useMemo(() => {
@@ -153,6 +165,14 @@ const NewQuestion: React.FC = () => {
       if (typeof draft.pointReward === 'string') setPointReward(draft.pointReward);
       if (typeof draft.flexibleTime === 'boolean') setFlexibleTime(draft.flexibleTime);
       if (Array.isArray(draft.selectedTimeSlots)) setSelectedTimeSlots(draft.selectedTimeSlots);
+      if (typeof draft.savedAt === 'string') {
+        const savedDate = new Date(draft.savedAt);
+        const label = Number.isNaN(savedDate.getTime()) ? '' : `（${savedDate.toLocaleString('zh-CN')}）`;
+        toast({
+          title: '已恢复本地草稿',
+          description: `你上次编辑的内容已自动恢复${label}`,
+        });
+      }
     } catch {
       localStorage.removeItem(draftStorageKey);
     } finally {
@@ -219,7 +239,18 @@ const NewQuestion: React.FC = () => {
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files.length > 0) {
       const newFiles = Array.from(event.target.files);
-      const normalized = newFiles.map((file) => ({
+      const remain = Math.max(0, MAX_ATTACHMENTS - attachmentsRef.current.length);
+      if (remain <= 0) {
+        toast({
+          title: `最多添加 ${MAX_ATTACHMENTS} 个附件`,
+          description: '请先删除部分附件后再继续添加',
+          variant: 'destructive',
+        });
+        event.target.value = '';
+        return;
+      }
+      const accepted = newFiles.slice(0, remain);
+      const normalized = accepted.map((file) => ({
         id: `${Date.now()}-${Math.random().toString(36).slice(2)}`,
         file,
         previewUrl: file.type.startsWith('image/') ? URL.createObjectURL(file) : null,
@@ -228,8 +259,11 @@ const NewQuestion: React.FC = () => {
       
       toast({
         title: "文件已添加",
-        description: `成功添加 ${newFiles.length} 个文件`,
+        description: accepted.length < newFiles.length
+          ? `已添加 ${accepted.length} 个附件（最多 ${MAX_ATTACHMENTS} 个）`
+          : `成功添加 ${accepted.length} 个附件`,
       });
+      event.target.value = '';
     }
   };
   
@@ -289,6 +323,10 @@ const NewQuestion: React.FC = () => {
 
   useEffect(() => {
     if (!hydratedDraft) return;
+    if (!hasContent) {
+      localStorage.removeItem(draftStorageKey);
+      return;
+    }
 
     const payload: QuestionDraft = {
       title,
@@ -308,6 +346,7 @@ const NewQuestion: React.FC = () => {
     return () => window.clearTimeout(timer);
   }, [
     hydratedDraft,
+    hasContent,
     draftStorageKey,
     title,
     description,
@@ -379,6 +418,17 @@ const NewQuestion: React.FC = () => {
   
   // Save as draft
   const saveDraft = (options?: { silent?: boolean }) => {
+    if (!hasContent) {
+      localStorage.removeItem(draftStorageKey);
+      if (!options?.silent) {
+        toast({
+          title: "暂无可保存内容",
+          description: "输入一些标题或描述后再保存草稿",
+        });
+      }
+      return;
+    }
+
     const payload: QuestionDraft = {
       title,
       description,
@@ -403,10 +453,7 @@ const NewQuestion: React.FC = () => {
       navigateBackOr(navigate, '/', { location });
       return;
     }
-    const leave = window.confirm('当前内容会自动保存为草稿，确定离开吗？');
-    if (!leave) return;
-    saveDraft({ silent: true });
-    navigateBackOr(navigate, '/', { location });
+    setShowLeaveDialog(true);
   };
   
   return (
@@ -831,6 +878,42 @@ const NewQuestion: React.FC = () => {
           )}
         </Button>
       </div>
+
+      <AlertDialog open={showLeaveDialog} onOpenChange={setShowLeaveDialog}>
+        <AlertDialogContent className="w-[88%] max-w-sm rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>离开当前编辑？</AlertDialogTitle>
+            <AlertDialogDescription>
+              你可以先保存草稿，稍后回来继续编辑。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:gap-2">
+            <AlertDialogCancel className="rounded-full">继续编辑</AlertDialogCancel>
+            <Button
+              type="button"
+              variant="outline"
+              className="rounded-full"
+              onClick={() => {
+                saveDraft({ silent: true });
+                setShowLeaveDialog(false);
+                navigateBackOr(navigate, '/', { location });
+              }}
+            >
+              保存并离开
+            </Button>
+            <AlertDialogAction
+              className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                localStorage.removeItem(draftStorageKey);
+                setShowLeaveDialog(false);
+                navigateBackOr(navigate, '/', { location });
+              }}
+            >
+              放弃更改
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

@@ -15,6 +15,7 @@ import { useToast } from '@/hooks/use-toast';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import { useUploadPostMedia } from '@/hooks/usePostMediaUpload';
 import { navigateToAuthWithReturn } from '@/utils/navigation';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const CERT_TYPES = [
   { key: 'education', title: '教育认证', desc: '适用于在校学生、教师等教育工作者', colorClass: 'text-primary' },
@@ -58,6 +59,14 @@ const CERT_FORM_CONFIG = {
   },
 } as const;
 
+interface CertificationRecord {
+  id: string;
+  user_id: string;
+  cert_type: string;
+  status: 'pending' | 'approved' | 'rejected' | 'none';
+  details: Record<string, unknown> | null;
+}
+
 const TalentCertification = () => {
   const navigate = useNavigate();
   const location = useLocation();
@@ -78,14 +87,14 @@ const TalentCertification = () => {
         .select('*')
         .eq('user_id', user!.id);
       if (error) throw error;
-      return data || [];
+      return (data || []) as CertificationRecord[];
     },
   });
 
   const applyCert = useMutation({
     mutationFn: async ({ certType, details, proofUrls }: { certType: string; details: Record<string, string>; proofUrls: string[] }) => {
       if (!user) throw new Error('请先登录');
-      const existing = certifications?.find((item: any) => item.cert_type === certType);
+      const existing = certifications?.find((item) => item.cert_type === certType);
       const payload = {
         user_id: user.id,
         cert_type: certType,
@@ -116,15 +125,15 @@ const TalentCertification = () => {
   });
 
   const getCertStatus = (certType: string) => {
-    const cert = certifications?.find((c: any) => c.cert_type === certType);
+    const cert = certifications?.find((c) => c.cert_type === certType);
     return cert?.status || 'none';
   };
 
   const certificationSummary = useMemo(() => {
     const total = certifications?.length || 0;
-    const approved = certifications?.filter((item: any) => item.status === 'approved').length || 0;
-    const pending = certifications?.filter((item: any) => item.status === 'pending').length || 0;
-    const rejected = certifications?.filter((item: any) => item.status === 'rejected').length || 0;
+    const approved = certifications?.filter((item) => item.status === 'approved').length || 0;
+    const pending = certifications?.filter((item) => item.status === 'pending').length || 0;
+    const rejected = certifications?.filter((item) => item.status === 'rejected').length || 0;
     return { total, approved, pending, rejected };
   }, [certifications]);
 
@@ -225,8 +234,8 @@ const TalentCertification = () => {
           <p className="px-1 text-sm text-muted-foreground">认证通过后，您将获得专属标识和更多权益。</p>
         
           {isLoading ? (
-            <div className="flex items-center justify-center py-10">
-              <Loader2 className="w-8 h-8 animate-spin text-primary" />
+            <div className="py-4">
+              <PageStateCard variant="loading" compact title="正在加载认证信息…" />
             </div>
           ) : (
             CERT_TYPES.map((type) => {

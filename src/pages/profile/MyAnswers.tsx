@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { MessageSquare, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { useMyAnswers } from '@/hooks/useProfileData';
@@ -8,9 +8,23 @@ import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import PageStateCard from '@/components/common/PageStateCard';
+import { buildFromState } from '@/utils/navigation';
+
+interface AnswerItem {
+  id: string;
+  question_id: string;
+  created_at: string;
+  content: string;
+  likes_count: number;
+  is_accepted: boolean;
+  questions?: {
+    title?: string | null;
+  } | null;
+}
 
 const MyAnswers = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: answers, isLoading, error, refetch } = useMyAnswers();
 
   const formatTime = (dateString: string) => {
@@ -20,7 +34,7 @@ const MyAnswers = () => {
   };
 
   return (
-    <div className="pb-8 min-h-[100dvh] bg-gray-50">
+    <div className="pb-8 min-h-[100dvh] bg-slate-50">
       <SubPageHeader title="我的回答" />
 
       {isLoading ? (
@@ -28,7 +42,7 @@ const MyAnswers = () => {
           <PageStateCard variant="loading" compact title="正在加载回答…" className="w-full max-w-sm" />
         </div>
       ) : error ? (
-        <div className="p-5 pt-20">
+        <div className="p-5 pt-6">
           <PageStateCard
             variant="error"
             title="回答加载失败"
@@ -39,7 +53,7 @@ const MyAnswers = () => {
         </div>
       ) : answers && answers.length > 0 ? (
         <div className="p-4 space-y-4">
-          {answers.map((answer: any) => (
+          {(answers as AnswerItem[]).map((answer) => (
             <Card
               key={answer.id}
               className="surface-card rounded-3xl border-none shadow-sm transition-shadow hover:shadow-md"
@@ -48,7 +62,7 @@ const MyAnswers = () => {
                 <button
                   type="button"
                   className="block w-full text-left"
-                  onClick={() => navigate(`/question/${answer.question_id}`)}
+                  onClick={() => navigate(`/question/${answer.question_id}`, { state: buildFromState(location) })}
                 >
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
@@ -74,7 +88,7 @@ const MyAnswers = () => {
           ))}
         </div>
       ) : (
-        <div className="p-5 pt-20">
+        <div className="p-5 pt-6">
           <PageStateCard
             title="暂无回答记录"
             description="去发现页看看大家都在问什么，挑擅长的问题来回答。"

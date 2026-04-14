@@ -1,7 +1,8 @@
 
 import React, { useState } from 'react';
 import { MapPin, ChevronDown, Bell } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
+import { buildFromState } from '@/utils/navigation';
 
 interface NavbarProps {
   location?: string;
@@ -10,10 +11,11 @@ interface NavbarProps {
 const Navbar: React.FC<NavbarProps> = ({ location = "深圳" }) => {
   const [isOpen, setIsOpen] = useState(false);
   const navigate = useNavigate();
+  const location = useLocation();
   
   const handleLocationSelect = () => {
     setIsOpen(false);
-    navigate('/city-selector');
+    navigate('/city-selector', { state: buildFromState(location) });
   };
   
   return (
@@ -28,7 +30,10 @@ const Navbar: React.FC<NavbarProps> = ({ location = "深圳" }) => {
         <div className="text-white font-semibold text-[17px]">问问</div>
         
         <div className="flex items-center gap-2">
-          <button className="relative p-1.5" onClick={() => navigate('/notifications')}>
+          <button
+            className="relative p-1.5"
+            onClick={() => navigate('/notifications', { state: buildFromState(location) })}
+          >
             <Bell size={18} className="text-white" />
             <span className="absolute top-0.5 right-0.5 w-1.5 h-1.5 bg-destructive rounded-full"></span>
           </button>

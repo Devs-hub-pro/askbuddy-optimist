@@ -15,7 +15,7 @@ const BlacklistSettings = () => {
   const [blockedUsers, setBlockedUsers] = useState(initialBlocked);
 
   return (
-    <div className="min-h-[100dvh] bg-gray-50">
+    <div className="min-h-[100dvh] bg-slate-50">
       <SubPageHeader title="黑名单管理" />
 
       <div className="space-y-5 p-5">

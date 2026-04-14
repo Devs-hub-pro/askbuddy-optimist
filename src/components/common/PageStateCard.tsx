@@ -11,6 +11,8 @@ interface PageStateCardProps {
   description?: string;
   actionLabel?: string;
   onAction?: () => void;
+  secondaryActionLabel?: string;
+  onSecondaryAction?: () => void;
   className?: string;
   compact?: boolean;
   icon?: React.ReactNode;
@@ -28,6 +30,8 @@ const PageStateCard: React.FC<PageStateCardProps> = ({
   description,
   actionLabel,
   onAction,
+  secondaryActionLabel,
+  onSecondaryAction,
   className,
   compact = false,
   icon,
@@ -47,10 +51,19 @@ const PageStateCard: React.FC<PageStateCardProps> = ({
           {description}
         </p>
       ) : null}
-      {actionLabel && onAction ? (
-        <Button variant="outline" className="mt-5 rounded-full" onClick={onAction}>
-          {actionLabel}
-        </Button>
+      {(actionLabel && onAction) || (secondaryActionLabel && onSecondaryAction) ? (
+        <div className="mt-5 flex justify-center gap-2">
+          {actionLabel && onAction ? (
+            <Button variant="outline" className="rounded-full" onClick={onAction}>
+              {actionLabel}
+            </Button>
+          ) : null}
+          {secondaryActionLabel && onSecondaryAction ? (
+            <Button variant="ghost" className="rounded-full" onClick={onSecondaryAction}>
+              {secondaryActionLabel}
+            </Button>
+          ) : null}
+        </div>
       ) : null}
     </div>
   );

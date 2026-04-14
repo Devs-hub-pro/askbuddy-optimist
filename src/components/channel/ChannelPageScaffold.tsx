@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Bell, Search } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SearchBar from '@/components/SearchBar';
 import { isNativeApp } from '@/utils/platform';
+import { buildFromState } from '@/utils/navigation';
 
 interface ChannelCategory {
   id: string;
@@ -56,7 +57,7 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
   featuredBadgeClass,
   featuredHintClass,
   activeCategoryClass,
-  inactiveCategoryClass = 'bg-white shadow-sm border-slate-200 text-slate-700',
+  inactiveCategoryClass = 'bg-white shadow-sm app-soft-border text-slate-700',
   tabUnderlineClass,
   categories,
   activeCategory,
@@ -74,16 +75,33 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
   children,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const nativeMode = isNativeApp();
   const [isSearchCollapsed, setIsSearchCollapsed] = useState(false);
+  const searchCollapsedRef = useRef(false);
 
   useEffect(() => {
+    let rafId: number | null = null;
+
     const onScroll = () => {
-      setIsSearchCollapsed(window.scrollY > 28);
+      if (rafId !== null) return;
+      rafId = window.requestAnimationFrame(() => {
+        rafId = null;
+        const nextCollapsed = window.scrollY > 28;
+        if (nextCollapsed === searchCollapsedRef.current) return;
+        searchCollapsedRef.current = nextCollapsed;
+        setIsSearchCollapsed(nextCollapsed);
+      });
     };
+
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+      }
+      window.removeEventListener('scroll', onScroll);
+    };
   }, []);
 
   return (
@@ -101,12 +119,15 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
               className={`mr-2 flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white transition-all duration-200 ${
                 isSearchCollapsed ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-90 opacity-0'
               }`}
-              onClick={() => navigate(searchNavigateToPath)}
+              onClick={() => navigate(searchNavigateToPath, { state: buildFromState(location) })}
               aria-label="打开搜索"
             >
               <Search size={16} />
             </button>
-            <button className="text-white" onClick={() => navigate('/notifications')}>
+            <button
+              className="text-white"
+              onClick={() => navigate('/notifications', { state: buildFromState(location) })}
+            >
               <Bell size={20} />
             </button>
           </div>
@@ -161,9 +182,9 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
           {showRightIndicator && (
             <button
               onClick={() => onScrollCategories('right')}
-              className="absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/90 p-1 shadow-md transition-colors hover:bg-gray-100"
+              className="absolute right-0 top-1/2 z-10 -translate-y-1/2 rounded-full bg-white/90 p-1 shadow-md transition-colors hover:bg-slate-100"
             >
-              <ChevronRight size={16} className="text-gray-600" />
+              <ChevronRight size={16} className="text-slate-600" />
             </button>
           )}
 
@@ -191,18 +212,18 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
 
       <div className="mb-6 px-4">
         <Tabs value={activeTab} onValueChange={(value) => onTabChange(value as 'everyone' | 'experts')} className="w-full">
-          <div className="relative mb-6 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-gray-100 after:content-['']">
+          <div className="relative mb-6 after:absolute after:bottom-0 after:left-0 after:right-0 after:h-[2px] after:bg-[rgb(205,239,231)] after:content-['']">
             <TabsList className="h-auto w-full bg-transparent p-0">
               <TabsTrigger
                 value="everyone"
-                className="relative pb-2 text-base font-semibold data-[state=active]:bg-transparent data-[state=active]:text-app-text data-[state=active]:shadow-none data-[state=inactive]:text-gray-400"
+                className="relative pb-2 text-base font-semibold data-[state=active]:bg-transparent data-[state=active]:text-app-text data-[state=active]:shadow-none data-[state=inactive]:text-slate-400"
               >
                 大家都在问
                 <span className={`absolute bottom-0 left-0 h-[3px] w-full rounded-full opacity-0 transition-opacity data-[state=active]:opacity-100 ${tabUnderlineClass}`} />
               </TabsTrigger>
               <TabsTrigger
                 value="experts"
-                className="relative pb-2 text-base font-semibold data-[state=active]:bg-transparent data-[state=active]:text-app-text data-[state=active]:shadow-none data-[state=inactive]:text-gray-400"
+                className="relative pb-2 text-base font-semibold data-[state=active]:bg-transparent data-[state=active]:text-app-text data-[state=active]:shadow-none data-[state=inactive]:text-slate-400"
               >
                 找TA问问
                 <span className={`absolute bottom-0 left-0 h-[3px] w-full rounded-full opacity-0 transition-opacity data-[state=active]:opacity-100 ${tabUnderlineClass}`} />

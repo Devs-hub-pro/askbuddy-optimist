@@ -90,7 +90,7 @@ export const useExperts = (category?: string) => {
     queryFn: async (): Promise<Expert[]> => {
       let query = supabase
         .from('experts')
-        .select('*')
+        .select('id, user_id, title, bio, category, subcategory, consultation_price, response_time, experience_level, cover_image, tags, keywords, location, rating, response_rate, order_count, consultation_count, followers_count, is_verified, education, experience, available_time_slots, created_at, display_name, avatar_url')
         .eq('is_active', true)
         .order('rating', { ascending: false });
 
@@ -100,21 +100,23 @@ export const useExperts = (category?: string) => {
 
       const { data, error } = await query.limit(20);
       if (error) throw error;
+      if (!data || data.length === 0) return [];
 
-      const experts = await Promise.all(
-        (data || []).map(async (expert: any) => {
-          const { data: profile } = await supabase
-            .from('profiles')
-            .select('nickname, avatar_url')
-            .eq('user_id', expert.user_id)
-            .maybeSingle();
+      const userIds = Array.from(new Set((data || []).map((item: any) => item.user_id)));
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, nickname, avatar_url')
+        .in('user_id', userIds);
 
-          return normalizeExpert(expert, profile);
-        })
-      );
+      if (profilesError) throw profilesError;
+
+      const profileMap = new Map((profiles || []).map((profile) => [profile.user_id, profile]));
+      const experts = (data || []).map((expert: any) => normalizeExpert(expert, profileMap.get(expert.user_id)));
 
       return experts;
     },
+    staleTime: 30_000,
+    refetchOnWindowFocus: false,
   });
 };
 

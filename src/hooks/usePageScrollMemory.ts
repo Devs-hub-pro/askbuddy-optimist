@@ -13,6 +13,15 @@ export const usePageScrollMemory = (key: string) => {
   useEffect(() => {
     const storageKey = `${KEY_PREFIX}${key}`;
     const saved = sessionStorage.getItem(storageKey);
+    let writeRafId: number | null = null;
+    let lastSavedY = -1;
+
+    const persistScroll = (y: number) => {
+      if (Math.abs(y - lastSavedY) < 8) return;
+      lastSavedY = y;
+      sessionStorage.setItem(storageKey, String(y));
+    };
+
     if (saved) {
       const target = Number(saved);
       if (Number.isFinite(target) && target > 0) {
@@ -25,7 +34,11 @@ export const usePageScrollMemory = (key: string) => {
     }
 
     const onScroll = () => {
-      sessionStorage.setItem(storageKey, String(window.scrollY));
+      if (writeRafId !== null) return;
+      writeRafId = window.requestAnimationFrame(() => {
+        writeRafId = null;
+        persistScroll(window.scrollY);
+      });
     };
 
     const onTabReselect = (event: Event) => {
@@ -34,14 +47,17 @@ export const usePageScrollMemory = (key: string) => {
       if (!path) return;
       const matchedPaths = TAB_SCROLL_PATHS[key] || [];
       if (!matchedPaths.includes(path)) return;
-      sessionStorage.setItem(storageKey, '0');
+      persistScroll(0);
       window.scrollTo({ top: 0, behavior: 'smooth' });
     };
 
     window.addEventListener('scroll', onScroll, { passive: true });
     window.addEventListener(TAB_RESELECT_EVENT, onTabReselect as EventListener);
     return () => {
-      sessionStorage.setItem(storageKey, String(window.scrollY));
+      if (writeRafId !== null) {
+        window.cancelAnimationFrame(writeRafId);
+      }
+      persistScroll(window.scrollY);
       window.removeEventListener('scroll', onScroll);
       window.removeEventListener(TAB_RESELECT_EVENT, onTabReselect as EventListener);
     };

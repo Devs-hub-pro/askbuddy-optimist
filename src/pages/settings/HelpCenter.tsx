@@ -18,6 +18,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import SubPageHeader from '@/components/layout/SubPageHeader';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const HelpCenter = () => {
   const [searchQuery, setSearchQuery] = useState('');
@@ -75,7 +76,7 @@ const HelpCenter = () => {
       })).filter(category => category.questions.length > 0);
 
   return (
-    <div className="min-h-[100dvh] bg-gray-50">
+    <div className="min-h-[100dvh] bg-slate-50">
       <SubPageHeader title="帮助中心" />
 
       {/* Search Bar */}
@@ -140,16 +141,16 @@ const HelpCenter = () => {
             </Card>
           ))
         ) : (
-          <div className="flex flex-col items-center justify-center p-8 my-8 text-center">
-            <HelpCircle size={48} className="text-gray-300 mb-3" />
-            <p className="text-gray-500 mb-2">未找到匹配的问题</p>
-            <p className="text-gray-400 text-sm mb-4">请尝试其他关键词或联系客服</p>
-            <Button variant="outline" className="mt-2"
-              onClick={() => setContactDialogOpen(true)}
-            >
-              <MessageSquare size={16} className="mr-2" />
-              联系客服
-            </Button>
+          <div className="my-8">
+            <PageStateCard
+              compact
+              variant="empty"
+              title="未找到匹配的问题"
+              description="请尝试其他关键词，或联系客服获取帮助。"
+              actionLabel="联系客服"
+              onAction={() => setContactDialogOpen(true)}
+              icon={<HelpCircle size={40} className="mx-auto text-muted-foreground/30" />}
+            />
           </div>
         )}
         
@@ -188,7 +189,7 @@ const HelpCenter = () => {
             <DialogDescription className="text-center mt-1 text-gray-500">我们将竭诚为您服务</DialogDescription>
           </DialogHeader>
           <div className="px-6 pb-6 pt-2 space-y-4">
-            <div className="bg-gray-50 rounded-xl p-4 flex flex-col gap-3 text-[15px]">
+            <div className="bg-slate-50 rounded-xl p-4 flex flex-col gap-3 text-[15px]">
               <div className="flex items-center justify-between">
                 <span className="text-gray-700 font-medium">客服邮箱</span>
                 <span className="text-app-blue select-all">support@example.com</span>

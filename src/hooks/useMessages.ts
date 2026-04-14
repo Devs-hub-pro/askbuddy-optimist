@@ -59,9 +59,10 @@ export const useConversations = () => {
 
       const { data: messages, error } = await supabase
         .from('messages')
-        .select('*')
+        .select('id,sender_id,receiver_id,content,read_at,created_at')
         .or(`sender_id.eq.${user.id},receiver_id.eq.${user.id}`)
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(600);
 
       if (error) throw error;
       if (!messages || messages.length === 0) return [];
@@ -109,6 +110,9 @@ export const useConversations = () => {
       }));
     },
     enabled: !!user,
+    staleTime: 20_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
   });
 };
 
@@ -150,6 +154,9 @@ export const useMessagesWithUser = (partnerId: string) => {
       }));
     },
     enabled: !!user && !!partnerId,
+    staleTime: 10_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
@@ -326,6 +333,9 @@ export const useUnreadMessageCount = () => {
       return count || 0;
     },
     enabled: !!user,
+    staleTime: 15_000,
+    gcTime: 5 * 60_000,
+    refetchOnWindowFocus: false,
   });
 
   useEffect(() => {

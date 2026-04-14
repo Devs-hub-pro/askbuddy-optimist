@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Header from "@/components/question/Header";
 import Tags from "@/components/question/Tags";
 import Actions from "@/components/question/Actions";
@@ -17,7 +17,7 @@ import { zhCN } from 'date-fns/locale';
 import { useSubmitContentReport } from '@/hooks/useModeration';
 import { demoQuestionDetails } from '@/lib/demoData';
 import PageStateCard from "@/components/common/PageStateCard";
-import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
+import { buildFromState, navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 
 // 分享选项
 const SHARE_OPTIONS = [
@@ -47,6 +47,10 @@ const QuestionDetail = () => {
   const [isAnswerDialogOpen, setIsAnswerDialogOpen] = useState(false);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
   const [answerContent, setAnswerContent] = useState('');
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'auto' });
+  }, [id]);
 
   // 格式化时间
   const formatTime = (dateString: string) => {
@@ -170,7 +174,7 @@ const QuestionDetail = () => {
 
   // 查看用户资料
   const handleViewUserProfile = (userId: string) => {
-    navigate(`/expert-profile/${userId}`);
+    navigate(`/expert-profile/${userId}`, { state: buildFromState(location) });
   };
 
   // 回复
@@ -188,7 +192,7 @@ const QuestionDetail = () => {
       onSuccess: () => {
         toast({ title: "已采纳回答，积分已转移" });
       },
-      onError: (error: any) => {
+      onError: (error: Error) => {
         toast({ title: error.message || "采纳失败", variant: "destructive" });
       }
     });

@@ -1,11 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { demoExperts, demoQuestions } from '@/lib/demoData';
-import {
-  mapDemoQuestionsForSearch,
-  mapDemoUsersForSearch,
-  mergeUniqueById,
-} from '@/lib/adapters/contentAdapters';
+import { mergeUniqueById } from '@/lib/adapters/contentAdapters';
 
 const isMissingRpcError = (error: unknown, functionName: string) => {
   const message = error instanceof Error ? error.message : String(error || '');
@@ -50,6 +46,31 @@ export interface SearchResults {
   users: SearchUser[];
 }
 
+const SEARCH_RELATED_TERMS: Record<string, string[]> = {
+  留学: ['申请', '文书', '雅思', '托福', '硕士'],
+  申请: ['留学', '文书', '推荐信', '时间线'],
+  求职: ['简历', '面试', '内推', '实习', '秋招'],
+  面试: ['简历', '求职', '自我介绍', '行为面试'],
+  简历: ['求职', '项目经历', '实习', '面试'],
+  考研: ['复试', '择校', '调剂', '真题'],
+  英语: ['雅思', '托福', '口语', '写作'],
+  副业: ['技能', '接单', '变现', '运营'],
+};
+
+export const getSearchRelatedTerms = (query: string) => {
+  const keyword = query.trim();
+  if (!keyword) return [] as string[];
+
+  const relatedSet = new Set<string>();
+  Object.entries(SEARCH_RELATED_TERMS).forEach(([seed, related]) => {
+    if (keyword.includes(seed) || seed.includes(keyword)) {
+      related.forEach((term) => relatedSet.add(term));
+    }
+  });
+
+  return Array.from(relatedSet).slice(0, 6);
+};
+
 export const useSearch = (query: string) => {
   return useQuery({
     queryKey: ['search', query],
@@ -63,13 +84,50 @@ export const useSearch = (query: string) => {
         p_limit: 10,
       });
 
+      const trimmedQuery = query.trim();
+      const normalizedQuery = trimmedQuery.toLowerCase();
+      const relatedTerms = getSearchRelatedTerms(trimmedQuery);
+      const normalizedKeywords = Array.from(
+        new Set([normalizedQuery, ...relatedTerms.map((term) => term.toLowerCase())])
+      );
+      const isMatched = (value: string) => normalizedKeywords.some((keyword) => value.includes(keyword));
+
+      const demoMatchedQuestions = demoQuestions
+        .filter((item) => {
+          const bag = [item.title, item.content || '', ...(item.tags || [])].join(' ').toLowerCase();
+          return isMatched(bag);
+        })
+        .map((item) => ({
+          ...item,
+          category: item.tags?.[0] || null,
+        })) as SearchQuestion[];
+
+      const demoMatchedUsers = demoExperts
+        .filter((item) => {
+          const bag = [item.nickname || '', item.title || '', item.bio || '', ...(item.tags || [])].join(' ').toLowerCase();
+          return isMatched(bag);
+        })
+        .slice(0, 10)
+        .map((item) => ({
+          id: item.id,
+          user_id: item.user_id,
+          nickname: item.nickname,
+          avatar_url: item.avatar_url,
+          bio: item.bio,
+        })) as SearchUser[];
+
       if (!rpcResult.error) {
         const payload = (rpcResult.data || {}) as Partial<SearchResults>;
+        const questions = (payload.questions || []) as SearchQuestion[];
+        const topics = (payload.topics || []) as SearchTopic[];
+        const users = (payload.users || []) as SearchUser[];
+        const mergedQuestions = mergeUniqueById(questions, demoMatchedQuestions);
+        const mergedUsers = mergeUniqueById(users, demoMatchedUsers);
 
         return {
-          questions: (payload.questions || []) as SearchQuestion[],
-          topics: (payload.topics || []) as SearchTopic[],
-          users: (payload.users || []) as SearchUser[],
+          questions: mergedQuestions,
+          topics,
+          users: mergedUsers,
         };
       }
 
@@ -77,8 +135,6 @@ export const useSearch = (query: string) => {
         throw rpcResult.error;
       }
 
-      const trimmedQuery = query.trim();
-      const normalizedQuery = trimmedQuery.toLowerCase();
       const searchTerm = `%${trimmedQuery}%`;
 
       const [questionsResult, topicsResult, usersResult] = await Promise.all([
@@ -111,14 +167,8 @@ export const useSearch = (query: string) => {
       const users = (usersResult.data || []) as SearchUser[];
 
       if (questionsData.length === 0) {
-        const demoMatchedQuestions = mapDemoQuestionsForSearch(demoQuestions, normalizedQuery) as SearchQuestion[];
-        const demoMatchedUsers = mapDemoUsersForSearch(demoExperts, normalizedQuery) as SearchUser[];
-
-        return {
-          questions: demoMatchedQuestions,
-          topics,
-          users: users.length > 0 ? users : demoMatchedUsers,
-        };
+        const mergedUsers = mergeUniqueById(users, demoMatchedUsers);
+        return { questions: demoMatchedQuestions, topics, users: mergedUsers };
       }
 
       const userIds = Array.from(new Set(questionsData.map((item) => item.user_id)));
@@ -154,13 +204,13 @@ export const useSearch = (query: string) => {
         answers_count: answerCountMap.get(item.id) || 0,
       })) as SearchQuestion[];
 
-      const demoMatchedQuestions = mapDemoQuestionsForSearch(demoQuestions, normalizedQuery) as SearchQuestion[];
       const mergedQuestions = mergeUniqueById(questions, demoMatchedQuestions);
+      const mergedUsers = mergeUniqueById(users, demoMatchedUsers);
 
       return {
         questions: mergedQuestions,
         topics,
-        users,
+        users: mergedUsers,
       };
     },
     enabled: !!query.trim(),

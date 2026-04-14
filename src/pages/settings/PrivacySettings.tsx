@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Eye, Lock, Users, Shield, AlertTriangle, Loader2, Sparkles } from 'lucide-react';
+import { Eye, Lock, Users, Shield, AlertTriangle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useUserSettings, useSavePrivacySettings, PrivacyPrefs } from '@/hooks/useUserSettings';
 import SubPageHeader from '@/components/layout/SubPageHeader';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const PrivacySettings = () => {
   const navigate = useNavigate();
@@ -35,8 +36,11 @@ const PrivacySettings = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-[100dvh] bg-gray-50 flex items-center justify-center">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="min-h-[100dvh] bg-slate-50">
+        <SubPageHeader title="隐私设置" />
+        <div className="px-4 py-6">
+          <PageStateCard variant="loading" compact title="正在加载隐私设置…" />
+        </div>
       </div>
     );
   }
@@ -52,7 +56,7 @@ const PrivacySettings = () => {
   );
 
   return (
-    <div className="min-h-[100dvh] bg-gray-50">
+    <div className="min-h-[100dvh] bg-slate-50">
       <SubPageHeader
         title="隐私设置"
         right={

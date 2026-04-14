@@ -21,7 +21,7 @@ const Header: React.FC<HeaderProps> = ({
   return (
   <>
     <div className={`fixed top-0 z-[90] w-full animate-fade-in ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`}>
-      <div className="bg-app-teal shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <div className="bg-[rgb(73,170,155)] shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex items-center h-12 px-4">
           <button onClick={onBack} className="text-white" aria-label="返回上一页">
             <ChevronLeft size={24} />
@@ -33,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({
           </button>
         </div>
       </div>
-      <div className="border-b border-slate-100 bg-white/95 px-4 py-3.5 backdrop-blur-sm shadow-[0_1px_0_rgba(15,23,42,0.03)]">
+      <div className="app-header-soft-bg border-b border-[rgb(205,239,231)] px-4 py-3.5 backdrop-blur-sm shadow-[0_1px_0_rgba(15,23,42,0.03)]">
         <div className="flex items-center gap-3">
           <div className="flex min-w-0 items-center cursor-pointer" onClick={() => onViewUser(asker.id)}>
             <Avatar className="w-9 h-9 mr-2">

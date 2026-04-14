@@ -35,6 +35,16 @@ export interface UIQuestionModel {
   answersCount: number;
 }
 
+export interface UIConversationModel {
+  id: string;
+  partnerId: string;
+  partnerNickname: string;
+  partnerAvatar: string | null;
+  lastMessage: string;
+  lastMessageTime: string;
+  unreadCount: number;
+}
+
 const toStringArray = (value: unknown): string[] => {
   if (!Array.isArray(value)) return [];
   return value
@@ -89,6 +99,16 @@ export const mergeUniqueById = <T extends { id: string }>(primary: T[], fallback
   const merged = [...primary, ...fallback];
   return merged.filter((item, index) => merged.findIndex((target) => target.id === item.id) === index);
 };
+
+export const mapConversationToUIModel = (conversation: AnyRecord): UIConversationModel => ({
+  id: String(conversation.partner_id || conversation.partnerId || conversation.id || ''),
+  partnerId: String(conversation.partner_id || conversation.partnerId || conversation.id || ''),
+  partnerNickname: String(conversation.partner_nickname || conversation.partnerNickname || '用户'),
+  partnerAvatar: (conversation.partner_avatar || conversation.partnerAvatar || null) as string | null,
+  lastMessage: String(conversation.last_message || conversation.lastMessage || '暂无消息内容'),
+  lastMessageTime: String(conversation.last_message_time || conversation.lastMessageTime || new Date().toISOString()),
+  unreadCount: Number(conversation.unread_count || conversation.unreadCount || 0),
+});
 
 export const filterExpertsByCategory = (experts: UIExpertCardModel[], activeCategory: string) => {
   if (activeCategory === 'all') return experts;

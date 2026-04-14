@@ -5,7 +5,7 @@ import SubPageHeader from '@/components/layout/SubPageHeader';
 
 const CommunityGuidelines = () => {
   return (
-    <div className="min-h-[100dvh] bg-gray-50 pb-8">
+    <div className="min-h-[100dvh] bg-slate-50 pb-8">
       <SubPageHeader title="问问规范" />
 
       <div className="space-y-4 p-4">

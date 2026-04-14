@@ -5,6 +5,7 @@ import { mainlandCities, overseasRegions, alphabet, hotLocations } from '../util
 import { Input } from '@/components/ui/input';
 import { navigateBackOr } from '@/utils/navigation';
 import { isNativeApp } from '@/utils/platform';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const CitySelector = () => {
   const navigate = useNavigate();
@@ -167,8 +168,13 @@ const CitySelector = () => {
               ))}
             </div>
           ) : (
-            <div className="py-8 text-center text-gray-500">
-              未找到匹配的城市或国家
+            <div className="py-3">
+              <PageStateCard
+                compact
+                variant="empty"
+                title="未找到匹配的城市或国家"
+                description="换一个关键词试试，比如城市拼音或英文名。"
+              />
             </div>
           )}
         </div>

@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { FileText, PencilLine, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { Card, CardContent } from "@/components/ui/card";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
@@ -11,9 +11,11 @@ import { useToast } from "@/hooks/use-toast";
 import { formatDistanceToNow } from "date-fns";
 import { zhCN } from "date-fns/locale";
 import PageStateCard from "@/components/common/PageStateCard";
+import { buildFromState } from "@/utils/navigation";
 
 const DraftList: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
@@ -72,7 +74,7 @@ const DraftList: React.FC = () => {
           title="还没有草稿内容"
           description="灵感没准备好也没关系，稍后可以继续编辑。"
           actionLabel="去提问"
-          onAction={() => navigate("/new")}
+          onAction={() => navigate("/new", { state: buildFromState(location) })}
           icon={<FileText size={64} className="mx-auto text-muted-foreground/30" />}
         />
       </div>
@@ -92,7 +94,7 @@ const DraftList: React.FC = () => {
             <button
               type="button"
               className="block w-full text-left"
-              onClick={() => navigate(`/new?draftId=${draft.id}`)}
+              onClick={() => navigate(`/new?draftId=${draft.id}`, { state: buildFromState(location) })}
             >
               <div className="flex items-start gap-3">
                 <div className="app-soft-surface-bg flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl">
@@ -123,7 +125,7 @@ const DraftList: React.FC = () => {
                 variant="outline"
                 className="h-9 rounded-full"
                 aria-label="继续编辑"
-                onClick={() => navigate(`/new?draftId=${draft.id}`)}
+                onClick={() => navigate(`/new?draftId=${draft.id}`, { state: buildFromState(location) })}
               >
                 <PencilLine size={16} className="mr-1.5" />
                 继续编辑

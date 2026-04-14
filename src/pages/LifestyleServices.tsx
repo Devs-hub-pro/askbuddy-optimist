@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   Calendar, 
   ChevronLeft, 
@@ -42,9 +42,12 @@ import {
   mapQuestionToUIModel,
   mergeUniqueById,
 } from '@/lib/adapters/contentAdapters';
+import { buildFromState, navigateBackOr } from '@/utils/navigation';
+import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 
 const LifestyleServices = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeCategory, setActiveCategory] = useState(() => sessionStorage.getItem('channel:lifestyle:category') || 'all');
   const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>(() => {
     const cached = sessionStorage.getItem('tab:lifestyle');
@@ -52,6 +55,7 @@ const LifestyleServices = () => {
   });
   const categoryRef = useRef<HTMLDivElement>(null);
   const [showRightIndicator, setShowRightIndicator] = useState(false);
+  usePageScrollMemory('lifestyle');
   
   const {
     data: questions,
@@ -218,11 +222,11 @@ const LifestyleServices = () => {
   };
 
   const handleViewQuestionDetail = (questionId: string) => {
-    navigate(`/question/${questionId}`);
+    navigate(`/question/${questionId}`, { state: buildFromState(location) });
   };
 
   const handleViewExpertProfile = (expertId: string) => {
-    navigate(`/expert-profile/${expertId}`);
+    navigate(`/expert-profile/${expertId}`, { state: buildFromState(location) });
   };
 
   return (
@@ -247,7 +251,7 @@ const LifestyleServices = () => {
       featuredTitle={featuredQuestion?.title || '租房、法律与保险高频问题'}
       featuredDescription={featuredQuestion?.content || '把生活服务里最容易踩坑的场景先筛出来，先看精选问答，再决定是否继续咨询专家。'}
       featuredHint={featuredExpert ? `推荐顾问：${featuredExpert.name}` : '优先解决高频生活问题'}
-      onBack={() => navigate('/')}
+      onBack={() => navigateBackOr(navigate, '/', { location })}
       onScrollCategories={scrollCategories}
       onSelectCategory={handleCategorySelect}
       onViewFeatured={featuredQuestion ? () => handleViewQuestionDetail(featuredQuestion.id) : undefined}
@@ -327,7 +331,7 @@ const LifestyleServices = () => {
                     accentSummaryClass="border-orange-200 bg-orange-50/50"
                     ctaClassName="bg-gradient-to-r from-orange-500 to-amber-400"
                     onOpen={() => handleViewExpertProfile(expert.id)}
-                    onConsult={() => navigate(`/expert/${expert.id}`)}
+                    onConsult={() => navigate(`/expert/${expert.id}`, { state: buildFromState(location) })}
                   />
                 ))}
               </div>
@@ -336,7 +340,7 @@ const LifestyleServices = () => {
       
       <ChannelFloatingActionButton
         className="bg-gradient-to-r from-app-orange to-amber-500 shadow-[0_12px_28px_rgba(249,115,22,0.28)]"
-        onClick={() => navigate('/new')}
+        onClick={() => navigate('/new', { state: buildFromState(location) })}
         ariaLabel="发布生活服务需求"
       />
     </ChannelPageScaffold>

@@ -1,11 +1,12 @@
 import React, { useRef, useState } from 'react';
 import { Search, MessageCircle, Bell, ChevronRight } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import BottomNav from '../components/BottomNav';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { useConversations } from '@/hooks/useMessages';
 import { useNotifications, useMarkAsRead, useMarkAllAsRead, useUnreadCount } from '@/hooks/useNotifications';
+import type { Notification } from '@/hooks/useNotifications';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
@@ -13,9 +14,12 @@ import { demoConversations } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 import { isNativeApp } from '@/utils/platform';
+import { buildFromState } from '@/utils/navigation';
+import { mapConversationToUIModel, mergeUniqueById } from '@/lib/adapters/contentAdapters';
 
 const Messages = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { toast } = useToast();
   const nativeMode = isNativeApp();
   const [activeTab, setActiveTab] = useState<'chats' | 'notifications'>(() => {
@@ -65,19 +69,27 @@ const Messages = () => {
   };
 
   // Filter chats
-  const allConversations = [...demoConversations, ...(conversations || [])].filter((item, index, arr) => (
-    arr.findIndex((target) => target.partner_id === item.partner_id) === index
-  ));
+  const allConversations = mergeUniqueById(
+    (conversations || []).map((item) => mapConversationToUIModel(item)),
+    demoConversations.map((item) => mapConversationToUIModel(item))
+  );
 
   const filteredChats = searchQuery
     ? allConversations.filter(c =>
-        (c.partner_nickname || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
-        (c.last_message || '').toLowerCase().includes(searchQuery.toLowerCase())
+        c.partnerNickname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.lastMessage.toLowerCase().includes(searchQuery.toLowerCase())
       )
     : allConversations;
 
   // Group notifications by type
-  const notifGroups = React.useMemo(() => {
+  type NotificationGroup = {
+    type: 'interaction' | 'system';
+    title: string;
+    tone: string;
+    items: Notification[];
+  };
+
+  const notifGroups = React.useMemo<NotificationGroup[]>(() => {
     if (!notifications) return [];
     const keyword = searchQuery.trim().toLowerCase();
     const interactionItems: typeof notifications = [];
@@ -95,8 +107,8 @@ const Messages = () => {
       }
     });
 
-    const result = [];
-    const byUnreadAndTime = (a: any, b: any) => {
+    const result: NotificationGroup[] = [];
+    const byUnreadAndTime = (a: Notification, b: Notification) => {
       if (a.is_read !== b.is_read) return a.is_read ? 1 : -1;
       return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
     };
@@ -113,15 +125,15 @@ const Messages = () => {
   }, [notifications, searchQuery]);
 
   const handleChatClick = (partnerId: string) => {
-    navigate(`/chat/${partnerId}`);
+    navigate(`/chat/${partnerId}`, { state: buildFromState(location) });
   };
 
-  const handleNotificationClick = (notification: any) => {
+  const handleNotificationClick = (notification: Notification) => {
     if (!notification.is_read) {
       markAsRead.mutate(notification.id);
     }
     if (notification.related_type === 'question' && notification.related_id) {
-      navigate(`/question/${notification.related_id}`);
+      navigate(`/question/${notification.related_id}`, { state: buildFromState(location) });
     }
   };
 
@@ -242,30 +254,30 @@ const Messages = () => {
               ) : (
                 filteredChats.map(chat => (
                   <div
-                    key={chat.partner_id}
+                    key={chat.id}
                     className={cn(
                       "surface-card flex items-center rounded-3xl px-4 py-4 cursor-pointer transition-colors active:bg-muted/50",
-                      chat.unread_count > 0 ? 'app-soft-border app-soft-muted-bg border' : ''
+                      chat.unreadCount > 0 ? 'app-soft-border app-soft-muted-bg border' : ''
                     )}
-                    onClick={() => handleChatClick(chat.partner_id)}
+                    onClick={() => handleChatClick(chat.partnerId)}
                   >
                     <div className="relative mr-3">
                       <Avatar className="w-12 h-12">
-                        <AvatarImage src={chat.partner_avatar || undefined} alt={chat.partner_nickname || '用户'} />
-                        <AvatarFallback>{(chat.partner_nickname || '用')[0]}</AvatarFallback>
+                        <AvatarImage src={chat.partnerAvatar || undefined} alt={chat.partnerNickname || '用户'} />
+                        <AvatarFallback>{(chat.partnerNickname || '用')[0]}</AvatarFallback>
                       </Avatar>
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center justify-between">
-                        <div className="truncate pr-3 font-medium text-foreground">{chat.partner_nickname || '用户'}</div>
-                        <div className="shrink-0 text-xs text-muted-foreground">{chat.last_message_time ? formatTime(chat.last_message_time) : '刚刚'}</div>
+                        <div className="truncate pr-3 font-medium text-foreground">{chat.partnerNickname || '用户'}</div>
+                        <div className="shrink-0 text-xs text-muted-foreground">{chat.lastMessageTime ? formatTime(chat.lastMessageTime) : '刚刚'}</div>
                       </div>
-                      <div className="mt-1 text-sm text-muted-foreground truncate">{chat.last_message || '暂无消息内容'}</div>
+                      <div className="mt-1 text-sm text-muted-foreground truncate">{chat.lastMessage || '暂无消息内容'}</div>
                     </div>
                     <div className="ml-3 flex items-center gap-2">
-                      {chat.unread_count > 0 && (
+                      {chat.unreadCount > 0 && (
                         <div className="min-w-[20px] h-5 flex items-center justify-center bg-destructive text-destructive-foreground text-xs rounded-full px-1.5">
-                          {chat.unread_count > 9 ? '9+' : chat.unread_count}
+                          {chat.unreadCount > 9 ? '9+' : chat.unreadCount}
                         </div>
                       )}
                       <ChevronRight size={16} className="text-muted-foreground" />
@@ -278,6 +290,22 @@ const Messages = () => {
 
         {activeTab === 'notifications' && (
           <div className="space-y-4">
+            {(unreadNotifCount || 0) > 0 && !notifsLoading && !notificationsError && (
+              <div className="surface-card app-soft-border flex items-center justify-between rounded-2xl border px-3.5 py-3">
+                <div className="text-xs font-medium text-slate-600">
+                  当前有 <span className="app-accent-text">{unreadNotifCount}</span> 条未读通知
+                </div>
+                <button
+                  type="button"
+                  className="h-8 rounded-full app-soft-surface-bg px-3 text-xs font-medium app-accent-text transition-colors hover:bg-slate-100 disabled:opacity-50"
+                  disabled={markAllAsRead.isPending}
+                  onClick={handleMarkAllRead}
+                >
+                  {markAllAsRead.isPending ? '处理中…' : '全部已读'}
+                </button>
+              </div>
+            )}
+
             {notifsLoading ? (
               <div className="py-4">
                 <PageStateCard variant="loading" compact title="正在加载通知…" />

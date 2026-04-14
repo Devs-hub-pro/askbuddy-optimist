@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   Calendar, 
   ChevronLeft, 
@@ -42,9 +42,12 @@ import {
   mapQuestionToUIModel,
   mergeUniqueById,
 } from '@/lib/adapters/contentAdapters';
+import { buildFromState, navigateBackOr } from '@/utils/navigation';
+import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 
 const CareerDevelopment = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeCategory, setActiveCategory] = useState(() => sessionStorage.getItem('channel:career:category') || 'all');
   const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>(() => {
     const cached = sessionStorage.getItem('tab:career');
@@ -52,6 +55,7 @@ const CareerDevelopment = () => {
   });
   const categoryRef = useRef<HTMLDivElement>(null);
   const [showRightIndicator, setShowRightIndicator] = useState(false);
+  usePageScrollMemory('career');
   
   const {
     data: questions,
@@ -224,11 +228,11 @@ const CareerDevelopment = () => {
   };
 
   const handleViewQuestionDetail = (questionId: string) => {
-    navigate(`/question/${questionId}`);
+    navigate(`/question/${questionId}`, { state: buildFromState(location) });
   };
 
   const handleViewExpertProfile = (expertId: string) => {
-    navigate(`/expert-profile/${expertId}`);
+    navigate(`/expert-profile/${expertId}`, { state: buildFromState(location) });
   };
 
   return (
@@ -253,7 +257,7 @@ const CareerDevelopment = () => {
       featuredTitle={featuredQuestion?.title || '求职、跳槽与面试策略速览'}
       featuredDescription={featuredQuestion?.content || '先看大厂求职、简历优化、远程工作和创业方向的热门讨论，再决定找谁继续咨询。'}
       featuredHint={featuredExpert ? `推荐顾问：${featuredExpert.name}` : '聚焦求职转化效率'}
-      onBack={() => navigate('/')}
+      onBack={() => navigateBackOr(navigate, '/', { location })}
       onScrollCategories={scrollCategories}
       onSelectCategory={handleCategorySelect}
       onViewFeatured={featuredQuestion ? () => handleViewQuestionDetail(featuredQuestion.id) : undefined}
@@ -333,7 +337,7 @@ const CareerDevelopment = () => {
                     accentSummaryClass="border-green-200 bg-green-50/60"
                     ctaClassName="bg-gradient-to-r from-green-500 to-teal-400"
                     onOpen={() => handleViewExpertProfile(expert.id)}
-                    onConsult={() => navigate(`/expert/${expert.id}`)}
+                    onConsult={() => navigate(`/expert/${expert.id}`, { state: buildFromState(location) })}
                   />
                 ))}
               </div>
@@ -342,7 +346,7 @@ const CareerDevelopment = () => {
       
       <ChannelFloatingActionButton
         className="bg-gradient-to-r from-green-500 to-teal-500 shadow-[0_12px_28px_rgba(16,185,129,0.28)]"
-        onClick={() => navigate('/new')}
+        onClick={() => navigate('/new', { state: buildFromState(location) })}
         ariaLabel="发布职业发展问题"
       />
     </ChannelPageScaffold>

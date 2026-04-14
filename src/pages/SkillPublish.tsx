@@ -20,6 +20,16 @@ import {
   FormLabel,
   FormMessage,
 } from '@/components/ui/form';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -28,6 +38,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { uploadExpertCoverImage, useExpertByUserId, useSaveExpertProfile } from '@/hooks/useExperts';
 import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 import SubPageHeader from '@/components/layout/SubPageHeader';
+import PageStateCard from '@/components/common/PageStateCard';
 
 const skillFormSchema = z.object({
   title: z.string().min(5, { message: '标题至少需要5个字符' }).max(100),
@@ -89,6 +100,7 @@ const SkillPublish = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('');
   const [subcategories, setSubcategories] = useState<string[]>([]);
   const [hydratedDraft, setHydratedDraft] = useState(false);
+  const [showLeaveDialog, setShowLeaveDialog] = useState(false);
   const draftKey = user ? `${SKILL_DRAFT_KEY}:${user.id}` : `${SKILL_DRAFT_KEY}:guest`;
 
   const form = useForm<z.infer<typeof skillFormSchema>>({
@@ -150,6 +162,14 @@ const SkillPublish = () => {
       const matched = categories.find((item) => item.name === draft.selectedCategory);
       setSubcategories(matched?.subcategories || []);
       setCoverImage(draft.coverImage || null);
+      if (draft.savedAt) {
+        const savedDate = new Date(draft.savedAt);
+        const label = Number.isNaN(savedDate.getTime()) ? '' : `（${savedDate.toLocaleString('zh-CN')}）`;
+        toast({
+          title: '已恢复本地草稿',
+          description: `你上次编辑的技能信息已恢复${label}`,
+        });
+      }
     } catch {
       localStorage.removeItem(draftKey);
     } finally {
@@ -271,6 +291,13 @@ const SkillPublish = () => {
 
   const saveDraft = (options?: { silent?: boolean }) => {
     if (existingExpert) return;
+    if (!hasPendingContent) {
+      localStorage.removeItem(draftKey);
+      if (!options?.silent) {
+        toast({ title: '暂无可保存内容', description: '填写一些技能信息后再保存草稿。' });
+      }
+      return;
+    }
     const payload: SkillDraft = {
       formValues,
       step,
@@ -289,10 +316,7 @@ const SkillPublish = () => {
       navigateBackOr(navigate, '/profile', { location });
       return;
     }
-    const leave = window.confirm('当前编辑内容会保存为草稿，确定离开吗？');
-    if (!leave) return;
-    saveDraft({ silent: true });
-    navigateBackOr(navigate, '/profile', { location });
+    setShowLeaveDialog(true);
   };
 
   return (
@@ -331,9 +355,8 @@ const SkillPublish = () => {
         </div>
 
         {loadingExisting ? (
-          <div className="py-12 flex items-center justify-center text-gray-500">
-            <Loader2 className="h-5 w-5 animate-spin mr-2" />
-            正在加载已发布信息...
+          <div className="py-6">
+            <PageStateCard variant="loading" compact title="正在加载已发布信息…" />
           </div>
         ) : (
           <Form {...form}>
@@ -603,6 +626,43 @@ const SkillPublish = () => {
         )}
       </div>
 
+      <AlertDialog open={showLeaveDialog} onOpenChange={setShowLeaveDialog}>
+        <AlertDialogContent className="w-[88%] max-w-sm rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>离开当前编辑？</AlertDialogTitle>
+            <AlertDialogDescription>
+              {existingExpert ? '你有未保存的修改，离开后本次修改不会生效。' : '可以先保存草稿，稍后回来继续编辑技能信息。'}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:gap-2">
+            <AlertDialogCancel className="rounded-full">继续编辑</AlertDialogCancel>
+            {!existingExpert ? (
+              <Button
+                type="button"
+                variant="outline"
+                className="rounded-full"
+                onClick={() => {
+                  saveDraft({ silent: true });
+                  setShowLeaveDialog(false);
+                  navigateBackOr(navigate, '/profile', { location });
+                }}
+              >
+                保存并离开
+              </Button>
+            ) : null}
+            <AlertDialogAction
+              className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (!existingExpert) localStorage.removeItem(draftKey);
+                setShowLeaveDialog(false);
+                navigateBackOr(navigate, '/profile', { location });
+              }}
+            >
+              放弃更改
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

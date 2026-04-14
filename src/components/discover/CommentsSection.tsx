@@ -43,9 +43,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId, inputRefs, co
       </div>
 
       {isLoading ? (
-        <div className="flex justify-center py-3">
-          <Loader2 size={16} className="animate-spin text-muted-foreground" />
-        </div>
+        <PageStateCard compact variant="loading" title="正在加载评论…" className="px-3 py-4" />
       ) : comments && comments.length > 0 ? (
         <div className="space-y-2.5">
           {comments.map((comment) => (

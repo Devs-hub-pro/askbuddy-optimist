@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { createPortal } from 'react-dom';
 import SearchBar from '../components/SearchBar';
@@ -19,6 +19,7 @@ import ChannelExpertCard from '@/components/channel/ChannelExpertCard';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 import { mapExpertToUIModel, mapQuestionToUIModel, mergeUniqueById } from '@/lib/adapters/contentAdapters';
 import { isNativeApp } from '@/utils/platform';
+import { buildFromState } from '@/utils/navigation';
 
 interface LocationState {
   location?: string;
@@ -36,6 +37,7 @@ const Index = () => {
   });
   const [currentLocation, setCurrentLocation] = useState<string>('深圳');
   const [isSearchCollapsed, setIsSearchCollapsed] = useState(false);
+  const searchCollapsedRef = useRef(false);
   
   // 使用真实数据
   const {
@@ -75,12 +77,27 @@ const Index = () => {
   }, [locationState]);
 
   useEffect(() => {
+    let rafId: number | null = null;
+
     const onScroll = () => {
-      setIsSearchCollapsed(window.scrollY > 28);
+      if (rafId !== null) return;
+      rafId = window.requestAnimationFrame(() => {
+        rafId = null;
+        const nextCollapsed = window.scrollY > 28;
+        if (nextCollapsed === searchCollapsedRef.current) return;
+        searchCollapsedRef.current = nextCollapsed;
+        setIsSearchCollapsed(nextCollapsed);
+      });
     };
+
     onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
-    return () => window.removeEventListener('scroll', onScroll);
+    return () => {
+      if (rafId !== null) {
+        window.cancelAnimationFrame(rafId);
+      }
+      window.removeEventListener('scroll', onScroll);
+    };
   }, []);
 
   const activities = [
@@ -129,12 +146,13 @@ const Index = () => {
   );
 
   const handleViewQuestionDetail = (questionId: string) => {
-    navigate(`/question/${questionId}`);
+    navigate(`/question/${questionId}`, { state: buildFromState(routeLocation) });
   };
 
   const handleViewExpertProfile = (expertId: string) => {
-    navigate(`/expert-profile/${expertId}`);
+    navigate(`/expert-profile/${expertId}`, { state: buildFromState(routeLocation) });
   };
+  const hotTopicNavState = { ...buildFromState(routeLocation), fromHotRank: true };
 
   const fixedHeader = (
     <div className={`fixed top-0 z-[90] w-full shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`}>
@@ -147,12 +165,15 @@ const Index = () => {
               className={`flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white transition-all duration-200 ${
                 isSearchCollapsed ? 'pointer-events-auto scale-100 opacity-100' : 'pointer-events-none scale-90 opacity-0'
               }`}
-              onClick={() => navigate('/search')}
+              onClick={() => navigate('/search', { state: buildFromState(routeLocation) })}
               aria-label="打开搜索"
             >
               <Search size={16} />
             </button>
-            <button className="relative flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white" onClick={() => navigate('/notifications')}>
+            <button
+              className="relative flex h-8 w-8 items-center justify-center rounded-full bg-white/20 text-white"
+              onClick={() => navigate('/notifications', { state: buildFromState(routeLocation) })}
+            >
               <Bell size={16} />
               {(unreadCount || 0) > 0 ? (
                 <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-destructive" />
@@ -160,7 +181,7 @@ const Index = () => {
             </button>
             <button
               className="flex items-center gap-1 rounded-full bg-white/20 px-2 py-1 text-xs text-white"
-              onClick={() => navigate('/city-selector')}
+              onClick={() => navigate('/city-selector', { state: buildFromState(routeLocation) })}
             >
               <MapPin size={12} className="text-white" />
               <span>{currentLocation}</span>
@@ -223,7 +244,7 @@ const Index = () => {
             variant="ghost"
             size="sm"
             className="rounded-full px-3 text-xs text-primary hover:bg-primary/10"
-            onClick={() => hotTopics?.[0] && navigate(`/topic/${hotTopics[0].id}`)}
+            onClick={() => hotTopics?.[0] && navigate(`/topic/${hotTopics[0].id}`, { state: hotTopicNavState })}
             disabled={!hotTopics || hotTopics.length === 0}
           >
             查看专题
@@ -266,7 +287,11 @@ const Index = () => {
                 style={{ animationDelay: `${index * 80}ms`, animationFillMode: 'forwards' }}
               >
                 <div className="surface-card overflow-hidden rounded-3xl">
-                  <button type="button" className="block w-full text-left" onClick={() => navigate(`/topic/${topic.id}`)}>
+                  <button
+                    type="button"
+                    className="block w-full text-left"
+                    onClick={() => navigate(`/topic/${topic.id}`, { state: hotTopicNavState })}
+                  >
                     <div className="relative h-[112px]">
                       <img
                         src={topic.cover_image || 'https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=800&h=600&q=80'}
@@ -286,7 +311,11 @@ const Index = () => {
                     </div>
                   </button>
                   <div className="p-4">
-                    <button type="button" className="block w-full text-left" onClick={() => navigate(`/topic/${topic.id}`)}>
+                    <button
+                      type="button"
+                      className="block w-full text-left"
+                      onClick={() => navigate(`/topic/${topic.id}`, { state: hotTopicNavState })}
+                    >
                       <h3 className="text-[15px] font-semibold leading-6 text-slate-900">{topic.title}</h3>
                       <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">
                         {topic.description || '点击进入专题详情，查看完整内容并继续参与讨论。'}
@@ -297,7 +326,7 @@ const Index = () => {
                       <button
                         type="button"
                         className="flex items-center gap-1 font-medium text-primary"
-                        onClick={() => navigate(`/topic/${topic.id}`)}
+                        onClick={() => navigate(`/topic/${topic.id}`, { state: hotTopicNavState })}
                       >
                         点进查看
                         <ArrowUpRight size={14} />
@@ -345,10 +374,10 @@ const Index = () => {
       </div>
       
       <div className="bg-white app-page-padding pb-20 pt-2">
-        <div className="relative mb-5 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-px after:bg-gray-200">
+        <div className="relative mb-5 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-px after:bg-[rgb(205,239,231)]">
           <div className="flex gap-6">
             <button 
-              className={`pb-3.5 text-base font-semibold relative transition-colors ${activeTab === 'everyone' ? 'text-app-text' : 'text-gray-400'}`}
+              className={`pb-3.5 text-base font-semibold relative transition-colors ${activeTab === 'everyone' ? 'text-app-text' : 'text-slate-400'}`}
               onClick={() => setActiveTab('everyone')}
             >
               大家都在问
@@ -357,7 +386,7 @@ const Index = () => {
               )}
             </button>
             <button 
-              className={`pb-3.5 text-base font-semibold relative transition-colors ${activeTab === 'experts' ? 'text-app-text' : 'text-gray-400'}`}
+              className={`pb-3.5 text-base font-semibold relative transition-colors ${activeTab === 'experts' ? 'text-app-text' : 'text-slate-400'}`}
               onClick={() => setActiveTab('experts')}
             >
               找TA问问
@@ -481,7 +510,7 @@ const Index = () => {
                     accentSummaryClass="app-soft-border app-soft-surface-bg"
                     ctaClassName="bg-gradient-to-r from-app-teal to-cyan-400"
                     onOpen={() => handleViewExpertProfile(expert.id)}
-                    onConsult={() => navigate(`/expert/${expert.id}`)}
+                    onConsult={() => navigate(`/expert/${expert.id}`, { state: buildFromState(routeLocation) })}
                   />
                 </div>
               )) : (

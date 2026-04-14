@@ -26,7 +26,7 @@ const PhoneSettings = () => {
   }, [user]);
 
   return (
-    <div className="min-h-[100dvh] bg-gray-50">
+    <div className="min-h-[100dvh] bg-slate-50">
       <SubPageHeader title="修改手机号" />
 
       <div className="space-y-5 p-5">

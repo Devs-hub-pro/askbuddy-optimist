@@ -18,7 +18,7 @@ const Auth = () => {
   const location = useLocation();
   const { toast } = useToast();
   const { signIn } = useAuth();
-  const returnPath = getReturnPathFromAuthState(location.state, '/profile');
+  const returnPath = getReturnPathFromAuthState(location.state, '/');
   const nativeMode = isNativeApp();
   
   const [activeTab, setActiveTab] = useState<'login' | 'register'>('login');
@@ -257,16 +257,18 @@ const Auth = () => {
     <div className="min-h-[100dvh] bg-gradient-to-b from-[rgb(236,251,247)] to-white">
       {/* Header */}
       <div
-        className={`fixed top-0 z-[90] flex w-full items-center bg-gradient-to-b from-[rgb(236,251,247)] to-white p-4 shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`}
-        style={{ paddingTop: 'calc(env(safe-area-inset-top) + 0.75rem)' }}
+        className={`fixed top-0 z-[90] w-full bg-gradient-to-b from-[rgb(236,251,247)] to-white shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`}
       >
-        <Button variant="ghost" size="icon" onClick={() => navigateBackOr(navigate, '/', { location })}>
-          <ChevronLeft size={24} />
-        </Button>
-        <span className="ml-2 text-lg font-medium">登录 / 注册</span>
+        <div style={{ height: 'env(safe-area-inset-top)' }} />
+        <div className="flex h-12 items-center px-4">
+          <Button variant="ghost" size="icon" onClick={() => navigateBackOr(navigate, '/', { location })}>
+            <ChevronLeft size={24} />
+          </Button>
+          <span className="ml-2 text-lg font-medium">登录 / 注册</span>
+        </div>
       </div>
 
-      <div style={{ paddingTop: 'calc(env(safe-area-inset-top) + 4.75rem)' }}>
+      <div style={{ paddingTop: 'calc(env(safe-area-inset-top) + 3.5rem)' }}>
       {/* Logo Area */}
       <div className="flex flex-col items-center py-8">
         <div className="mb-4 flex h-20 w-20 items-center justify-center rounded-3xl bg-gradient-to-br from-[rgb(121,213,199)] to-[rgb(160,237,224)] shadow-sm">

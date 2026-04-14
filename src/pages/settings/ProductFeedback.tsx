@@ -63,7 +63,7 @@ const ProductFeedback = () => {
   ];
 
   return (
-    <div className="pb-20 min-h-[100dvh] bg-gray-50">
+    <div className="pb-20 min-h-[100dvh] bg-slate-50">
       <SubPageHeader title="产品反馈" />
 
       <div className="space-y-4 p-4">

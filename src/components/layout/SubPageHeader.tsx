@@ -23,7 +23,7 @@ const SubPageHeader: React.FC<SubPageHeaderProps> = ({ title, right, onBack, hea
         className={`fixed top-0 z-[90] w-full border-b border-white/20 app-header-bg text-white shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'} ${headerClassName || ''}`}
         style={{ paddingTop: 'env(safe-area-inset-top)' }}
       >
-        <div className="flex items-center justify-between px-4 py-3">
+        <div className="flex h-12 items-center justify-between px-4">
           <div className="flex min-w-0 items-center">
             <Button
               variant="ghost"
@@ -38,7 +38,7 @@ const SubPageHeader: React.FC<SubPageHeaderProps> = ({ title, right, onBack, hea
           {right ? <div className="ml-3 shrink-0">{right}</div> : <div className="w-10 shrink-0" />}
         </div>
       </div>
-      <div aria-hidden style={{ height: 'calc(env(safe-area-inset-top) + 4.25rem)' }} />
+      <div aria-hidden style={{ height: 'calc(env(safe-area-inset-top) + 3rem)' }} />
     </>
   );
 };

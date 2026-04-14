@@ -36,7 +36,7 @@ const AccountRecovery = () => {
   const [reason, setReason] = useState('');
 
   return (
-    <div className="min-h-[100dvh] bg-gray-50">
+    <div className="min-h-[100dvh] bg-slate-50">
       <SubPageHeader title="账号找回" />
 
       <div className="space-y-4 p-4">

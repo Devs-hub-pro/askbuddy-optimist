@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   Calendar, 
   ChevronLeft, 
@@ -42,9 +42,12 @@ import {
   mapQuestionToUIModel,
   mergeUniqueById,
 } from '@/lib/adapters/contentAdapters';
+import { buildFromState, navigateBackOr } from '@/utils/navigation';
+import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 
 const HobbiesSkills = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [activeCategory, setActiveCategory] = useState(() => sessionStorage.getItem('channel:hobbies:category') || 'all');
   const [activeTab, setActiveTab] = useState<'everyone' | 'experts'>(() => {
     const cached = sessionStorage.getItem('tab:hobbies');
@@ -52,6 +55,7 @@ const HobbiesSkills = () => {
   });
   const categoryRef = useRef<HTMLDivElement>(null);
   const [showRightIndicator, setShowRightIndicator] = useState(false);
+  usePageScrollMemory('hobbies');
   
   const {
     data: questions,
@@ -218,11 +222,11 @@ const HobbiesSkills = () => {
   };
 
   const handleViewQuestionDetail = (questionId: string) => {
-    navigate(`/question/${questionId}`);
+    navigate(`/question/${questionId}`, { state: buildFromState(location) });
   };
 
   const handleViewExpertProfile = (expertId: string) => {
-    navigate(`/expert-profile/${expertId}`);
+    navigate(`/expert-profile/${expertId}`, { state: buildFromState(location) });
   };
 
   return (
@@ -247,7 +251,7 @@ const HobbiesSkills = () => {
       featuredTitle={featuredQuestion?.title || '摄影、音乐与创作技能精选'}
       featuredDescription={featuredQuestion?.content || '把摄影、音乐、艺术、健身和烹饪里最值得看的高质量内容先整理出来，适合快速浏览。'}
       featuredHint={featuredExpert ? `推荐达人：${featuredExpert.name}` : '适合先看精选再提问'}
-      onBack={() => navigate('/')}
+      onBack={() => navigateBackOr(navigate, '/', { location })}
       onScrollCategories={scrollCategories}
       onSelectCategory={handleCategorySelect}
       onViewFeatured={featuredQuestion ? () => handleViewQuestionDetail(featuredQuestion.id) : undefined}
@@ -327,7 +331,7 @@ const HobbiesSkills = () => {
                     accentSummaryClass="border-rose-200 bg-rose-50/50"
                     ctaClassName="bg-gradient-to-r from-rose-500 to-pink-400"
                     onOpen={() => handleViewExpertProfile(expert.id)}
-                    onConsult={() => navigate(`/expert/${expert.id}`)}
+                    onConsult={() => navigate(`/expert/${expert.id}`, { state: buildFromState(location) })}
                   />
                 ))}
               </div>
@@ -336,7 +340,7 @@ const HobbiesSkills = () => {
       
       <ChannelFloatingActionButton
         className="bg-gradient-to-r from-rose-500 to-pink-500 shadow-[0_12px_28px_rgba(244,63,94,0.28)]"
-        onClick={() => navigate('/new')}
+        onClick={() => navigate('/new', { state: buildFromState(location) })}
         ariaLabel="发布兴趣技能需求"
       />
     </ChannelPageScaffold>

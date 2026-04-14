@@ -20,8 +20,9 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getConsultationAmount, useCreateConsultationOrder } from '@/hooks/useConsultationOrders';
 import { demoExperts } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
-import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
+import { buildFromState, navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 import SubPageHeader from '@/components/layout/SubPageHeader';
+import { isNativeApp } from '@/utils/platform';
 
 const ExpertDetail = () => {
   const { id } = useParams();
@@ -33,6 +34,7 @@ const ExpertDetail = () => {
   const [showOrderDialog, setShowOrderDialog] = useState(false);
   const createOrder = useCreateConsultationOrder();
   const isDemoExpert = !!id?.startsWith('demo-expert-');
+  const nativeMode = isNativeApp();
 
   const { data: expert, isLoading } = useExpertDetail(isDemoExpert ? '' : id || '');
 
@@ -60,7 +62,7 @@ const ExpertDetail = () => {
     );
   }
 
-  const displayName = (resolvedExpert as any).nickname || (resolvedExpert as any).display_name || '专家';
+  const displayName = resolvedExpert.nickname || '专家';
   const description = resolvedExpert.bio || '';
   const basePrice = resolvedExpert.consultation_price || 50;
   const amounts = {
@@ -78,8 +80,8 @@ const ExpertDetail = () => {
         <div className="surface-card rounded-3xl p-5">
           <div className="flex items-start justify-between mb-4">
             <div className="flex gap-4">
-                <Avatar className="w-16 h-16 border-2 border-primary/20">
-                <AvatarImage src={(resolvedExpert as any).avatar_url || ''} alt={displayName} className="object-cover" />
+              <Avatar className="w-16 h-16 border-2 border-primary/20">
+                <AvatarImage src={resolvedExpert.avatar_url || ''} alt={displayName} className="object-cover" />
                 <AvatarFallback className="text-lg">{displayName[0]}</AvatarFallback>
               </Avatar>
               <div className="space-y-1">
@@ -128,7 +130,7 @@ const ExpertDetail = () => {
                 variant="outline"
                 size="sm"
                 className="rounded-full whitespace-nowrap"
-                onClick={() => navigate(`/expert-profile/${resolvedExpert.id}`)}
+                onClick={() => navigate(`/expert-profile/${resolvedExpert.id}`, { state: buildFromState(location) })}
               >
                 查看主页
               </Button>
@@ -199,7 +201,10 @@ const ExpertDetail = () => {
       </div>
       
       {/* Action Buttons */}
-      <div className="fixed bottom-0 left-0 right-0 bg-card/98 border-t border-border p-3 flex gap-3 backdrop-blur-sm" style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}>
+      <div
+        className={`fixed bottom-0 z-[60] bg-card/98 border-t border-border p-3 flex gap-3 backdrop-blur-sm ${nativeMode ? 'left-0 right-0' : 'left-1/2 right-auto w-full max-w-md -translate-x-1/2'}`}
+        style={{ paddingBottom: 'calc(env(safe-area-inset-bottom) + 12px)' }}
+      >
         <Button
           variant="outline"
           className="flex-1 rounded-full"
@@ -214,7 +219,7 @@ const ExpertDetail = () => {
           className="flex-1 rounded-full"
           onClick={() => {
             if (!user) { navigateToAuthWithReturn(navigate, location); return; }
-            navigate(`/chat/${resolvedExpert.user_id}`);
+            navigate(`/chat/${resolvedExpert.user_id}`, { state: buildFromState(location) });
           }}
         >
           <MessageSquare size={16} className="mr-2" />

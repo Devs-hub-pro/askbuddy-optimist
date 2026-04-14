@@ -70,8 +70,9 @@ const PointsRecharge = () => {
           description: '请调起第三方支付，到账将由服务端回调确认',
         });
       }
-    } catch (err: any) {
-      toast({ title: '充值失败', description: err.message, variant: 'destructive' });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : '请稍后重试';
+      toast({ title: '充值失败', description: message, variant: 'destructive' });
     }
   };
 

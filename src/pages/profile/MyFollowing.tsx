@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Users, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -8,13 +8,26 @@ import { useMyFollowing } from '@/hooks/useProfileData';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import PageStateCard from '@/components/common/PageStateCard';
+import { buildFromState } from '@/utils/navigation';
+
+interface FollowingItem {
+  id: string;
+  following_id: string;
+  profile?: {
+    user_id: string;
+    nickname: string | null;
+    avatar_url: string | null;
+    bio: string | null;
+  } | null;
+}
 
 const MyFollowing = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: following, isLoading, error, refetch } = useMyFollowing();
 
   return (
-    <div className="pb-8 min-h-[100dvh] bg-gray-50">
+    <div className="pb-8 min-h-[100dvh] bg-slate-50">
       <SubPageHeader title="我的关注" />
 
       {isLoading ? (
@@ -22,7 +35,7 @@ const MyFollowing = () => {
           <PageStateCard variant="loading" compact title="正在加载关注…" className="w-full max-w-sm" />
         </div>
       ) : error ? (
-        <div className="p-5 pt-20">
+        <div className="p-5 pt-6">
           <PageStateCard
             variant="error"
             title="关注列表加载失败"
@@ -33,7 +46,7 @@ const MyFollowing = () => {
         </div>
       ) : following && following.length > 0 ? (
         <div className="p-4 space-y-4">
-          {following.map((item: any) => (
+          {(following as FollowingItem[]).map((item) => (
             <Card
               key={item.id}
               className="surface-card rounded-3xl border-none shadow-sm"
@@ -42,7 +55,7 @@ const MyFollowing = () => {
                 <button
                   type="button"
                   className="flex w-full items-center gap-3 text-left"
-                  onClick={() => navigate(`/expert-profile/${item.following_id || item.profile?.user_id || item.id}`)}
+                  onClick={() => navigate(`/expert-profile/${item.following_id || item.profile?.user_id || item.id}`, { state: buildFromState(location) })}
                 >
                   <Avatar className="h-12 w-12">
                     <AvatarImage src={item.profile?.avatar_url || ''} />
@@ -63,7 +76,7 @@ const MyFollowing = () => {
           ))}
         </div>
       ) : (
-        <div className="p-5 pt-20">
+        <div className="p-5 pt-6">
           <PageStateCard
             title="暂未关注任何人"
             description="关注感兴趣的达人后，可以更快找到熟悉的主页和服务入口。"

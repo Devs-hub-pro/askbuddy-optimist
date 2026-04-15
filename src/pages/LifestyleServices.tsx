@@ -24,8 +24,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from "@/components/ui/button";
 import QuestionCard from '@/components/QuestionCard';
-import { useQuestions } from '@/hooks/useQuestions';
-import { useExperts } from '@/hooks/useExperts';
+import { useChannelFeed } from '@/hooks/useChannelFeed';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import ChannelPageScaffold from '@/components/channel/ChannelPageScaffold';
@@ -37,9 +36,10 @@ import { demoExperts, demoQuestions } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 import {
   filterExpertsByCategory,
+  filterQuestionsByCategory,
   mapDemoExpertsByChannel,
+  mapDemoQuestionsByChannel,
   mapExpertToUIModel,
-  mapQuestionToUIModel,
   mergeUniqueById,
 } from '@/lib/adapters/contentAdapters';
 import { buildFromState, navigateBackOr } from '@/utils/navigation';
@@ -57,19 +57,6 @@ const LifestyleServices = () => {
   const [showRightIndicator, setShowRightIndicator] = useState(false);
   usePageScrollMemory('lifestyle');
   
-  const {
-    data: questions,
-    isLoading,
-    error: questionsError,
-    refetch: refetchQuestions,
-  } = useQuestions('生活服务');
-  const {
-    data: dbExperts,
-    isLoading: isLoadingExperts,
-    error: expertsError,
-    refetch: refetchExperts,
-  } = useExperts('生活服务');
-
   const formatTime = (dateString: string) => {
     try {
       return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
@@ -120,6 +107,13 @@ const LifestyleServices = () => {
     { id: 'insurance', name: '保险', icon: <Umbrella size={16} /> },
     { id: 'overseas', name: '海外生活', icon: <Globe size={16} /> }
   ];
+  const categoryKeywords: Record<string, string[]> = {
+    housing: ['租房', '房东', '中介', '押金', '合租'],
+    legal: ['法律', '合同', '仲裁', '维权', '纠纷'],
+    emotional: ['情感', '恋爱', '关系', '沟通', '心理'],
+    insurance: ['保险', '理赔', '保单', '医疗险', '重疾'],
+    overseas: ['海外生活', '移民', '签证', '国际', '境外'],
+  };
 
   const allExperts = [
     {
@@ -196,29 +190,34 @@ const LifestyleServices = () => {
     }
   ];
 
-  const dbExpertModels = (dbExperts || []).map((item) => mapExpertToUIModel(item));
+  const { data: feed, isLoading, error: feedError, refetch } = useChannelFeed(
+    'lifestyle-services',
+    activeCategory,
+    { questionKeywords: categoryKeywords }
+  );
+
   const demoExpertModels = mapDemoExpertsByChannel(demoExperts, 'lifestyle-services', { categoryFallback: 'housing' });
   const fallbackExpertModels = mergeUniqueById(
     demoExpertModels,
     allExperts.map((item) => mapExpertToUIModel(item, { categoryFallback: item.category }))
   );
-  const expertSource = dbExpertModels.length > 0 ? dbExpertModels : fallbackExpertModels;
-  const filteredExperts = filterExpertsByCategory(expertSource, activeCategory);
+  const fallbackExperts = filterExpertsByCategory(fallbackExpertModels, activeCategory);
+  const filteredExperts = (feed?.experts && feed.experts.length > 0) ? feed.experts : fallbackExperts;
 
-  const filteredQuestions = mergeUniqueById(
-    (questions || []).map((item) => mapQuestionToUIModel(item)),
-    demoQuestions.map((item) => mapQuestionToUIModel(item))
+  const fallbackQuestions = filterQuestionsByCategory(
+    mapDemoQuestionsByChannel(demoQuestions, 'lifestyle-services'),
+    activeCategory,
+    categoryKeywords
   );
+  const filteredQuestions = (feed?.questions && feed.questions.length > 0) ? feed.questions : fallbackQuestions;
   const featuredQuestion = filteredQuestions[0];
   const featuredExpert = filteredExperts[0];
+  const featuredTopic = feed?.featured;
 
-  const handleSearch = () => {
-    console.log('Search initiated');
-  };
+  const handleSearch = () => {};
 
   const handleCategorySelect = (categoryId: string) => {
     setActiveCategory(categoryId);
-    console.log(`Selected category: ${categoryId}`);
   };
 
   const handleViewQuestionDetail = (questionId: string) => {
@@ -227,6 +226,16 @@ const LifestyleServices = () => {
 
   const handleViewExpertProfile = (expertId: string) => {
     navigate(`/expert-profile/${expertId}`, { state: buildFromState(location) });
+  };
+
+  const handleViewFeatured = () => {
+    if (featuredTopic?.id) {
+      navigate(`/topic/${featuredTopic.id}`, { state: buildFromState(location) });
+      return;
+    }
+    if (featuredQuestion) {
+      handleViewQuestionDetail(featuredQuestion.id);
+    }
   };
 
   return (
@@ -248,27 +257,27 @@ const LifestyleServices = () => {
       activeCategory={activeCategory}
       categoryRef={categoryRef}
       showRightIndicator={showRightIndicator}
-      featuredTitle={featuredQuestion?.title || '租房、法律与保险高频问题'}
-      featuredDescription={featuredQuestion?.content || '把生活服务里最容易踩坑的场景先筛出来，先看精选问答，再决定是否继续咨询专家。'}
+      featuredTitle={featuredTopic?.title || featuredQuestion?.title || '租房、法律与保险高频问题'}
+      featuredDescription={featuredTopic?.description || featuredQuestion?.content || '把生活服务里最容易踩坑的场景先筛出来，先看精选问答，再决定是否继续咨询专家。'}
       featuredHint={featuredExpert ? `推荐顾问：${featuredExpert.name}` : '优先解决高频生活问题'}
       onBack={() => navigateBackOr(navigate, '/', { location })}
       onScrollCategories={scrollCategories}
       onSelectCategory={handleCategorySelect}
-      onViewFeatured={featuredQuestion ? () => handleViewQuestionDetail(featuredQuestion.id) : undefined}
+      onViewFeatured={(featuredTopic?.id || featuredQuestion) ? handleViewFeatured : undefined}
       activeTab={activeTab}
       onTabChange={setActiveTab}
     >
           <TabsContent value="everyone" className="mt-0">
             {isLoading ? (
               <ChannelQuestionSkeleton />
-            ) : questionsError ? (
+            ) : feedError ? (
               <PageStateCard
                 compact
                 variant="error"
                 title="问题加载失败"
-                description={questionsError instanceof Error ? questionsError.message : '请检查网络后重试'}
+                description={feedError instanceof Error ? feedError.message : '请检查网络后重试'}
                 actionLabel="重试"
-                onAction={() => refetchQuestions()}
+                onAction={() => refetch()}
               />
             ) : filteredQuestions.length === 0 ? (
               <PageStateCard
@@ -301,16 +310,16 @@ const LifestyleServices = () => {
           </TabsContent>
           
           <TabsContent value="experts" className="mt-0">
-            {isLoadingExperts ? (
+            {isLoading ? (
               <ChannelExpertSkeleton />
-            ) : expertsError ? (
+            ) : feedError ? (
               <PageStateCard
                 compact
                 variant="error"
                 title="专家加载失败"
-                description={expertsError instanceof Error ? expertsError.message : '请稍后重试'}
+                description={feedError instanceof Error ? feedError.message : '请稍后重试'}
                 actionLabel="重试"
-                onAction={() => refetchExperts()}
+                onAction={() => refetch()}
               />
             ) : filteredExperts.length === 0 ? (
               <PageStateCard

@@ -24,8 +24,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import QuestionCard from '@/components/QuestionCard';
-import { useQuestions } from '@/hooks/useQuestions';
-import { useExperts } from '@/hooks/useExperts';
+import { useChannelFeed } from '@/hooks/useChannelFeed';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import ChannelPageScaffold from '@/components/channel/ChannelPageScaffold';
@@ -37,9 +36,10 @@ import { demoExperts, demoQuestions } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 import {
   filterExpertsByCategory,
+  filterQuestionsByCategory,
   mapDemoExpertsByChannel,
+  mapDemoQuestionsByChannel,
   mapExpertToUIModel,
-  mapQuestionToUIModel,
   mergeUniqueById,
 } from '@/lib/adapters/contentAdapters';
 import { buildFromState, navigateBackOr } from '@/utils/navigation';
@@ -57,19 +57,6 @@ const HobbiesSkills = () => {
   const [showRightIndicator, setShowRightIndicator] = useState(false);
   usePageScrollMemory('hobbies');
   
-  const {
-    data: questions,
-    isLoading,
-    error: questionsError,
-    refetch: refetchQuestions,
-  } = useQuestions('兴趣技能');
-  const {
-    data: dbExperts,
-    isLoading: isLoadingExperts,
-    error: expertsError,
-    refetch: refetchExperts,
-  } = useExperts('兴趣技能');
-
   const formatTime = (dateString: string) => {
     try {
       return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
@@ -120,6 +107,13 @@ const HobbiesSkills = () => {
     { id: 'fitness', name: '健身', icon: <Dumbbell size={16} /> },
     { id: 'cooking', name: '烹饪', icon: <Utensils size={16} /> }
   ];
+  const categoryKeywords: Record<string, string[]> = {
+    photography: ['摄影', '拍照', '镜头', '修图'],
+    music: ['音乐', '作曲', '编曲', '乐器', '钢琴'],
+    art: ['艺术', '绘画', '素描', '油画', '水彩'],
+    fitness: ['健身', '减脂', '训练', '增肌', '体态'],
+    cooking: ['烹饪', '做饭', '菜谱', '烘焙', '料理'],
+  };
 
   const allExperts = [
     {
@@ -196,29 +190,34 @@ const HobbiesSkills = () => {
     }
   ];
 
-  const dbExpertModels = (dbExperts || []).map((item) => mapExpertToUIModel(item));
+  const { data: feed, isLoading, error: feedError, refetch } = useChannelFeed(
+    'hobbies-skills',
+    activeCategory,
+    { questionKeywords: categoryKeywords }
+  );
+
   const demoExpertModels = mapDemoExpertsByChannel(demoExperts, 'hobbies-skills', { categoryFallback: 'art' });
   const fallbackExpertModels = mergeUniqueById(
     demoExpertModels,
     allExperts.map((item) => mapExpertToUIModel(item, { categoryFallback: item.category }))
   );
-  const expertSource = dbExpertModels.length > 0 ? dbExpertModels : fallbackExpertModels;
-  const filteredExperts = filterExpertsByCategory(expertSource, activeCategory);
+  const fallbackExperts = filterExpertsByCategory(fallbackExpertModels, activeCategory);
+  const filteredExperts = (feed?.experts && feed.experts.length > 0) ? feed.experts : fallbackExperts;
 
-  const filteredQuestions = mergeUniqueById(
-    (questions || []).map((item) => mapQuestionToUIModel(item)),
-    demoQuestions.map((item) => mapQuestionToUIModel(item))
+  const fallbackQuestions = filterQuestionsByCategory(
+    mapDemoQuestionsByChannel(demoQuestions, 'hobbies-skills'),
+    activeCategory,
+    categoryKeywords
   );
+  const filteredQuestions = (feed?.questions && feed.questions.length > 0) ? feed.questions : fallbackQuestions;
   const featuredQuestion = filteredQuestions[0];
   const featuredExpert = filteredExperts[0];
+  const featuredTopic = feed?.featured;
 
-  const handleSearch = () => {
-    console.log('Search initiated');
-  };
+  const handleSearch = () => {};
 
   const handleCategorySelect = (categoryId: string) => {
     setActiveCategory(categoryId);
-    console.log(`Selected category: ${categoryId}`);
   };
 
   const handleViewQuestionDetail = (questionId: string) => {
@@ -227,6 +226,16 @@ const HobbiesSkills = () => {
 
   const handleViewExpertProfile = (expertId: string) => {
     navigate(`/expert-profile/${expertId}`, { state: buildFromState(location) });
+  };
+
+  const handleViewFeatured = () => {
+    if (featuredTopic?.id) {
+      navigate(`/topic/${featuredTopic.id}`, { state: buildFromState(location) });
+      return;
+    }
+    if (featuredQuestion) {
+      handleViewQuestionDetail(featuredQuestion.id);
+    }
   };
 
   return (
@@ -248,27 +257,27 @@ const HobbiesSkills = () => {
       activeCategory={activeCategory}
       categoryRef={categoryRef}
       showRightIndicator={showRightIndicator}
-      featuredTitle={featuredQuestion?.title || '摄影、音乐与创作技能精选'}
-      featuredDescription={featuredQuestion?.content || '把摄影、音乐、艺术、健身和烹饪里最值得看的高质量内容先整理出来，适合快速浏览。'}
+      featuredTitle={featuredTopic?.title || featuredQuestion?.title || '摄影、音乐与创作技能精选'}
+      featuredDescription={featuredTopic?.description || featuredQuestion?.content || '把摄影、音乐、艺术、健身和烹饪里最值得看的高质量内容先整理出来，适合快速浏览。'}
       featuredHint={featuredExpert ? `推荐达人：${featuredExpert.name}` : '适合先看精选再提问'}
       onBack={() => navigateBackOr(navigate, '/', { location })}
       onScrollCategories={scrollCategories}
       onSelectCategory={handleCategorySelect}
-      onViewFeatured={featuredQuestion ? () => handleViewQuestionDetail(featuredQuestion.id) : undefined}
+      onViewFeatured={(featuredTopic?.id || featuredQuestion) ? handleViewFeatured : undefined}
       activeTab={activeTab}
       onTabChange={setActiveTab}
     >
           <TabsContent value="everyone" className="mt-0">
             {isLoading ? (
               <ChannelQuestionSkeleton />
-            ) : questionsError ? (
+            ) : feedError ? (
               <PageStateCard
                 compact
                 variant="error"
                 title="问题加载失败"
-                description={questionsError instanceof Error ? questionsError.message : '请检查网络后重试'}
+                description={feedError instanceof Error ? feedError.message : '请检查网络后重试'}
                 actionLabel="重试"
-                onAction={() => refetchQuestions()}
+                onAction={() => refetch()}
               />
             ) : filteredQuestions.length === 0 ? (
               <PageStateCard
@@ -301,16 +310,16 @@ const HobbiesSkills = () => {
           </TabsContent>
           
           <TabsContent value="experts" className="mt-0">
-            {isLoadingExperts ? (
+            {isLoading ? (
               <ChannelExpertSkeleton />
-            ) : expertsError ? (
+            ) : feedError ? (
               <PageStateCard
                 compact
                 variant="error"
                 title="专家加载失败"
-                description={expertsError instanceof Error ? expertsError.message : '请稍后重试'}
+                description={feedError instanceof Error ? feedError.message : '请稍后重试'}
                 actionLabel="重试"
-                onAction={() => refetchExperts()}
+                onAction={() => refetch()}
               />
             ) : filteredExperts.length === 0 ? (
               <PageStateCard

@@ -22,8 +22,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import QuestionCard from '@/components/QuestionCard';
-import { useQuestions } from '@/hooks/useQuestions';
-import { useExperts } from '@/hooks/useExperts';
+import { useChannelFeed } from '@/hooks/useChannelFeed';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import ChannelPageScaffold from '@/components/channel/ChannelPageScaffold';
@@ -35,9 +34,10 @@ import { demoExperts, demoQuestions } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 import {
   filterExpertsByCategory,
+  filterQuestionsByCategory,
   mapDemoExpertsByChannel,
+  mapDemoQuestionsByChannel,
   mapExpertToUIModel,
-  mapQuestionToUIModel,
   mergeUniqueById,
 } from '@/lib/adapters/contentAdapters';
 import { buildFromState, navigateBackOr } from '@/utils/navigation';
@@ -55,19 +55,6 @@ const EducationLearning = () => {
   const [showRightIndicator, setShowRightIndicator] = useState(false);
   usePageScrollMemory('education');
   
-  const {
-    data: questions,
-    isLoading,
-    error: questionsError,
-    refetch: refetchQuestions,
-  } = useQuestions('教育学习');
-  const {
-    data: dbExperts,
-    isLoading: isLoadingExperts,
-    error: expertsError,
-    refetch: refetchExperts,
-  } = useExperts('教育学习');
-
   const formatTime = (dateString: string) => {
     try {
       return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
@@ -118,6 +105,13 @@ const EducationLearning = () => {
     { id: 'competition', name: '竞赛', icon: <Award size={16} /> },
     { id: 'paper', name: '论文写作', icon: <FileText size={16} /> }
   ];
+  const categoryKeywords: Record<string, string[]> = {
+    gaokao: ['高考', '志愿', '录取', '分数线'],
+    kaoyan: ['考研', '复试', '调剂', '专业课'],
+    'study-abroad': ['留学', '申请', '雅思', '托福', '文书'],
+    competition: ['竞赛', '比赛', '数模', '奖项'],
+    paper: ['论文', '开题', 'SCI', '投稿'],
+  };
 
   const allExperts = [
     {
@@ -200,29 +194,34 @@ const EducationLearning = () => {
     }
   ];
 
-  const dbExpertModels = (dbExperts || []).map((item) => mapExpertToUIModel(item));
+  const { data: feed, isLoading, error: feedError, refetch } = useChannelFeed(
+    'education-learning',
+    activeCategory,
+    { questionKeywords: categoryKeywords }
+  );
+
   const demoExpertModels = mapDemoExpertsByChannel(demoExperts, 'education-learning', { categoryFallback: 'study-abroad' });
   const fallbackExpertModels = mergeUniqueById(
     demoExpertModels,
     allExperts.map((item) => mapExpertToUIModel(item, { categoryFallback: item.category }))
   );
-  const expertSource = dbExpertModels.length > 0 ? dbExpertModels : fallbackExpertModels;
-  const filteredExperts = filterExpertsByCategory(expertSource, activeCategory);
+  const fallbackExperts = filterExpertsByCategory(fallbackExpertModels, activeCategory);
+  const filteredExperts = (feed?.experts && feed.experts.length > 0) ? feed.experts : fallbackExperts;
 
-  const filteredQuestions = mergeUniqueById(
-    (questions || []).map((item) => mapQuestionToUIModel(item)),
-    demoQuestions.map((item) => mapQuestionToUIModel(item))
+  const fallbackQuestions = filterQuestionsByCategory(
+    mapDemoQuestionsByChannel(demoQuestions, 'education-learning'),
+    activeCategory,
+    categoryKeywords
   );
+  const filteredQuestions = (feed?.questions && feed.questions.length > 0) ? feed.questions : fallbackQuestions;
   const featuredQuestion = filteredQuestions[0];
   const featuredExpert = filteredExperts[0];
+  const featuredTopic = feed?.featured;
 
-  const handleSearch = () => {
-    console.log('Search initiated');
-  };
+  const handleSearch = () => {};
 
   const handleCategorySelect = (categoryId: string) => {
     setActiveCategory(categoryId);
-    console.log(`Selected category: ${categoryId}`);
   };
 
   const handleViewQuestionDetail = (questionId: string) => {
@@ -231,6 +230,16 @@ const EducationLearning = () => {
 
   const handleViewExpertProfile = (expertId: string) => {
     navigate(`/expert-profile/${expertId}`, { state: buildFromState(location) });
+  };
+
+  const handleViewFeatured = () => {
+    if (featuredTopic?.id) {
+      navigate(`/topic/${featuredTopic.id}`, { state: buildFromState(location) });
+      return;
+    }
+    if (featuredQuestion) {
+      handleViewQuestionDetail(featuredQuestion.id);
+    }
   };
 
   return (
@@ -252,27 +261,27 @@ const EducationLearning = () => {
       activeCategory={activeCategory}
       categoryRef={categoryRef}
       showRightIndicator={showRightIndicator}
-      featuredTitle={featuredQuestion?.title || '升学与备考路线集中答疑'}
-      featuredDescription={featuredQuestion?.content || '聚焦高考、考研、留学与论文写作，先看精选问题和高质量答主，再决定深入提问。'}
+      featuredTitle={featuredTopic?.title || featuredQuestion?.title || '升学与备考路线集中答疑'}
+      featuredDescription={featuredTopic?.description || featuredQuestion?.content || '聚焦高考、考研、留学与论文写作，先看精选问题和高质量答主，再决定深入提问。'}
       featuredHint={featuredExpert ? `推荐答主：${featuredExpert.name}` : '优先查看高质量问答'}
       onBack={() => navigateBackOr(navigate, '/', { location })}
       onScrollCategories={scrollCategories}
       onSelectCategory={handleCategorySelect}
-      onViewFeatured={featuredQuestion ? () => handleViewQuestionDetail(featuredQuestion.id) : undefined}
+      onViewFeatured={(featuredTopic?.id || featuredQuestion) ? handleViewFeatured : undefined}
       activeTab={activeTab}
       onTabChange={setActiveTab}
     >
           <TabsContent value="everyone" className="mt-0">
             {isLoading ? (
               <ChannelQuestionSkeleton />
-            ) : questionsError ? (
+            ) : feedError ? (
               <PageStateCard
                 compact
                 variant="error"
                 title="问题加载失败"
-                description={questionsError instanceof Error ? questionsError.message : '请检查网络后重试'}
+                description={feedError instanceof Error ? feedError.message : '请检查网络后重试'}
                 actionLabel="重试"
-                onAction={() => refetchQuestions()}
+                onAction={() => refetch()}
               />
             ) : filteredQuestions.length === 0 ? (
               <PageStateCard
@@ -305,16 +314,16 @@ const EducationLearning = () => {
           </TabsContent>
           
           <TabsContent value="experts" className="mt-0">
-            {isLoadingExperts ? (
+            {isLoading ? (
               <ChannelExpertSkeleton />
-            ) : expertsError ? (
+            ) : feedError ? (
               <PageStateCard
                 compact
                 variant="error"
                 title="专家加载失败"
-                description={expertsError instanceof Error ? expertsError.message : '请稍后重试'}
+                description={feedError instanceof Error ? feedError.message : '请稍后重试'}
                 actionLabel="重试"
-                onAction={() => refetchExperts()}
+                onAction={() => refetch()}
               />
             ) : filteredExperts.length === 0 ? (
               <PageStateCard

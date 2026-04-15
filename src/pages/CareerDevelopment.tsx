@@ -24,8 +24,7 @@ import { TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import QuestionCard from '@/components/QuestionCard';
-import { useQuestions } from '@/hooks/useQuestions';
-import { useExperts } from '@/hooks/useExperts';
+import { useChannelFeed } from '@/hooks/useChannelFeed';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import ChannelPageScaffold from '@/components/channel/ChannelPageScaffold';
@@ -37,9 +36,10 @@ import { demoExperts, demoQuestions } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 import {
   filterExpertsByCategory,
+  filterQuestionsByCategory,
   mapDemoExpertsByChannel,
+  mapDemoQuestionsByChannel,
   mapExpertToUIModel,
-  mapQuestionToUIModel,
   mergeUniqueById,
 } from '@/lib/adapters/contentAdapters';
 import { buildFromState, navigateBackOr } from '@/utils/navigation';
@@ -57,19 +57,6 @@ const CareerDevelopment = () => {
   const [showRightIndicator, setShowRightIndicator] = useState(false);
   usePageScrollMemory('career');
   
-  const {
-    data: questions,
-    isLoading,
-    error: questionsError,
-    refetch: refetchQuestions,
-  } = useQuestions('职业发展');
-  const {
-    data: dbExperts,
-    isLoading: isLoadingExperts,
-    error: expertsError,
-    refetch: refetchExperts,
-  } = useExperts('职业发展');
-
   const formatTime = (dateString: string) => {
     try {
       return formatDistanceToNow(new Date(dateString), { addSuffix: true, locale: zhCN });
@@ -120,6 +107,13 @@ const CareerDevelopment = () => {
     { id: 'remote', name: '远程工作', icon: <Clock size={16} /> },
     { id: 'startup', name: '创业', icon: <Users size={16} /> }
   ];
+  const categoryKeywords: Record<string, string[]> = {
+    job: ['求职', '校招', '招聘', 'offer'],
+    resume: ['简历', '履历', '项目经历', '作品集'],
+    interview: ['面试', '笔试', '群面', '技术面'],
+    remote: ['远程', '自由职业', '在家办公', 'remote'],
+    startup: ['创业', '融资', 'BP', '商业计划'],
+  };
 
   const allExperts = [
     {
@@ -202,29 +196,34 @@ const CareerDevelopment = () => {
     }
   ];
 
-  const dbExpertModels = (dbExperts || []).map((item) => mapExpertToUIModel(item));
+  const { data: feed, isLoading, error: feedError, refetch } = useChannelFeed(
+    'career-development',
+    activeCategory,
+    { questionKeywords: categoryKeywords }
+  );
+
   const demoExpertModels = mapDemoExpertsByChannel(demoExperts, 'career-development', { categoryFallback: 'job' });
   const fallbackExpertModels = mergeUniqueById(
     demoExpertModels,
     allExperts.map((item) => mapExpertToUIModel(item, { categoryFallback: item.category }))
   );
-  const expertSource = dbExpertModels.length > 0 ? dbExpertModels : fallbackExpertModels;
-  const filteredExperts = filterExpertsByCategory(expertSource, activeCategory);
+  const fallbackExperts = filterExpertsByCategory(fallbackExpertModels, activeCategory);
+  const filteredExperts = (feed?.experts && feed.experts.length > 0) ? feed.experts : fallbackExperts;
 
-  const filteredQuestions = mergeUniqueById(
-    (questions || []).map((item) => mapQuestionToUIModel(item)),
-    demoQuestions.map((item) => mapQuestionToUIModel(item))
+  const fallbackQuestions = filterQuestionsByCategory(
+    mapDemoQuestionsByChannel(demoQuestions, 'career-development'),
+    activeCategory,
+    categoryKeywords
   );
+  const filteredQuestions = (feed?.questions && feed.questions.length > 0) ? feed.questions : fallbackQuestions;
   const featuredQuestion = filteredQuestions[0];
   const featuredExpert = filteredExperts[0];
+  const featuredTopic = feed?.featured;
 
-  const handleSearch = () => {
-    console.log('Search initiated');
-  };
+  const handleSearch = () => {};
 
   const handleCategorySelect = (categoryId: string) => {
     setActiveCategory(categoryId);
-    console.log(`Selected category: ${categoryId}`);
   };
 
   const handleViewQuestionDetail = (questionId: string) => {
@@ -233,6 +232,16 @@ const CareerDevelopment = () => {
 
   const handleViewExpertProfile = (expertId: string) => {
     navigate(`/expert-profile/${expertId}`, { state: buildFromState(location) });
+  };
+
+  const handleViewFeatured = () => {
+    if (featuredTopic?.id) {
+      navigate(`/topic/${featuredTopic.id}`, { state: buildFromState(location) });
+      return;
+    }
+    if (featuredQuestion) {
+      handleViewQuestionDetail(featuredQuestion.id);
+    }
   };
 
   return (
@@ -254,27 +263,27 @@ const CareerDevelopment = () => {
       activeCategory={activeCategory}
       categoryRef={categoryRef}
       showRightIndicator={showRightIndicator}
-      featuredTitle={featuredQuestion?.title || '求职、跳槽与面试策略速览'}
-      featuredDescription={featuredQuestion?.content || '先看大厂求职、简历优化、远程工作和创业方向的热门讨论，再决定找谁继续咨询。'}
+      featuredTitle={featuredTopic?.title || featuredQuestion?.title || '求职、跳槽与面试策略速览'}
+      featuredDescription={featuredTopic?.description || featuredQuestion?.content || '先看大厂求职、简历优化、远程工作和创业方向的热门讨论，再决定找谁继续咨询。'}
       featuredHint={featuredExpert ? `推荐顾问：${featuredExpert.name}` : '聚焦求职转化效率'}
       onBack={() => navigateBackOr(navigate, '/', { location })}
       onScrollCategories={scrollCategories}
       onSelectCategory={handleCategorySelect}
-      onViewFeatured={featuredQuestion ? () => handleViewQuestionDetail(featuredQuestion.id) : undefined}
+      onViewFeatured={(featuredTopic?.id || featuredQuestion) ? handleViewFeatured : undefined}
       activeTab={activeTab}
       onTabChange={setActiveTab}
     >
           <TabsContent value="everyone" className="mt-0">
             {isLoading ? (
               <ChannelQuestionSkeleton />
-            ) : questionsError ? (
+            ) : feedError ? (
               <PageStateCard
                 compact
                 variant="error"
                 title="问题加载失败"
-                description={questionsError instanceof Error ? questionsError.message : '请检查网络后重试'}
+                description={feedError instanceof Error ? feedError.message : '请检查网络后重试'}
                 actionLabel="重试"
-                onAction={() => refetchQuestions()}
+                onAction={() => refetch()}
               />
             ) : filteredQuestions.length === 0 ? (
               <PageStateCard
@@ -307,16 +316,16 @@ const CareerDevelopment = () => {
           </TabsContent>
           
           <TabsContent value="experts" className="mt-0">
-            {isLoadingExperts ? (
+            {isLoading ? (
               <ChannelExpertSkeleton />
-            ) : expertsError ? (
+            ) : feedError ? (
               <PageStateCard
                 compact
                 variant="error"
                 title="专家加载失败"
-                description={expertsError instanceof Error ? expertsError.message : '请稍后重试'}
+                description={feedError instanceof Error ? feedError.message : '请稍后重试'}
                 actionLabel="重试"
-                onAction={() => refetchExperts()}
+                onAction={() => refetch()}
               />
             ) : filteredExperts.length === 0 ? (
               <PageStateCard

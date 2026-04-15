@@ -33,6 +33,7 @@ export interface UIQuestionModel {
   askerName: string;
   askerAvatar: string;
   answersCount: number;
+  category?: string | null;
 }
 
 export interface UIConversationModel {
@@ -93,6 +94,7 @@ export const mapQuestionToUIModel = (question: Question | AnyRecord): UIQuestion
   askerName: question.profile_nickname || question.askerName || '匿名用户',
   askerAvatar: question.profile_avatar || question.askerAvatar || 'https://randomuser.me/api/portraits/lego/1.jpg',
   answersCount: Number(question.answers_count || question.answersCount || 0),
+  category: question.category || null,
 });
 
 export const mergeUniqueById = <T extends { id: string }>(primary: T[], fallback: T[]) => {
@@ -123,6 +125,65 @@ export const mapDemoExpertsByChannel = (
   return experts
     .filter((item) => item.category === channelCategory)
     .map((item) => mapExpertToUIModel(item, { categoryFallback: options?.categoryFallback }));
+};
+
+const CHANNEL_KEYWORDS: Record<string, string[]> = {
+  'education-learning': ['高考', '考研', '留学', '论文', '申请', '雅思', '托福', '择校', '升学', '学术'],
+  'career-development': ['求职', '简历', '面试', '职业', '校招', '跳槽', '远程', '创业', 'offer'],
+  'lifestyle-services': ['租房', '法律', '情感', '保险', '海外生活', '维权', '合同', '理赔'],
+  'hobbies-skills': ['摄影', '音乐', '艺术', '健身', '烹饪', '创作', '兴趣', '技能'],
+};
+
+const normalizeChannel = (value: string | null | undefined) => {
+  if (!value) return '';
+  const input = value.trim();
+  const map: Record<string, string> = {
+    教育学习: 'education-learning',
+    职业发展: 'career-development',
+    生活服务: 'lifestyle-services',
+    兴趣技能: 'hobbies-skills',
+    education: 'education-learning',
+    career: 'career-development',
+    lifestyle: 'lifestyle-services',
+    hobbies: 'hobbies-skills',
+  };
+  return map[input] || input;
+};
+
+const questionTextBag = (item: AnyRecord) =>
+  [item.title || '', item.content || '', ...(Array.isArray(item.tags) ? item.tags : [])].join(' ').toLowerCase();
+
+export const mapDemoQuestionsByChannel = (questions: AnyRecord[], channelCategory: string) => {
+  const normalized = normalizeChannel(channelCategory);
+  const keywords = CHANNEL_KEYWORDS[normalized] || [];
+
+  return questions
+    .filter((item) => {
+      const itemCategory = normalizeChannel(item.category || null);
+      if (itemCategory && itemCategory === normalized) return true;
+      if (!keywords.length) return false;
+      const bag = questionTextBag(item);
+      return keywords.some((keyword) => bag.includes(keyword.toLowerCase()));
+    })
+    .map((item) => mapQuestionToUIModel(item));
+};
+
+export const filterQuestionsByCategory = (
+  questions: UIQuestionModel[],
+  activeCategory: string,
+  categoryKeywords: Record<string, string[]>
+) => {
+  if (activeCategory === 'all') return questions;
+  const keywords = categoryKeywords[activeCategory] || [];
+  if (keywords.length === 0) {
+    return questions.filter((item) => item.category === activeCategory);
+  }
+
+  return questions.filter((item) => {
+    if (item.category === activeCategory) return true;
+    const bag = [item.title, item.content || '', ...(item.tags || [])].join(' ').toLowerCase();
+    return keywords.some((keyword) => bag.includes(keyword.toLowerCase()));
+  });
 };
 
 export const mapDemoQuestionsForSearch = (demoQuestions: AnyRecord[], normalizedQuery: string) => {

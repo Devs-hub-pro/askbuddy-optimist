@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {
   Lock,
   Settings,
@@ -18,6 +18,7 @@ import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import { Drawer, DrawerContent, DrawerTitle } from '@/components/ui/drawer';
 import { Button } from '@/components/ui/button';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { buildFromState } from '@/utils/navigation';
 
 interface SettingsMenuProps {
   isOpen: boolean;
@@ -35,6 +36,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
   signingOut = false,
 }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const isDesktop = !useIsMobile();
   
   // Settings menu items with updated label
@@ -52,7 +54,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
   ];
 
   const handleNavigate = (route: string) => {
-    navigate(route);
+    navigate(route, { state: buildFromState(location) });
     onClose();
   };
 
@@ -67,9 +69,10 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
         <h3 className="px-3 text-lg font-semibold text-gray-800">设置</h3>
       </div>
       {menuItems.map((item, index) => (
-        <div 
+        <button
+          type="button"
           key={`setting-${index}`} 
-          className="flex items-center justify-between p-3 hover:bg-gray-50 rounded-xl cursor-pointer transition-colors"
+          className="flex w-full items-center justify-between rounded-xl p-3 text-left transition-colors hover:bg-gray-50"
           onClick={() => handleNavigate(item.route)}
         >
           <div className="flex items-center">
@@ -81,7 +84,7 @@ const SettingsMenu: React.FC<SettingsMenuProps> = ({
           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-400">
             <path d="m9 18 6-6-6-6"/>
           </svg>
-        </div>
+        </button>
       ))}
       {showSignOut && onSignOut && (
         <div className="mt-4 px-3">

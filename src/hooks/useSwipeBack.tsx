@@ -17,6 +17,8 @@ export function useSwipeBack(options: SwipeBackOptions = {}) {
 
   useEffect(() => {
     if (!enabled) return;
+    const swipeScope = getSwipeScopeElement();
+    if (!swipeScope) return;
 
     const handleTouchStart = (e: TouchEvent) => {
       if (e.touches.length !== 1) return;
@@ -27,6 +29,9 @@ export function useSwipeBack(options: SwipeBackOptions = {}) {
 
       // 只允许从左边缘触发，避免与普通横向滑动冲突
       if (touch.clientX >= 24) return;
+
+      // 仅在 App 主容器内响应，避免 document 级全局误触
+      if (!isWithinSwipeScope(target, swipeScope)) return;
 
       // 输入中、弹层开启、横向滚动容器内都禁用返回手势
       if (shouldIgnoreSwipeStart(target)) return;
@@ -65,17 +70,27 @@ export function useSwipeBack(options: SwipeBackOptions = {}) {
       isSwiping.current = false;
     };
 
-    document.addEventListener('touchstart', handleTouchStart, { passive: true });
-    document.addEventListener('touchmove', handleTouchMove, { passive: true });
-    document.addEventListener('touchend', handleTouchEnd, { passive: true });
+    swipeScope.addEventListener('touchstart', handleTouchStart, { passive: true });
+    swipeScope.addEventListener('touchmove', handleTouchMove, { passive: true });
+    swipeScope.addEventListener('touchend', handleTouchEnd, { passive: true });
 
     return () => {
-      document.removeEventListener('touchstart', handleTouchStart);
-      document.removeEventListener('touchmove', handleTouchMove);
-      document.removeEventListener('touchend', handleTouchEnd);
+      swipeScope.removeEventListener('touchstart', handleTouchStart);
+      swipeScope.removeEventListener('touchmove', handleTouchMove);
+      swipeScope.removeEventListener('touchend', handleTouchEnd);
     };
   }, [enabled, threshold, navigate, location]);
 }
+
+const getSwipeScopeElement = (): Document | HTMLElement | null => {
+  if (typeof document === 'undefined') return null;
+  return document.querySelector('[data-swipe-scope="main"]') as HTMLElement | null || document;
+};
+
+const isWithinSwipeScope = (target: HTMLElement, scope: Document | HTMLElement) => {
+  if (scope === document) return true;
+  return scope.contains(target);
+};
 
 const shouldIgnoreSwipeStart = (target: HTMLElement) => {
   // 页面级开关：编辑中可临时禁用滑返，避免误触导致内容丢失
@@ -91,6 +106,10 @@ const shouldIgnoreSwipeStart = (target: HTMLElement) => {
 
   // 在输入控件或可编辑区域触摸时不触发返回
   if (target.closest('input, textarea, select, [contenteditable="true"]')) {
+    return true;
+  }
+  const activeElement = document.activeElement as HTMLElement | null;
+  if (activeElement?.matches('input, textarea, select, [contenteditable="true"]')) {
     return true;
   }
 

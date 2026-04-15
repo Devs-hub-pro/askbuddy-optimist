@@ -252,7 +252,7 @@ const Index = () => {
         </div>
         
         {isLoadingTopics ? (
-          <div className="flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide">
+          <div className="flex gap-3 overflow-x-auto px-4 pb-2 scrollbar-hide" data-no-swipe-back="true">
             {[1, 2, 3].map((item) => (
               <div key={item} className="w-[280px] shrink-0 animate-pulse-soft">
                 <div className="surface-card overflow-hidden rounded-3xl">
@@ -279,7 +279,7 @@ const Index = () => {
             />
           </div>
         ) : hotTopics && hotTopics.length > 0 ? (
-          <div className="flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-hide snap-x snap-mandatory">
+          <div className="flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-hide snap-x snap-mandatory" data-no-swipe-back="true">
             {hotTopics.map((topic, index) => (
               <div
                 key={topic.id}
@@ -338,7 +338,7 @@ const Index = () => {
             ))}
           </div>
         ) : (
-          <div className="flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-hide snap-x snap-mandatory">
+          <div className="flex gap-4 overflow-x-auto px-4 pb-2 scrollbar-hide snap-x snap-mandatory" data-no-swipe-back="true">
             {activities.map((activity, index) => (
               <div key={activity.id} className="shrink-0 w-[280px] snap-start">
                 <div className="surface-card overflow-hidden rounded-3xl">

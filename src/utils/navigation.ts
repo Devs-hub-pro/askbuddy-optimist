@@ -45,6 +45,7 @@ const getCurrentEntryState = () => {
 };
 
 const resolveRouteFallback = (pathname: string, search = ''): string | null => {
+  if (pathname === '/auth') return '/';
   if (/^\/chat\//.test(pathname)) return '/messages';
   if (pathname === '/notifications') return '/messages';
   if (pathname === '/discover/interactions') return '/discover';
@@ -59,6 +60,9 @@ const resolveRouteFallback = (pathname: string, search = ''): string | null => {
   }
   if (pathname === '/new') return '/';
   if (pathname === '/skill-publish') return '/profile';
+  if (pathname === '/profile/recharge') return '/profile/earnings';
+  if (pathname === '/edit-profile') return '/profile';
+  if (pathname === '/admin') return '/profile';
   if (/^\/profile\/community\/[^/]+\/info$/.test(pathname)) {
     const match = pathname.match(/^\/profile\/community\/([^/]+)\/info$/);
     return match ? `/profile/community/${match[1]}` : '/profile/community';
@@ -107,21 +111,15 @@ export const navigateBackOr = (
   const currentPath = options?.location?.pathname;
   const currentSearch = options?.location?.search || '';
   const computedFallback = getFallbackPathForRoute(currentPath || '', currentSearch, fallbackPath);
-  const shouldPreferFallback = Boolean(
-    currentPath &&
-      (/^\/(question|topic|expert|expert-profile|chat)\//.test(currentPath) ||
-        /^\/(search|education\/search|notifications|discover\/interactions|city-selector|new|skill-publish)$/.test(currentPath) ||
-        /^\/profile\//.test(currentPath) ||
-        /^\/settings\//.test(currentPath))
-  );
+  const isTabRootPath = currentPath === '/' || currentPath === '/discover' || currentPath === '/messages' || currentPath === '/profile';
 
   if (fromTarget && fromTarget !== currentPath && fromTarget !== '/auth') {
     navigate(fromTarget, { replace: true });
     return;
   }
 
-  // 详情/二级页优先使用明确 fallback，避免历史栈不可靠导致回错页面。
-  if (shouldPreferFallback) {
+  // 非 Tab 根页一律优先用明确 fallback，避免历史栈不可靠时回错页。
+  if (currentPath && !isTabRootPath) {
     navigate(computedFallback, { replace: true });
     return;
   }

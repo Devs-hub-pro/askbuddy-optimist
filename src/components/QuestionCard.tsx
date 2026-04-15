@@ -134,7 +134,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           
           <div className="flex items-center gap-2">
             <button
-              className="bg-gradient-to-r from-blue-500 to-app-blue text-white px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+              className="h-8 min-w-[78px] bg-gradient-to-r from-blue-500 to-app-blue text-white px-3 rounded-full text-xs font-medium inline-flex items-center justify-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0"
               onClick={() => setShowAnswerDialog(true)}
             >
               <MessageCircle size={12} />

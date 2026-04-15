@@ -83,7 +83,7 @@ const MyFollowing = () => {
             title="暂未关注任何人"
             description="关注感兴趣的达人后，可以更快找到熟悉的主页和服务入口。"
             actionLabel="发现更多专家"
-            onAction={() => navigate('/discover')}
+            onAction={() => navigate('/discover', { state: buildFromState(location) })}
             icon={<Users size={64} className="mx-auto text-muted-foreground/30" />}
           />
         </div>

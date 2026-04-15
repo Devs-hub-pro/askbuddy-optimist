@@ -93,7 +93,7 @@ const MyAnswers = () => {
             title="暂无回答记录"
             description="去发现页看看大家都在问什么，挑擅长的问题来回答。"
             actionLabel="去回答问题"
-            onAction={() => navigate('/discover')}
+            onAction={() => navigate('/discover', { state: buildFromState(location) })}
             icon={<MessageSquare size={64} className="mx-auto text-muted-foreground/30" />}
           />
         </div>

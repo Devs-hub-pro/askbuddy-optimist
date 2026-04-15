@@ -83,7 +83,7 @@ const MyFavorites = () => {
             title="暂无收藏内容"
             description="看到有价值的问题和回答后，收藏会统一保存在这里。"
             actionLabel="去发现内容"
-            onAction={() => navigate('/discover')}
+            onAction={() => navigate('/discover', { state: buildFromState(location) })}
             icon={<Heart size={64} className="mx-auto text-muted-foreground/30" />}
           />
         </div>

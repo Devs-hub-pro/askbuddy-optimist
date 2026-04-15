@@ -109,7 +109,7 @@ function App() {
           <SwipeBackWrapper>
           {showSplash ? <BrandSplashScreen /> : null}
           <div className="app-wrapper w-full min-h-[100dvh] bg-muted">
-            <div className="app-container">
+            <div className="app-container" data-swipe-scope="main">
               <Suspense fallback={<RouteLoadingFallback />}>
               <Routes>
                 <Route path="/" element={<Index />} />

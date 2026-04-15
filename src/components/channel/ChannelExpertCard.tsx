@@ -76,8 +76,7 @@ const ChannelExpertCard: React.FC<ChannelExpertCardProps> = ({
         </button>
 
         <Button
-          onClick={(e) => {
-            e.stopPropagation();
+          onClick={() => {
             onConsult();
           }}
           className={`h-9 min-w-[94px] rounded-full px-3 text-xs text-white shadow-md transition-all hover:shadow-lg active:translate-y-0 ${ctaClassName}`}

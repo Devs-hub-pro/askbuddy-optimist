@@ -63,23 +63,41 @@ const CitySelector = () => {
     setFilteredLocations([]);
   };
 
-  const selectLocation = (location: string) => {
+  const selectLocation = (selectedLocation: string) => {
     // Update current location
-    localStorage.setItem('currentLocation', location);
+    localStorage.setItem('currentLocation', selectedLocation);
     
     // Update recent locations
     let updatedRecentLocations = [...recentLocations];
     // Remove if already exists
-    updatedRecentLocations = updatedRecentLocations.filter(loc => loc !== location);
+    updatedRecentLocations = updatedRecentLocations.filter(loc => loc !== selectedLocation);
     // Add to beginning
-    updatedRecentLocations.unshift(location);
+    updatedRecentLocations.unshift(selectedLocation);
     // Keep only 5 most recent
     updatedRecentLocations = updatedRecentLocations.slice(0, 5);
     
     localStorage.setItem('recentLocations', JSON.stringify(updatedRecentLocations));
     
-    // Navigate back to home page
-    navigate('/', { state: { location } });
+    // 优先回来源页，冷启动或缺失来源时回首页
+    const from = (locationState: unknown) => {
+      if (!locationState || typeof locationState !== 'object') return null;
+      const candidate = locationState as Record<string, unknown>;
+      const fromValue = candidate.from;
+      if (!fromValue || typeof fromValue !== 'object') return null;
+      const fromObj = fromValue as Record<string, unknown>;
+      const pathname = typeof fromObj.pathname === 'string' ? fromObj.pathname : null;
+      if (!pathname || !pathname.startsWith('/')) return null;
+      const search = typeof fromObj.search === 'string' ? fromObj.search : '';
+      const hash = typeof fromObj.hash === 'string' ? fromObj.hash : '';
+      return `${pathname}${search}${hash}`;
+    };
+
+    const fromPath = from(location.state);
+    if (fromPath) {
+      navigate(fromPath, { replace: true, state: { location: selectedLocation } });
+      return;
+    }
+    navigate('/', { replace: true, state: { location: selectedLocation } });
   };
 
   const useCurrentLocation = () => {

@@ -14,7 +14,7 @@ import {
 } from '@/hooks/usePayments';
 import { useIsAdmin } from '@/hooks/useHotTopics';
 import SubPageHeader from '@/components/layout/SubPageHeader';
-import { navigateToAuthWithReturn } from '@/utils/navigation';
+import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 
 const RECHARGE_OPTIONS = [
   { amount: 10, price: '¥1', label: '10积分', popular: false },
@@ -95,7 +95,10 @@ const PointsRecharge = () => {
 
   return (
     <div className="min-h-[100dvh] bg-muted pb-8">
-      <SubPageHeader title="积分充值" />
+      <SubPageHeader
+        title="积分充值"
+        onBack={() => navigateBackOr(navigate, '/profile/earnings', { location })}
+      />
 
       {/* Balance Card */}
       <div className="p-4">

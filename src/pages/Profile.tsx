@@ -239,7 +239,7 @@ const Profile = () => {
         </div>
 
         {/* Profile info overlapping the banner */}
-        <div className="relative z-10 -mt-8 px-5">
+        <div className="relative z-10 -mt-8 app-page-padding">
           {isLoggedIn ? (
             <div className="surface-card rounded-3xl p-4 shadow-sm">
               <div className="flex items-end gap-3">
@@ -318,7 +318,7 @@ const Profile = () => {
       </div>
 
       {/* Stats Row */}
-      <div className="px-5 mt-3">
+      <div className="app-page-padding mt-4">
         <Card className="overflow-hidden rounded-3xl border-none shadow-sm">
           <CardContent className="p-0">
             <div className="grid grid-cols-4">
@@ -340,7 +340,7 @@ const Profile = () => {
       </div>
 
       {/* Common Features */}
-      <div className="px-5 mt-4">
+      <div className="app-page-padding mt-4">
         <Card className="overflow-hidden rounded-3xl border-none shadow-sm">
           <CardContent className="p-5">
             <h3 className="mb-4 flex items-center gap-2 text-sm font-semibold text-foreground">
@@ -368,7 +368,7 @@ const Profile = () => {
       </div>
 
       {/* Service List */}
-      <div className="px-5 mt-4 mb-4">
+      <div className="app-page-padding mt-4 mb-4">
         <Card className="overflow-hidden rounded-3xl border-none shadow-sm">
           <CardContent className="p-5">
             <h3 className="mb-4 text-sm font-semibold text-foreground">帮助与信息</h3>

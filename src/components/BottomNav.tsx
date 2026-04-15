@@ -78,6 +78,7 @@ const BottomNav: React.FC = () => {
         <button 
           onClick={() => navigateOrScrollTop('/')}
           className={`nav-item flex flex-col items-center justify-center w-1/5 py-1 ${belongsToTab('/') ? 'active' : ''}`}
+          aria-current={belongsToTab('/') ? 'page' : undefined}
         >
           <Home size={20} className={belongsToTab('/') ? "text-primary" : "text-muted-foreground"} />
           <span className={`text-[10px] mt-0.5 ${belongsToTab('/') ? "text-primary font-medium" : "text-muted-foreground"}`}>首页</span>
@@ -86,6 +87,7 @@ const BottomNav: React.FC = () => {
         <button 
           onClick={() => navigateOrScrollTop('/discover')}
           className={`nav-item flex flex-col items-center justify-center w-1/5 py-1 ${belongsToTab('/discover') ? 'active' : ''}`}
+          aria-current={belongsToTab('/discover') ? 'page' : undefined}
         >
           <Compass size={20} className={belongsToTab('/discover') ? "text-primary" : "text-muted-foreground"} />
           <span className={`text-[10px] mt-0.5 ${belongsToTab('/discover') ? "text-primary font-medium" : "text-muted-foreground"}`}>发现</span>
@@ -93,7 +95,7 @@ const BottomNav: React.FC = () => {
         
         <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <SheetTrigger asChild>
-            <button className="w-1/5 flex flex-col items-center justify-center -mt-6" aria-label="发布">
+            <button className="w-1/5 flex flex-col items-center justify-center -mt-6 active:scale-[0.98]" aria-label="发布">
               <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-lg">
                 <Plus size={22} className="text-primary-foreground" />
               </div>
@@ -125,6 +127,7 @@ const BottomNav: React.FC = () => {
         <button 
           onClick={() => navigateOrScrollTop('/messages')}
           className={`nav-item flex flex-col items-center justify-center w-1/5 py-1 relative ${belongsToTab('/messages') ? 'active' : ''}`}
+          aria-current={belongsToTab('/messages') ? 'page' : undefined}
         >
           <div className="relative">
             <MessageSquare size={20} className={belongsToTab('/messages') ? "text-primary" : "text-muted-foreground"} />
@@ -140,6 +143,7 @@ const BottomNav: React.FC = () => {
         <button 
           onClick={() => navigateOrScrollTop('/profile')}
           className={`nav-item flex flex-col items-center justify-center w-1/5 py-1 ${belongsToTab('/profile') ? 'active' : ''}`}
+          aria-current={belongsToTab('/profile') ? 'page' : undefined}
         >
           <User size={20} className={belongsToTab('/profile') ? "text-primary" : "text-muted-foreground"} />
           <span className={`text-[10px] mt-0.5 ${belongsToTab('/profile') ? "text-primary font-medium" : "text-muted-foreground"}`}>我的</span>

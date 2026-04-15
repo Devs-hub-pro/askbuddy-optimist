@@ -130,7 +130,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, emptyText
               </div>
 
               {topicChips.length > 0 && (
-                <div className="mt-2.5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <div className="mt-2.5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide" data-no-swipe-back="true">
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-app-warm">
                     <Flame size={13} className="text-app-warm-foreground" />
                   </span>

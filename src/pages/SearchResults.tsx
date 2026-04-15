@@ -93,18 +93,36 @@ const SearchResults = () => {
   const channel = searchParams.get('channel') || 'default';
   const historyStorageKey = `${SEARCH_HISTORY_KEY}:${channel}`;
   const theme = channelThemes[channel as keyof typeof channelThemes] || channelThemes.default;
-  const tabStorageKey = `tab:search:${channel}`;
+  const uiStorageKey = `search-ui:${channel}`;
   usePageScrollMemory(`search:${channel}`);
+
+  const readUiState = () => {
+    const raw = sessionStorage.getItem(uiStorageKey);
+    if (!raw) return null;
+    try {
+      const parsed = JSON.parse(raw) as {
+        activeTab?: 'all' | 'questions' | 'topics' | 'users';
+        questionSort?: 'relevance' | 'latest' | 'hot';
+        questionCategoryFilter?: string;
+      };
+      return parsed;
+    } catch {
+      return null;
+    }
+  };
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
   const [activeTab, setActiveTab] = useState<'all' | 'questions' | 'topics' | 'users'>(() => {
-    const cached = sessionStorage.getItem(`tab:search:${channel}`);
+    const cached = readUiState()?.activeTab;
     if (cached === 'questions' || cached === 'topics' || cached === 'users') return cached;
     return 'all';
   });
-  const [questionSort, setQuestionSort] = useState<'relevance' | 'latest' | 'hot'>('relevance');
-  const [questionCategoryFilter, setQuestionCategoryFilter] = useState<string>('全部');
+  const [questionSort, setQuestionSort] = useState<'relevance' | 'latest' | 'hot'>(() => {
+    const cached = readUiState()?.questionSort;
+    return cached === 'latest' || cached === 'hot' ? cached : 'relevance';
+  });
+  const [questionCategoryFilter, setQuestionCategoryFilter] = useState<string>(() => readUiState()?.questionCategoryFilter || '全部');
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [searchFocused, setSearchFocused] = useState(false);
   const placeholder = channel === 'education'
@@ -155,8 +173,15 @@ const SearchResults = () => {
   }, [historyStorageKey]);
 
   useEffect(() => {
-    sessionStorage.setItem(tabStorageKey, activeTab);
-  }, [activeTab, tabStorageKey]);
+    sessionStorage.setItem(
+      uiStorageKey,
+      JSON.stringify({
+        activeTab,
+        questionSort,
+        questionCategoryFilter,
+      })
+    );
+  }, [activeTab, questionSort, questionCategoryFilter, uiStorageKey]);
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
@@ -510,7 +535,7 @@ const SearchResults = () => {
                   ))}
                 </div>
               </div>
-              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide">
+              <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-hide" data-no-swipe-back="true">
                 {questionCategoryOptions.map((item) => (
                   <button
                     key={item}

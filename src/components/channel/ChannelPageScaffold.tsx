@@ -188,12 +188,13 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
             </button>
           )}
 
-          <ScrollArea className="w-full" orientation="horizontal">
+          <ScrollArea className="w-full" orientation="horizontal" data-no-swipe-back="true">
             <div ref={categoryRef} className="flex space-x-2 pb-2 pr-4" style={{ minWidth: '100%' }}>
               {categories.map((category) => {
                 const active = activeCategory === category.id;
                 return (
-                  <div
+                  <button
+                    type="button"
                     key={category.id}
                     className={`flex-shrink-0 cursor-pointer rounded-full border px-3.5 py-2 transition-colors flex items-center gap-1.5 ${
                       active ? activeCategoryClass : inactiveCategoryClass
@@ -202,7 +203,7 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
                   >
                     {category.icon}
                     <span className="whitespace-nowrap text-xs font-medium">{category.name}</span>
-                  </div>
+                  </button>
                 );
               })}
             </div>

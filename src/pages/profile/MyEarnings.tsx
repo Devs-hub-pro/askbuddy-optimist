@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Wallet, Coins, TrendingUp, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -10,6 +10,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import PageStateCard from '@/components/common/PageStateCard';
+import { buildFromState } from '@/utils/navigation';
 
 interface PointsTransactionItem {
   id: string;
@@ -21,6 +22,7 @@ interface PointsTransactionItem {
 
 const MyEarnings = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { profile } = useAuth();
   const { data: transactions, isLoading, error, refetch } = useMyEarnings();
 
@@ -54,7 +56,7 @@ const MyEarnings = () => {
               variant="secondary"
               size="sm"
               className="rounded-full"
-              onClick={() => navigate('/profile/recharge')}
+              onClick={() => navigate('/profile/recharge', { state: buildFromState(location) })}
             >
               <Coins size={14} className="mr-1" />
               充值积分
@@ -126,7 +128,7 @@ const MyEarnings = () => {
             title="暂无积分记录"
             description="你可以先去广场参与互动，或发布内容获取收益。"
             actionLabel="去发现页"
-            onAction={() => navigate('/discover')}
+            onAction={() => navigate('/discover', { state: buildFromState(location) })}
           />
         </div>
       )}

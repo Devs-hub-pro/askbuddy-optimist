@@ -98,7 +98,7 @@ const DiscoverInteractions = () => {
       return;
     }
     if (item.related_type === 'post' && item.related_id) {
-      navigate('/discover');
+      navigate('/discover', { state: buildFromState(location) });
     }
   };
 

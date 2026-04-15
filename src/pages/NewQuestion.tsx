@@ -93,6 +93,7 @@ const timeSlots = [
 ];
 
 const DRAFT_STORAGE_KEY = 'new-question-draft-v1';
+const DRAFT_RESTORE_HINT_KEY = 'new-question-draft-restored-v1';
 const MAX_ATTACHMENTS = 6;
 
 interface QuestionDraft {
@@ -133,6 +134,7 @@ const NewQuestion: React.FC = () => {
   const [showLeaveDialog, setShowLeaveDialog] = useState(false);
   const attachmentsRef = useRef<AttachmentItem[]>([]);
   const draftStorageKey = user ? `${DRAFT_STORAGE_KEY}:${user.id}` : `${DRAFT_STORAGE_KEY}:guest`;
+  const draftRestoreHintKey = user ? `${DRAFT_RESTORE_HINT_KEY}:${user.id}` : `${DRAFT_RESTORE_HINT_KEY}:guest`;
   const titlePlaceholder = useMemo(() => {
     const randomIndex = Math.floor(Math.random() * placeholderQuestions.length);
     return placeholderQuestions[randomIndex];
@@ -168,17 +170,21 @@ const NewQuestion: React.FC = () => {
       if (typeof draft.savedAt === 'string') {
         const savedDate = new Date(draft.savedAt);
         const label = Number.isNaN(savedDate.getTime()) ? '' : `（${savedDate.toLocaleString('zh-CN')}）`;
-        toast({
-          title: '已恢复本地草稿',
-          description: `你上次编辑的内容已自动恢复${label}`,
-        });
+        const restoredFlag = sessionStorage.getItem(draftRestoreHintKey);
+        if (restoredFlag !== draft.savedAt) {
+          toast({
+            title: '已恢复本地草稿',
+            description: `你上次编辑的内容已自动恢复${label}`,
+          });
+          sessionStorage.setItem(draftRestoreHintKey, draft.savedAt);
+        }
       }
     } catch {
       localStorage.removeItem(draftStorageKey);
     } finally {
       setHydratedDraft(true);
     }
-  }, [draftStorageKey]);
+  }, [draftRestoreHintKey, draftStorageKey]);
   
   // Handle tag selection (max 5)
   const toggleTag = (tag: string) => {
@@ -417,6 +423,7 @@ const NewQuestion: React.FC = () => {
     }, {
       onSuccess: () => {
         localStorage.removeItem(draftStorageKey);
+        sessionStorage.removeItem(draftRestoreHintKey);
         attachments.forEach((item) => {
           if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
         });
@@ -429,6 +436,7 @@ const NewQuestion: React.FC = () => {
   const saveDraft = (options?: { silent?: boolean }) => {
     if (!hasContent) {
       localStorage.removeItem(draftStorageKey);
+      sessionStorage.removeItem(draftRestoreHintKey);
       if (!options?.silent) {
         toast({
           title: "暂无可保存内容",
@@ -914,6 +922,7 @@ const NewQuestion: React.FC = () => {
               className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => {
                 localStorage.removeItem(draftStorageKey);
+                sessionStorage.removeItem(draftRestoreHintKey);
                 setShowLeaveDialog(false);
                 navigateBackOr(navigate, '/', { location });
               }}

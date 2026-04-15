@@ -31,6 +31,7 @@ import PageStateCard from '@/components/common/PageStateCard';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 import { isNativeApp } from '@/utils/platform';
 import { buildFromState } from '@/utils/navigation';
+import { toast } from 'sonner';
 
 const Discover: React.FC = () => {
   const navigate = useNavigate();
@@ -133,18 +134,26 @@ const Discover: React.FC = () => {
 
   const handleCreatePost = async () => {
     if (!newPostContent.trim()) return;
-    let imageUrls: string[] = [];
-    if (selectedImages.length > 0) {
-      imageUrls = await uploadMedia.mutateAsync(selectedImages);
+    try {
+      let imageUrls: string[] = [];
+      if (selectedImages.length > 0) {
+        imageUrls = await uploadMedia.mutateAsync(selectedImages);
+      }
+      await createPost.mutateAsync({ content: newPostContent, topics: newPostTags, images: imageUrls });
+      setIsPostDialogOpen(false);
+      resetComposer();
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : '发布失败，请稍后重试');
     }
-    await createPost.mutateAsync({ content: newPostContent, topics: newPostTags, images: imageUrls });
-    setIsPostDialogOpen(false);
-    resetComposer();
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
-    if (files.length + selectedImages.length > 9) return;
+    if (files.length + selectedImages.length > 9) {
+      toast.error('最多添加 9 张图片');
+      e.target.value = '';
+      return;
+    }
     setSelectedImages(prev => [...prev, ...files]);
     const previews = files.map(f => URL.createObjectURL(f));
     setImagePreviews(prev => [...prev, ...previews]);
@@ -514,7 +523,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, hasError,
               </div>
 
               {topicChips.length > 0 && (
-                <div className="mt-2.5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide">
+                <div className="mt-2.5 flex items-center gap-2 overflow-x-auto pb-1 scrollbar-hide" data-no-swipe-back="true">
                   <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-amber-50">
                     <Flame size={13} className="text-amber-500" />
                   </span>

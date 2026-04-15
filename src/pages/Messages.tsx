@@ -152,19 +152,23 @@ const Messages = () => {
           <div className="px-4 pb-3 pt-2">
             <div className="flex items-center justify-between">
               <div className="flex space-x-7">
-              <div
-                className={`relative pb-2 cursor-pointer ${activeTab === 'chats' ? 'text-white font-medium' : 'text-white/75'}`}
+              <button
+                type="button"
+                className={`relative pb-2 ${activeTab === 'chats' ? 'text-white font-medium' : 'text-white/75'}`}
                 onClick={() => setActiveTab('chats')}
+                aria-pressed={activeTab === 'chats'}
               >
                 <div className="flex items-center gap-1.5">
                   <MessageCircle size={17} />
                   <span className="text-base">私信</span>
                 </div>
                 {activeTab === 'chats' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full" />}
-              </div>
-              <div
-                className={`relative pb-2 cursor-pointer ${activeTab === 'notifications' ? 'text-white font-medium' : 'text-white/75'}`}
+              </button>
+              <button
+                type="button"
+                className={`relative pb-2 ${activeTab === 'notifications' ? 'text-white font-medium' : 'text-white/75'}`}
                 onClick={() => setActiveTab('notifications')}
+                aria-pressed={activeTab === 'notifications'}
               >
                 <div className="flex items-center gap-1.5">
                   <Bell size={17} />
@@ -176,7 +180,7 @@ const Messages = () => {
                   </div>
                 )}
                 {activeTab === 'notifications' && <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-white rounded-full" />}
-              </div>
+              </button>
               </div>
               <button
                 className="flex h-9 w-9 items-center justify-center rounded-full bg-white/20 hover:bg-white/25"
@@ -217,8 +221,8 @@ const Messages = () => {
       </div>
 
       <div
-        className="app-card-stack-gap app-page-padding space-y-4 py-4"
-        style={{ paddingTop: showSearch ? 'calc(env(safe-area-inset-top) + 8.25rem)' : 'calc(env(safe-area-inset-top) + 4.75rem)' }}
+        className="app-card-stack-gap app-page-padding space-y-4 py-4 transition-[padding-top] duration-200"
+        style={{ paddingTop: showSearch ? 'calc(env(safe-area-inset-top) + 8.5rem)' : 'calc(env(safe-area-inset-top) + 5rem)' }}
       >
         {activeTab === 'chats' && (
           <div className="space-y-3">
@@ -253,10 +257,11 @@ const Messages = () => {
                 </div>
               ) : (
                 filteredChats.map(chat => (
-                  <div
+                  <button
+                    type="button"
                     key={chat.id}
                     className={cn(
-                      "surface-card flex items-center rounded-3xl px-4 py-4 cursor-pointer transition-colors active:bg-muted/50",
+                      "surface-card flex w-full items-center rounded-3xl px-4 py-4 text-left transition-colors active:bg-muted/50",
                       chat.unreadCount > 0 ? 'app-soft-border app-soft-muted-bg border' : ''
                     )}
                     onClick={() => handleChatClick(chat.partnerId)}
@@ -282,7 +287,7 @@ const Messages = () => {
                       )}
                       <ChevronRight size={16} className="text-muted-foreground" />
                     </div>
-                  </div>
+                  </button>
                 ))
               )}
           </div>
@@ -343,10 +348,11 @@ const Messages = () => {
                   </div>
                   <div className="space-y-2">
                     {group.items.map((notification) => (
-                      <div
+                      <button
+                        type="button"
                         key={notification.id}
                         className={cn(
-                          "surface-card flex rounded-3xl px-4 py-4 cursor-pointer active:bg-muted/50",
+                          "surface-card flex w-full rounded-3xl px-4 py-4 text-left active:bg-muted/50",
                           !notification.is_read ? 'app-soft-border app-soft-muted-bg border' : ''
                         )}
                         onClick={() => handleNotificationClick(notification)}
@@ -360,7 +366,7 @@ const Messages = () => {
                           <div className="text-xs text-muted-foreground">{formatTime(notification.created_at)}</div>
                         </div>
                         {!notification.is_read && <div className="app-header-bg mt-2 h-2 w-2 rounded-full" />}
-                      </div>
+                      </button>
                     ))}
                   </div>
                 </div>

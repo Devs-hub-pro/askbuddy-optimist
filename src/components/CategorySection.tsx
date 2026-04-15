@@ -1,8 +1,9 @@
 
 import React from 'react';
 import { GraduationCap, Briefcase, Home, Camera, Plane, Heart, TrendingUp, Smartphone, HelpCircle, LucideIcon } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useCategories } from '@/hooks/useCategories';
+import { buildFromState } from '@/utils/navigation';
 
 // Map icon names from DB to actual Lucide components
 const iconMap: Record<string, LucideIcon> = {
@@ -48,6 +49,7 @@ const fallbackCategories = [
 
 const CategorySection: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: dbCategories, isLoading } = useCategories();
 
   // Use first 4 categories for home page grid
@@ -62,7 +64,7 @@ const CategorySection: React.FC = () => {
     : fallbackCategories;
 
   const handleCategoryClick = (path: string) => {
-    navigate(path);
+    navigate(path, { state: buildFromState(location) });
   };
 
   return (

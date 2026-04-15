@@ -60,7 +60,7 @@ const GeneralSettings = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <Type className="w-5 h-5 mr-2 text-blue-500" />
+              <Type className="w-5 h-5 mr-2 text-primary" />
               显示设置
             </CardTitle>
           </CardHeader>
@@ -99,7 +99,7 @@ const GeneralSettings = () => {
                   checked={settings.darkMode}
                   onCheckedChange={() => handleToggle('darkMode')}
                 />
-                <Moon size={16} className="text-blue-500" />
+                <Moon size={16} className="text-primary" />
               </div>
             </div>
           </CardContent>
@@ -109,7 +109,7 @@ const GeneralSettings = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <Languages className="w-5 h-5 mr-2 text-green-500" />
+              <Languages className="w-5 h-5 mr-2 text-primary" />
               语言设置
             </CardTitle>
           </CardHeader>
@@ -143,7 +143,7 @@ const GeneralSettings = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <Database className="w-5 h-5 mr-2 text-purple-500" />
+              <Database className="w-5 h-5 mr-2 text-primary" />
               语音视频设置
             </CardTitle>
           </CardHeader>

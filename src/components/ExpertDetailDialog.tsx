@@ -97,7 +97,7 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
           {/* Expert Header */}
           <div className="flex items-start justify-between">
             <div className="flex gap-4">
-              <Avatar className="w-16 h-16 border-2 border-green-100">
+              <Avatar className="w-16 h-16 border-2 app-soft-border">
                 <AvatarImage src={avatar} alt={name} className="object-cover" />
                 <AvatarFallback>{name.charAt(0)}</AvatarFallback>
               </Avatar>
@@ -106,13 +106,13 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
                 <div className="flex items-center gap-2">
                   <h2 className="text-lg font-bold">{name}</h2>
                   {verified && (
-                    <span className="bg-blue-50 text-blue-600 text-xs px-1.5 py-0.5 rounded-full border border-blue-100 flex items-center">
+                    <span className="bg-secondary text-secondary-foreground text-xs px-1.5 py-0.5 rounded-full border border-border flex items-center">
                       <Award size={10} className="mr-0.5" />
                       已认证
                     </span>
                   )}
                 </div>
-                <p className="text-sm text-green-600">{title}</p>
+                <p className="text-sm text-primary">{title}</p>
                 <div className="flex items-center text-xs text-gray-600">
                   <MapPin size={12} className="mr-1" />
                   <span>{location}</span>
@@ -127,11 +127,11 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
                 <Award size={14} />
                 <span className="text-sm font-medium">{rating}</span>
               </div>
-              <div className="flex items-center justify-end text-blue-500 gap-1 text-xs">
+              <div className="flex items-center justify-end text-primary gap-1 text-xs">
                 <Clock size={12} />
                 <span>{responseRate} 响应率</span>
               </div>
-              <div className="flex items-center justify-end text-green-500 gap-1 text-xs">
+              <div className="flex items-center justify-end text-slate-500 gap-1 text-xs">
                 <Package size={12} />
                 <span>{orderCount}</span>
               </div>
@@ -148,7 +148,7 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
               {description.length > 200 && !isDescriptionExpanded ? (
                 <>
                   <p>{description.substring(0, 200)}...</p>
-                  <CollapsibleTrigger className="text-blue-500 text-xs mt-2 hover:underline flex items-center">
+                  <CollapsibleTrigger className="text-primary text-xs mt-2 hover:underline flex items-center">
                     展开全部 <ChevronDown size={12} className="ml-1" />
                   </CollapsibleTrigger>
                 </>
@@ -156,7 +156,7 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
                 <>
                   <p>{description}</p>
                   {description.length > 200 && (
-                    <CollapsibleTrigger className="text-blue-500 text-xs mt-2 hover:underline flex items-center">
+                    <CollapsibleTrigger className="text-primary text-xs mt-2 hover:underline flex items-center">
                       收起 <ChevronUp size={12} className="ml-1" />
                     </CollapsibleTrigger>
                   )}
@@ -174,7 +174,7 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
             {tags.map((tag, index) => (
               <span 
                 key={index} 
-                className="bg-green-50 text-green-600 text-xs px-2.5 py-1 rounded-full border border-green-100"
+                className="bg-secondary text-secondary-foreground text-xs px-2.5 py-1 rounded-full border border-border"
               >
                 #{tag}
               </span>
@@ -187,7 +187,7 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
               <h3 className="text-sm font-semibold text-gray-700">教育经历</h3>
               <div className="space-y-2">
                 {education.map((edu, index) => (
-                  <div key={index} className="bg-blue-50 text-blue-700 text-sm px-3 py-2 rounded-md">
+                  <div key={index} className="bg-secondary text-secondary-foreground text-sm px-3 py-2 rounded-md">
                     {edu}
                   </div>
                 ))}
@@ -198,7 +198,7 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
               <h3 className="text-sm font-semibold text-gray-700">工作经历</h3>
               <div className="space-y-2">
                 {experience.map((exp, index) => (
-                  <div key={index} className="bg-purple-50 text-purple-700 text-sm px-3 py-2 rounded-md">
+                  <div key={index} className="bg-secondary text-secondary-foreground text-sm px-3 py-2 rounded-md">
                     {exp}
                   </div>
                 ))}
@@ -211,21 +211,21 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
             <h3 className="text-sm font-semibold text-gray-700">咨询方式</h3>
             <div className="flex gap-3">
               <button 
-                className={`flex-1 py-2.5 px-3 rounded-2xl text-sm font-medium transition-all ${selectedConsultType === 'text' ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' : 'bg-gray-100 text-gray-700 border border-gray-200'}`}
+                className={`flex-1 py-2.5 px-3 rounded-2xl text-sm font-medium transition-all ${selectedConsultType === 'text' ? 'bg-primary/15 text-primary border-2 border-primary/30' : 'bg-gray-100 text-gray-700 border border-gray-200'}`}
                 onClick={() => setSelectedConsultType('text')}
               >
                 文本咨询
                 <div className="text-xs mt-0.5">{amounts.text}积分</div>
               </button>
               <button 
-                className={`flex-1 py-2.5 px-3 rounded-2xl text-sm font-medium transition-all ${selectedConsultType === 'voice' ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' : 'bg-gray-100 text-gray-700 border border-gray-200'}`}
+                className={`flex-1 py-2.5 px-3 rounded-2xl text-sm font-medium transition-all ${selectedConsultType === 'voice' ? 'bg-primary/15 text-primary border-2 border-primary/30' : 'bg-gray-100 text-gray-700 border border-gray-200'}`}
                 onClick={() => setSelectedConsultType('voice')}
               >
                 语音咨询
                 <div className="text-xs mt-0.5">{amounts.voice}积分</div>
               </button>
               <button 
-                className={`flex-1 py-2.5 px-3 rounded-2xl text-sm font-medium transition-all ${selectedConsultType === 'video' ? 'bg-blue-100 text-blue-700 border-2 border-blue-300' : 'bg-gray-100 text-gray-700 border border-gray-200'}`}
+                className={`flex-1 py-2.5 px-3 rounded-2xl text-sm font-medium transition-all ${selectedConsultType === 'video' ? 'bg-primary/15 text-primary border-2 border-primary/30' : 'bg-gray-100 text-gray-700 border border-gray-200'}`}
                 onClick={() => setSelectedConsultType('video')}
               >
                 视频咨询
@@ -238,7 +238,7 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
           <div className="flex gap-3">
             <Button 
               variant="outline" 
-              className="flex-1 rounded-full bg-green-50 text-green-600 border-green-100 hover:bg-green-100 hover:text-green-700"
+              className="flex-1 rounded-full bg-secondary text-secondary-foreground border-border hover:bg-secondary/80 hover:text-secondary-foreground"
               onClick={() => {
                 if (!user) { navigateToAuthWithReturn(navigate, currentLocation); return; }
                 createOrder.mutate(
@@ -255,7 +255,7 @@ const ExpertDetailDialog: React.FC<ExpertDetailProps> = ({
               {createOrder.isPending && <Loader2 size={14} className="animate-spin mr-1" />}
               预约咨询
             </Button>
-            <Button className="flex-1 rounded-full bg-gradient-to-r from-blue-500 to-app-blue hover:opacity-90">
+            <Button className="flex-1 rounded-full bg-primary text-primary-foreground hover:bg-primary/90">
               <MessageSquare size={16} className="mr-2" />
               私聊
             </Button>

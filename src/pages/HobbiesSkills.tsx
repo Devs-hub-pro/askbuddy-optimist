@@ -232,7 +232,7 @@ const HobbiesSkills = () => {
   return (
     <ChannelPageScaffold
       title="兴趣技能"
-      pageClassName="bg-gradient-to-b from-rose-50/70 via-white to-white"
+      pageClassName="bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white"
       headerGradientClass="bg-gradient-to-r from-pink-500 to-rose-500"
       searchStripClass="bg-rose-50/90 border-rose-100/90"
       searchAccentRingClass="ring-rose-400/25"
@@ -329,7 +329,7 @@ const HobbiesSkills = () => {
                     accentTextClass="text-rose-600"
                     accentTagClass="bg-rose-50 text-rose-600"
                     accentSummaryClass="border-rose-200 bg-rose-50/50"
-                    ctaClassName="bg-gradient-to-r from-rose-500 to-pink-400"
+                    ctaClassName="bg-primary text-primary-foreground hover:bg-primary/90"
                     onOpen={() => handleViewExpertProfile(expert.id)}
                     onConsult={() => navigate(`/expert/${expert.id}`, { state: buildFromState(location) })}
                   />
@@ -339,7 +339,7 @@ const HobbiesSkills = () => {
           </TabsContent>
       
       <ChannelFloatingActionButton
-        className="bg-gradient-to-r from-rose-500 to-pink-500 shadow-[0_12px_28px_rgba(244,63,94,0.28)]"
+        className="bg-primary text-primary-foreground shadow-[0_12px_28px_rgba(73,170,155,0.28)]"
         onClick={() => navigate('/new', { state: buildFromState(location) })}
         ariaLabel="发布兴趣技能需求"
       />

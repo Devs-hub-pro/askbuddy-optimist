@@ -20,7 +20,7 @@ const AboutUs = () => {
       <div className="p-4 bg-gradient-to-r from-[rgb(121,213,199)] to-[rgb(160,237,224)] text-center text-white rounded-b-3xl">
         <div className="py-8">
           <div className="w-20 h-20 bg-white rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg">
-            <span className="text-3xl font-bold bg-gradient-to-r from-app-blue to-app-teal bg-clip-text text-transparent">问问</span>
+            <span className="text-3xl font-bold bg-gradient-to-r from-primary to-app-accent bg-clip-text text-transparent">问问</span>
           </div>
           <h2 className="mb-1 text-lg font-semibold">找人问问</h2>
           <p className="text-white/80 text-sm mb-2">Version 1.0.5 · 2026</p>
@@ -32,7 +32,7 @@ const AboutUs = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">
-              <Info size={18} className="text-app-blue mr-2" />
+              <Info size={18} className="text-primary mr-2" />
               产品介绍
             </CardTitle>
           </CardHeader>
@@ -59,8 +59,8 @@ const AboutUs = () => {
           <CardContent>
             <div className="space-y-3">
               <div className="flex items-start">
-                <div className="w-10 h-10 bg-blue-50 rounded-full flex items-center justify-center shrink-0 mr-3">
-                  <MessageSquare size={20} className="text-app-blue" />
+                <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center shrink-0 mr-3">
+                  <MessageSquare size={20} className="text-primary" />
                 </div>
                 <div>
                   <h3 className="font-medium mb-1">专业问答</h3>
@@ -71,8 +71,8 @@ const AboutUs = () => {
               <Separator />
               
               <div className="flex items-start">
-                <div className="w-10 h-10 bg-green-50 rounded-full flex items-center justify-center shrink-0 mr-3">
-                  <Gift size={20} className="text-app-green" />
+                <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center shrink-0 mr-3">
+                  <Gift size={20} className="text-primary" />
                 </div>
                 <div>
                   <h3 className="font-medium mb-1">知识变现</h3>
@@ -83,8 +83,8 @@ const AboutUs = () => {
               <Separator />
               
               <div className="flex items-start">
-                <div className="w-10 h-10 bg-purple-50 rounded-full flex items-center justify-center shrink-0 mr-3">
-                  <Heart size={20} className="text-purple-500" />
+                <div className="w-10 h-10 bg-secondary rounded-full flex items-center justify-center shrink-0 mr-3">
+                  <Heart size={20} className="text-primary" />
                 </div>
                 <div>
                   <h3 className="font-medium mb-1">社区互动</h3>
@@ -103,8 +103,8 @@ const AboutUs = () => {
             <div className="space-y-3">
               <a href="mailto:support@example.com" className="flex items-center justify-between rounded-2xl p-3 hover:bg-slate-50 transition-colors">
                 <div className="flex items-center">
-                  <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center mr-3">
-                    <Mail size={16} className="text-app-blue" />
+                  <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center mr-3">
+                    <Mail size={16} className="text-primary" />
                   </div>
                   <span>support@example.com</span>
                 </div>
@@ -123,8 +123,8 @@ const AboutUs = () => {
               
               <a href="#" className="flex items-center justify-between rounded-2xl p-3 hover:bg-slate-50 transition-colors">
                 <div className="flex items-center">
-                  <div className="w-8 h-8 bg-blue-50 rounded-full flex items-center justify-center mr-3">
-                    <Twitter size={16} className="text-blue-400" />
+                  <div className="w-8 h-8 bg-secondary rounded-full flex items-center justify-center mr-3">
+                    <Twitter size={16} className="text-primary" />
                   </div>
                   <span>@findquestion</span>
                 </div>
@@ -135,8 +135,8 @@ const AboutUs = () => {
           <CardFooter className="bg-slate-50 px-4 py-3 flex justify-between">
             <span className="text-sm text-gray-500">© 2026 找人问问</span>
             <div className="flex space-x-4">
-              <a href="#" className="text-sm text-gray-500 hover:text-app-blue">服务条款</a>
-              <a href="#" className="text-sm text-gray-500 hover:text-app-blue">隐私政策</a>
+              <a href="#" className="text-sm text-gray-500 hover:text-primary">服务条款</a>
+              <a href="#" className="text-sm text-gray-500 hover:text-primary">隐私政策</a>
             </div>
           </CardFooter>
         </Card>

@@ -236,7 +236,7 @@ const EducationLearning = () => {
   return (
     <ChannelPageScaffold
       title="教育学习"
-      pageClassName="bg-gradient-to-b from-blue-50/70 via-white to-white"
+      pageClassName="bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white"
       headerGradientClass="bg-gradient-to-r from-blue-500 to-indigo-500"
       searchStripClass="bg-blue-50/90 border-blue-100/90"
       searchAccentRingClass="ring-blue-400/25"
@@ -333,7 +333,7 @@ const EducationLearning = () => {
                     accentTextClass="text-blue-600"
                     accentTagClass="bg-blue-50 text-blue-600"
                     accentSummaryClass="border-blue-200 bg-blue-50/60"
-                    ctaClassName="bg-gradient-to-r from-blue-500 to-indigo-400"
+                    ctaClassName="bg-primary text-primary-foreground hover:bg-primary/90"
                     onOpen={() => handleViewExpertProfile(expert.id)}
                     onConsult={() => navigate(`/expert/${expert.id}`, { state: buildFromState(location) })}
                   />
@@ -343,7 +343,7 @@ const EducationLearning = () => {
           </TabsContent>
       
       <ChannelFloatingActionButton
-        className="bg-gradient-to-r from-blue-500 to-indigo-500 shadow-[0_12px_28px_rgba(59,130,246,0.28)]"
+        className="bg-primary text-primary-foreground shadow-[0_12px_28px_rgba(73,170,155,0.28)]"
         onClick={() => navigate('/new', { state: buildFromState(location) })}
         ariaLabel="发布教育学习问题"
       />

@@ -49,15 +49,15 @@ const UserResearch = () => {
         {/* 其他参与方式 */}
         <div className="space-y-4">
           <h2 className="text-lg font-semibold mb-4 flex items-center">
-            <MessageSquare className="w-5 h-5 mr-2 text-blue-500" />
+            <MessageSquare className="w-5 h-5 mr-2 text-primary" />
             更多参与方式
           </h2>
           
           <div className="grid grid-cols-2 gap-4">
             <Card className="surface-card rounded-3xl cursor-pointer transition-shadow hover:shadow-md" onClick={() => handleParticipate('survey')}>
               <CardContent className="p-4 text-center">
-                <div className="w-12 h-12 mx-auto mb-2 bg-blue-100 rounded-full flex items-center justify-center">
-                  <MessageSquare className="w-6 h-6 text-blue-500" />
+                <div className="w-12 h-12 mx-auto mb-2 bg-secondary rounded-full flex items-center justify-center">
+                  <MessageSquare className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="font-medium mb-1">问卷调查</h3>
                 <p className="text-xs text-gray-500">获得20积分</p>
@@ -66,8 +66,8 @@ const UserResearch = () => {
 
             <Card className="surface-card rounded-3xl cursor-pointer transition-shadow hover:shadow-md" onClick={() => handleParticipate('interview')}>
               <CardContent className="p-4 text-center">
-                <div className="w-12 h-12 mx-auto mb-2 bg-green-100 rounded-full flex items-center justify-center">
-                  <Gift className="w-6 h-6 text-green-500" />
+                <div className="w-12 h-12 mx-auto mb-2 bg-secondary rounded-full flex items-center justify-center">
+                  <Gift className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="font-medium mb-1">深度访谈</h3>
                 <p className="text-xs text-gray-500">获得100积分</p>
@@ -86,8 +86,8 @@ const UserResearch = () => {
 
             <Card className="surface-card rounded-3xl cursor-pointer transition-shadow hover:shadow-md" onClick={() => handleParticipate('feedback')}>
               <CardContent className="p-4 text-center">
-                <div className="w-12 h-12 mx-auto mb-2 bg-red-100 rounded-full flex items-center justify-center">
-                  <ThumbsUp className="w-6 h-6 text-red-500" />
+                <div className="w-12 h-12 mx-auto mb-2 bg-secondary rounded-full flex items-center justify-center">
+                  <ThumbsUp className="w-6 h-6 text-primary" />
                 </div>
                 <h3 className="font-medium mb-1">意见反馈</h3>
                 <p className="text-xs text-gray-500">获得10积分</p>

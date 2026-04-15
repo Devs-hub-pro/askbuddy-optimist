@@ -12,7 +12,7 @@ const CommunityGuidelines = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <Shield className="w-5 h-5 mr-2 text-blue-500" />
+              <Shield className="w-5 h-5 mr-2 text-primary" />
               基本准则
             </CardTitle>
             <CardDescription>
@@ -21,13 +21,13 @@ const CommunityGuidelines = () => {
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
-              <div className="rounded-2xl bg-blue-50 p-3 text-sm text-blue-700">
+              <div className="rounded-2xl bg-secondary p-3 text-sm text-secondary-foreground">
                 请保持友善，互相尊重
               </div>
-              <div className="rounded-2xl bg-green-50 p-3 text-sm text-green-700">
+              <div className="rounded-2xl bg-secondary p-3 text-sm text-secondary-foreground">
                 分享真实、有价值的信息
               </div>
-              <div className="rounded-2xl bg-purple-50 p-3 text-sm text-purple-700">
+              <div className="rounded-2xl bg-secondary p-3 text-sm text-secondary-foreground">
                 遵守知识产权，注明引用来源
               </div>
             </div>
@@ -37,7 +37,7 @@ const CommunityGuidelines = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <MessageSquare className="w-5 h-5 mr-2 text-green-500" />
+              <MessageSquare className="w-5 h-5 mr-2 text-primary" />
               内容规范
             </CardTitle>
           </CardHeader>
@@ -64,7 +64,7 @@ const CommunityGuidelines = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <Shield className="w-5 h-5 mr-2 text-orange-500" />
+              <Shield className="w-5 h-5 mr-2 text-primary" />
               违规处理
             </CardTitle>
           </CardHeader>
@@ -73,19 +73,19 @@ const CommunityGuidelines = () => {
               <div className="text-sm">违规行为将根据情节轻重采取以下处理：</div>
               <div className="space-y-2 mt-2">
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <span className="w-2 h-2 bg-yellow-500 rounded-full"></span>
+                  <span className="w-2 h-2 bg-amber-500 rounded-full"></span>
                   <span>内容删除</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <span className="w-2 h-2 bg-orange-500 rounded-full"></span>
+                  <span className="w-2 h-2 bg-destructive/70 rounded-full"></span>
                   <span>账号警告</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <span className="w-2 h-2 bg-red-500 rounded-full"></span>
+                  <span className="w-2 h-2 bg-destructive rounded-full"></span>
                   <span>限制功能使用</span>
                 </div>
                 <div className="flex items-center space-x-2 text-sm text-gray-600">
-                  <span className="w-2 h-2 bg-red-700 rounded-full"></span>
+                  <span className="w-2 h-2 bg-destructive rounded-full"></span>
                   <span>永久封禁</span>
                 </div>
               </div>

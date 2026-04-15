@@ -19,8 +19,8 @@ const SEARCH_HISTORY_KEY = 'searchHistory';
 const channelThemes = {
   education: {
     title: '教育学习搜索',
-    headerClass: 'bg-gradient-to-r from-blue-500 to-indigo-500',
-    pageClass: 'bg-gradient-to-b from-blue-50/70 via-white to-white',
+    headerClass: 'bg-gradient-to-r from-blue-400 to-indigo-400',
+    pageClass: 'bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white',
     searchStripClass: 'bg-blue-50/90 border-b border-blue-100/90',
     accentRingClass: 'ring-blue-400/25',
     inputAccentClass: 'focus-visible:ring-blue-400/20 focus-visible:border-blue-200',
@@ -32,8 +32,8 @@ const channelThemes = {
   },
   career: {
     title: '职业发展搜索',
-    headerClass: 'bg-gradient-to-r from-green-500 to-teal-500',
-    pageClass: 'bg-gradient-to-b from-emerald-50/70 via-white to-white',
+    headerClass: 'bg-gradient-to-r from-green-400 to-teal-400',
+    pageClass: 'bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white',
     searchStripClass: 'bg-emerald-50/90 border-b border-emerald-100/90',
     accentRingClass: 'ring-emerald-400/25',
     inputAccentClass: 'focus-visible:ring-emerald-400/20 focus-visible:border-emerald-200',
@@ -45,8 +45,8 @@ const channelThemes = {
   },
   lifestyle: {
     title: '生活服务搜索',
-    headerClass: 'bg-gradient-to-r from-orange-500 to-amber-500',
-    pageClass: 'bg-gradient-to-b from-orange-50/70 via-white to-white',
+    headerClass: 'bg-gradient-to-r from-orange-400 to-amber-400',
+    pageClass: 'bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white',
     searchStripClass: 'bg-orange-50/90 border-b border-orange-100/90',
     accentRingClass: 'ring-orange-400/25',
     inputAccentClass: 'focus-visible:ring-orange-400/20 focus-visible:border-orange-200',
@@ -58,8 +58,8 @@ const channelThemes = {
   },
   hobbies: {
     title: '兴趣技能搜索',
-    headerClass: 'bg-gradient-to-r from-pink-500 to-rose-500',
-    pageClass: 'bg-gradient-to-b from-rose-50/70 via-white to-white',
+    headerClass: 'bg-gradient-to-r from-pink-400 to-rose-400',
+    pageClass: 'bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white',
     searchStripClass: 'bg-rose-50/90 border-b border-rose-100/90',
     accentRingClass: 'ring-rose-400/25',
     inputAccentClass: 'focus-visible:ring-rose-400/20 focus-visible:border-rose-200',
@@ -72,7 +72,7 @@ const channelThemes = {
   default: {
     title: '搜索',
     headerClass: 'app-header-bg',
-    pageClass: 'bg-gradient-to-b from-white to-blue-50/30',
+    pageClass: 'bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white',
     searchStripClass: 'app-header-soft-bg app-soft-border border-b',
     accentRingClass: 'ring-app-teal/25',
     inputAccentClass: 'focus-visible:ring-app-teal/25 focus-visible:border-app-teal/30',
@@ -745,7 +745,7 @@ const QuestionCard = ({ question: q, onOpenQuestion }: { question: SearchQuestio
       {q.tags && q.tags.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mt-2">
           {q.tags.map((tag, i) => (
-            <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 border border-blue-100">
+            <span key={i} className="text-xs px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground border border-border">
               #{tag}
             </span>
           ))}

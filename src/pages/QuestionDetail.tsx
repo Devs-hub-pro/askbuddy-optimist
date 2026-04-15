@@ -21,7 +21,7 @@ import { buildFromState, navigateBackOr, navigateToAuthWithReturn } from '@/util
 
 // 分享选项
 const SHARE_OPTIONS = [
-  { id: "internal", name: "站内用户", icon: <Users size={20} className="text-blue-500" /> },
+  { id: "internal", name: "站内用户", icon: <Users size={20} className="text-primary" /> },
   { id: "wechat", name: "微信", icon: <div className="w-5 h-5 bg-green-500 rounded-md flex items-center justify-center text-white font-bold text-xs">W</div> },
   { id: "qq", name: "QQ", icon: <div className="w-5 h-5 bg-blue-400 rounded-md flex items-center justify-center text-white font-bold text-xs">Q</div> },
   { id: "douyin", name: "抖音", icon: <div className="w-5 h-5 bg-black rounded-md flex items-center justify-center text-white font-bold text-xs">抖</div> }
@@ -74,7 +74,7 @@ const QuestionDetail = () => {
 
   if (!isDemoQuestion && isLoading) {
     return (
-      <div className="app-container min-h-[100dvh] bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
+      <div className="app-container min-h-[100dvh] bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white flex items-center justify-center p-4">
         <PageStateCard variant="loading" title="正在加载问题内容…" />
       </div>
     );
@@ -85,7 +85,7 @@ const QuestionDetail = () => {
 
   if (error || !resolvedData) {
     return (
-      <div className="app-container min-h-[100dvh] bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex items-center justify-center p-4">
+      <div className="app-container min-h-[100dvh] bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white flex items-center justify-center p-4">
         <PageStateCard
           variant="error"
           title="暂时无法加载问题"
@@ -214,7 +214,7 @@ const QuestionDetail = () => {
   }));
 
   return (
-    <div className="app-container bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-24 min-h-[100dvh]">
+    <div className="app-container bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white pb-24 min-h-[100dvh]">
       <Header
         title="问题详情"
         asker={{
@@ -229,14 +229,14 @@ const QuestionDetail = () => {
         onViewUser={handleViewUserProfile}
       />
       <div className="mx-4 mb-5 mt-4 surface-card rounded-3xl p-5 animate-fade-in">
-        <div className="inline-flex rounded-full bg-blue-50 px-3 py-1 text-xs font-medium text-blue-600">问题正文</div>
+        <div className="inline-flex rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">问题正文</div>
         <h1 className="mt-3 text-[21px] font-bold leading-8 text-gray-800 text-left">{question.title}</h1>
         <div className="mt-4 text-[15px] text-gray-700 leading-7 text-left mb-5">
           {question.content && question.content.length > 100 && !isDescriptionExpanded ? (
             <>
               <p>{question.content.substring(0, 100)}...</p>
               <button
-                className="text-blue-500 text-xs mt-2 hover:underline flex items-center"
+                className="text-primary text-xs mt-2 hover:underline flex items-center"
                 onClick={() => setIsDescriptionExpanded(true)}
                 aria-label="展开全部描述"
               >
@@ -248,7 +248,7 @@ const QuestionDetail = () => {
               <p>{question.content || '暂无详细描述'}</p>
               {question.content && question.content.length > 100 && (
                 <button
-                  className="text-blue-500 text-xs mt-2 hover:underline flex items-center"
+                  className="text-primary text-xs mt-2 hover:underline flex items-center"
                   onClick={() => setIsDescriptionExpanded(false)}
                   aria-label="收起描述"
                 >
@@ -280,7 +280,7 @@ const QuestionDetail = () => {
             <p className="mt-1 text-xs text-slate-500">优先查看高质量回答，再决定是否继续补充提问。</p>
           </div>
           <button
-            className="rounded-full bg-slate-50 px-3 py-1.5 text-xs font-medium text-blue-500 flex items-center"
+            className="rounded-full bg-secondary px-3 py-1.5 text-xs font-medium text-primary flex items-center"
             aria-label="按热度排序"
           >
             按热度排序

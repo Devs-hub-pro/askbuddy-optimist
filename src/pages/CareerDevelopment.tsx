@@ -238,7 +238,7 @@ const CareerDevelopment = () => {
   return (
     <ChannelPageScaffold
       title="职业发展"
-      pageClassName="bg-gradient-to-b from-emerald-50/70 via-white to-white"
+      pageClassName="bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white"
       headerGradientClass="bg-gradient-to-r from-green-500 to-teal-500"
       searchStripClass="bg-emerald-50/90 border-emerald-100/90"
       searchAccentRingClass="ring-emerald-400/25"
@@ -335,7 +335,7 @@ const CareerDevelopment = () => {
                     accentTextClass="text-green-600"
                     accentTagClass="bg-green-50 text-green-600"
                     accentSummaryClass="border-green-200 bg-green-50/60"
-                    ctaClassName="bg-gradient-to-r from-green-500 to-teal-400"
+                    ctaClassName="bg-primary text-primary-foreground hover:bg-primary/90"
                     onOpen={() => handleViewExpertProfile(expert.id)}
                     onConsult={() => navigate(`/expert/${expert.id}`, { state: buildFromState(location) })}
                   />
@@ -345,7 +345,7 @@ const CareerDevelopment = () => {
           </TabsContent>
       
       <ChannelFloatingActionButton
-        className="bg-gradient-to-r from-green-500 to-teal-500 shadow-[0_12px_28px_rgba(16,185,129,0.28)]"
+        className="bg-primary text-primary-foreground shadow-[0_12px_28px_rgba(73,170,155,0.28)]"
         onClick={() => navigate('/new', { state: buildFromState(location) })}
         ariaLabel="发布职业发展问题"
       />

@@ -110,7 +110,7 @@ const PrivacySettings = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">
-              <Lock size={18} className="text-red-500 mr-2" />互动设置
+              <Lock size={18} className="text-primary mr-2" />互动设置
             </CardTitle>
             <CardDescription>控制其他用户如何与您互动</CardDescription>
           </CardHeader>
@@ -124,7 +124,7 @@ const PrivacySettings = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">
-              <Shield size={18} className="text-purple-500 mr-2" />活动与状态
+              <Shield size={18} className="text-primary mr-2" />活动与状态
             </CardTitle>
             <CardDescription>控制您的在线状态和活动显示</CardDescription>
           </CardHeader>
@@ -138,7 +138,7 @@ const PrivacySettings = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">
-              <Users size={18} className="text-indigo-500 mr-2" />社交互动
+              <Users size={18} className="text-primary mr-2" />社交互动
             </CardTitle>
             <CardDescription>控制与其他用户的互动方式</CardDescription>
           </CardHeader>

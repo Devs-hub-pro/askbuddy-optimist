@@ -27,9 +27,9 @@ const StorageSpace = () => {
   const usedPercentage = (totalUsed / totalSpace) * 100;
 
   const storageItems = [
-    { type: '图片', icon: <Image size={20} />, used: usedSpace.images, color: 'text-blue-500' },
-    { type: '文档', icon: <FileText size={20} />, used: usedSpace.documents, color: 'text-green-500' },
-    { type: '视频', icon: <Video size={20} />, used: usedSpace.videos, color: 'text-purple-500' },
+    { type: '图片', icon: <Image size={20} />, used: usedSpace.images, color: 'text-primary' },
+    { type: '文档', icon: <FileText size={20} />, used: usedSpace.documents, color: 'text-primary' },
+    { type: '视频', icon: <Video size={20} />, used: usedSpace.videos, color: 'text-primary' },
     { type: '其他', icon: <HardDrive size={20} />, used: usedSpace.other, color: 'text-gray-500' },
   ];
 

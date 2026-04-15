@@ -474,7 +474,7 @@ const NewQuestion: React.FC = () => {
   };
   
   return (
-    <div className="min-h-[100dvh] bg-slate-50 pb-20">
+    <div className="min-h-[100dvh] bg-[rgb(248,253,251)] pb-20">
       <SubPageHeader
         title="发布问题"
         onBack={handleBack}
@@ -495,7 +495,7 @@ const NewQuestion: React.FC = () => {
                 标题清楚、描述具体、标签准确，更容易获得高质量回答。
               </p>
             </div>
-            <span className="rounded-full bg-app-teal/10 px-3 py-1 text-xs font-medium text-app-teal">
+            <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
               发布前检查
             </span>
           </div>
@@ -523,7 +523,7 @@ const NewQuestion: React.FC = () => {
               }}
               placeholder={titlePlaceholder}
               maxLength={40}
-              className="text-base p-3 border-gray-300 focus:border-app-teal rounded-2xl"
+              className="text-base p-3 border-gray-300 focus:border-primary rounded-2xl"
               onFocus={() => setTitleFocused(true)}
               onBlur={() => setTitleFocused(false)}
             />
@@ -535,8 +535,8 @@ const NewQuestion: React.FC = () => {
               <div className="mt-2 rounded-2xl bg-gray-50 p-3 border border-gray-100">
                 <p className="text-xs text-gray-500 mb-2">可能类似的问题：</p>
                 <ul className="space-y-2">
-                  <li className="text-sm text-indigo-600 hover:underline cursor-pointer">如何提高英语口语水平？</li>
-                  <li className="text-sm text-indigo-600 hover:underline cursor-pointer">自学编程需要什么基础？</li>
+                  <li className="text-sm text-primary hover:underline cursor-pointer">如何提高英语口语水平？</li>
+                  <li className="text-sm text-primary hover:underline cursor-pointer">自学编程需要什么基础？</li>
                 </ul>
               </div>
             )}
@@ -549,7 +549,7 @@ const NewQuestion: React.FC = () => {
             <h2 className="text-base font-semibold">详细描述</h2>
             <button 
               onClick={fillExampleContent}
-              className="text-sm text-indigo-500 flex items-center"
+              className="text-sm text-primary flex items-center"
             >
               <Info size={14} className="mr-1" />
               查看示例
@@ -566,7 +566,7 @@ const NewQuestion: React.FC = () => {
               }
             }}
             placeholder="提供背景信息，如'我的GPA是3.5，想申请英国硕士，如何选校？'"
-            className="min-h-[140px] border-gray-300 text-base p-3 focus:border-app-teal rounded-2xl"
+            className="min-h-[140px] border-gray-300 text-base p-3 focus:border-primary rounded-2xl"
           />
           <div className="text-right mt-1">
             <span className="text-xs text-gray-400">{description.length}/1000</span>
@@ -592,10 +592,10 @@ const NewQuestion: React.FC = () => {
                 <Badge 
                   key={tag} 
                   variant="secondary"
-                  className="px-3 py-1.5 bg-purple-100 text-purple-700 hover:bg-purple-200 rounded-full flex items-center gap-1"
+                  className="px-3 py-1.5 bg-secondary text-secondary-foreground hover:bg-secondary/80 rounded-full flex items-center gap-1"
                 >
                   {tag}
-                  <button onClick={() => toggleTag(tag)} className="ml-1 text-purple-500 hover:text-purple-700">
+                  <button onClick={() => toggleTag(tag)} className="ml-1 text-primary hover:text-primary/80">
                     <X size={14} />
                   </button>
                 </Badge>
@@ -609,7 +609,7 @@ const NewQuestion: React.FC = () => {
               value={customTag}
               onChange={(e) => setCustomTag(e.target.value)}
               placeholder="添加自定义标签..."
-              className="flex-1 border-gray-300 focus:border-app-teal rounded-2xl"
+              className="flex-1 border-gray-300 focus:border-primary rounded-2xl"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -627,9 +627,9 @@ const NewQuestion: React.FC = () => {
           
           {/* AI Suggested Tags */}
           {title.length > 0 && suggestedTags.length > 0 && (
-            <div className="mb-4 p-3 bg-indigo-50 rounded-2xl">
+            <div className="mb-4 p-3 bg-secondary rounded-2xl">
               <p className="text-sm font-medium mb-2 flex items-center">
-                <Tag size={14} className="text-indigo-600 mr-1" />
+                <Tag size={14} className="text-primary mr-1" />
                 AI 推荐标签
               </p>
               <div className="flex gap-2 flex-wrap">
@@ -639,8 +639,8 @@ const NewQuestion: React.FC = () => {
                     variant="outline"
                     className={`px-3 py-1.5 rounded-full text-sm cursor-pointer ${
                       selectedTags.includes(tag) 
-                        ? 'bg-indigo-100 text-indigo-700 border-indigo-300' 
-                        : 'bg-indigo-50 text-indigo-600 border-indigo-200 hover:bg-indigo-100'
+                        ? 'bg-primary/15 text-primary border-primary/30' 
+                        : 'bg-secondary text-secondary-foreground border-border hover:bg-secondary/80'
                     }`}
                     onClick={() => toggleTag(tag)}
                   >
@@ -661,7 +661,7 @@ const NewQuestion: React.FC = () => {
                   variant="outline"
                   className={`px-3 py-1.5 rounded-full flex items-center cursor-pointer ${
                     selectedTags.includes(category.name)
-                      ? 'bg-indigo-100 text-indigo-700 border-indigo-300' 
+                      ? 'bg-primary/15 text-primary border-primary/30' 
                       : 'border-gray-200 hover:bg-gray-100 hover:border-gray-300'
                   }`}
                   onClick={() => toggleTag(category.name)}
@@ -678,7 +678,7 @@ const NewQuestion: React.FC = () => {
         <div className="surface-card rounded-3xl p-5">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-semibold">悬赏积分</h2>
-            <button className="text-sm text-app-teal flex items-center">
+            <button className="text-sm text-primary flex items-center">
               <Coins size={14} className="mr-1" />
               我的积分: 100
             </button>
@@ -693,7 +693,7 @@ const NewQuestion: React.FC = () => {
                 value={pointReward}
                 onChange={(e) => setPointReward(e.target.value)}
                 placeholder="输入积分数量"
-                className="w-full border-gray-300 focus:border-app-teal rounded-2xl text-lg p-3"
+                className="w-full border-gray-300 focus:border-primary rounded-2xl text-lg p-3"
               />
             </div>
             <span className="text-lg font-medium text-gray-700">积分</span>
@@ -707,7 +707,7 @@ const NewQuestion: React.FC = () => {
                 onClick={() => setPointReward(rec.value.toString())}
                 className={`p-3 rounded-2xl border text-left ${
                   parseInt(pointReward) === rec.value 
-                    ? 'border-app-teal/30 bg-app-teal/10' 
+                    ? 'border-primary/30 bg-primary/10' 
                     : 'border-gray-200 hover:border-gray-300'
                 }`}
               >
@@ -718,8 +718,8 @@ const NewQuestion: React.FC = () => {
           </div>
           
           {/* Response time estimate */}
-          <div className="mt-4 bg-gradient-to-r from-app-teal/10 to-app-teal/5 border border-app-teal/20 p-3 rounded-2xl">
-            <p className="text-sm text-app-teal">
+          <div className="mt-4 bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 p-3 rounded-2xl">
+            <p className="text-sm text-primary">
               💡 提示：悬赏 {pointReward} 积分的问题平均在
               {parseInt(pointReward) >= 30 ? ' 2 小时内 ' : ' 12 小时内 '}
               获得首次回答
@@ -748,7 +748,7 @@ const NewQuestion: React.FC = () => {
                   }
                 }}
                 id="flexible-time"
-                className="mr-2 text-app-teal"
+                className="mr-2 text-primary"
               />
               <Label htmlFor="flexible-time" className="cursor-pointer">
                 时间可商量（回答者可自由解答）
@@ -764,7 +764,7 @@ const NewQuestion: React.FC = () => {
                       key={slot.id}
                       className={`border rounded-2xl p-3 flex items-center ${
                         selectedTimeSlots.includes(slot.value)
-                          ? 'border-app-teal/30 bg-app-teal/10'
+                          ? 'border-primary/30 bg-primary/10'
                           : 'border-gray-200'
                       }`}
                       onClick={() => toggleTimeSlot(slot.value)}
@@ -773,7 +773,7 @@ const NewQuestion: React.FC = () => {
                         checked={selectedTimeSlots.includes(slot.value)}
                         onCheckedChange={() => toggleTimeSlot(slot.value)}
                         id={`time-${slot.id}`}
-                        className="mr-2 text-app-teal"
+                        className="mr-2 text-primary"
                       />
                       <Label htmlFor={`time-${slot.id}`} className="flex-1 cursor-pointer flex items-center">
                         <Clock size={16} className="mr-2 text-gray-500" />
@@ -793,9 +793,9 @@ const NewQuestion: React.FC = () => {
             
             <Tabs defaultValue="image" className="w-full">
               <TabsList className="grid grid-cols-3 mb-4">
-                <TabsTrigger value="image" className="text-sm data-[state=active]:bg-app-teal data-[state=active]:text-white">图片</TabsTrigger>
-                <TabsTrigger value="file" className="text-sm data-[state=active]:bg-app-teal data-[state=active]:text-white">文件</TabsTrigger>
-                <TabsTrigger value="audio" className="text-sm data-[state=active]:bg-app-teal data-[state=active]:text-white">语音</TabsTrigger>
+                <TabsTrigger value="image" className="text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">图片</TabsTrigger>
+                <TabsTrigger value="file" className="text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">文件</TabsTrigger>
+                <TabsTrigger value="audio" className="text-sm data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">语音</TabsTrigger>
               </TabsList>
               
               <TabsContent value="image" className="mt-0">
@@ -818,7 +818,7 @@ const NewQuestion: React.FC = () => {
                   ))}
                   
                   {/* Add image button */}
-                  <label className="h-20 w-20 border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-app-teal hover:bg-app-teal/5">
+                  <label className="h-20 w-20 border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5">
                     <ImagePlus size={20} className="text-gray-400 mb-1" />
                     <span className="text-xs text-gray-500">添加图片</span>
                     <input 
@@ -849,7 +849,7 @@ const NewQuestion: React.FC = () => {
                   ))}
                   
                   {/* Add file button */}
-                  <label className="border-2 border-dashed border-gray-300 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-app-teal hover:bg-app-teal/5">
+                  <label className="border-2 border-dashed border-gray-300 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5">
                     <File size={24} className="text-gray-400 mb-2" />
                     <span className="text-sm text-gray-500 mb-1">点击上传文件</span>
                     <span className="text-xs text-gray-400">支持 PDF、Word、Excel 等格式</span>
@@ -864,7 +864,7 @@ const NewQuestion: React.FC = () => {
               </TabsContent>
               
               <TabsContent value="audio" className="mt-0">
-                <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-app-teal hover:bg-app-teal/5">
+                <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5">
                   <Mic size={24} className="text-gray-400 mb-2" />
                   <span className="text-sm text-gray-500 mb-1">点击录制语音</span>
                   <span className="text-xs text-gray-400">或上传已有语音文件</span>

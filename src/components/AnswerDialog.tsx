@@ -77,7 +77,7 @@ export const AnswerDialog: React.FC<AnswerDialogProps> = ({
               {askerTimeSlots.map((slot) => (
                 <span
                   key={slot.id}
-                  className="bg-blue-50 text-blue-600 border border-blue-100 text-xs px-2.5 py-1 rounded-full"
+                  className="bg-secondary text-secondary-foreground border border-border text-xs px-2.5 py-1 rounded-full"
                 >
                   {slot.label}
                 </span>
@@ -96,7 +96,7 @@ export const AnswerDialog: React.FC<AnswerDialogProps> = ({
                     onClick={() => handleSlotChange(slot.id)}
                     className={`border rounded-lg px-2 py-1 text-xs cursor-pointer transition-all ${
                       selectedSlots.includes(slot.id)
-                        ? "border-app-teal bg-blue-50 text-app-teal shadow"
+                        ? "border-primary bg-primary/10 text-primary shadow"
                         : "border-gray-200 hover:border-gray-300 text-gray-700"
                     }`}
                   >
@@ -133,7 +133,7 @@ export const AnswerDialog: React.FC<AnswerDialogProps> = ({
             <Button variant="outline" type="button">取消</Button>
           </DialogClose>
           <Button
-            className="bg-gradient-to-r from-blue-500 to-app-blue"
+            className="bg-primary text-primary-foreground hover:bg-primary/90"
             disabled={selectedSlots.length === 0 && !customSlot.trim()}
             onClick={handleSubmit}
           >

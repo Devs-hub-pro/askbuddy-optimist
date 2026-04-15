@@ -42,7 +42,7 @@ const AccountSecurity = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <Phone className="w-5 h-5 mr-2 text-blue-500" />
+              <Phone className="w-5 h-5 mr-2 text-primary" />
               基本信息
             </CardTitle>
           </CardHeader>
@@ -73,7 +73,7 @@ const AccountSecurity = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <Lock className="w-5 h-5 mr-2 text-green-500" />
+              <Lock className="w-5 h-5 mr-2 text-primary" />
               社交账号绑定
             </CardTitle>
           </CardHeader>
@@ -94,7 +94,7 @@ const AccountSecurity = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <KeyRound className="w-5 h-5 mr-2 text-orange-500" />
+              <KeyRound className="w-5 h-5 mr-2 text-primary" />
               账号安全
             </CardTitle>
           </CardHeader>
@@ -128,7 +128,7 @@ const AccountSecurity = () => {
           <AlertDialogTrigger asChild>
             <Button 
               variant="outline" 
-              className="w-full border-red-200 text-red-500 hover:bg-red-50"
+              className="w-full border-destructive/30 text-destructive hover:bg-destructive/10"
             >
               <Trash2 className="w-4 h-4 mr-2" />
               注销账号
@@ -143,7 +143,7 @@ const AccountSecurity = () => {
             </AlertDialogHeader>
             <AlertDialogFooter>
               <AlertDialogCancel>取消</AlertDialogCancel>
-              <AlertDialogAction className="bg-red-500 hover:bg-red-600">
+              <AlertDialogAction className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
                 确认注销
               </AlertDialogAction>
             </AlertDialogFooter>

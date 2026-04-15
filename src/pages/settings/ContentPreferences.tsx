@@ -40,7 +40,7 @@ const ContentPreferences = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <Heart className="w-5 h-5 mr-2 text-red-500" />
+              <Heart className="w-5 h-5 mr-2 text-primary" />
               兴趣主题
             </CardTitle>
           </CardHeader>
@@ -55,8 +55,8 @@ const ContentPreferences = () => {
                       variant="secondary" 
                       className={`cursor-pointer transition-colors ${
                         selectedTags.includes(tag)
-                          ? 'bg-primary text-white hover:bg-primary/90'
-                          : 'hover:bg-primary hover:text-white'
+                          ? 'bg-primary text-primary-foreground hover:bg-primary/90'
+                          : 'hover:bg-primary hover:text-primary-foreground'
                       }`}
                       onClick={() =>
                         setSelectedTags((prev) =>
@@ -77,7 +77,7 @@ const ContentPreferences = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm">
           <CardHeader className="pb-3">
             <CardTitle className="text-lg flex items-center">
-              <Compass className="w-5 h-5 mr-2 text-purple-500" />
+              <Compass className="w-5 h-5 mr-2 text-primary" />
               探索发现
             </CardTitle>
           </CardHeader>

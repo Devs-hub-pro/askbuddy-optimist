@@ -508,7 +508,7 @@ const Index = () => {
                     accentTextClass="text-app-teal"
                     accentTagClass="app-soft-surface-bg app-accent-text app-soft-border border"
                     accentSummaryClass="app-soft-border app-soft-surface-bg"
-                    ctaClassName="bg-gradient-to-r from-app-teal to-cyan-400"
+                    ctaClassName="bg-primary text-primary-foreground hover:bg-primary/90"
                     onOpen={() => handleViewExpertProfile(expert.id)}
                     onConsult={() => navigate(`/expert/${expert.id}`, { state: buildFromState(routeLocation) })}
                   />

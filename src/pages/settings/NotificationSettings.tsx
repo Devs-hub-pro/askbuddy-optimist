@@ -104,7 +104,7 @@ const NotificationSettings = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">
-              <MessageSquare size={18} className="text-green-500 mr-2" />互动通知
+              <MessageSquare size={18} className="text-primary mr-2" />互动通知
             </CardTitle>
             <CardDescription>与他人互动相关的通知</CardDescription>
           </CardHeader>
@@ -120,7 +120,7 @@ const NotificationSettings = () => {
         <Card className="surface-card rounded-3xl border-none shadow-sm overflow-hidden">
           <CardHeader className="pb-2 pt-4">
             <CardTitle className="text-lg flex items-center">
-              <Mail size={18} className="text-red-500 mr-2" />系统通知
+              <Mail size={18} className="text-primary mr-2" />系统通知
             </CardTitle>
             <CardDescription>应用与系统相关的通知</CardDescription>
           </CardHeader>

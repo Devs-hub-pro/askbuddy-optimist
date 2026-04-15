@@ -43,7 +43,7 @@ const ExpertProfile = () => {
 
   if (!isDemoExpert && isLoading) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-white via-slate-50/80 to-slate-50 p-4">
+      <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white p-4">
         <PageStateCard variant="loading" title="正在加载个人主页…" />
       </div>
     );
@@ -51,7 +51,7 @@ const ExpertProfile = () => {
 
   if (error || !resolvedExpert) {
     return (
-      <div className="min-h-[100dvh] bg-gradient-to-b from-white via-slate-50/80 to-slate-50 flex flex-col items-center justify-center px-6 text-center">
+      <div className="min-h-[100dvh] bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white flex flex-col items-center justify-center px-6 text-center">
         <PageStateCard
           variant="error"
           title="暂时无法打开个人主页"
@@ -73,7 +73,7 @@ const ExpertProfile = () => {
     'https://images.unsplash.com/photo-1497366754035-f200968a6e72?auto=format&fit=crop&w=1200&h=480&q=80';
 
   return (
-    <div className="min-h-[100dvh] bg-slate-50 pb-24">
+    <div className="min-h-[100dvh] bg-[rgb(248,253,251)] pb-24">
       <SubPageHeader title="个人主页" onBack={() => navigateBackOr(navigate, '/', { location })} />
 
       <div className="pt-0">
@@ -97,7 +97,7 @@ const ExpertProfile = () => {
                   <div className="flex items-center gap-2">
                     <h1 className="text-xl font-bold text-gray-800">{displayName}</h1>
                     {resolvedExpert.is_verified && (
-                      <span className="bg-blue-50 text-blue-600 text-xs px-2 py-0.5 rounded-full flex items-center">
+                      <span className="bg-secondary text-secondary-foreground text-xs px-2 py-0.5 rounded-full flex items-center">
                         <CheckCircle size={12} className="mr-1" />
                         已认证
                       </span>
@@ -112,7 +112,7 @@ const ExpertProfile = () => {
               </div>
 
               <Button
-                className="rounded-full bg-gradient-to-r from-green-500 to-teal-500 text-white"
+                className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
                 onClick={() => navigate(`/expert/${resolvedExpert.id}`, { state: buildFromState(location) })}
               >
                 前往咨询页
@@ -128,21 +128,21 @@ const ExpertProfile = () => {
                 <div className="text-xs text-gray-500 mt-1">评分</div>
               </div>
               <div className="text-center">
-                <div className="flex items-center justify-center text-blue-500 gap-1 font-semibold">
+                <div className="flex items-center justify-center text-primary gap-1 font-semibold">
                   <Clock size={14} />
                   <span>{responseRate}</span>
                 </div>
                 <div className="text-xs text-gray-500 mt-1">回复率</div>
               </div>
               <div className="text-center">
-                <div className="flex items-center justify-center text-green-500 gap-1 font-semibold">
+                <div className="flex items-center justify-center text-primary gap-1 font-semibold">
                   <Package size={14} />
                   <span>{resolvedExpert.order_count || 0}</span>
                 </div>
                 <div className="text-xs text-gray-500 mt-1">订单数</div>
               </div>
               <div className="text-center">
-                <div className="flex items-center justify-center text-purple-500 gap-1 font-semibold">
+                <div className="flex items-center justify-center text-primary gap-1 font-semibold">
                   <Award size={14} />
                   <span>{resolvedExpert.consultation_count || 0}</span>
                 </div>
@@ -158,14 +158,14 @@ const ExpertProfile = () => {
         <div className="surface-card rounded-3xl p-5">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base font-semibold text-gray-800">服务信息</h2>
-            <div className="text-sm text-green-600 font-semibold">{resolvedExpert.consultation_price || 0} 积分 / 次</div>
+            <div className="text-sm text-primary font-semibold">{resolvedExpert.consultation_price || 0} 积分 / 次</div>
           </div>
           <div className="grid grid-cols-2 gap-3 text-sm">
-            <div className="bg-green-50 rounded-xl p-3">
+            <div className="app-soft-surface-bg rounded-xl p-3">
               <div className="text-gray-500 mb-1">服务分类</div>
               <div className="font-medium text-gray-800">{resolvedExpert.category || '未设置'} / {resolvedExpert.subcategory || '未设置'}</div>
             </div>
-            <div className="bg-blue-50 rounded-xl p-3">
+            <div className="app-soft-surface-bg rounded-xl p-3">
               <div className="text-gray-500 mb-1">响应承诺</div>
               <div className="font-medium text-gray-800">{resolvedExpert.response_time || '未设置'}</div>
             </div>
@@ -173,7 +173,7 @@ const ExpertProfile = () => {
           {resolvedExpert.tags.length > 0 && (
             <div className="flex flex-wrap gap-2 mt-4">
               {resolvedExpert.tags.map((tag, index) => (
-                <span key={`${tag}-${index}`} className="bg-green-50 text-green-600 text-xs px-2.5 py-1 rounded-full">
+                <span key={`${tag}-${index}`} className="bg-secondary text-secondary-foreground text-xs px-2.5 py-1 rounded-full">
                   #{tag}
                 </span>
               ))}
@@ -188,7 +188,7 @@ const ExpertProfile = () => {
               {resolvedExpert.bio && resolvedExpert.bio.length > 180 && !isBioExpanded ? (
                 <>
                   <p>{resolvedExpert.bio.slice(0, 180)}...</p>
-                  <CollapsibleTrigger className="text-app-teal text-xs mt-2 flex items-center">
+                  <CollapsibleTrigger className="text-primary text-xs mt-2 flex items-center">
                     展开全部 <ChevronDown size={12} className="ml-1" />
                   </CollapsibleTrigger>
                 </>
@@ -196,7 +196,7 @@ const ExpertProfile = () => {
                 <>
                   <p>{resolvedExpert.bio || '该专家暂未填写介绍。'}</p>
                   {resolvedExpert.bio && resolvedExpert.bio.length > 180 && (
-                    <CollapsibleTrigger className="text-app-teal text-xs mt-2 flex items-center">
+                    <CollapsibleTrigger className="text-primary text-xs mt-2 flex items-center">
                       收起 <ChevronUp size={12} className="ml-1" />
                     </CollapsibleTrigger>
                   )}
@@ -212,12 +212,12 @@ const ExpertProfile = () => {
             {education.length > 0 && (
               <div>
                 <div className="flex items-center gap-2 mb-2 text-gray-800 font-semibold">
-                  <Calendar size={16} className="text-blue-500" />
+                  <Calendar size={16} className="text-primary" />
                   教育经历
                 </div>
                 <div className="space-y-2">
                   {education.map((item, index: number) => (
-                    <div key={`edu-${index}`} className="bg-blue-50 rounded-xl p-3 text-sm text-gray-700">
+                    <div key={`edu-${index}`} className="app-soft-surface-bg rounded-xl p-3 text-sm text-gray-700">
                       {typeof item === 'string' ? item : `${item.school || ''} ${item.degree || ''}`.trim()}
                     </div>
                   ))}
@@ -228,12 +228,12 @@ const ExpertProfile = () => {
             {experience.length > 0 && (
               <div>
                 <div className="flex items-center gap-2 mb-2 text-gray-800 font-semibold">
-                  <Briefcase size={16} className="text-purple-500" />
+                  <Briefcase size={16} className="text-primary" />
                   工作经历
                 </div>
                 <div className="space-y-2">
                   {experience.map((item, index: number) => (
-                    <div key={`exp-${index}`} className="bg-purple-50 rounded-xl p-3 text-sm text-gray-700">
+                    <div key={`exp-${index}`} className="app-soft-surface-bg rounded-xl p-3 text-sm text-gray-700">
                       {typeof item === 'string' ? item : `${item.company || ''} ${item.position || item.title || ''}`.trim()}
                     </div>
                   ))}
@@ -248,7 +248,7 @@ const ExpertProfile = () => {
             <h2 className="text-base font-semibold text-gray-800 mb-3">可预约时间</h2>
             <div className="space-y-2">
               {timeSlots.map((slot, index: number) => (
-                <div key={`slot-${index}`} className="bg-amber-50 rounded-xl p-3 text-sm text-gray-700">
+                <div key={`slot-${index}`} className="app-soft-surface-bg rounded-xl p-3 text-sm text-gray-700">
                   {typeof slot === 'string'
                     ? slot
                     : `${slot.day || ''} ${slot.time || slot.label || ''}`.trim() || '待与专家协商'}
@@ -272,7 +272,7 @@ const ExpertProfile = () => {
           返回消息
         </Button>
         <Button
-          className="flex-1 rounded-full bg-gradient-to-r from-green-500 to-teal-500"
+          className="flex-1 rounded-full bg-primary text-primary-foreground hover:bg-primary/90"
           onClick={() => navigate(`/expert/${resolvedExpert.id}`, { state: buildFromState(location) })}
         >
           进入咨询页

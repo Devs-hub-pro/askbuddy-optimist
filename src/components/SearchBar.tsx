@@ -33,8 +33,8 @@ const SearchBar: React.FC<SearchBarProps> = ({
   clickToNavigate = false,
   accentRingClassName = 'ring-app-teal/25',
   inputAccentClassName = 'focus-visible:ring-app-teal/25 focus-visible:border-app-teal/30',
-  inputBorderClassName = 'border-gray-200',
-  iconClassName = 'text-gray-400',
+  inputBorderClassName = 'app-soft-border border',
+  iconClassName = 'app-accent-text',
   navigateToPath,
   onFocusChange,
 }) => {

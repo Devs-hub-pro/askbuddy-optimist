@@ -54,11 +54,11 @@ const ChannelExpertCard: React.FC<ChannelExpertCardProps> = ({
             <Award size={12} />
             <span className="text-xs font-medium">{expert.rating}</span>
           </div>
-          <div className="flex items-center gap-1 text-xs text-blue-500">
+          <div className="flex items-center gap-1 text-xs text-primary">
             <Clock size={10} />
             <span>{expert.responseRate}</span>
           </div>
-          <div className="flex items-center gap-1 text-xs text-green-500">
+          <div className="flex items-center gap-1 text-xs text-slate-500">
             <Users size={10} />
             <span>{expert.orderCount}</span>
           </div>

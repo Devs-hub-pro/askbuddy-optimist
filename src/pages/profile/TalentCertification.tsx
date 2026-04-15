@@ -20,7 +20,7 @@ import PageStateCard from '@/components/common/PageStateCard';
 const CERT_TYPES = [
   { key: 'education', title: '教育认证', desc: '适用于在校学生、教师等教育工作者', colorClass: 'text-primary' },
   { key: 'career', title: '职业认证', desc: '适用于各行业从业人员、专业人士', colorClass: 'text-accent' },
-  { key: 'skill', title: '专业技能认证', desc: '适用于掌握特定技能的达人、创作者', colorClass: 'text-purple-500' },
+  { key: 'skill', title: '专业技能认证', desc: '适用于掌握特定技能的达人、创作者', colorClass: 'text-primary' },
 ] as const;
 
 const CERT_FORM_CONFIG = {
@@ -139,7 +139,7 @@ const TalentCertification = () => {
 
   const getStatusMeta = (status: string) => {
     if (status === 'approved') {
-      return { label: '已认证', icon: <ShieldCheck size={14} className="text-green-500" />, desc: '已通过审核，正在展示认证标识。' };
+      return { label: '已认证', icon: <ShieldCheck size={14} className="text-primary" />, desc: '已通过审核，正在展示认证标识。' };
     }
     if (status === 'pending') {
       return { label: '审核中', icon: <Clock3 size={14} className="text-amber-500" />, desc: '资料已提交，平台正在审核中。' };
@@ -222,9 +222,9 @@ const TalentCertification = () => {
           <CardContent className="p-5">
             <h2 className="mb-3 text-xl font-semibold text-foreground">为什么要认证？</h2>
             <ul className="space-y-2 text-sm text-muted-foreground">
-              <li className="flex items-start"><Check size={16} className="text-green-500 mr-2 mt-0.5" /><span>获得官方认证标识，提升个人可信度</span></li>
-              <li className="flex items-start"><Check size={16} className="text-green-500 mr-2 mt-0.5" /><span>问答内容获得优先展示</span></li>
-              <li className="flex items-start"><Check size={16} className="text-green-500 mr-2 mt-0.5" /><span>有机会被平台推荐为领域专家</span></li>
+              <li className="flex items-start"><Check size={16} className="text-primary mr-2 mt-0.5" /><span>获得官方认证标识，提升个人可信度</span></li>
+              <li className="flex items-start"><Check size={16} className="text-primary mr-2 mt-0.5" /><span>问答内容获得优先展示</span></li>
+              <li className="flex items-start"><Check size={16} className="text-primary mr-2 mt-0.5" /><span>有机会被平台推荐为领域专家</span></li>
             </ul>
           </CardContent>
         </Card>
@@ -269,7 +269,7 @@ const TalentCertification = () => {
                       </div>
                       <div className="flex items-center">
                         {status === 'pending' && <span className="mr-2 text-sm text-amber-500">审核中</span>}
-                        {status === 'approved' && <span className="mr-2 text-sm text-green-500">已认证</span>}
+                        {status === 'approved' && <span className="mr-2 text-sm text-primary">已认证</span>}
                         {status === 'rejected' && <span className="mr-2 text-sm text-destructive">未通过</span>}
                         {(status === 'none' || status === 'rejected') && <ChevronRight size={20} className="text-muted-foreground" />}
                       </div>

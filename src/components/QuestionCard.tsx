@@ -126,7 +126,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         <div className="flex justify-between items-center">
           <div className="flex flex-wrap gap-1.5">
             {tags.map((tag, index) => (
-              <span key={index} className="inline-block text-xs px-2 py-0.5 rounded-full bg-blue-50 text-blue-600 font-medium border border-blue-100">
+              <span key={index} className="inline-block text-xs px-2 py-0.5 rounded-full bg-secondary text-secondary-foreground font-medium border border-border">
                 #{tag}
               </span>
             ))}
@@ -134,7 +134,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           
           <div className="flex items-center gap-2">
             <button
-              className="h-8 min-w-[78px] bg-gradient-to-r from-blue-500 to-app-blue text-white px-3 rounded-full text-xs font-medium inline-flex items-center justify-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0"
+              className="h-8 min-w-[78px] bg-primary text-primary-foreground px-3 rounded-full text-xs font-medium inline-flex items-center justify-center gap-1 shadow-sm hover:shadow-md hover:bg-primary/90 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
               onClick={() => setShowAnswerDialog(true)}
             >
               <MessageCircle size={12} />

@@ -232,7 +232,7 @@ const LifestyleServices = () => {
   return (
     <ChannelPageScaffold
       title="生活服务"
-      pageClassName="bg-gradient-to-b from-orange-50/70 via-white to-white"
+      pageClassName="bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white"
       headerGradientClass="bg-gradient-to-r from-orange-500 to-amber-500"
       searchStripClass="bg-orange-50/90 border-orange-100/90"
       searchAccentRingClass="ring-orange-400/25"
@@ -329,7 +329,7 @@ const LifestyleServices = () => {
                     accentTextClass="text-orange-600"
                     accentTagClass="bg-orange-50 text-orange-600"
                     accentSummaryClass="border-orange-200 bg-orange-50/50"
-                    ctaClassName="bg-gradient-to-r from-orange-500 to-amber-400"
+                    ctaClassName="bg-primary text-primary-foreground hover:bg-primary/90"
                     onOpen={() => handleViewExpertProfile(expert.id)}
                     onConsult={() => navigate(`/expert/${expert.id}`, { state: buildFromState(location) })}
                   />
@@ -339,7 +339,7 @@ const LifestyleServices = () => {
           </TabsContent>
       
       <ChannelFloatingActionButton
-        className="bg-gradient-to-r from-app-orange to-amber-500 shadow-[0_12px_28px_rgba(249,115,22,0.28)]"
+        className="bg-primary text-primary-foreground shadow-[0_12px_28px_rgba(73,170,155,0.28)]"
         onClick={() => navigate('/new', { state: buildFromState(location) })}
         ariaLabel="发布生活服务需求"
       />

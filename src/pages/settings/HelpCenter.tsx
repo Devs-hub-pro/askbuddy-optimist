@@ -27,7 +27,7 @@ const HelpCenter = () => {
   // FAQ categories
   const helpCategories = [
     {
-      icon: <Users size={16} className="text-app-blue" />,
+      icon: <Users size={16} className="text-primary" />,
       label: '账号与注册',
       questions: [
         { q: '如何注册新账号？', a: '点击首页右上角的"登录/注册"按钮，选择手机号注册，按照提示完成验证即可。' },
@@ -36,7 +36,7 @@ const HelpCenter = () => {
       ]
     },
     {
-      icon: <MessageSquare size={16} className="text-app-green" />,
+      icon: <MessageSquare size={16} className="text-primary" />,
       label: '问答相关',
       questions: [
         { q: '如何发布问题？', a: '点击底部导航栏中的"+"按钮，填写问题标题和详情后发布。' },
@@ -45,7 +45,7 @@ const HelpCenter = () => {
       ]
     },
     {
-      icon: <FileText size={16} className="text-purple-500" />,
+      icon: <FileText size={16} className="text-primary" />,
       label: '内容规则',
       questions: [
         { q: '哪些内容会被禁止？', a: '违反法律法规、包含色情、暴力、歧视等内容的问题和回答会被禁止。' },
@@ -126,7 +126,7 @@ const HelpCenter = () => {
                       <AccordionTrigger className="text-left font-normal hover:no-underline py-3">
                         {item.q}
                         {searchQuery && (
-                          <Badge variant="outline" className="ml-2 bg-blue-50 text-blue-600 border-none text-xs">
+                          <Badge variant="outline" className="ml-2 bg-secondary text-secondary-foreground border-none text-xs">
                             匹配
                           </Badge>
                         )}
@@ -161,7 +161,7 @@ const HelpCenter = () => {
             <p className="text-sm text-gray-600 mb-4">工作时间：周一至周日 9:00-22:00</p>
             <div className="grid grid-cols-2 gap-3 mb-4">
               <div className="rounded-2xl bg-slate-50 px-3 py-3 text-center">
-                <Mail size={16} className="mx-auto mb-2 text-app-blue" />
+                <Mail size={16} className="mx-auto mb-2 text-primary" />
                 <p className="text-xs text-slate-500">客服邮箱</p>
                 <p className="mt-1 text-xs font-medium text-slate-700">support@example.com</p>
               </div>
@@ -171,7 +171,7 @@ const HelpCenter = () => {
                 <p className="mt-1 text-xs font-medium text-slate-700">400-888-8888</p>
               </div>
             </div>
-            <Button className="w-full bg-app-teal hover:bg-app-teal/90"
+            <Button className="w-full bg-primary text-primary-foreground hover:bg-primary/90"
               onClick={() => setContactDialogOpen(true)}
             >
               <MessageSquare size={16} className="mr-2" />
@@ -192,22 +192,22 @@ const HelpCenter = () => {
             <div className="bg-slate-50 rounded-xl p-4 flex flex-col gap-3 text-[15px]">
               <div className="flex items-center justify-between">
                 <span className="text-gray-700 font-medium">客服邮箱</span>
-                <span className="text-app-blue select-all">support@example.com</span>
+                <span className="text-primary select-all">support@example.com</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-700 font-medium">微信客服</span>
-                <span className="text-app-blue select-all">vx-helpcenter</span>
+                <span className="text-primary select-all">vx-helpcenter</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-700 font-medium">QQ客服</span>
-                <span className="text-app-blue select-all">123456789</span>
+                <span className="text-primary select-all">123456789</span>
               </div>
               <div className="flex items-center justify-between">
                 <span className="text-gray-700 font-medium">客服电话</span>
-                <span className="text-app-blue select-all">400-888-8888</span>
+                <span className="text-primary select-all">400-888-8888</span>
               </div>
             </div>
-            <div className="bg-blue-50 rounded-lg px-3 py-2 text-center text-sm text-gray-500">如遇到恶意信息或账户问题，也欢迎通过以上方式联系我们举报</div>
+            <div className="bg-secondary rounded-lg px-3 py-2 text-center text-sm text-gray-500">如遇到恶意信息或账户问题，也欢迎通过以上方式联系我们举报</div>
           </div>
         </DialogContent>
       </Dialog>

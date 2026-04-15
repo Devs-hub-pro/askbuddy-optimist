@@ -91,7 +91,7 @@
   }
   
   .nav-item.active {
-    color: rgb(35 159 215);
+    color: rgb(var(--app-accent-rgb));
   }
   
   .category-icon {
@@ -109,7 +109,7 @@
   }
   
   .tag {
-    @apply inline-block text-xs px-2 py-1 rounded-full bg-blue-100 text-blue-600 font-medium;
+    @apply inline-block text-xs px-2 py-1 rounded-full bg-secondary text-secondary-foreground font-medium;
   }
   
   .hide-scrollbar {

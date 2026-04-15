@@ -236,7 +236,7 @@ const Index = () => {
               </h2>
             </div>
             <p className="app-section-subtitle">
-              左右滑动浏览专题，点进去可继续阅读和讨论。
+              左右滑动浏览专题，快速获取高质量经验。
             </p>
           </div>
           <Button
@@ -247,7 +247,7 @@ const Index = () => {
             onClick={() => hotTopics?.[0] && navigate(`/topic/${hotTopics[0].id}`, { state: hotTopicNavState })}
             disabled={!hotTopics || hotTopics.length === 0}
           >
-            查看专题
+            进入专题
           </Button>
         </div>
         
@@ -256,12 +256,12 @@ const Index = () => {
             {[1, 2, 3].map((item) => (
               <div key={item} className="w-[280px] shrink-0 animate-pulse-soft">
                 <div className="surface-card overflow-hidden rounded-3xl">
-                  <div className="h-[124px] bg-slate-100" />
+                  <div className="h-[124px] app-neutral-soft-bg" />
                   <div className="space-y-3 p-4">
-                    <div className="h-4 w-3/4 rounded-full bg-slate-100" />
-                    <div className="h-3 w-full rounded-full bg-slate-100" />
-                    <div className="h-3 w-5/6 rounded-full bg-slate-100" />
-                    <div className="h-3 w-1/2 rounded-full bg-slate-100" />
+                    <div className="h-4 w-3/4 rounded-full app-neutral-soft-bg" />
+                    <div className="h-3 w-full rounded-full app-neutral-soft-bg" />
+                    <div className="h-3 w-5/6 rounded-full app-neutral-soft-bg" />
+                    <div className="h-3 w-1/2 rounded-full app-neutral-soft-bg" />
                   </div>
                 </div>
               </div>
@@ -300,7 +300,7 @@ const Index = () => {
                         loading="lazy"
                       />
                       <div className="absolute inset-x-0 top-0 flex items-center justify-between p-3">
-                        <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-slate-700">
+                        <span className="rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-foreground">
                           热榜专题
                         </span>
                         <span className="flex items-center gap-1 rounded-full bg-slate-900/70 px-2.5 py-1 text-[11px] text-white">
@@ -316,12 +316,12 @@ const Index = () => {
                       className="block w-full text-left"
                       onClick={() => navigate(`/topic/${topic.id}`, { state: hotTopicNavState })}
                     >
-                      <h3 className="text-[15px] font-semibold leading-6 text-slate-900">{topic.title}</h3>
-                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">
+                      <h3 className="text-[15px] font-semibold leading-6 text-foreground">{topic.title}</h3>
+                      <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">
                         {topic.description || '点击进入专题详情，查看完整内容并继续参与讨论。'}
                       </p>
                     </button>
-                    <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+                    <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
                       <span>{topic.participants_count} 人正在围观</span>
                       <button
                         type="button"
@@ -350,15 +350,15 @@ const Index = () => {
                       loading="lazy"
                     />
                     <div className="absolute left-3 top-3">
-                      <span className="w-fit rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-slate-700">
+                      <span className="w-fit rounded-full bg-white/90 px-3 py-1 text-[11px] font-medium text-foreground">
                         推荐专题
                       </span>
                     </div>
                   </div>
                   <div className="p-4">
-                    <h3 className="text-[15px] font-semibold leading-6 text-slate-900">{activity.title}</h3>
-                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-slate-600">{activity.description}</p>
-                    <div className="mt-3 flex items-center justify-between text-xs text-slate-500">
+                    <h3 className="text-[15px] font-semibold leading-6 text-foreground">{activity.title}</h3>
+                    <p className="mt-2 line-clamp-2 text-sm leading-6 text-muted-foreground">{activity.description}</p>
+                    <div className="mt-3 flex items-center justify-between text-xs text-muted-foreground">
                       <span>下滑即可评论讨论</span>
                       <span className="flex items-center gap-1 font-medium text-primary">
                         即将开放
@@ -377,21 +377,21 @@ const Index = () => {
         <div className="relative mb-5 after:content-[''] after:absolute after:left-0 after:right-0 after:bottom-0 after:h-px after:bg-[rgb(205,239,231)]">
           <div className="flex gap-6">
             <button 
-              className={`pb-3.5 text-base font-semibold relative transition-colors ${activeTab === 'everyone' ? 'text-app-text' : 'text-slate-400'}`}
+              className={`pb-3.5 text-base font-semibold relative transition-colors ${activeTab === 'everyone' ? 'text-foreground' : 'text-muted-foreground'}`}
               onClick={() => setActiveTab('everyone')}
             >
               大家都在问
               {activeTab === 'everyone' && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-11 h-[3px] bg-gradient-to-r from-app-teal to-cyan-400 z-10 rounded-full transition-all duration-300 ease-in-out"></span>
+                <span className="absolute bottom-0 left-1/2 h-[2.5px] w-10 -translate-x-1/2 rounded-full bg-primary transition-all duration-300 ease-in-out"></span>
               )}
             </button>
             <button 
-              className={`pb-3.5 text-base font-semibold relative transition-colors ${activeTab === 'experts' ? 'text-app-text' : 'text-slate-400'}`}
+              className={`pb-3.5 text-base font-semibold relative transition-colors ${activeTab === 'experts' ? 'text-foreground' : 'text-muted-foreground'}`}
               onClick={() => setActiveTab('experts')}
             >
               找TA问问
               {activeTab === 'experts' && (
-                <span className="absolute bottom-0 left-1/2 -translate-x-1/2 w-11 h-[3px] bg-gradient-to-r from-app-teal to-cyan-400 z-10 rounded-full transition-all duration-300 ease-in-out"></span>
+                <span className="absolute bottom-0 left-1/2 h-[2.5px] w-10 -translate-x-1/2 rounded-full bg-primary transition-all duration-300 ease-in-out"></span>
               )}
             </button>
           </div>
@@ -402,43 +402,43 @@ const Index = () => {
             {activeTab === 'everyone' ? (
               [1, 2, 3].map((item) => (
                 <div key={item} className="surface-card rounded-2xl p-4 animate-pulse-soft shadow-sm">
-                  <div className="mb-3 h-5 w-3/4 rounded-full bg-slate-100"></div>
-                  <div className="mb-3 h-3 w-full rounded-full bg-slate-100"></div>
+                  <div className="mb-3 h-5 w-3/4 rounded-full app-neutral-soft-bg"></div>
+                  <div className="mb-3 h-3 w-full rounded-full app-neutral-soft-bg"></div>
                   <div className="flex items-center space-x-2 mb-3">
-                    <div className="w-8 h-8 bg-slate-100 rounded-full"></div>
+                    <div className="w-8 h-8 app-neutral-soft-bg rounded-full"></div>
                     <div>
-                      <div className="h-3 bg-slate-100 rounded-full w-24"></div>
-                      <div className="h-3 bg-slate-100 rounded-full w-16 mt-1"></div>
+                      <div className="h-3 app-neutral-soft-bg rounded-full w-24"></div>
+                      <div className="h-3 app-neutral-soft-bg rounded-full w-16 mt-1"></div>
                     </div>
                   </div>
                   <div className="flex justify-between">
                     <div className="flex space-x-2">
-                      <div className="h-4 bg-slate-100 rounded-full w-12"></div>
-                      <div className="h-4 bg-slate-100 rounded-full w-12"></div>
+                      <div className="h-4 app-neutral-soft-bg rounded-full w-12"></div>
+                      <div className="h-4 app-neutral-soft-bg rounded-full w-12"></div>
                     </div>
-                    <div className="h-6 bg-slate-100 rounded-full w-16"></div>
+                    <div className="h-6 app-neutral-soft-bg rounded-full w-16"></div>
                   </div>
                 </div>
               ))
             ) : (
               <div className="surface-card rounded-2xl p-5 animate-pulse-soft shadow-sm">
                 <div className="flex items-center mb-4 gap-3">
-                  <div className="w-16 h-16 bg-slate-100 rounded-full"></div>
+                  <div className="w-16 h-16 app-neutral-soft-bg rounded-full"></div>
                   <div className="flex-1">
-                    <div className="h-4 bg-slate-100 rounded-full w-1/3 mb-2"></div>
-                    <div className="h-3 bg-slate-100 rounded-full w-1/2 mb-2"></div>
-                    <div className="h-3 bg-slate-100 rounded-full w-3/4"></div>
+                    <div className="h-4 app-neutral-soft-bg rounded-full w-1/3 mb-2"></div>
+                    <div className="h-3 app-neutral-soft-bg rounded-full w-1/2 mb-2"></div>
+                    <div className="h-3 app-neutral-soft-bg rounded-full w-3/4"></div>
                   </div>
                 </div>
                 <div className="space-y-2">
-                  <div className="h-3 bg-slate-100 rounded-full w-full"></div>
-                  <div className="h-3 bg-slate-100 rounded-full w-5/6"></div>
+                  <div className="h-3 app-neutral-soft-bg rounded-full w-full"></div>
+                  <div className="h-3 app-neutral-soft-bg rounded-full w-5/6"></div>
                 </div>
                 <div className="flex gap-2 mt-4">
-                  <div className="h-6 bg-slate-100 rounded-full w-16"></div>
-                  <div className="h-6 bg-slate-100 rounded-full w-16"></div>
+                  <div className="h-6 app-neutral-soft-bg rounded-full w-16"></div>
+                  <div className="h-6 app-neutral-soft-bg rounded-full w-16"></div>
                 </div>
-                <div className="h-10 bg-slate-100 rounded-full w-full mt-4"></div>
+                <div className="h-10 app-neutral-soft-bg rounded-full w-full mt-4"></div>
               </div>
             )}
           </div>

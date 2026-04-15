@@ -119,7 +119,7 @@ const Messages = () => {
     }
     if (systemItems.length > 0) {
       systemItems.sort(byUnreadAndTime);
-      result.push({ type: 'system', title: '系统通知', tone: 'bg-slate-100 text-slate-500', items: systemItems });
+      result.push({ type: 'system', title: '系统通知', tone: 'app-soft-muted-bg text-muted-foreground', items: systemItems });
     }
     return result;
   }, [notifications, searchQuery]);
@@ -146,7 +146,7 @@ const Messages = () => {
   };
 
   return (
-    <div className="min-h-[100dvh] bg-slate-50 pb-16">
+    <div className="min-h-[100dvh] app-soft-muted-bg pb-16">
       <div className={`fixed top-0 z-[90] w-full shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`}>
         <div className="app-header-bg" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="px-4 pb-3 pt-2">
@@ -210,7 +210,7 @@ const Messages = () => {
                 />
               </div>
               <button
-                className="ml-3 text-sm text-slate-600"
+                className="ml-3 text-sm text-muted-foreground"
                 onClick={() => { setShowSearch(false); setSearchQuery(''); }}
               >
                 取消
@@ -297,12 +297,12 @@ const Messages = () => {
           <div className="space-y-4">
             {(unreadNotifCount || 0) > 0 && !notifsLoading && !notificationsError && (
               <div className="surface-card app-soft-border flex items-center justify-between rounded-2xl border px-3.5 py-3">
-                <div className="text-xs font-medium text-slate-600">
+                <div className="text-xs font-medium text-muted-foreground">
                   当前有 <span className="app-accent-text">{unreadNotifCount}</span> 条未读通知
                 </div>
                 <button
                   type="button"
-                  className="h-8 rounded-full app-soft-surface-bg px-3 text-xs font-medium app-accent-text transition-colors hover:bg-slate-100 disabled:opacity-50"
+                  className="h-8 rounded-full app-soft-surface-bg px-3 text-xs font-medium app-accent-text transition-colors hover:bg-muted disabled:opacity-50"
                   disabled={markAllAsRead.isPending}
                   onClick={handleMarkAllRead}
                 >

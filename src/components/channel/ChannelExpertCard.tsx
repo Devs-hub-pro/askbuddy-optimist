@@ -44,7 +44,7 @@ const ChannelExpertCard: React.FC<ChannelExpertCardProps> = ({
             <AvatarFallback>{expert.name.charAt(0)}</AvatarFallback>
           </Avatar>
           <div>
-            <h3 className="text-sm font-semibold leading-5 text-gray-800">{expert.name}</h3>
+            <h3 className="text-sm font-semibold leading-5 text-foreground">{expert.name}</h3>
             <p className={`text-xs ${accentTextClass}`}>{expert.title}</p>
           </div>
         </div>
@@ -58,7 +58,7 @@ const ChannelExpertCard: React.FC<ChannelExpertCardProps> = ({
             <Clock size={10} />
             <span>{expert.responseRate}</span>
           </div>
-          <div className="flex items-center gap-1 text-xs text-slate-500">
+          <div className="flex items-center gap-1 text-xs text-muted-foreground">
             <Users size={10} />
             <span>{expert.orderCount}</span>
           </div>
@@ -70,7 +70,7 @@ const ChannelExpertCard: React.FC<ChannelExpertCardProps> = ({
         <button
           type="button"
           onClick={onOpen}
-          className={`mr-2 line-clamp-2 flex-1 rounded-r-md border-l-2 pl-2 py-0.5 text-left text-xs leading-5 text-gray-700 ${accentSummaryClass}`}
+          className={`mr-2 line-clamp-2 flex-1 rounded-r-md border-l-2 pl-2 py-0.5 text-left text-xs leading-5 text-muted-foreground ${accentSummaryClass}`}
         >
           {expert.description}
         </button>

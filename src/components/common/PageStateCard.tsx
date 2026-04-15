@@ -45,21 +45,21 @@ const PageStateCard: React.FC<PageStateCardProps> = ({
       )}
     >
       {icon ?? defaultIcons[variant]}
-      <p className={cn("font-medium text-slate-700", compact ? "mt-3 text-sm" : "mt-3 text-base")}>{title}</p>
+      <p className={cn("font-medium text-foreground", compact ? "mt-3 text-sm" : "mt-3 text-base")}>{title}</p>
       {description ? (
-        <p className={cn("mx-auto text-slate-500", compact ? "mt-1 text-sm leading-6" : "mt-2 max-w-sm text-sm leading-6")}>
+        <p className={cn("mx-auto text-muted-foreground", compact ? "mt-1 text-sm leading-6" : "mt-2 max-w-sm text-sm leading-6")}>
           {description}
         </p>
       ) : null}
       {(actionLabel && onAction) || (secondaryActionLabel && onSecondaryAction) ? (
         <div className="mt-5 flex justify-center gap-2">
           {actionLabel && onAction ? (
-            <Button variant="outline" className="rounded-full" onClick={onAction}>
+            <Button className="app-btn-primary" onClick={onAction}>
               {actionLabel}
             </Button>
           ) : null}
           {secondaryActionLabel && onSecondaryAction ? (
-            <Button variant="ghost" className="rounded-full" onClick={onSecondaryAction}>
+            <Button variant="outline" className="app-btn-secondary" onClick={onSecondaryAction}>
               {secondaryActionLabel}
             </Button>
           ) : null}

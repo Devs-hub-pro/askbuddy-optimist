@@ -58,7 +58,7 @@ const Notifications = () => {
 
   if (!user) {
     return (
-      <div className="min-h-[100dvh] bg-slate-50 pb-8">
+      <div className="min-h-[100dvh] app-soft-muted-bg pb-8">
         <SubPageHeader
           title="通知"
           onBack={() => navigateBackOr(navigate, '/messages', { location })}
@@ -79,7 +79,7 @@ const Notifications = () => {
   const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
 
   return (
-    <div className="min-h-[100dvh] bg-slate-50 pb-8">
+    <div className="min-h-[100dvh] app-soft-muted-bg pb-8">
       <SubPageHeader
         title="通知"
         onBack={() => navigateBackOr(navigate, '/messages', { location })}
@@ -123,8 +123,8 @@ const Notifications = () => {
           <div className="surface-card rounded-3xl p-4 shadow-sm">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <p className="text-sm font-semibold text-slate-900">通知中心</p>
-                <p className="mt-1 text-xs leading-5 text-slate-500">
+              <p className="text-sm font-semibold text-foreground">通知中心</p>
+                <p className="mt-1 text-xs leading-5 text-muted-foreground">
                   这里会显示你的互动提醒、系统消息和订单更新。
                 </p>
               </div>
@@ -138,7 +138,7 @@ const Notifications = () => {
               key={notification.id}
               onClick={() => handleNotificationClick(notification)}
               className={cn(
-                "surface-card flex cursor-pointer items-start gap-3 rounded-3xl p-4 shadow-sm transition-colors hover:bg-slate-50",
+                "surface-card flex cursor-pointer items-start gap-3 rounded-3xl p-4 shadow-sm transition-colors hover:bg-muted",
                 !notification.is_read && "app-soft-border border app-soft-muted-bg"
               )}
             >

@@ -135,7 +135,7 @@ const Profile = () => {
       onClick: () => navigate('/settings/help', { state: buildFromState(location) }),
     },
     {
-      icon: <FileText size={18} className="text-slate-600" />,
+      icon: <FileText size={18} className="text-muted-foreground" />,
       label: '问问规范',
       description: '查看发帖和互动规则',
       onClick: () => navigate('/settings/guidelines', { state: buildFromState(location) }),
@@ -147,7 +147,7 @@ const Profile = () => {
       onClick: () => navigate('/settings/feedback', { state: buildFromState(location) }),
     },
     {
-      icon: <Info size={18} className="text-slate-600" />,
+      icon: <Info size={18} className="text-muted-foreground" />,
       label: '关于我们',
       description: '了解产品和团队信息',
       onClick: () => navigate('/settings/about', { state: buildFromState(location) }),
@@ -156,7 +156,7 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[100dvh] bg-slate-50 pb-16 px-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
+      <div className="min-h-[100dvh] app-soft-muted-bg pb-16 px-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
         <PageStateCard variant="loading" title="正在加载个人主页…" description="首次进入可能会稍慢一点。" />
       </div>
     );
@@ -173,7 +173,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-[100dvh] bg-slate-50 pb-16">
+    <div className="min-h-[100dvh] app-soft-muted-bg pb-16">
       {/* Hidden file inputs */}
       <input
         type="file"
@@ -273,7 +273,7 @@ const Profile = () => {
                     <div>
                       <h2 className="text-lg font-semibold text-foreground">{profile?.nickname || '新用户'}</h2>
                       <button
-                        className="mt-1 inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600 transition-colors hover:bg-slate-200"
+                        className="app-chip-neutral mt-1 px-2.5 py-1 text-[11px] font-medium"
                         onClick={() => navigate('/edit-profile', { state: buildFromState(location) })}
                       >
                         <Edit3 size={11} className="mr-1" />
@@ -311,7 +311,7 @@ const Profile = () => {
                   登录 / 注册
                 </Button>
               </div>
-              <p className="mt-3 text-sm text-slate-500">登录后查看订单、回答、收藏和个人资料。</p>
+              <p className="mt-3 text-sm text-muted-foreground">登录后查看订单、回答、收藏和个人资料。</p>
             </div>
           )}
         </div>

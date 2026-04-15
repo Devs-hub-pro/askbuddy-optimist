@@ -185,7 +185,7 @@ const Discover: React.FC = () => {
   
 
   return (
-    <div className="pb-16 min-h-[100dvh] bg-slate-50">
+    <div className="pb-16 min-h-[100dvh] app-soft-muted-bg">
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'following' | 'recommended' | 'local')} className="w-full">
         <div className={`app-header-bg fixed top-0 z-[90] w-full shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`} style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="flex items-center justify-between px-4 py-3">
@@ -230,7 +230,7 @@ const Discover: React.FC = () => {
           {!user ? (
             <div className="px-4 pt-5">
               <div className="surface-card rounded-3xl px-6 py-10 text-center text-muted-foreground">
-                <p className="mb-2 text-sm font-medium text-slate-700">登录后查看关注动态</p>
+                <p className="mb-2 text-sm font-medium text-foreground">登录后查看关注动态</p>
                 <p className="text-sm">你关注的人发布动态后，会优先出现在这里</p>
               </div>
             </div>
@@ -318,7 +318,7 @@ const Discover: React.FC = () => {
               onChange={(e) => setNewPostContent(e.target.value)}
             />
             <div className="relative">
-              <Button variant="outline" size="sm" className="flex gap-1 rounded-full" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
+              <Button variant="outline" size="sm" className="app-btn-secondary flex gap-1" onClick={() => setShowEmojiPicker(!showEmojiPicker)}>
                 <SmilePlus size={18} /> 添加表情
               </Button>
               {showEmojiPicker && (
@@ -335,7 +335,7 @@ const Discover: React.FC = () => {
               <div className="flex items-center gap-2">
                 <Hash size={18} className="text-muted-foreground" />
                 <Input placeholder="添加标签" value={newTagInput} onChange={(e) => setNewTagInput(e.target.value)} className="flex-1" onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleAddTag(); } }} />
-                <Button variant="outline" size="sm" onClick={handleAddTag}>添加</Button>
+                <Button variant="outline" size="sm" className="app-btn-secondary" onClick={handleAddTag}>添加</Button>
               </div>
               {newPostTags.length > 0 && (
                 <div className="flex flex-wrap gap-2 mt-2">
@@ -373,12 +373,12 @@ const Discover: React.FC = () => {
               onChange={handleImageSelect}
             />
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" className="flex gap-1 rounded-full" onClick={() => imageInputRef.current?.click()}>
+              <Button variant="outline" size="sm" className="app-btn-secondary flex gap-1" onClick={() => imageInputRef.current?.click()}>
                 <Image size={18} /> 添加图片 {selectedImages.length > 0 && `(${selectedImages.length})`}
               </Button>
             </div>
             <div className="pt-2 flex justify-end">
-              <Button className="bg-primary hover:bg-primary/90 rounded-full" onClick={handleCreatePost} disabled={createPost.isPending || uploadMedia.isPending || !newPostContent.trim()}>
+              <Button className="app-btn-primary" onClick={handleCreatePost} disabled={createPost.isPending || uploadMedia.isPending || !newPostContent.trim()}>
                 {(createPost.isPending || uploadMedia.isPending) ? <Loader2 size={16} className="animate-spin mr-1" /> : null}
                 {uploadMedia.isPending ? '上传中...' : '发布'}
               </Button>
@@ -476,16 +476,16 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, hasError,
             <div className="flex items-center justify-between gap-3">
               <div className="flex items-center gap-2">
               <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/90">
-                <PenSquare size={14} className="text-app-teal" />
+                <PenSquare size={14} className="app-accent-text" />
               </span>
                 <div>
-                  <div className="text-sm font-semibold leading-none text-slate-900">社交广场</div>
-                  <p className="mt-1 text-[11px] text-slate-500">{tabLabel}</p>
+                  <div className="text-sm font-semibold leading-none text-foreground">经验广场</div>
+                  <p className="mt-1 text-[11px] text-muted-foreground">{tabLabel}</p>
                 </div>
               </div>
               {locationLabel ? (
-                <span className="flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-medium text-slate-600">
-                  <MapPin size={12} className="text-app-teal" />
+                <span className="flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                  <MapPin size={12} className="app-accent-text" />
                   {locationLabel}
                 </span>
               ) : null}
@@ -496,30 +496,30 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, hasError,
                 className="flex w-full items-center gap-3 text-left"
                 onClick={onQuickPost}
               >
-                <Avatar className="h-9 w-9 border border-slate-100">
+                <Avatar className="h-9 w-9 border app-soft-border">
                   <AvatarFallback>发</AvatarFallback>
                 </Avatar>
-                <div className="app-soft-muted-bg flex-1 rounded-full px-4 py-2 text-sm text-slate-500 transition-colors hover:bg-slate-200">
-                  分享此刻的想法、经验或正在发生的事
+                <div className="app-soft-muted-bg flex-1 rounded-full px-4 py-2 text-sm text-muted-foreground transition-colors hover:bg-muted">
+                  分享你的真实经验或近况
                 </div>
               </button>
 
               <div className="mt-2.5 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-2 text-xs text-slate-500">
-                  <button className="app-soft-muted-bg flex items-center gap-1 rounded-full px-2.5 py-1.5 hover:text-slate-700" onClick={onQuickPost}>
+                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                  <button className="app-soft-muted-bg flex items-center gap-1 rounded-full px-2.5 py-1.5 hover:text-foreground" onClick={onQuickPost}>
                     <Image size={14} />
                     图片
                   </button>
-                  <button className="app-soft-muted-bg flex items-center gap-1 rounded-full px-2.5 py-1.5 hover:text-slate-700" onClick={onQuickPost}>
+                  <button className="app-soft-muted-bg flex items-center gap-1 rounded-full px-2.5 py-1.5 hover:text-foreground" onClick={onQuickPost}>
                     <Hash size={14} />
                     话题
                   </button>
-                  <button className="app-soft-muted-bg flex items-center gap-1 rounded-full px-2.5 py-1.5 hover:text-slate-700" onClick={onQuickPost}>
+                  <button className="app-soft-muted-bg flex items-center gap-1 rounded-full px-2.5 py-1.5 hover:text-foreground" onClick={onQuickPost}>
                     <MapPin size={14} />
                     同城
                   </button>
                 </div>
-                <span className="text-[11px] text-slate-500">{posts.length} 条动态</span>
+                <span className="text-[11px] text-muted-foreground">{posts.length} 条动态</span>
               </div>
 
               {topicChips.length > 0 && (
@@ -530,7 +530,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, hasError,
                   {topicChips.slice(0, 4).map((topic) => (
                     <button
                       key={topic.id}
-                      className="app-soft-border shrink-0 rounded-full border bg-white px-2.5 py-1.5 text-[11px] font-medium text-slate-700 transition-colors hover:bg-slate-50"
+                      className="app-soft-border shrink-0 rounded-full border bg-white px-2.5 py-1.5 text-[11px] font-medium text-foreground transition-colors hover:bg-muted"
                       onClick={onQuickPost}
                     >
                       #{topic.name}
@@ -539,8 +539,8 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, hasError,
                 </div>
               )}
 
-              <p className="mt-2 text-[11px] leading-5 text-slate-500">
-                发动态、聊热点、看同城新鲜事，内容更轻、更即时。
+              <p className="mt-2 text-[11px] leading-5 text-muted-foreground">
+                记录可复用经验，帮助他人更快做决策。
               </p>
             </div>
           </div>
@@ -552,17 +552,17 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, hasError,
         <div className="flex items-center justify-between">
           <div>
             <h3 className="app-section-title text-sm">广场动态</h3>
-            <p className="app-section-subtitle mt-1">更轻量、更即时，适合随手分享和互动</p>
+            <p className="app-section-subtitle mt-1">围绕真实经历与可执行建议的经验流</p>
           </div>
           <div className="flex items-center gap-2 rounded-full bg-white p-1 shadow-sm">
             <button
-              className={`rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${sortMode === 'latest' ? 'app-soft-surface-bg app-accent-text' : 'text-slate-500'}`}
+              className={`rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${sortMode === 'latest' ? 'app-soft-surface-bg app-accent-text' : 'text-muted-foreground'}`}
               onClick={() => setSortMode('latest')}
             >
               最新
             </button>
             <button
-              className={`rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${sortMode === 'hot' ? 'app-soft-surface-bg app-accent-text' : 'text-slate-500'}`}
+              className={`rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${sortMode === 'hot' ? 'app-soft-surface-bg app-accent-text' : 'text-muted-foreground'}`}
               onClick={() => setSortMode('hot')}
             >
               最热
@@ -585,14 +585,14 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, hasError,
           [1, 2, 3].map(i => (
             <div key={i} className="surface-card app-soft-border rounded-3xl border p-4 animate-pulse-soft">
               <div className="flex items-center gap-3 mb-3">
-                <div className="h-10 w-10 rounded-full bg-slate-100" />
+                <div className="h-10 w-10 rounded-full app-neutral-soft-bg" />
                 <div className="flex-1">
-                  <div className="mb-1 h-4 w-24 rounded-full bg-slate-100" />
-                  <div className="h-3 w-16 rounded-full bg-slate-100" />
+                  <div className="mb-1 h-4 w-24 rounded-full app-neutral-soft-bg" />
+                  <div className="h-3 w-16 rounded-full app-neutral-soft-bg" />
                 </div>
               </div>
-              <div className="mb-2 h-4 w-full rounded-full bg-slate-100" />
-              <div className="h-4 w-3/4 rounded-full bg-slate-100" />
+              <div className="mb-2 h-4 w-full rounded-full app-neutral-soft-bg" />
+              <div className="h-4 w-3/4 rounded-full app-neutral-soft-bg" />
             </div>
           ))
         ) : sortedPosts.length === 0 ? (
@@ -621,7 +621,7 @@ const DiscoverFeed: React.FC<DiscoverFeedProps> = ({ posts, isLoading, hasError,
                 {user && user.id === post.user_id && (
                   <div className="relative">
                     <button
-                      className="app-soft-muted-bg flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-slate-100"
+                      className="app-soft-muted-bg flex h-8 w-8 items-center justify-center rounded-full transition-colors hover:bg-muted"
                       onClick={() => setMenuOpenId(menuOpenId === post.id ? null : post.id)}
                     >
                       <MoreHorizontal size={18} className="text-muted-foreground" />

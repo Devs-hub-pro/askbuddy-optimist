@@ -39,6 +39,9 @@
     --app-soft-surface-rgb: 236 251 247;
     --app-soft-muted-rgb: 248 253 251;
     --app-soft-border-rgb: 205 239 231;
+    --app-text-rgb: 30 41 59;
+    --app-text-muted-rgb: 100 116 139;
+    --app-neutral-soft-rgb: 241 245 249;
     --app-shadow-sm: 0 6px 18px rgba(15, 23, 42, 0.05);
     --app-shadow-md: 0 12px 28px rgba(15, 23, 42, 0.08);
     --app-space-1: 0.25rem;
@@ -87,7 +90,7 @@
   }
   
   .nav-item {
-    @apply flex flex-col items-center justify-center space-y-1 text-gray-500 transition-colors;
+    @apply flex flex-col items-center justify-center space-y-1 text-muted-foreground transition-colors;
   }
   
   .nav-item.active {
@@ -99,7 +102,7 @@
   }
   
   .search-input {
-    @apply h-12 w-full px-4 bg-white/95 border rounded-2xl focus:outline-none transition-all placeholder:text-gray-400;
+    @apply h-12 w-full px-4 bg-white/95 border rounded-2xl text-foreground focus:outline-none transition-all placeholder:text-muted-foreground;
     border-color: hsl(var(--input));
     box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
   }
@@ -154,6 +157,18 @@
     background-color: rgb(var(--app-soft-muted-rgb));
   }
 
+  .app-neutral-soft-bg {
+    background-color: rgb(var(--app-neutral-soft-rgb));
+  }
+
+  .app-text {
+    color: rgb(var(--app-text-rgb));
+  }
+
+  .app-text-muted {
+    color: rgb(var(--app-text-muted-rgb));
+  }
+
   .app-page-section-gap {
     margin-top: calc(var(--app-space-4) + var(--app-space-2));
   }
@@ -166,12 +181,28 @@
     @apply px-4;
   }
 
+  .app-btn-primary {
+    @apply rounded-full bg-primary text-primary-foreground shadow-sm transition-colors hover:bg-primary/90;
+  }
+
+  .app-btn-secondary {
+    @apply rounded-full border app-soft-border bg-white text-foreground shadow-sm transition-colors hover:bg-muted;
+  }
+
+  .app-chip-neutral {
+    @apply inline-flex items-center rounded-full border app-soft-border bg-white text-muted-foreground transition-colors hover:bg-muted;
+  }
+
+  .app-chip-active {
+    @apply rounded-full border app-soft-border app-soft-surface-bg app-accent-text;
+  }
+
   .app-section-title {
-    @apply text-base font-semibold text-slate-900;
+    @apply text-base font-semibold text-foreground;
   }
 
   .app-section-subtitle {
-    @apply mt-1 text-xs leading-5 text-slate-500;
+    @apply mt-1 text-xs leading-5 text-muted-foreground;
   }
 }
 

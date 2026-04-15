@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { ChevronLeft, Bell, Search, User, MessageCircle, Sparkles, Eye, Award } from 'lucide-react';
+import { ChevronLeft, Bell, Search, User, MessageCircle, Eye, Award } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -19,66 +19,66 @@ const SEARCH_HISTORY_KEY = 'searchHistory';
 const channelThemes = {
   education: {
     title: '教育学习搜索',
-    headerClass: 'bg-gradient-to-r from-blue-400 to-indigo-400',
-    pageClass: 'bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white',
-    searchStripClass: 'bg-blue-50/90 border-b border-blue-100/90',
-    accentRingClass: 'ring-blue-400/25',
-    inputAccentClass: 'focus-visible:ring-blue-400/20 focus-visible:border-blue-200',
-    inputBorderClass: 'border-blue-200/80',
+    headerClass: 'app-header-bg',
+    pageClass: 'app-soft-muted-bg',
+    searchStripClass: 'border-b border-blue-100/80 bg-blue-50/70',
+    accentRingClass: 'ring-blue-300/25',
+    inputAccentClass: 'focus-visible:ring-blue-300/20 focus-visible:border-blue-200/70',
+    inputBorderClass: 'border-blue-200/70',
     iconClass: 'text-blue-500',
-    historyChipClass: 'border-blue-100 text-blue-700',
-    suggestionClass: 'bg-blue-50 text-blue-600',
+    historyChipClass: 'border-blue-100/90 text-blue-700',
+    suggestionClass: 'bg-blue-50 text-blue-700',
     backTo: '/education',
   },
   career: {
     title: '职业发展搜索',
-    headerClass: 'bg-gradient-to-r from-green-400 to-teal-400',
-    pageClass: 'bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white',
-    searchStripClass: 'bg-emerald-50/90 border-b border-emerald-100/90',
-    accentRingClass: 'ring-emerald-400/25',
-    inputAccentClass: 'focus-visible:ring-emerald-400/20 focus-visible:border-emerald-200',
-    inputBorderClass: 'border-emerald-200/80',
+    headerClass: 'app-header-bg',
+    pageClass: 'app-soft-muted-bg',
+    searchStripClass: 'border-b border-emerald-100/80 bg-emerald-50/70',
+    accentRingClass: 'ring-emerald-300/25',
+    inputAccentClass: 'focus-visible:ring-emerald-300/20 focus-visible:border-emerald-200/70',
+    inputBorderClass: 'border-emerald-200/70',
     iconClass: 'text-emerald-500',
-    historyChipClass: 'border-emerald-100 text-emerald-700',
-    suggestionClass: 'bg-emerald-50 text-emerald-600',
+    historyChipClass: 'border-emerald-100/90 text-emerald-700',
+    suggestionClass: 'bg-emerald-50 text-emerald-700',
     backTo: '/career',
   },
   lifestyle: {
     title: '生活服务搜索',
-    headerClass: 'bg-gradient-to-r from-orange-400 to-amber-400',
-    pageClass: 'bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white',
-    searchStripClass: 'bg-orange-50/90 border-b border-orange-100/90',
-    accentRingClass: 'ring-orange-400/25',
-    inputAccentClass: 'focus-visible:ring-orange-400/20 focus-visible:border-orange-200',
-    inputBorderClass: 'border-orange-200/80',
+    headerClass: 'app-header-bg',
+    pageClass: 'app-soft-muted-bg',
+    searchStripClass: 'border-b border-orange-100/80 bg-orange-50/70',
+    accentRingClass: 'ring-orange-300/25',
+    inputAccentClass: 'focus-visible:ring-orange-300/20 focus-visible:border-orange-200/70',
+    inputBorderClass: 'border-orange-200/70',
     iconClass: 'text-orange-500',
-    historyChipClass: 'border-orange-100 text-orange-700',
-    suggestionClass: 'bg-orange-50 text-orange-600',
+    historyChipClass: 'border-orange-100/90 text-orange-700',
+    suggestionClass: 'bg-orange-50 text-orange-700',
     backTo: '/lifestyle',
   },
   hobbies: {
     title: '兴趣技能搜索',
-    headerClass: 'bg-gradient-to-r from-pink-400 to-rose-400',
-    pageClass: 'bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white',
-    searchStripClass: 'bg-rose-50/90 border-b border-rose-100/90',
-    accentRingClass: 'ring-rose-400/25',
-    inputAccentClass: 'focus-visible:ring-rose-400/20 focus-visible:border-rose-200',
-    inputBorderClass: 'border-rose-200/80',
+    headerClass: 'app-header-bg',
+    pageClass: 'app-soft-muted-bg',
+    searchStripClass: 'border-b border-rose-100/80 bg-rose-50/70',
+    accentRingClass: 'ring-rose-300/25',
+    inputAccentClass: 'focus-visible:ring-rose-300/20 focus-visible:border-rose-200/70',
+    inputBorderClass: 'border-rose-200/70',
     iconClass: 'text-rose-500',
-    historyChipClass: 'border-rose-100 text-rose-700',
-    suggestionClass: 'bg-rose-50 text-rose-600',
+    historyChipClass: 'border-rose-100/90 text-rose-700',
+    suggestionClass: 'bg-rose-50 text-rose-700',
     backTo: '/hobbies',
   },
   default: {
     title: '搜索',
     headerClass: 'app-header-bg',
-    pageClass: 'bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white',
+    pageClass: 'app-soft-muted-bg',
     searchStripClass: 'app-header-soft-bg app-soft-border border-b',
     accentRingClass: 'ring-app-teal/25',
     inputAccentClass: 'focus-visible:ring-app-teal/25 focus-visible:border-app-teal/30',
     inputBorderClass: 'app-soft-border border',
     iconClass: 'text-app-teal',
-    historyChipClass: 'app-soft-border border text-slate-700',
+    historyChipClass: 'app-soft-border border text-foreground',
     suggestionClass: 'app-soft-surface-bg app-accent-text',
     backTo: '/',
   },
@@ -336,11 +336,11 @@ const SearchResults = () => {
                   <button
                     key={term}
                     type="button"
-                    className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm text-slate-700 transition-colors hover:bg-slate-50"
+                    className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-left text-sm text-foreground transition-colors hover:bg-muted"
                     onClick={() => handleTopicSelect(term)}
                   >
                     <span className="line-clamp-1">{term}</span>
-                    <Search size={14} className="text-slate-400" />
+                    <Search size={14} className="text-muted-foreground" />
                   </button>
                 ))
               ) : (
@@ -375,13 +375,13 @@ const SearchResults = () => {
                     <button
                       key={`${topic}-${i}`}
                       onClick={() => handleTopicSelect(topic)}
-                      className={`inline-flex items-center gap-1 rounded-full border bg-white px-3 py-1.5 text-sm shadow-sm transition-colors hover:bg-gray-50 ${theme.historyChipClass}`}
+                      className={`app-chip-neutral gap-1 px-3 py-1.5 text-sm text-foreground ${theme.historyChipClass}`}
                     >
                       {topic}
                       <span
                         role="button"
                         aria-label={`删除最近搜索 ${topic}`}
-                        className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] text-slate-400 hover:bg-slate-100 hover:text-slate-600"
+                        className="inline-flex h-4 w-4 items-center justify-center rounded-full text-[10px] text-muted-foreground hover:bg-muted hover:text-foreground"
                         onClick={(event) => {
                           event.preventDefault();
                           event.stopPropagation();
@@ -402,14 +402,14 @@ const SearchResults = () => {
 
             <div className="mb-4 flex items-center">
               <Search size={20} className={`mr-2 ${theme.iconClass}`} />
-              <h2 className="text-lg font-bold">热门搜索</h2>
+              <h2 className="app-section-title">热门搜索</h2>
             </div>
             <div className="flex flex-wrap gap-2 mb-6">
               {popularSearchTerms.map((topic, i) => (
                 <button
                   key={i}
                   onClick={() => handleTopicSelect(topic)}
-                  className="rounded-full border app-soft-border bg-white px-3 py-1.5 text-sm text-slate-700 shadow-sm transition-colors hover:bg-slate-50"
+                  className="app-chip-neutral px-3 py-1.5 text-sm text-foreground"
                 >
                   {topic}
                 </button>
@@ -450,10 +450,10 @@ const SearchResults = () => {
           <div className="surface-card rounded-2xl p-6 text-center">
             <div className="flex flex-col items-center">
               <div className="mb-4 flex h-16 w-16 items-center justify-center rounded-full app-soft-muted-bg">
-                <User size={32} className="text-slate-400" />
+                <User size={32} className="text-muted-foreground" />
               </div>
-              <h3 className="mb-2 text-lg font-medium text-slate-700">未找到匹配结果</h3>
-              <p className="mb-4 max-w-xs text-slate-500">
+              <h3 className="mb-2 text-base font-semibold text-foreground">未找到匹配结果</h3>
+              <p className="mb-4 max-w-xs text-muted-foreground">
                 可换一个关键词，或直接发布问题让专家看到
               </p>
               <div className="mb-4 flex flex-wrap justify-center gap-2">
@@ -473,7 +473,7 @@ const SearchResults = () => {
                     <button
                       key={term}
                       onClick={() => handleTopicSelect(term)}
-                      className="rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 shadow-sm transition-colors hover:bg-slate-50"
+                      className="app-chip-neutral px-3 py-1.5 text-xs font-medium"
                     >
                       改搜 {term}
                     </button>
@@ -483,14 +483,14 @@ const SearchResults = () => {
               <div className="mb-3 grid w-full max-w-sm grid-cols-2 gap-2">
                 <Button
                   onClick={() => navigate('/new', { state: buildFromState(location) })}
-                  className="h-10 rounded-full"
+                  className="app-btn-primary h-10"
                 >
                   去发布问题
                 </Button>
                 <Button
                   variant="outline"
                   onClick={() => navigate('/discover', { state: buildFromState(location) })}
-                  className="h-10 rounded-full app-soft-border border"
+                  className="app-btn-secondary h-10"
                 >
                   去找专家
                 </Button>
@@ -498,7 +498,7 @@ const SearchResults = () => {
               <Button
                 onClick={() => navigateBackOr(navigate, theme.backTo, { location })}
                 variant="ghost"
-                className="h-9 text-sm text-slate-500"
+                className="h-9 rounded-full text-sm text-muted-foreground"
               >
                 返回上页
               </Button>
@@ -510,12 +510,12 @@ const SearchResults = () => {
         {debouncedQuery.trim() && !isLoading && !showError && !showSuggestions && totalResults > 0 && (
           <>
             <div className="mb-4">
-              <h2 className="text-lg font-bold">"{debouncedQuery}" 的搜索结果</h2>
+              <h2 className="text-base font-semibold text-foreground">"{debouncedQuery}" 的搜索结果</h2>
             </div>
 
             <div className="mb-4 space-y-2 rounded-2xl border app-soft-border bg-white/90 p-3 shadow-sm">
               <div className="flex items-center justify-between">
-                <p className="text-xs font-medium text-slate-500">问题排序</p>
+                <p className="text-xs font-medium text-muted-foreground">问题排序</p>
                 <div className="flex items-center gap-1 rounded-full app-soft-muted-bg p-1">
                   {[
                     { key: 'relevance', label: '综合' },
@@ -527,7 +527,7 @@ const SearchResults = () => {
                       type="button"
                       onClick={() => setQuestionSort(item.key as 'relevance' | 'latest' | 'hot')}
                       className={`rounded-full px-3 py-1 text-[11px] font-medium transition-colors ${
-                        questionSort === item.key ? 'bg-white text-slate-800 shadow-sm' : 'text-slate-500'
+                        questionSort === item.key ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground'
                       }`}
                     >
                       {item.label}
@@ -541,10 +541,10 @@ const SearchResults = () => {
                     key={item}
                     type="button"
                     onClick={() => setQuestionCategoryFilter(item)}
-                      className={`shrink-0 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors ${
+                      className={`shrink-0 px-3 py-1.5 text-xs font-medium transition-colors ${
                       questionCategoryFilter === item
-                        ? 'app-soft-border app-soft-surface-bg app-accent-text'
-                        : 'border-slate-200 bg-white text-slate-600'
+                        ? 'app-chip-active'
+                        : 'app-chip-neutral'
                     }`}
                   >
                     {item}
@@ -703,9 +703,9 @@ const QuestionCard = ({ question: q, onOpenQuestion }: { question: SearchQuestio
       <button type="button" className="mb-2 block w-full text-left" onClick={() => onOpenQuestion(q.id)}>
         <div className="flex items-start justify-between">
         <div className="flex-1 text-left">
-          <h3 className="text-base font-semibold text-slate-800">{q.title}</h3>
+          <h3 className="text-base font-semibold text-foreground">{q.title}</h3>
         </div>
-        <div className="ml-2 flex shrink-0 items-center gap-1 text-xs text-slate-500">
+        <div className="ml-2 flex shrink-0 items-center gap-1 text-xs text-muted-foreground">
           <Eye size={14} />
           <span>{q.view_count}</span>
         </div>
@@ -713,7 +713,7 @@ const QuestionCard = ({ question: q, onOpenQuestion }: { question: SearchQuestio
       </button>
       {q.content && (
         <button type="button" className="mb-3 block w-full text-left" onClick={() => onOpenQuestion(q.id)}>
-          <p className="line-clamp-2 text-sm text-slate-600">{q.content}</p>
+          <p className="line-clamp-2 text-sm text-muted-foreground">{q.content}</p>
         </button>
       )}
       <div className="flex items-center justify-between">
@@ -722,19 +722,19 @@ const QuestionCard = ({ question: q, onOpenQuestion }: { question: SearchQuestio
             <AvatarImage src={q.profile_avatar || ''} />
             <AvatarFallback className="text-xs">{(q.profile_nickname || '匿')[0]}</AvatarFallback>
           </Avatar>
-          <span className="text-xs text-slate-500">{q.profile_nickname}</span>
-          <span className="text-xs text-slate-400">{timeAgo}</span>
+          <span className="text-xs text-muted-foreground">{q.profile_nickname}</span>
+          <span className="text-xs text-muted-foreground/80">{timeAgo}</span>
         </div>
         <div className="flex items-center gap-2">
           {q.bounty_points > 0 && (
-            <span className="flex items-center gap-1 bg-gradient-to-r from-yellow-50 to-orange-50 text-amber-600 text-xs px-2 py-0.5 rounded-full font-medium border border-amber-100">
+            <span className="flex items-center gap-1 rounded-full border border-amber-100 bg-amber-50/80 px-2 py-0.5 text-xs font-medium text-amber-700">
               <Award size={12} />
               {q.bounty_points}
             </span>
           )}
           <button
             type="button"
-            className="flex items-center gap-1 rounded-full border border-slate-200 px-2 py-0.5 text-xs text-slate-500"
+            className="app-chip-neutral gap-1 px-2 py-0.5 text-xs"
             onClick={() => onOpenQuestion(q.id)}
           >
             <MessageCircle size={12} />
@@ -764,15 +764,15 @@ const TopicCard = ({ topic: t, onOpenTopic }: { topic: SearchTopic; onOpenTopic:
     </button>
     <div className="p-3">
       <button type="button" className="mb-1 block w-full text-left" onClick={() => onOpenTopic(t.id)}>
-      <h3 className="mb-1 text-sm font-semibold text-slate-800">{t.title}</h3>
+      <h3 className="mb-1 text-sm font-semibold text-foreground">{t.title}</h3>
       </button>
       {t.description && (
         <button type="button" className="mb-2 block w-full text-left" onClick={() => onOpenTopic(t.id)}>
-          <p className="line-clamp-1 text-xs text-slate-500">{t.description}</p>
+          <p className="line-clamp-1 text-xs text-muted-foreground">{t.description}</p>
         </button>
       )}
-      <div className="flex items-center justify-between gap-3 text-xs text-slate-400">
-        <span className="flex items-center gap-1 text-slate-500">
+      <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground/80">
+        <span className="flex items-center gap-1 text-muted-foreground">
           <MessageCircle size={12} />
           {t.discussions_count} 讨论
         </span>
@@ -780,7 +780,7 @@ const TopicCard = ({ topic: t, onOpenTopic }: { topic: SearchTopic; onOpenTopic:
           {t.category && <span className="rounded-full app-soft-muted-bg px-2 py-0.5">{t.category}</span>}
           <button
             type="button"
-            className="rounded-full border border-slate-200 px-2 py-0.5 text-[11px] text-slate-600"
+            className="app-chip-neutral px-2 py-0.5 text-[11px]"
             onClick={() => onOpenTopic(t.id)}
           >
             查看
@@ -798,13 +798,13 @@ const UserCard = ({ user: u, onOpenChat }: { user: SearchUser; onOpenChat: (id: 
       <AvatarFallback>{(u.nickname || '用')[0]}</AvatarFallback>
     </Avatar>
     <div className="flex-1 min-w-0">
-      <h3 className="text-sm font-medium text-slate-800">{u.nickname || '匿名用户'}</h3>
-      {u.bio && <p className="line-clamp-1 text-xs text-slate-500">{u.bio}</p>}
+      <h3 className="text-sm font-medium text-foreground">{u.nickname || '匿名用户'}</h3>
+      {u.bio && <p className="line-clamp-1 text-xs text-muted-foreground">{u.bio}</p>}
     </div>
     <div className="flex items-center gap-2">
       <button
         type="button"
-        className="rounded-full border border-slate-200 px-3 py-1 text-xs text-slate-600 disabled:cursor-not-allowed disabled:opacity-50"
+        className="app-chip-neutral px-3 py-1 text-xs disabled:cursor-not-allowed disabled:opacity-50"
         disabled={!u.user_id}
         onClick={() => {
           if (!u.user_id) return;
@@ -830,12 +830,9 @@ const QuestionSection = ({
 }) => (
   <div>
     <div className="flex items-center justify-between mb-2">
-      <h3 className="text-base font-semibold flex items-center">
-        <Sparkles size={16} className="text-yellow-500 mr-1" />
-        相关问题
-      </h3>
+      <h3 className="text-base font-semibold text-foreground">相关问题</h3>
       {showMore && (
-        <Button variant="ghost" size="sm" className="text-xs text-slate-500" onClick={onViewMore}>
+        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={onViewMore}>
           查看更多
         </Button>
       )}
@@ -861,9 +858,9 @@ const TopicSection = ({
 }) => (
   <div>
     <div className="flex items-center justify-between mb-2">
-      <h3 className="text-base font-semibold text-slate-800">🔥 相关话题</h3>
+      <h3 className="text-base font-semibold text-foreground">相关话题</h3>
       {showMore && (
-        <Button variant="ghost" size="sm" className="text-xs text-slate-500" onClick={onViewMore}>
+        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={onViewMore}>
           查看更多
         </Button>
       )}
@@ -889,9 +886,9 @@ const UserSection = ({
 }) => (
   <div>
     <div className="flex items-center justify-between mb-2">
-      <h3 className="text-base font-semibold text-slate-800">👤 相关用户</h3>
+      <h3 className="text-base font-semibold text-foreground">相关用户</h3>
       {showMore && (
-        <Button variant="ghost" size="sm" className="text-xs text-slate-500" onClick={onViewMore}>
+        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={onViewMore}>
           查看更多
         </Button>
       )}

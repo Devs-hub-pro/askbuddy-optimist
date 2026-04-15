@@ -474,12 +474,12 @@ const NewQuestion: React.FC = () => {
   };
   
   return (
-    <div className="min-h-[100dvh] bg-[rgb(248,253,251)] pb-20">
+    <div className="min-h-[100dvh] app-soft-muted-bg pb-20">
       <SubPageHeader
         title="发布问题"
         onBack={handleBack}
         right={
-          <button onClick={saveDraft} className="rounded-full bg-white/20 px-3 py-1 text-xs text-white hover:bg-white/25">
+          <button onClick={saveDraft} className="rounded-full bg-white/20 px-3 py-1 text-xs font-medium text-white hover:bg-white/25">
             存草稿
           </button>
         }
@@ -490,9 +490,9 @@ const NewQuestion: React.FC = () => {
         <div className="surface-card rounded-3xl p-4">
           <div className="flex items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-slate-900">发布提示</p>
-              <p className="mt-1 text-xs leading-5 text-slate-500">
-                标题清楚、描述具体、标签准确，更容易获得高质量回答。
+              <p className="text-sm font-semibold text-foreground">发布提示</p>
+              <p className="mt-1 text-xs leading-5 text-muted-foreground">
+                标题清楚、描述具体，通常更容易获得有效回答。
               </p>
             </div>
             <span className="rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">
@@ -502,7 +502,7 @@ const NewQuestion: React.FC = () => {
         </div>
 
         <div className="px-1">
-          <p className="text-xs font-medium tracking-wide text-slate-500">基础信息</p>
+          <p className="text-xs font-medium tracking-wide text-muted-foreground">基础信息</p>
         </div>
         {/* 1. Question Title */}
         <div className="surface-card rounded-3xl p-5">
@@ -510,7 +510,7 @@ const NewQuestion: React.FC = () => {
             <h2 className="text-base font-semibold">问题标题</h2>
             <span className="text-red-500 ml-1">*</span>
           </div>
-          <p className="text-gray-500 text-sm mb-3">简洁明了的标题更容易获得回答（20字以内）</p>
+          <p className="mb-3 text-sm text-muted-foreground">简洁明了的标题更容易获得回答（20字以内）</p>
           
           <div className="relative">
             <Input
@@ -523,17 +523,17 @@ const NewQuestion: React.FC = () => {
               }}
               placeholder={titlePlaceholder}
               maxLength={40}
-              className="text-base p-3 border-gray-300 focus:border-primary rounded-2xl"
+              className="rounded-2xl border-border p-3 text-base focus:border-primary"
               onFocus={() => setTitleFocused(true)}
               onBlur={() => setTitleFocused(false)}
             />
-            <div className="absolute right-3 top-3 text-xs text-gray-400">
+            <div className="absolute right-3 top-3 text-xs text-muted-foreground">
               {title.length}/40
             </div>
             
             {titleFocused && title.length > 0 && (
-              <div className="mt-2 rounded-2xl bg-gray-50 p-3 border border-gray-100">
-                <p className="text-xs text-gray-500 mb-2">可能类似的问题：</p>
+              <div className="mt-2 rounded-2xl border app-soft-border app-soft-muted-bg p-3">
+                <p className="mb-2 text-xs text-muted-foreground">可能类似的问题：</p>
                 <ul className="space-y-2">
                   <li className="text-sm text-primary hover:underline cursor-pointer">如何提高英语口语水平？</li>
                   <li className="text-sm text-primary hover:underline cursor-pointer">自学编程需要什么基础？</li>
@@ -555,7 +555,7 @@ const NewQuestion: React.FC = () => {
               查看示例
             </button>
           </div>
-          <p className="text-gray-500 text-sm mb-3">补充背景信息，帮助他人更好地理解您的问题</p>
+          <p className="mb-3 text-sm text-muted-foreground">补充背景信息，帮助他人更好地理解您的问题</p>
           
           <Textarea
             value={description}
@@ -566,16 +566,16 @@ const NewQuestion: React.FC = () => {
               }
             }}
             placeholder="提供背景信息，如'我的GPA是3.5，想申请英国硕士，如何选校？'"
-            className="min-h-[140px] border-gray-300 text-base p-3 focus:border-primary rounded-2xl"
+            className="min-h-[140px] rounded-2xl border-border p-3 text-base focus:border-primary"
           />
           <div className="text-right mt-1">
-            <span className="text-xs text-gray-400">{description.length}/1000</span>
+            <span className="text-xs text-muted-foreground">{description.length}/1000</span>
           </div>
         </div>
         
         {/* 3. Tags Selection - Redesigned */}
         <div className="px-1 -mt-1">
-          <p className="text-xs font-medium tracking-wide text-slate-500">曝光与补充</p>
+          <p className="text-xs font-medium tracking-wide text-muted-foreground">曝光与补充</p>
         </div>
 
         <div className="surface-card rounded-3xl p-5">
@@ -583,7 +583,7 @@ const NewQuestion: React.FC = () => {
             <h2 className="text-base font-semibold">选择标签</h2>
             <span className="text-red-500 ml-1">*</span>
           </div>
-          <p className="text-gray-500 text-sm mb-3">最多选择5个标签，帮助问题被合适的人看到</p>
+          <p className="mb-3 text-sm text-muted-foreground">最多选择5个标签，帮助问题被合适的人看到</p>
           
           {/* Current selected tags */}
           {selectedTags.length > 0 && (
@@ -609,7 +609,7 @@ const NewQuestion: React.FC = () => {
               value={customTag}
               onChange={(e) => setCustomTag(e.target.value)}
               placeholder="添加自定义标签..."
-              className="flex-1 border-gray-300 focus:border-primary rounded-2xl"
+              className="flex-1 rounded-2xl border-border focus:border-primary"
               onKeyDown={(e) => {
                 if (e.key === 'Enter') {
                   e.preventDefault();
@@ -619,7 +619,7 @@ const NewQuestion: React.FC = () => {
             />
             <Button 
               onClick={addCustomTag}
-              className="rounded-full"
+              className="app-btn-primary"
             >
               添加
             </Button>
@@ -627,7 +627,7 @@ const NewQuestion: React.FC = () => {
           
           {/* AI Suggested Tags */}
           {title.length > 0 && suggestedTags.length > 0 && (
-            <div className="mb-4 p-3 bg-secondary rounded-2xl">
+            <div className="mb-4 rounded-2xl bg-secondary p-3">
               <p className="text-sm font-medium mb-2 flex items-center">
                 <Tag size={14} className="text-primary mr-1" />
                 AI 推荐标签
@@ -653,7 +653,7 @@ const NewQuestion: React.FC = () => {
           
           {/* Popular Categories */}
           <div>
-            <p className="text-sm font-medium mb-2 text-gray-700">热门分类</p>
+            <p className="mb-2 text-sm font-medium text-foreground">常用分类</p>
             <div className="flex flex-wrap gap-2">
               {categories.map(category => (
                 <Badge
@@ -662,7 +662,7 @@ const NewQuestion: React.FC = () => {
                   className={`px-3 py-1.5 rounded-full flex items-center cursor-pointer ${
                     selectedTags.includes(category.name)
                       ? 'bg-primary/15 text-primary border-primary/30' 
-                      : 'border-gray-200 hover:bg-gray-100 hover:border-gray-300'
+                        : 'border-border hover:bg-muted hover:border-border'
                   }`}
                   onClick={() => toggleTag(category.name)}
                 >
@@ -683,7 +683,7 @@ const NewQuestion: React.FC = () => {
               我的积分: 100
             </button>
           </div>
-          <p className="text-gray-500 text-sm mb-3">设置悬赏可提高问题曝光度和回答质量</p>
+          <p className="mb-3 text-sm text-muted-foreground">设置悬赏可提高问题曝光度和回答质量</p>
           
           <div className="flex items-end gap-3">
             <div className="flex-1">
@@ -693,10 +693,10 @@ const NewQuestion: React.FC = () => {
                 value={pointReward}
                 onChange={(e) => setPointReward(e.target.value)}
                 placeholder="输入积分数量"
-                className="w-full border-gray-300 focus:border-primary rounded-2xl text-lg p-3"
+                className="w-full rounded-2xl border-border p-3 text-lg focus:border-primary"
               />
             </div>
-            <span className="text-lg font-medium text-gray-700">积分</span>
+            <span className="text-lg font-medium text-foreground">积分</span>
           </div>
           
           {/* Reward recommendations */}
@@ -708,11 +708,11 @@ const NewQuestion: React.FC = () => {
                 className={`p-3 rounded-2xl border text-left ${
                   parseInt(pointReward) === rec.value 
                     ? 'border-primary/30 bg-primary/10' 
-                    : 'border-gray-200 hover:border-gray-300'
+                    : 'border-border hover:border-border'
                 }`}
               >
                 <span className="block font-medium">{rec.value} 积分</span>
-                <span className="text-xs text-gray-500">{rec.description}</span>
+                <span className="text-xs text-muted-foreground">{rec.description}</span>
               </button>
             ))}
           </div>
@@ -720,7 +720,7 @@ const NewQuestion: React.FC = () => {
           {/* Response time estimate */}
           <div className="mt-4 bg-gradient-to-r from-primary/10 to-primary/5 border border-primary/20 p-3 rounded-2xl">
             <p className="text-sm text-primary">
-              💡 提示：悬赏 {pointReward} 积分的问题平均在
+              参考：悬赏 {pointReward} 积分的问题通常在
               {parseInt(pointReward) >= 30 ? ' 2 小时内 ' : ' 12 小时内 '}
               获得首次回答
             </p>
@@ -729,14 +729,14 @@ const NewQuestion: React.FC = () => {
         
         {/* 5-6. Consultation & Attachments - SIDE BY SIDE layout */}
         <div className="px-1 -mt-1">
-          <p className="text-xs font-medium tracking-wide text-slate-500">附加信息</p>
+          <p className="text-xs font-medium tracking-wide text-muted-foreground">附加信息</p>
         </div>
 
         <div className="grid grid-cols-1 gap-4">
           {/* 5. Schedule Consultation */}
           <div className="surface-card rounded-3xl p-5">
             <h2 className="text-base font-semibold mb-3">预约咨询</h2>
-            <p className="text-gray-500 text-sm mb-3">您可以选择预约时间段，与专家一对一交流</p>
+            <p className="mb-3 text-sm text-muted-foreground">您可以选择预约时间段，与专家一对一交流</p>
             
             <div className="flex items-center mb-4">
               <Checkbox 
@@ -757,7 +757,7 @@ const NewQuestion: React.FC = () => {
             
             {!flexibleTime && (
               <div>
-                <p className="text-sm text-gray-600 mb-2">选择您方便的时间段：</p>
+                <p className="mb-2 text-sm text-muted-foreground">选择您方便的时间段：</p>
                 <div className="space-y-2">
                   {timeSlots.map(slot => (
                     <div 
@@ -765,7 +765,7 @@ const NewQuestion: React.FC = () => {
                       className={`border rounded-2xl p-3 flex items-center ${
                         selectedTimeSlots.includes(slot.value)
                           ? 'border-primary/30 bg-primary/10'
-                          : 'border-gray-200'
+                          : 'border-border'
                       }`}
                       onClick={() => toggleTimeSlot(slot.value)}
                     >
@@ -776,7 +776,7 @@ const NewQuestion: React.FC = () => {
                         className="mr-2 text-primary"
                       />
                       <Label htmlFor={`time-${slot.id}`} className="flex-1 cursor-pointer flex items-center">
-                        <Clock size={16} className="mr-2 text-gray-500" />
+                        <Clock size={16} className="mr-2 text-muted-foreground" />
                         <span>{slot.name}</span>
                       </Label>
                     </div>
@@ -789,7 +789,7 @@ const NewQuestion: React.FC = () => {
           {/* 6. Attachments Upload */}
           <div className="surface-card rounded-3xl p-5">
             <h2 className="text-base font-semibold mb-3">附件上传</h2>
-            <p className="text-gray-500 text-sm mb-3">添加图片或文件补充说明您的问题</p>
+            <p className="mb-3 text-sm text-muted-foreground">添加图片或文件补充说明您的问题</p>
             
             <Tabs defaultValue="image" className="w-full">
               <TabsList className="grid grid-cols-3 mb-4">
@@ -802,7 +802,7 @@ const NewQuestion: React.FC = () => {
                 <div className="flex flex-wrap gap-3">
                   {/* Display uploaded images */}
                   {attachments.filter((item) => item.file.type.startsWith('image/')).map((item) => (
-                    <div key={item.id} className="relative h-20 w-20 bg-gray-100 rounded-2xl overflow-hidden">
+                    <div key={item.id} className="relative h-20 w-20 overflow-hidden rounded-2xl app-neutral-soft-bg">
                       <img 
                         src={item.previewUrl || ''}
                         alt="Attachment"
@@ -818,9 +818,9 @@ const NewQuestion: React.FC = () => {
                   ))}
                   
                   {/* Add image button */}
-                  <label className="h-20 w-20 border-2 border-dashed border-gray-300 rounded-2xl flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5">
-                    <ImagePlus size={20} className="text-gray-400 mb-1" />
-                    <span className="text-xs text-gray-500">添加图片</span>
+                  <label className="flex h-20 w-20 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border hover:border-primary hover:bg-primary/5">
+                    <ImagePlus size={20} className="mb-1 text-muted-foreground" />
+                    <span className="text-xs text-muted-foreground">添加图片</span>
                     <input 
                       type="file" 
                       accept="image/*" 
@@ -836,12 +836,12 @@ const NewQuestion: React.FC = () => {
                 <div className="space-y-3">
                   {/* Display uploaded files */}
                   {attachments.filter(item => !item.file.type.startsWith('image/') && !item.file.type.startsWith('audio/')).map((item) => (
-                    <div key={item.id} className="flex items-center p-2 border rounded-2xl">
-                      <File size={20} className="text-gray-400 mr-2" />
+                    <div key={item.id} className="flex items-center rounded-2xl border border-border p-2">
+                      <File size={20} className="mr-2 text-muted-foreground" />
                       <span className="text-sm truncate flex-1">{item.file.name}</span>
                       <button 
                         onClick={() => removeAttachment(item.id)}
-                        className="text-gray-400 hover:text-gray-600"
+                        className="text-muted-foreground hover:text-foreground"
                       >
                         ×
                       </button>
@@ -849,10 +849,10 @@ const NewQuestion: React.FC = () => {
                   ))}
                   
                   {/* Add file button */}
-                  <label className="border-2 border-dashed border-gray-300 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5">
-                    <File size={24} className="text-gray-400 mb-2" />
-                    <span className="text-sm text-gray-500 mb-1">点击上传文件</span>
-                    <span className="text-xs text-gray-400">支持 PDF、Word、Excel 等格式</span>
+                  <label className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border p-6 hover:border-primary hover:bg-primary/5">
+                    <File size={24} className="mb-2 text-muted-foreground" />
+                    <span className="mb-1 text-sm text-muted-foreground">点击上传文件</span>
+                    <span className="text-xs text-muted-foreground">支持 PDF、Word、Excel 等格式</span>
                     <input 
                       type="file" 
                       className="hidden" 
@@ -864,10 +864,10 @@ const NewQuestion: React.FC = () => {
               </TabsContent>
               
               <TabsContent value="audio" className="mt-0">
-                <div className="border-2 border-dashed border-gray-300 rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer hover:border-primary hover:bg-primary/5">
-                  <Mic size={24} className="text-gray-400 mb-2" />
-                  <span className="text-sm text-gray-500 mb-1">点击录制语音</span>
-                  <span className="text-xs text-gray-400">或上传已有语音文件</span>
+                <div className="flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed border-border p-6 hover:border-primary hover:bg-primary/5">
+                  <Mic size={24} className="mb-2 text-muted-foreground" />
+                  <span className="mb-1 text-sm text-muted-foreground">点击录制语音</span>
+                  <span className="text-xs text-muted-foreground">或上传已有语音文件</span>
                 </div>
               </TabsContent>
             </Tabs>
@@ -883,7 +883,7 @@ const NewQuestion: React.FC = () => {
         <Button 
           onClick={handleSubmit}
           disabled={createQuestion.isPending}
-          className="w-full font-medium py-5 rounded-full flex items-center justify-center shadow-lg"
+          className="app-btn-primary w-full py-5 font-medium"
         >
           {createQuestion.isPending ? (
             <>
@@ -909,7 +909,7 @@ const NewQuestion: React.FC = () => {
             <Button
               type="button"
               variant="outline"
-              className="rounded-full"
+              className="app-btn-secondary"
               onClick={() => {
                 saveDraft({ silent: true });
                 setShowLeaveDialog(false);

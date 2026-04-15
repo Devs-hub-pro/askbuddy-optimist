@@ -85,9 +85,9 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           onClick={openQuestionDetail}
         >
           <div className="flex items-start justify-between">
-            <h3 className="font-semibold text-base text-left text-gray-800 leading-7">{title}</h3>
+            <h3 className="font-semibold text-base text-left text-foreground leading-7">{title}</h3>
             {viewCount && (
-              <div className="ml-2 flex items-center gap-1 text-gray-500 text-xs">
+              <div className="ml-2 flex items-center gap-1 text-muted-foreground text-xs">
                 <Eye size={14} className="flex-shrink-0" />
                 <span>{viewCount}</span>
               </div>
@@ -97,7 +97,7 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         
         {description && (
           <button type="button" className="mb-3 block w-full text-left" onClick={openQuestionDetail}>
-            <p className="text-sm text-gray-600 line-clamp-2 leading-6">{description}</p>
+            <p className="text-sm text-muted-foreground line-clamp-2 leading-6">{description}</p>
           </button>
         )}
 
@@ -105,13 +105,13 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           <div>
             <ExpertDetailDialog {...askerExpertData}>
               <div className="flex items-center gap-2 cursor-pointer">
-                <Avatar className="w-8 h-8 border border-gray-100">
+                <Avatar className="w-8 h-8 border app-soft-border">
                   <AvatarImage src={asker.avatar} alt={asker.name} className="object-cover" />
                   <AvatarFallback>{asker.name.charAt(0)}</AvatarFallback>
                 </Avatar>
                 <div className="text-left">
-                  <div className="text-xs font-medium text-gray-700">{asker.name}</div>
-                  <div className="text-xs text-gray-500">{time}</div>
+                  <div className="text-xs font-medium text-foreground">{asker.name}</div>
+                  <div className="text-xs text-muted-foreground">{time}</div>
                 </div>
               </div>
             </ExpertDetailDialog>

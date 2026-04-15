@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useMemo } from 'react';
 import { ChevronLeft, Image, Smile, Loader2 } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
@@ -40,14 +40,14 @@ const ChatDetail: React.FC = () => {
   // Real messages from database
   const { data: messages, isLoading } = useMessagesWithUser(isDemoChat ? '' : chatId || '');
   const sendMessage = useSendMessage();
-  const markAsRead = useMarkMessagesAsRead();
+  const { mutate: markMessagesAsRead } = useMarkMessagesAsRead();
 
   // Mark messages as read on mount
   useEffect(() => {
     if (chatId && user && !isDemoChat) {
-      markAsRead.mutate(chatId);
+      markMessagesAsRead(chatId);
     }
-  }, [chatId, user, isDemoChat]);
+  }, [chatId, user, isDemoChat, markMessagesAsRead]);
 
   // Scroll to bottom when messages change
   useEffect(() => {
@@ -84,15 +84,18 @@ const ChatDetail: React.FC = () => {
   };
 
   const demoConversation = isDemoChat ? demoConversations.find((item) => item.partner_id === chatId) : null;
-  const resolvedMessages = isDemoChat
-    ? (demoMessagesByPartner[chatId || ''] || []).map((msg) => ({
-        ...msg,
-        sender_id: msg.sender_id === 'current-user' ? user?.id || 'current-user' : msg.sender_id,
-      }))
-    : messages || [];
+  const resolvedMessages = useMemo(
+    () =>
+      isDemoChat
+        ? (demoMessagesByPartner[chatId || ''] || []).map((msg) => ({
+            ...msg,
+            sender_id: msg.sender_id === 'current-user' ? user?.id || 'current-user' : msg.sender_id,
+          }))
+        : messages || [],
+    [chatId, isDemoChat, messages, user?.id]
+  );
 
   const groupedMessages = React.useMemo(() => {
-    if (!resolvedMessages) return [];
     return resolvedMessages.map((msg, index) => {
       const prev = resolvedMessages[index - 1];
       const showDateDivider =
@@ -175,11 +178,11 @@ const ChatDetail: React.FC = () => {
                 <div className={`flex ${fromMe ? 'justify-end' : 'justify-start'}`}>
                   <div className={`max-w-[78%] rounded-3xl px-4 py-3 text-sm ${
                     fromMe
-                      ? 'rounded-br-xl bg-app-teal text-white shadow-sm'
-                      : 'surface-card rounded-bl-xl text-foreground'
+                      ? 'rounded-br-xl border border-[#167567] bg-[#1d8b79] text-white shadow-[0_6px_16px_rgba(29,139,121,0.28)]'
+                      : 'surface-card rounded-bl-xl border border-slate-100 text-foreground'
                   }`}>
-                    <p className="break-words leading-6">{msg.content}</p>
-                    <p className={`mt-2 text-[10px] ${fromMe ? 'text-white/70' : 'text-muted-foreground'}`}>
+                    <p className={`break-words leading-6 ${fromMe ? 'text-white' : ''}`}>{msg.content}</p>
+                    <p className={`mt-2 text-[10px] ${fromMe ? 'text-white/80' : 'text-muted-foreground'}`}>
                       {formatTime(msg.created_at)}
                     </p>
                   </div>

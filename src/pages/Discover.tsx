@@ -92,13 +92,16 @@ const Discover: React.FC = () => {
   const hasComposerContent = Boolean(newPostContent.trim() || newPostTags.length > 0 || selectedImages.length > 0);
 
   const resetComposer = () => {
-    imagePreviews.forEach((url) => URL.revokeObjectURL(url));
+    previewsRef.current.forEach((url) => URL.revokeObjectURL(url));
     setSelectedImages([]);
     setImagePreviews([]);
     setShowEmojiPicker(false);
     setNewPostContent('');
     setNewPostTags([]);
     setNewTagInput('');
+    if (imageInputRef.current) {
+      imageInputRef.current.value = '';
+    }
   };
 
   useEffect(() => {
@@ -145,6 +148,7 @@ const Discover: React.FC = () => {
     setSelectedImages(prev => [...prev, ...files]);
     const previews = files.map(f => URL.createObjectURL(f));
     setImagePreviews(prev => [...prev, ...previews]);
+    e.target.value = '';
   };
 
   const removeImage = (index: number) => {
@@ -741,9 +745,7 @@ const CommentsSection: React.FC<CommentsSectionProps> = ({ postId, inputRefs, co
 
       {/* Comment List */}
       {isLoading ? (
-        <div className="flex justify-center py-3">
-          <Loader2 size={16} className="animate-spin text-muted-foreground" />
-        </div>
+        <PageStateCard compact variant="loading" title="正在加载评论…" className="px-3 py-4" />
       ) : comments && comments.length > 0 ? (
         <div className="space-y-2.5">
           {comments.map((comment) => (

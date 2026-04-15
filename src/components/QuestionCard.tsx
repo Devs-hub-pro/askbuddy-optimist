@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { MessageCircle, Award, Eye } from 'lucide-react';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
 import ExpertDetailDialog from './ExpertDetailDialog';
 import AnswerDialog from "./AnswerDialog";
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -70,45 +69,42 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
     console.log("回答者可回答时间段:", payload.timeSlots, "留言:", payload.message);
     // 可弹出Toast告知提交或继续交互
   };
-  const isActionTarget = (target: EventTarget | null) =>
-    target instanceof HTMLElement && !!target.closest('[data-card-action="true"]');
+  const openQuestionDetail = () => {
+    navigate(`/question/${id}`, { state: buildFromState(location) });
+  };
 
   return (
     <>
       <div
-        className="surface-card cursor-pointer rounded-3xl p-4 transition-all duration-300 animate-fade-in hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
+        className="surface-card rounded-3xl p-4 transition-all duration-300 animate-fade-in hover:shadow-[0_12px_28px_rgba(15,23,42,0.08)]"
         style={{ animationDelay: `${delay}s` }}
-        role="button"
-        tabIndex={0}
-        onClick={(event) => {
-          if (isActionTarget(event.target)) return;
-          navigate(`/question/${id}`, { state: buildFromState(location) });
-        }}
-        onKeyDown={(event) => {
-          if (event.key === 'Enter' || event.key === ' ') {
-            event.preventDefault();
-            navigate(`/question/${id}`, { state: buildFromState(location) });
-          }
-        }}
       >
-        <div className="flex items-start justify-between mb-2">
-          <h3 className="font-semibold text-base text-left text-gray-800 leading-7">{title}</h3>
-          {viewCount && (
-            <div className="flex items-center gap-1 text-gray-500 text-xs">
-              <Eye size={14} className="flex-shrink-0" />
-              <span>{viewCount}</span>
-            </div>
-          )}
-        </div>
+        <button
+          type="button"
+          className="mb-2 block w-full text-left"
+          onClick={openQuestionDetail}
+        >
+          <div className="flex items-start justify-between">
+            <h3 className="font-semibold text-base text-left text-gray-800 leading-7">{title}</h3>
+            {viewCount && (
+              <div className="ml-2 flex items-center gap-1 text-gray-500 text-xs">
+                <Eye size={14} className="flex-shrink-0" />
+                <span>{viewCount}</span>
+              </div>
+            )}
+          </div>
+        </button>
         
         {description && (
-          <p className="mb-3 text-sm text-gray-600 line-clamp-2 leading-6">{description}</p>
+          <button type="button" className="mb-3 block w-full text-left" onClick={openQuestionDetail}>
+            <p className="text-sm text-gray-600 line-clamp-2 leading-6">{description}</p>
+          </button>
         )}
-        
+
         <div className="flex items-center justify-between mb-3">
-          <div data-card-action="true" onClick={(e) => e.stopPropagation()} onKeyDown={(e) => e.stopPropagation()}>
+          <div>
             <ExpertDetailDialog {...askerExpertData}>
-              <div className="flex items-center gap-2 cursor-pointer" data-card-action="true">
+              <div className="flex items-center gap-2 cursor-pointer">
                 <Avatar className="w-8 h-8 border border-gray-100">
                   <AvatarImage src={asker.avatar} alt={asker.name} className="object-cover" />
                   <AvatarFallback>{asker.name.charAt(0)}</AvatarFallback>
@@ -137,13 +133,9 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           </div>
           
           <div className="flex items-center gap-2">
-            <button 
-              data-card-action="true"
+            <button
               className="bg-gradient-to-r from-blue-500 to-app-blue text-white px-3 py-1.5 rounded-full text-xs font-medium flex items-center gap-1 shadow-sm hover:shadow-md transition-all transform hover:-translate-y-0.5 active:translate-y-0"
-              onClick={e => {
-                e.stopPropagation();
-                setShowAnswerDialog(true);
-              }}
+              onClick={() => setShowAnswerDialog(true)}
             >
               <MessageCircle size={12} />
               回答

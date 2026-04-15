@@ -9,6 +9,7 @@ import SubPageHeader from '@/components/layout/SubPageHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import PageStateCard from '@/components/common/PageStateCard';
 import { buildFromState } from '@/utils/navigation';
+import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 
 interface FollowingItem {
   id: string;
@@ -25,6 +26,7 @@ const MyFollowing = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: following, isLoading, error, refetch } = useMyFollowing();
+  usePageScrollMemory('profile-following');
 
   return (
     <div className="pb-8 min-h-[100dvh] bg-slate-50">

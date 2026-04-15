@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
@@ -42,12 +42,21 @@ const SearchBar: React.FC<SearchBarProps> = ({
   const location = useLocation();
   const [searchValue, setSearchValue] = useState(value || '');
   const [isFocused, setIsFocused] = useState(false);
+  const blurTimerRef = useRef<number | null>(null);
 
   useEffect(() => {
     if (value !== undefined) {
       setSearchValue(value);
     }
   }, [value]);
+
+  useEffect(() => {
+    return () => {
+      if (blurTimerRef.current) {
+        window.clearTimeout(blurTimerRef.current);
+      }
+    };
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value;
@@ -112,13 +121,21 @@ const SearchBar: React.FC<SearchBarProps> = ({
   };
 
   const handleFocus = () => {
+    if (blurTimerRef.current) {
+      window.clearTimeout(blurTimerRef.current);
+      blurTimerRef.current = null;
+    }
     setIsFocused(true);
     onFocusChange?.(true);
   };
 
   const handleBlur = () => {
-    setIsFocused(false);
-    onFocusChange?.(false);
+    // 延迟收起，确保建议列表按钮点击不会被 blur 立即吞掉
+    blurTimerRef.current = window.setTimeout(() => {
+      setIsFocused(false);
+      onFocusChange?.(false);
+      blurTimerRef.current = null;
+    }, 120);
   };
 
   return (

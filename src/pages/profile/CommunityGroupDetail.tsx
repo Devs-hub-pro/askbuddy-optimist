@@ -38,33 +38,46 @@ const CommunityGroupDetail = () => {
   const { toast } = useToast();
   const group = (location.state as { group?: CommunityGroupState } | null)?.group;
   const [mute, setMute] = useState(Boolean(group?.muted));
+  const safeGroup = group ?? {
+    id: '',
+    name: '群聊资料',
+    members: 0,
+    topic: '群聊讨论',
+    timeLabel: '刚刚',
+    unread: 0,
+    lastSender: '讨论区',
+    lastMessage: '欢迎进入群聊',
+    mentionCount: 0,
+    role: 'member' as const,
+  };
 
   useEffect(() => {
     if (!group) {
       navigateBackOr(navigate, '/profile/community', { location });
     }
   }, [group, location, navigate]);
-
-  if (!group) return null;
-
-  const roleLabel = group.role === 'owner' ? '群主' : group.role === 'admin' ? '管理员' : '群成员';
-  const mentionCount = group.mentionCount || 0;
+  const roleLabel = safeGroup.role === 'owner' ? '群主' : safeGroup.role === 'admin' ? '管理员' : '群成员';
+  const mentionCount = safeGroup.mentionCount || 0;
 
   const feed = useMemo(
     () => [
-      { id: '1', author: '群主', content: `欢迎来到 ${group.name}，新成员先看置顶公告和资料区。`, time: '刚刚' },
-      { id: '2', author: group.lastSender || '讨论区', content: group.lastMessage || '群内正在讨论最新问题与经验。', time: group.timeLabel },
+      { id: '1', author: '群主', content: `欢迎来到 ${safeGroup.name}，新成员先看置顶公告和资料区。`, time: '刚刚' },
+      { id: '2', author: safeGroup.lastSender || '讨论区', content: safeGroup.lastMessage || '群内正在讨论最新问题与经验。', time: safeGroup.timeLabel },
       { id: '3', author: '文件区', content: '本周精选资料与热门问题已整理，欢迎补充。', time: '今天' },
       { id: '4', author: '系统提醒', content: '你已开启群内关键词通知：留学、简历、实习。', time: '今天' },
     ],
-    [group.lastMessage, group.lastSender, group.name, group.timeLabel]
+    [safeGroup.lastMessage, safeGroup.lastSender, safeGroup.name, safeGroup.timeLabel]
   );
+
+  if (!group) {
+    return <div className="min-h-[100dvh] bg-muted" />;
+  }
 
   return (
     <div className="min-h-[100dvh] bg-muted pb-8">
       <SubPageHeader
-        title={group.name}
-        onBack={() => navigateBackOr(navigate, `/profile/community/${group.id}`, { location })}
+        title={safeGroup.name}
+        onBack={() => navigateBackOr(navigate, `/profile/community/${safeGroup.id}`, { location })}
       />
 
       <div className="p-5 space-y-5">
@@ -73,8 +86,8 @@ const CommunityGroupDetail = () => {
             <div className="flex items-start justify-between gap-4">
               <div>
                 <p className="text-xs font-medium text-muted-foreground">群组概览</p>
-                <h2 className="mt-1 text-xl font-semibold text-foreground">{group.name}</h2>
-                <p className="mt-2 text-sm text-muted-foreground">{group.members} 人 · {group.topic} · {roleLabel}</p>
+                <h2 className="mt-1 text-xl font-semibold text-foreground">{safeGroup.name}</h2>
+                <p className="mt-2 text-sm text-muted-foreground">{safeGroup.members} 人 · {safeGroup.topic} · {roleLabel}</p>
               </div>
               <span className="app-soft-surface-bg app-accent-text rounded-full px-3 py-1 text-xs font-medium">
                 活跃中
@@ -85,12 +98,12 @@ const CommunityGroupDetail = () => {
               <div className="rounded-2xl bg-muted px-3 py-3">
                 <Users size={16} className="app-accent-text mx-auto" />
                 <p className="mt-2 text-xs text-muted-foreground">成员</p>
-                <p className="mt-1 text-sm font-semibold text-foreground">{group.members}</p>
+                <p className="mt-1 text-sm font-semibold text-foreground">{safeGroup.members}</p>
               </div>
               <div className="rounded-2xl bg-muted px-3 py-3">
                 <MessageCircleMore size={16} className="app-accent-text mx-auto" />
                 <p className="mt-2 text-xs text-muted-foreground">未读</p>
-                <p className="mt-1 text-sm font-semibold text-foreground">{group.unread}</p>
+                <p className="mt-1 text-sm font-semibold text-foreground">{safeGroup.unread}</p>
               </div>
               <div className="rounded-2xl bg-muted px-3 py-3">
                 <AtSign size={16} className="app-accent-text mx-auto" />

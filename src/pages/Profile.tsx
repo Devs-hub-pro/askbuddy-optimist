@@ -30,7 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useIsAdmin } from '@/hooks/useHotTopics';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 import PageStateCard from '@/components/common/PageStateCard';
-import { navigateToAuthWithReturn } from '@/utils/navigation';
+import { buildFromState, navigateToAuthWithReturn } from '@/utils/navigation';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -103,22 +103,22 @@ const Profile = () => {
     {
       icon: <Coins size={22} className="text-amber-500" />,
       label: '我的收益',
-      onClick: () => navigate('/profile/earnings'),
+      onClick: () => navigate('/profile/earnings', { state: buildFromState(location) }),
     },
     {
       icon: <UserPlus size={22} className="text-indigo-500" />,
       label: '我的社群',
-      onClick: () => navigate('/profile/community'),
+      onClick: () => navigate('/profile/community', { state: buildFromState(location) }),
     },
     {
       icon: <FileText size={22} className="text-primary" />,
       label: '草稿箱',
-      onClick: () => navigate('/profile/drafts'),
+      onClick: () => navigate('/profile/drafts', { state: buildFromState(location) }),
     },
     {
       icon: <Award size={22} className="text-orange-500" />,
       label: '达人认证',
-      onClick: () => navigate('/profile/talent-certification'),
+      onClick: () => navigate('/profile/talent-certification', { state: buildFromState(location) }),
     },
   ];
 
@@ -132,25 +132,25 @@ const Profile = () => {
       icon: <CircleHelp size={18} className="text-primary" />,
       label: '帮助中心',
       description: '常见问题和使用说明',
-      onClick: () => navigate('/settings/help'),
+      onClick: () => navigate('/settings/help', { state: buildFromState(location) }),
     },
     {
       icon: <FileText size={18} className="text-slate-600" />,
       label: '问问规范',
       description: '查看发帖和互动规则',
-      onClick: () => navigate('/settings/guidelines'),
+      onClick: () => navigate('/settings/guidelines', { state: buildFromState(location) }),
     },
     {
       icon: <MessageSquareText size={18} className="text-emerald-600" />,
       label: '产品反馈',
       description: '告诉我们你的使用建议',
-      onClick: () => navigate('/settings/feedback'),
+      onClick: () => navigate('/settings/feedback', { state: buildFromState(location) }),
     },
     {
       icon: <Info size={18} className="text-slate-600" />,
       label: '关于我们',
       description: '了解产品和团队信息',
-      onClick: () => navigate('/settings/about'),
+      onClick: () => navigate('/settings/about', { state: buildFromState(location) }),
     },
   ];
 
@@ -168,7 +168,7 @@ const Profile = () => {
       icon: <Settings size={18} className="text-emerald-600" />,
       label: '管理后台',
       description: '处理内容审核和运营配置',
-      onClick: () => navigate('/admin'),
+      onClick: () => navigate('/admin', { state: buildFromState(location) }),
     });
   }
 
@@ -274,7 +274,7 @@ const Profile = () => {
                       <h2 className="text-lg font-semibold text-foreground">{profile?.nickname || '新用户'}</h2>
                       <button
                         className="mt-1 inline-flex items-center rounded-full bg-slate-100 px-2.5 py-1 text-[11px] font-medium text-slate-600 transition-colors hover:bg-slate-200"
-                        onClick={() => navigate('/edit-profile')}
+                        onClick={() => navigate('/edit-profile', { state: buildFromState(location) })}
                       >
                         <Edit3 size={11} className="mr-1" />
                         编辑资料
@@ -283,7 +283,7 @@ const Profile = () => {
                     <button
                       type="button"
                       className="flex shrink-0 items-center rounded-full bg-amber-50 px-2.5 py-1 text-xs font-medium text-amber-600 transition-colors hover:bg-amber-100"
-                      onClick={() => navigate('/profile/recharge')}
+                      onClick={() => navigate('/profile/recharge', { state: buildFromState(location) })}
                     >
                       <Star size={11} className="mr-1" />
                       {profile?.points_balance || 0} 积分
@@ -328,7 +328,7 @@ const Profile = () => {
                   className={`flex flex-col items-center py-4 hover:bg-muted/50 transition-colors active:bg-muted ${
                     index < profileStats.length - 1 ? 'border-r border-border' : ''
                   }`}
-                  onClick={() => isLoggedIn ? navigate(item.route) : navigateToAuthWithReturn(navigate, location)}
+                  onClick={() => isLoggedIn ? navigate(item.route, { state: buildFromState(location) }) : navigateToAuthWithReturn(navigate, location)}
                 >
                   <span className="text-xl font-bold text-foreground">{item.count}</span>
                   <span className="text-xs text-muted-foreground mt-0.5">{item.label}</span>

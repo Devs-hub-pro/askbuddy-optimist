@@ -52,8 +52,11 @@ const AdminDashboard = () => {
 
   if (adminChecking || dashboardLoading || reportsLoading || pendingOrdersLoading || configsLoading) {
     return (
-      <div className="min-h-[100dvh] bg-muted px-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
-        <PageStateCard variant="loading" title="正在加载管理后台…" compact />
+      <div className="min-h-[100dvh] bg-muted pb-8">
+        <SubPageHeader title="管理后台" onBack={() => navigateBackOr(navigate, '/profile', { location })} />
+        <div className="px-4 py-4">
+          <PageStateCard variant="loading" title="正在加载管理后台…" compact />
+        </div>
       </div>
     );
   }

@@ -673,25 +673,10 @@ const ResultEmptyState = ({
 
 const QuestionCard = ({ question: q, onOpenQuestion }: { question: SearchQuestion; onOpenQuestion: (id: string) => void }) => {
   const timeAgo = formatDistanceToNow(new Date(q.created_at), { addSuffix: true, locale: zhCN });
-  const isActionTarget = (target: EventTarget | null) =>
-    target instanceof HTMLElement && !!target.closest('[data-card-action="true"]');
   return (
-    <div
-      className="surface-card cursor-pointer rounded-2xl p-4 transition-all hover:shadow-md"
-      role="button"
-      tabIndex={0}
-      onClick={(event) => {
-        if (isActionTarget(event.target)) return;
-        onOpenQuestion(q.id);
-      }}
-      onKeyDown={(event) => {
-        if (event.key === 'Enter' || event.key === ' ') {
-          event.preventDefault();
-          onOpenQuestion(q.id);
-        }
-      }}
-    >
-      <div className="flex items-start justify-between mb-2">
+    <div className="surface-card rounded-2xl p-4 transition-all hover:shadow-md">
+      <button type="button" className="mb-2 block w-full text-left" onClick={() => onOpenQuestion(q.id)}>
+        <div className="flex items-start justify-between">
         <div className="flex-1 text-left">
           <h3 className="text-base font-semibold text-slate-800">{q.title}</h3>
         </div>
@@ -699,11 +684,12 @@ const QuestionCard = ({ question: q, onOpenQuestion }: { question: SearchQuestio
           <Eye size={14} />
           <span>{q.view_count}</span>
         </div>
-      </div>
-      {q.content && (
-        <div className="mb-3 block w-full text-left">
-          <p className="line-clamp-2 text-sm text-slate-600">{q.content}</p>
         </div>
+      </button>
+      {q.content && (
+        <button type="button" className="mb-3 block w-full text-left" onClick={() => onOpenQuestion(q.id)}>
+          <p className="line-clamp-2 text-sm text-slate-600">{q.content}</p>
+        </button>
       )}
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -723,13 +709,8 @@ const QuestionCard = ({ question: q, onOpenQuestion }: { question: SearchQuestio
           )}
           <button
             type="button"
-            data-card-action="true"
             className="flex items-center gap-1 rounded-full border border-slate-200 px-2 py-0.5 text-xs text-slate-500"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              onOpenQuestion(q.id);
-            }}
+            onClick={() => onOpenQuestion(q.id)}
           >
             <MessageCircle size={12} />
             {q.answers_count || 0}
@@ -750,30 +731,20 @@ const QuestionCard = ({ question: q, onOpenQuestion }: { question: SearchQuestio
 };
 
 const TopicCard = ({ topic: t, onOpenTopic }: { topic: SearchTopic; onOpenTopic: (id: string) => void }) => (
-  <div
-    className="surface-card cursor-pointer overflow-hidden rounded-2xl transition-all hover:shadow-md"
-    role="button"
-    tabIndex={0}
-    onClick={(event) => {
-      const isActionTarget =
-        event.target instanceof HTMLElement && !!event.target.closest('[data-card-action="true"]');
-      if (isActionTarget) return;
-      onOpenTopic(t.id);
-    }}
-    onKeyDown={(event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        onOpenTopic(t.id);
-      }
-    }}
-  >
-    {t.cover_image && (
-      <img src={t.cover_image} alt={t.title} className="h-32 w-full object-cover" />
-    )}
+  <div className="surface-card overflow-hidden rounded-2xl transition-all hover:shadow-md">
+    <button type="button" className="block w-full text-left" onClick={() => onOpenTopic(t.id)}>
+      {t.cover_image && (
+        <img src={t.cover_image} alt={t.title} className="h-32 w-full object-cover" />
+      )}
+    </button>
     <div className="p-3">
+      <button type="button" className="mb-1 block w-full text-left" onClick={() => onOpenTopic(t.id)}>
       <h3 className="mb-1 text-sm font-semibold text-slate-800">{t.title}</h3>
+      </button>
       {t.description && (
-        <p className="mb-2 line-clamp-1 text-xs text-slate-500">{t.description}</p>
+        <button type="button" className="mb-2 block w-full text-left" onClick={() => onOpenTopic(t.id)}>
+          <p className="line-clamp-1 text-xs text-slate-500">{t.description}</p>
+        </button>
       )}
       <div className="flex items-center justify-between gap-3 text-xs text-slate-400">
         <span className="flex items-center gap-1 text-slate-500">
@@ -784,13 +755,8 @@ const TopicCard = ({ topic: t, onOpenTopic }: { topic: SearchTopic; onOpenTopic:
           {t.category && <span className="rounded-full app-soft-muted-bg px-2 py-0.5">{t.category}</span>}
           <button
             type="button"
-            data-card-action="true"
             className="rounded-full border border-slate-200 px-2 py-0.5 text-[11px] text-slate-600"
-            onClick={(event) => {
-              event.preventDefault();
-              event.stopPropagation();
-              onOpenTopic(t.id);
-            }}
+            onClick={() => onOpenTopic(t.id)}
           >
             查看
           </button>

@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import PageStateCard from '@/components/common/PageStateCard';
 import { buildFromState, navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 import SubPageHeader from '@/components/layout/SubPageHeader';
+import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 
 const typeIconMap: Record<string, string> = {
   new_answer: '💬',
@@ -34,6 +35,7 @@ const Notifications = () => {
   } = useNotifications();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
+  usePageScrollMemory('notifications');
 
   const formatTime = (dateString: string) => {
     try {

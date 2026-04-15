@@ -367,6 +367,15 @@ const NewQuestion: React.FC = () => {
     window.addEventListener('beforeunload', handleBeforeUnload);
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasContent, createQuestion.isPending]);
+
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const shouldDisableSwipeBack = hasContent && !createQuestion.isPending;
+    document.body.dataset.swipeBackDisabled = shouldDisableSwipeBack ? 'true' : 'false';
+    return () => {
+      document.body.dataset.swipeBackDisabled = 'false';
+    };
+  }, [hasContent, createQuestion.isPending]);
   
   // Handle form submission
   const handleSubmit = async () => {
@@ -411,7 +420,7 @@ const NewQuestion: React.FC = () => {
         attachments.forEach((item) => {
           if (item.previewUrl) URL.revokeObjectURL(item.previewUrl);
         });
-        navigate('/');
+        navigateBackOr(navigate, '/', { location });
       }
     });
   };

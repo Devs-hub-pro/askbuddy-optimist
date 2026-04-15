@@ -21,7 +21,7 @@ const Header: React.FC<HeaderProps> = ({
   return (
   <>
     <div className={`fixed top-0 z-[90] w-full animate-fade-in ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`}>
-      <div className="bg-[rgb(73,170,155)] shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
+      <div className="app-header-bg shadow-sm" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
         <div className="flex items-center h-12 px-4">
           <button onClick={onBack} className="text-white" aria-label="返回上一页">
             <ChevronLeft size={24} />

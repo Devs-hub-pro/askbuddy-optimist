@@ -215,6 +215,15 @@ const SkillPublish = () => {
     return () => window.removeEventListener('beforeunload', handleBeforeUnload);
   }, [hasPendingContent, isSaving]);
 
+  useEffect(() => {
+    if (typeof document === 'undefined') return;
+    const shouldDisableSwipeBack = hasPendingContent && !isSaving;
+    document.body.dataset.swipeBackDisabled = shouldDisableSwipeBack ? 'true' : 'false';
+    return () => {
+      document.body.dataset.swipeBackDisabled = 'false';
+    };
+  }, [hasPendingContent, isSaving]);
+
   const handleCategoryChange = (value: string) => {
     const category = categories.find((item) => item.name === value);
     setSelectedCategory(value);

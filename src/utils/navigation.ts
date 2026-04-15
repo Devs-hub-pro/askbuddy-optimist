@@ -107,9 +107,22 @@ export const navigateBackOr = (
   const currentPath = options?.location?.pathname;
   const currentSearch = options?.location?.search || '';
   const computedFallback = getFallbackPathForRoute(currentPath || '', currentSearch, fallbackPath);
+  const shouldPreferFallback = Boolean(
+    currentPath &&
+      (/^\/(question|topic|expert|expert-profile|chat)\//.test(currentPath) ||
+        /^\/(search|education\/search|notifications|discover\/interactions|city-selector|new|skill-publish)$/.test(currentPath) ||
+        /^\/profile\//.test(currentPath) ||
+        /^\/settings\//.test(currentPath))
+  );
 
   if (fromTarget && fromTarget !== currentPath && fromTarget !== '/auth') {
     navigate(fromTarget, { replace: true });
+    return;
+  }
+
+  // 详情/二级页优先使用明确 fallback，避免历史栈不可靠导致回错页面。
+  if (shouldPreferFallback) {
+    navigate(computedFallback, { replace: true });
     return;
   }
 

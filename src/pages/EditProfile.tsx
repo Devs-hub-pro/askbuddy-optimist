@@ -205,8 +205,11 @@ const EditProfile = () => {
 
   if (authLoading) {
     return (
-      <div className="min-h-[100dvh] bg-muted px-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
-        <PageStateCard variant="loading" title="正在加载资料…" compact />
+      <div className="min-h-[100dvh] bg-muted pb-6">
+        <SubPageHeader title="编辑个人资料" />
+        <div className="px-4 py-4">
+          <PageStateCard variant="loading" title="正在加载资料…" compact />
+        </div>
       </div>
     );
   }

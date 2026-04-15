@@ -78,6 +78,11 @@ export function useSwipeBack(options: SwipeBackOptions = {}) {
 }
 
 const shouldIgnoreSwipeStart = (target: HTMLElement) => {
+  // 页面级开关：编辑中可临时禁用滑返，避免误触导致内容丢失
+  if (typeof document !== 'undefined' && document.body.dataset.swipeBackDisabled === 'true') {
+    return true;
+  }
+
   // 输入法弹起时禁用，避免编辑时误触返回
   if (typeof window !== 'undefined' && window.visualViewport) {
     const viewportGap = window.innerHeight - window.visualViewport.height;

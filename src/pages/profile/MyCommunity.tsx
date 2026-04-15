@@ -8,6 +8,7 @@ import { useMyFollowing } from '@/hooks/useProfileData';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import PageStateCard from '@/components/common/PageStateCard';
 import { buildFromState } from '@/utils/navigation';
+import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 
 interface FollowingProfile {
   nickname: string | null;
@@ -43,6 +44,7 @@ const MyCommunity = () => {
   const { data: following, isLoading, error, refetch } = useMyFollowing();
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState<GroupFilter>('all');
+  usePageScrollMemory('profile-community');
 
   const groups = useMemo(() => {
     const baseGroups: CommunityGroup[] = ((following || []) as FollowingRecordWithProfile[]).slice(0, 8).map((item, index: number) => ({

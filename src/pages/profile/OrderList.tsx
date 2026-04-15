@@ -1,6 +1,6 @@
 
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowRight, Clock3, CheckCircle2, ShoppingCart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
@@ -8,6 +8,7 @@ import { useMyOrders } from '@/hooks/useProfileData';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import PageStateCard from '@/components/common/PageStateCard';
+import { buildFromState } from '@/utils/navigation';
 
 const statusMap: Record<string, { color: string; text: string; icon: React.ReactNode }> = {
   paid: {
@@ -39,6 +40,7 @@ interface OrderItem {
 
 const OrderList: React.FC = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [tab, setTab] = useState<string>("all");
   const { data: orders, isLoading } = useMyOrders(tab);
 
@@ -124,7 +126,7 @@ const OrderList: React.FC = () => {
                         className="h-10 rounded-full px-4 text-sm font-medium shadow-sm"
                         onClick={() => {
                           if (order.order_type === 'recharge') {
-                            navigate('/profile/recharge');
+                            navigate('/profile/recharge', { state: buildFromState(location) });
                             return;
                           }
                           window.alert('当前订单支付入口仍待接入');

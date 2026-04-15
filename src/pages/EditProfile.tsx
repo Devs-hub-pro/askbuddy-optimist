@@ -47,7 +47,7 @@ import { useUpdateProfile, useUploadAvatar } from '@/hooks/useProfile';
 import { useToast } from '@/hooks/use-toast';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import PageStateCard from '@/components/common/PageStateCard';
-import { navigateToAuthWithReturn } from '@/utils/navigation';
+import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 
 const EditProfile = () => {
   const navigate = useNavigate();
@@ -189,7 +189,7 @@ const EditProfile = () => {
     if (hasChanges) {
       await handleSave();
     }
-    navigate('/profile');
+    navigateBackOr(navigate, '/profile', { location });
   };
 
   // Track changes
@@ -227,6 +227,7 @@ const EditProfile = () => {
 
       <SubPageHeader
         title="编辑个人资料"
+        onBack={() => navigateBackOr(navigate, '/profile', { location })}
         right={
           <Button 
             onClick={handleComplete}

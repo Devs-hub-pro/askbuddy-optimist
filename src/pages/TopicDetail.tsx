@@ -4,6 +4,16 @@ import { MessageCircle, Heart, Send, Users, Loader2, Trash2, Star } from 'lucide
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 import { useTopicDetail, useCreateDiscussion, useToggleDiscussionLike, useDeleteDiscussion } from '@/hooks/useHotTopics';
 import { useIsFollowingTopic, useToggleTopicFollow } from '@/hooks/useTopicFollowers';
 import { useAuth } from '@/contexts/AuthContext';
@@ -21,6 +31,7 @@ const TopicDetail = () => {
   const location = useLocation();
   const { user } = useAuth();
   const [newComment, setNewComment] = useState('');
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null);
   const fromHotRank = Boolean((location.state as { fromHotRank?: boolean } | null)?.fromHotRank);
 
   const { data, isLoading, error } = useTopicDetail(topicId || '');
@@ -58,9 +69,7 @@ const TopicDetail = () => {
 
   const handleDelete = (discussionId: string) => {
     if (!topicId) return;
-    if (confirm('确定要删除这条讨论吗？')) {
-      deleteDiscussion.mutate({ discussionId, topicId });
-    }
+    setPendingDeleteId(discussionId);
   };
 
   const handleBack = () => {
@@ -322,6 +331,30 @@ const TopicDetail = () => {
           </Button>
         )}
       </div>
+
+      <AlertDialog open={Boolean(pendingDeleteId)} onOpenChange={(open) => !open && setPendingDeleteId(null)}>
+        <AlertDialogContent className="w-[88%] max-w-sm rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>删除这条评论？</AlertDialogTitle>
+            <AlertDialogDescription>
+              删除后将无法恢复，请确认是否继续。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2 sm:gap-2">
+            <AlertDialogCancel className="rounded-full">取消</AlertDialogCancel>
+            <AlertDialogAction
+              className="rounded-full bg-destructive text-destructive-foreground hover:bg-destructive/90"
+              onClick={() => {
+                if (!topicId || !pendingDeleteId) return;
+                deleteDiscussion.mutate({ discussionId: pendingDeleteId, topicId });
+                setPendingDeleteId(null);
+              }}
+            >
+              确认删除
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 };

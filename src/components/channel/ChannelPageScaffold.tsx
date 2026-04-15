@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ChevronLeft, ChevronRight, Bell, Search } from 'lucide-react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SearchBar from '@/components/SearchBar';
 import { isNativeApp } from '@/utils/platform';
@@ -188,8 +187,8 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
             </button>
           )}
 
-          <ScrollArea className="w-full" orientation="horizontal" data-no-swipe-back="true">
-            <div ref={categoryRef} className="flex space-x-2 pb-2 pr-4" style={{ minWidth: '100%' }}>
+          <div ref={categoryRef} className="w-full overflow-x-auto scrollbar-hide" data-no-swipe-back="true">
+            <div className="flex space-x-2 pb-2 pr-4" style={{ minWidth: '100%' }}>
               {categories.map((category) => {
                 const active = activeCategory === category.id;
                 return (
@@ -207,7 +206,7 @@ const ChannelPageScaffold: React.FC<ChannelPageScaffoldProps> = ({
                 );
               })}
             </div>
-          </ScrollArea>
+          </div>
         </div>
       </div>
 

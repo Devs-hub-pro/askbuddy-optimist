@@ -1,13 +1,15 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Heart, Compass, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import SubPageHeader from '@/components/layout/SubPageHeader';
+import { buildFromState } from '@/utils/navigation';
 
 const ContentPreferences = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const [selectedTags, setSelectedTags] = useState<string[]>(['留学申请', '职业规划', '语言学习']);
 
   const interests = [
@@ -87,7 +89,7 @@ const ContentPreferences = () => {
                 <h3 className="text-sm font-medium">个性化推荐</h3>
                 <p className="text-xs text-gray-500">根据您的兴趣推荐相关内容</p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => navigate('/discover')}>
+              <Button variant="outline" size="sm" onClick={() => navigate('/discover', { state: buildFromState(location) })}>
                 去发现
               </Button>
             </div>

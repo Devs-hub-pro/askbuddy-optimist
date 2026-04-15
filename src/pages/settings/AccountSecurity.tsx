@@ -1,5 +1,5 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { 
   Lock, 
   KeyRound, 
@@ -23,9 +23,11 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import SubPageHeader from '@/components/layout/SubPageHeader';
+import { buildFromState } from '@/utils/navigation';
 
 const AccountSecurity = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   
   const socialAccounts = [
     { name: 'WeChat', status: '未绑定', icon: '微信' },
@@ -52,7 +54,7 @@ const AccountSecurity = () => {
                 <span className="text-sm font-medium">手机号</span>
                 <p className="text-xs text-gray-500">183****5678</p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => navigate('/settings/phone')}>
+              <Button variant="outline" size="sm" onClick={() => navigate('/settings/phone', { state: buildFromState(location) })}>
                 修改
               </Button>
             </div>
@@ -62,7 +64,7 @@ const AccountSecurity = () => {
                 <span className="text-sm font-medium">登录密码</span>
                 <p className="text-xs text-gray-500">建议定期更换密码</p>
               </div>
-              <Button variant="outline" size="sm" onClick={() => navigate('/settings/change-password')}>
+              <Button variant="outline" size="sm" onClick={() => navigate('/settings/change-password', { state: buildFromState(location) })}>
                 修改
               </Button>
             </div>
@@ -101,7 +103,7 @@ const AccountSecurity = () => {
           <CardContent className="space-y-4">
             <div 
               className="flex justify-between items-center cursor-pointer"
-              onClick={() => navigate('/settings/account-recovery')}
+              onClick={() => navigate('/settings/account-recovery', { state: buildFromState(location) })}
             >
               <div className="space-y-0.5">
                 <span className="text-sm font-medium">账号找回</span>
@@ -112,7 +114,7 @@ const AccountSecurity = () => {
             
             <div 
               className="flex justify-between items-center cursor-pointer"
-              onClick={() => navigate('/settings/login-activity')}
+              onClick={() => navigate('/settings/login-activity', { state: buildFromState(location) })}
             >
               <div className="space-y-0.5">
                 <span className="text-sm font-medium">登录活动</span>

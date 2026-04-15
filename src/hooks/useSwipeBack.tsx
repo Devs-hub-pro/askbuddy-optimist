@@ -50,8 +50,8 @@ export function useSwipeBack(options: SwipeBackOptions = {}) {
       const deltaX = touch.clientX - touchStartX.current;
       const deltaY = Math.abs(touch.clientY - touchStartY.current);
       
-      // 垂直位移过大或非右滑时，取消返回手势
-      if (deltaY > Math.abs(deltaX) || deltaX <= 0) {
+      // 左滑或垂直意图更强时，取消返回手势
+      if (deltaX <= 0 || deltaY > Math.abs(deltaX) * 0.75) {
         isSwiping.current = false;
       }
     };
@@ -82,13 +82,12 @@ export function useSwipeBack(options: SwipeBackOptions = {}) {
   }, [enabled, threshold, navigate, location]);
 }
 
-const getSwipeScopeElement = (): Document | HTMLElement | null => {
+const getSwipeScopeElement = (): HTMLElement | null => {
   if (typeof document === 'undefined') return null;
-  return document.querySelector('[data-swipe-scope="main"]') as HTMLElement | null || document;
+  return document.querySelector('[data-swipe-scope="main"]') as HTMLElement | null;
 };
 
-const isWithinSwipeScope = (target: HTMLElement, scope: Document | HTMLElement) => {
-  if (scope === document) return true;
+const isWithinSwipeScope = (target: HTMLElement, scope: HTMLElement) => {
   return scope.contains(target);
 };
 
@@ -113,8 +112,16 @@ const shouldIgnoreSwipeStart = (target: HTMLElement) => {
     return true;
   }
 
+  // 文本选中场景禁用，避免阅读中误触返回
+  const selection = window.getSelection?.();
+  if (selection && selection.type === 'Range') {
+    return true;
+  }
+
   // 弹窗/抽屉/Sheet/Popover 等浮层开启时禁用
-  if (document.querySelector('[data-state="open"][role="dialog"], [data-radix-popper-content-wrapper]')) {
+  if (document.querySelector(
+    '[data-state="open"][role="dialog"], [data-state="open"][role="alertdialog"], [data-state="open"][data-radix-portal], [data-radix-popper-content-wrapper]'
+  )) {
     return true;
   }
 

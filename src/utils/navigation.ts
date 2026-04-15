@@ -32,12 +32,6 @@ const extractFromState = (state: unknown): string | null => {
   return null;
 };
 
-const getHistoryIndex = () => {
-  if (typeof window === 'undefined') return 0;
-  const idx = (window.history.state as { idx?: unknown } | null)?.idx;
-  return typeof idx === 'number' ? idx : 0;
-};
-
 const getCurrentEntryState = () => {
   if (typeof window === 'undefined') return null;
   const state = window.history.state as { usr?: unknown } | null;
@@ -111,23 +105,11 @@ export const navigateBackOr = (
   const currentPath = options?.location?.pathname;
   const currentSearch = options?.location?.search || '';
   const computedFallback = getFallbackPathForRoute(currentPath || '', currentSearch, fallbackPath);
-  const isTabRootPath = currentPath === '/' || currentPath === '/discover' || currentPath === '/messages' || currentPath === '/profile';
-
   if (fromTarget && fromTarget !== currentPath && fromTarget !== '/auth') {
     navigate(fromTarget, { replace: true });
     return;
   }
 
-  // 非 Tab 根页一律优先用明确 fallback，避免历史栈不可靠时回错页。
-  if (currentPath && !isTabRootPath) {
-    navigate(computedFallback, { replace: true });
-    return;
-  }
-
-  if (getHistoryIndex() > 0) {
-    navigate(-1);
-    return;
-  }
-
+  // 统一采用 route fallback，避免依赖 history 栈导致回错页。
   navigate(computedFallback, { replace: true });
 };

@@ -35,8 +35,19 @@ const ChannelExpertCard: React.FC<ChannelExpertCardProps> = ({
   onConsult,
 }) => {
   return (
-    <div className="surface-card rounded-2xl p-3.5 shadow-sm transition-all duration-200 hover:shadow-md">
-      <button type="button" className="block w-full text-left" onClick={onOpen}>
+    <div
+      className="surface-card cursor-pointer rounded-2xl p-3.5 shadow-sm transition-all duration-200 hover:shadow-md"
+      onClick={onOpen}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          onOpen();
+        }
+      }}
+    >
+      <div className="block w-full text-left">
         <div className="flex items-start justify-between">
         <div className="flex items-center gap-2 text-left">
           <Avatar className={`h-10 w-10 border ${accentBorderClass}`}>
@@ -64,19 +75,16 @@ const ChannelExpertCard: React.FC<ChannelExpertCardProps> = ({
           </div>
         </div>
         </div>
-      </button>
+      </div>
 
       <div className="mt-2 flex">
-        <button
-          type="button"
-          onClick={onOpen}
-          className={`mr-2 line-clamp-2 flex-1 rounded-r-md border-l-2 pl-2 py-0.5 text-left text-xs leading-5 text-muted-foreground ${accentSummaryClass}`}
-        >
+        <div className={`mr-2 line-clamp-2 flex-1 rounded-r-md border-l-2 pl-2 py-0.5 text-left text-xs leading-5 text-muted-foreground ${accentSummaryClass}`}>
           {expert.description}
-        </button>
+        </div>
 
         <Button
-          onClick={() => {
+          onClick={(event) => {
+            event.stopPropagation();
             onConsult();
           }}
           className={`h-9 min-w-[94px] rounded-full px-3 text-xs text-white shadow-md transition-all hover:shadow-lg active:translate-y-0 ${ctaClassName}`}

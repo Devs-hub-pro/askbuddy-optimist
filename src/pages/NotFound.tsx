@@ -2,7 +2,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { useEffect } from "react";
 import { AlertCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { navigateBackOr } from "@/utils/navigation";
+import { buildFromState, navigateBackOr } from "@/utils/navigation";
 
 const NotFound = () => {
   const location = useLocation();
@@ -29,7 +29,7 @@ const NotFound = () => {
           <Button variant="outline" className="flex-1 rounded-full" onClick={() => navigateBackOr(navigate, "/", { location })}>
             返回上页
           </Button>
-          <Button className="flex-1 rounded-full" onClick={() => navigate("/")}>
+          <Button className="flex-1 rounded-full" onClick={() => navigate("/", { state: buildFromState(location) })}>
             回到首页
           </Button>
         </div>

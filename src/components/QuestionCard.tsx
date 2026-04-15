@@ -65,9 +65,8 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
 
   // 回答弹窗提交
   const handleAnswerDialogSubmit = (payload: { timeSlots: string[]; message: string }) => {
-    // 实际应用可发API/Toast，在此简单console
-    console.log("回答者可回答时间段:", payload.timeSlots, "留言:", payload.message);
-    // 可弹出Toast告知提交或继续交互
+    // 预留：后续接入回答提交/预约接口
+    void payload;
   };
   const openQuestionDetail = () => {
     navigate(`/question/${id}`, { state: buildFromState(location) });
@@ -104,7 +103,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
         <div className="flex items-center justify-between mb-3">
           <div>
             <ExpertDetailDialog {...askerExpertData}>
-              <div className="flex items-center gap-2 cursor-pointer">
+              <div
+                className="flex items-center gap-2 cursor-pointer"
+                onClick={(event) => event.stopPropagation()}
+              >
                 <Avatar className="w-8 h-8 border app-soft-border">
                   <AvatarImage src={asker.avatar} alt={asker.name} className="object-cover" />
                   <AvatarFallback>{asker.name.charAt(0)}</AvatarFallback>
@@ -135,7 +137,10 @@ const QuestionCard: React.FC<QuestionCardProps> = ({
           <div className="flex items-center gap-2">
             <button
               className="h-8 min-w-[78px] bg-primary text-primary-foreground px-3 rounded-full text-xs font-medium inline-flex items-center justify-center gap-1 shadow-sm hover:shadow-md hover:bg-primary/90 transition-all transform hover:-translate-y-0.5 active:translate-y-0"
-              onClick={() => setShowAnswerDialog(true)}
+              onClick={(event) => {
+                event.stopPropagation();
+                setShowAnswerDialog(true);
+              }}
             >
               <MessageCircle size={12} />
               回答

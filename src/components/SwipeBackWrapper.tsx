@@ -7,11 +7,10 @@ const SwipeBackWrapper: React.FC<{ children: React.ReactNode }> = ({ children })
   const isDetailRoute = /^\/(question|topic|expert|expert-profile|chat)\//.test(pathname);
   const isSecondaryRoute = /^\/(city-selector|notifications|discover\/interactions|search|education\/search|education|career|lifestyle|hobbies)$/.test(pathname);
   const isProfileOrSettingsRoute = /^\/profile\//.test(pathname) || /^\/settings\//.test(pathname);
-  const isEditorRoute = /^\/(new|skill-publish|edit-profile)$/.test(pathname);
 
-  // 一级 Tab 根页禁用；详情页/二级页启用；编辑页允许左滑但会受页面级禁用开关约束。
-  const swipeBackEnabled = isDetailRoute || isSecondaryRoute || isProfileOrSettingsRoute || isEditorRoute;
-  const swipeBackThreshold = isEditorRoute ? 108 : 80;
+  // 一级 Tab 根页与编辑页默认禁用；仅详情/二级/设置子页启用。
+  const swipeBackEnabled = isDetailRoute || isSecondaryRoute || isProfileOrSettingsRoute;
+  const swipeBackThreshold = 84;
 
   useSwipeBack({ threshold: swipeBackThreshold, enabled: swipeBackEnabled });
   return <>{children}</>;

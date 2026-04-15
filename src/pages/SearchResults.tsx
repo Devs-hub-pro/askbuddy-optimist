@@ -94,7 +94,8 @@ const SearchResults = () => {
   const historyStorageKey = `${SEARCH_HISTORY_KEY}:${channel}`;
   const theme = channelThemes[channel as keyof typeof channelThemes] || channelThemes.default;
   const uiStorageKey = `search-ui:${channel}`;
-  usePageScrollMemory(`search:${channel}`);
+  const scrollMemoryKey = `search:${channel}:${(searchParams.get('q') || '').trim().toLowerCase() || 'empty'}`;
+  usePageScrollMemory(scrollMemoryKey);
 
   const readUiState = () => {
     const raw = sessionStorage.getItem(uiStorageKey);
@@ -146,16 +147,31 @@ const SearchResults = () => {
     return () => clearTimeout(timer);
   }, [searchQuery]);
 
+  // 外部路径变化（如从首页带 q 进入、详情返回）时，同步输入框与结果态
+  useEffect(() => {
+    const latestQuery = new URLSearchParams(location.search).get('q') || '';
+    if (latestQuery === searchQuery && latestQuery === debouncedQuery) return;
+    setSearchQuery(latestQuery);
+    setDebouncedQuery(latestQuery);
+  }, [location.search]);
+
   // Sync URL
   useEffect(() => {
     const newParams = new URLSearchParams(location.search);
     const currentQuery = newParams.get('q') || '';
+    const currentSearchText = location.search.startsWith('?') ? location.search.slice(1) : location.search;
     if (debouncedQuery) {
       newParams.set('q', debouncedQuery);
-      navigate({ pathname: location.pathname, search: newParams.toString() }, { replace: true });
+      const nextSearch = newParams.toString();
+      if (nextSearch !== currentSearchText) {
+        navigate({ pathname: location.pathname, search: nextSearch }, { replace: true });
+      }
     } else if (currentQuery) {
       newParams.delete('q');
-      navigate({ pathname: location.pathname, search: newParams.toString() }, { replace: true });
+      const nextSearch = newParams.toString();
+      if (nextSearch !== currentSearchText) {
+        navigate({ pathname: location.pathname, search: nextSearch }, { replace: true });
+      }
     }
   }, [debouncedQuery, location.pathname, location.search, navigate]);
 

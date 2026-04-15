@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { Eye, Lock, Users, Shield, AlertTriangle, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -9,9 +9,11 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { useUserSettings, useSavePrivacySettings, PrivacyPrefs } from '@/hooks/useUserSettings';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import PageStateCard from '@/components/common/PageStateCard';
+import { buildFromState } from '@/utils/navigation';
 
 const PrivacySettings = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: userSettings, isLoading } = useUserSettings();
   const saveSettings = useSavePrivacySettings();
 
@@ -146,7 +148,7 @@ const PrivacySettings = () => {
             <Item label="推荐可能认识的人" desc="根据共同好友等推荐用户" field="showRecommendations" />
             <div
               className="flex justify-between items-center cursor-pointer rounded-2xl bg-slate-50 px-3 py-3"
-              onClick={() => navigate('/settings/blacklist')}
+              onClick={() => navigate('/settings/blacklist', { state: buildFromState(location) })}
             >
               <div className="space-y-0.5">
                 <Label className="text-base">黑名单管理</Label>

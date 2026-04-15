@@ -95,11 +95,16 @@ const BottomNav: React.FC = () => {
         
         <Sheet open={isMenuOpen} onOpenChange={setIsMenuOpen}>
           <SheetTrigger asChild>
-            <button className="w-1/5 flex flex-col items-center justify-center -mt-6 active:scale-[0.98]" aria-label="发布">
-              <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-lg">
+            <button
+              className="w-1/5 flex flex-col items-center justify-center -mt-6 active:scale-[0.98]"
+              aria-label="发布内容"
+              aria-haspopup="dialog"
+              aria-expanded={isMenuOpen}
+            >
+              <div className="w-12 h-12 bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center shadow-lg ring-2 ring-primary/20">
                 <Plus size={22} className="text-primary-foreground" />
               </div>
-              <span className="text-[10px] mt-0.5 text-muted-foreground font-medium">发布</span>
+              <span className="text-[10px] mt-0.5 text-primary font-semibold">发布</span>
             </button>
           </SheetTrigger>
           <SheetContent side="bottom" className="pt-0 px-0 pb-8 rounded-t-3xl">

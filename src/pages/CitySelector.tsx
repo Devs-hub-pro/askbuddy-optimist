@@ -101,9 +101,7 @@ const CitySelector = () => {
   };
 
   const useCurrentLocation = () => {
-    // In a real app, would use geolocation APIs
-    console.log('Using current location');
-    // For demo, we'll just select Shenzhen
+    // In a real app, would use geolocation APIs. For now, default to Shenzhen.
     selectLocation('深圳');
   };
 

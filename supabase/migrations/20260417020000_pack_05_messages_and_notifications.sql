@@ -146,7 +146,7 @@ INSERT INTO public.conversations (
 )
 SELECT
   'direct' AS type,
-  min(m.sender_id) AS created_by,
+  LEAST(m.sender_id, m.receiver_id) AS created_by,
   LEAST(m.sender_id, m.receiver_id) AS participant_a,
   GREATEST(m.sender_id, m.receiver_id) AS participant_b,
   max(m.created_at) AS last_message_at,
@@ -663,4 +663,3 @@ AS $$
   WHERE n.user_id = auth.uid()
     AND n.is_read = false;
 $$;
-

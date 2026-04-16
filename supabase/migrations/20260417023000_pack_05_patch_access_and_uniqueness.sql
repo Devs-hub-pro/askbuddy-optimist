@@ -25,17 +25,36 @@ DECLARE
   rec record;
 BEGIN
   FOR rec IN
+    WITH ranked_direct AS (
+      SELECT
+        c.id,
+        LEAST(c.participant_a, c.participant_b) AS a,
+        GREATEST(c.participant_a, c.participant_b) AS b,
+        c.created_at,
+        row_number() OVER (
+          PARTITION BY LEAST(c.participant_a, c.participant_b), GREATEST(c.participant_a, c.participant_b)
+          ORDER BY c.created_at ASC NULLS LAST, c.id::text ASC
+        ) AS rn
+      FROM public.conversations c
+      WHERE c.type = 'direct'
+        AND c.participant_a IS NOT NULL
+        AND c.participant_b IS NOT NULL
+    ),
+    grouped AS (
+      SELECT
+        rd.a,
+        rd.b,
+        array_agg(rd.id ORDER BY rd.created_at ASC NULLS LAST, rd.id::text ASC) AS ids
+      FROM ranked_direct rd
+      GROUP BY rd.a, rd.b
+      HAVING count(*) > 1
+    )
     SELECT
-      LEAST(participant_a, participant_b) AS a,
-      GREATEST(participant_a, participant_b) AS b,
-      min(id) AS keep_id,
-      array_remove(array_agg(id ORDER BY id), min(id)) AS dup_ids
-    FROM public.conversations
-    WHERE type = 'direct'
-      AND participant_a IS NOT NULL
-      AND participant_b IS NOT NULL
-    GROUP BY LEAST(participant_a, participant_b), GREATEST(participant_a, participant_b)
-    HAVING count(*) > 1
+      g.a,
+      g.b,
+      g.ids[1] AS keep_id,
+      g.ids[2:array_length(g.ids, 1)] AS dup_ids
+    FROM grouped g
   LOOP
     -- 消息并到保留会话
     UPDATE public.messages
@@ -201,4 +220,3 @@ COMMENT ON FUNCTION public.get_my_unread_message_count() IS
 
 COMMENT ON FUNCTION public.get_my_unread_notification_count() IS
 '最小可用未读通知统计：按 notifications.is_read=false 计数，仅服务当前前端未读角标。';
-

@@ -156,7 +156,7 @@ FROM public.messages m
 WHERE m.sender_id IS NOT NULL
   AND m.receiver_id IS NOT NULL
 GROUP BY LEAST(m.sender_id, m.receiver_id), GREATEST(m.sender_id, m.receiver_id)
-ON CONFLICT (type, participant_a, participant_b)
+ON CONFLICT (type, participant_a, participant_b) WHERE (type = 'direct')
 DO UPDATE SET
   last_message_at = GREATEST(public.conversations.last_message_at, EXCLUDED.last_message_at),
   updated_at = GREATEST(public.conversations.updated_at, EXCLUDED.updated_at);
@@ -311,7 +311,7 @@ BEGIN
     v_b,
     now()
   )
-  ON CONFLICT (type, participant_a, participant_b)
+  ON CONFLICT (type, participant_a, participant_b) WHERE (type = 'direct')
   DO UPDATE SET
     updated_at = now()
   RETURNING id INTO v_conversation_id;

@@ -227,39 +227,80 @@ CREATE TABLE IF NOT EXISTS public.user_verifications (
 
 -- 如果历史表 talent_certifications 存在，做一次轻量迁移（幂等）
 DO $$
+DECLARE
+  has_reviewed_by boolean;
+  has_reviewer_id boolean;
+  has_details boolean;
+  v_sql text;
 BEGIN
   IF to_regclass('public.talent_certifications') IS NOT NULL THEN
-    INSERT INTO public.user_verifications (
-      id,
-      user_id,
-      verification_type,
-      status,
-      submitted_at,
-      reviewed_at,
-      reviewer_id,
-      notes,
-      created_at,
-      updated_at
-    )
-    SELECT
-      tc.id,
-      tc.user_id,
-      CASE
-        WHEN tc.cert_type IN ('education', 'profession', 'skill') THEN 'talent'
-        ELSE 'talent'
-      END,
-      CASE
-        WHEN tc.status IN ('pending', 'approved', 'rejected') THEN tc.status
-        ELSE 'pending'
-      END,
-      COALESCE(tc.created_at, now()),
-      tc.reviewed_at,
-      tc.reviewed_by,
-      tc.details::text,
-      COALESCE(tc.created_at, now()),
-      COALESCE(tc.updated_at, now())
-    FROM public.talent_certifications tc
-    ON CONFLICT (id) DO NOTHING;
+    SELECT EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'talent_certifications'
+        AND column_name = 'reviewed_by'
+    ) INTO has_reviewed_by;
+
+    SELECT EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'talent_certifications'
+        AND column_name = 'reviewer_id'
+    ) INTO has_reviewer_id;
+
+    SELECT EXISTS (
+      SELECT 1 FROM information_schema.columns
+      WHERE table_schema = 'public'
+        AND table_name = 'talent_certifications'
+        AND column_name = 'details'
+    ) INTO has_details;
+
+    v_sql := '
+      INSERT INTO public.user_verifications (
+        id,
+        user_id,
+        verification_type,
+        status,
+        submitted_at,
+        reviewed_at,
+        reviewer_id,
+        notes,
+        created_at,
+        updated_at
+      )
+      SELECT
+        tc.id,
+        tc.user_id,
+        ''talent'',
+        CASE
+          WHEN tc.status IN (''pending'', ''approved'', ''rejected'') THEN tc.status
+          ELSE ''pending''
+        END,
+        COALESCE(tc.created_at, now()),
+        tc.reviewed_at, ';
+
+    IF has_reviewed_by THEN
+      v_sql := v_sql || 'tc.reviewed_by, ';
+    ELSIF has_reviewer_id THEN
+      v_sql := v_sql || 'tc.reviewer_id, ';
+    ELSE
+      v_sql := v_sql || 'NULL::uuid, ';
+    END IF;
+
+    IF has_details THEN
+      v_sql := v_sql || 'tc.details::text, ';
+    ELSE
+      v_sql := v_sql || 'NULL::text, ';
+    END IF;
+
+    v_sql := v_sql || '
+        COALESCE(tc.created_at, now()),
+        COALESCE(tc.updated_at, now())
+      FROM public.talent_certifications tc
+      ON CONFLICT (id) DO NOTHING
+    ';
+
+    EXECUTE v_sql;
   END IF;
 END $$;
 
@@ -523,4 +564,3 @@ CREATE TRIGGER on_auth_user_created_pack01
   AFTER INSERT ON auth.users
   FOR EACH ROW
   EXECUTE FUNCTION public.handle_new_user_pack01();
-

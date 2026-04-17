@@ -43,6 +43,29 @@ export interface MyEarningsData {
   earningTransactions: EarningTransactionRecord[];
 }
 
+export const usePointAccountBalance = () => {
+  const { user } = useAuth();
+
+  return useQuery({
+    queryKey: ['point-account-balance', user?.id],
+    queryFn: async () => {
+      if (!user) return 0;
+
+      const { data, error } = await (supabase as any)
+        .from('point_accounts')
+        .select('available_balance')
+        .eq('user_id', user.id)
+        .maybeSingle();
+
+      if (error) throw error;
+      return Number(data?.available_balance ?? 0);
+    },
+    enabled: !!user,
+    staleTime: 30 * 1000,
+    refetchOnWindowFocus: false,
+  });
+};
+
 // Profile stats aggregation
 export const useProfileStats = () => {
   const { user } = useAuth();

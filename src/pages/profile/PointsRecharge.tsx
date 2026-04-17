@@ -5,6 +5,7 @@ import { Coins, CheckCircle2, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
+import { usePointAccountBalance } from '@/hooks/useProfileData';
 import { useToast } from '@/hooks/use-toast';
 import {
   useCreateRechargePayment,
@@ -34,7 +35,8 @@ const PAYMENT_PROVIDERS: Array<{ key: RechargeProvider; label: string; badge: st
 const PointsRecharge = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
+  const { data: availableBalance = 0 } = usePointAccountBalance();
   const { toast } = useToast();
   const { data: isAdmin } = useIsAdmin();
   const createRechargePayment = useCreateRechargePayment();
@@ -108,7 +110,7 @@ const PointsRecharge = () => {
               <Coins className="mr-2" size={20} />
               <span className="text-sm opacity-80">当前积分余额</span>
             </div>
-            <div className="text-3xl font-bold">{profile?.points_balance || 0}</div>
+            <div className="text-3xl font-bold">{availableBalance}</div>
           </CardContent>
         </Card>
       </div>

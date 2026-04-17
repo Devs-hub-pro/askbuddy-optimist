@@ -197,7 +197,7 @@ CREATE TABLE IF NOT EXISTS public.payments (
 CREATE TABLE IF NOT EXISTS public.point_transactions (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id uuid NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  point_account_id uuid NOT NULL REFERENCES public.point_accounts(id) ON DELETE CASCADE,
+  point_account_id uuid NOT NULL REFERENCES public.point_accounts(user_id) ON DELETE CASCADE,
   order_id uuid REFERENCES public.orders(id) ON DELETE SET NULL,
   direction text NOT NULL,
   amount integer NOT NULL,
@@ -308,53 +308,17 @@ ALTER TABLE public.point_transactions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.earning_transactions ENABLE ROW LEVEL SECURITY;
 
 -- Clear legacy policies to avoid over-permissive access from old migrations
-DO $$
-DECLARE
-  p record;
-BEGIN
-  FOR p IN
-    SELECT policyname FROM pg_policies
-    WHERE schemaname = 'public' AND tablename = 'orders'
-  LOOP
-    EXECUTE format('DROP POLICY IF EXISTS %I ON public.orders', p.policyname);
-  END LOOP;
-END $$;
+-- orders legacy policies from early migrations
+DROP POLICY IF EXISTS "用户可以查看自己的订单" ON public.orders;
+DROP POLICY IF EXISTS "用户可以创建订单" ON public.orders;
+DROP POLICY IF EXISTS "用户可以更新自己的订单" ON public.orders;
 
-DO $$
-DECLARE
-  p record;
-BEGIN
-  FOR p IN
-    SELECT policyname FROM pg_policies
-    WHERE schemaname = 'public' AND tablename = 'payments'
-  LOOP
-    EXECUTE format('DROP POLICY IF EXISTS %I ON public.payments', p.policyname);
-  END LOOP;
-END $$;
-
-DO $$
-DECLARE
-  p record;
-BEGIN
-  FOR p IN
-    SELECT policyname FROM pg_policies
-    WHERE schemaname = 'public' AND tablename = 'point_transactions'
-  LOOP
-    EXECUTE format('DROP POLICY IF EXISTS %I ON public.point_transactions', p.policyname);
-  END LOOP;
-END $$;
-
-DO $$
-DECLARE
-  p record;
-BEGIN
-  FOR p IN
-    SELECT policyname FROM pg_policies
-    WHERE schemaname = 'public' AND tablename = 'earning_transactions'
-  LOOP
-    EXECUTE format('DROP POLICY IF EXISTS %I ON public.earning_transactions', p.policyname);
-  END LOOP;
-END $$;
+-- pack06 policies (re-run safety)
+DROP POLICY IF EXISTS "pack06_orders_participants_select" ON public.orders;
+DROP POLICY IF EXISTS "pack06_orders_buyer_insert" ON public.orders;
+DROP POLICY IF EXISTS "pack06_payments_participants_select" ON public.payments;
+DROP POLICY IF EXISTS "pack06_point_tx_owner_select" ON public.point_transactions;
+DROP POLICY IF EXISTS "pack06_earnings_owner_select" ON public.earning_transactions;
 
 -- orders: buyer/seller can read; buyer can create. status updates reserved for service role.
 CREATE POLICY "pack06_orders_participants_select"
@@ -415,7 +379,7 @@ BEGIN
   SELECT pa.user_id
   INTO v_owner_id
   FROM public.point_accounts pa
-  WHERE pa.id = NEW.point_account_id;
+  WHERE pa.user_id = NEW.point_account_id;
 
   IF v_owner_id IS NULL THEN
     RAISE EXCEPTION 'Invalid point_account_id: %', NEW.point_account_id;

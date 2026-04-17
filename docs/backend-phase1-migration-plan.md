@@ -2,7 +2,7 @@
 
 > 依赖文档：  
 > - `docs/backend-phase1-schema-plan.md`  
-> - `docs/backend-phase1-field-dictionary-v1.md`  
+> - `docs/backend-phase1-field-dictionary-v1.1.md`  
 > 目标：定版状态机与表关系，拆分可执行 migration 包（不在本阶段输出全量 SQL）。
 
 ---
@@ -331,4 +331,3 @@
 2. 同步输出对应 RLS policy 草案（owner policy + admin policy）。  
 3. 再生成 Pack 03、Pack 05（技能供给 + 消息通知），进入前端联调。  
 4. 最后补 Pack 04、07、08（发现/审核/搜索增强）。
-

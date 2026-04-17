@@ -2,6 +2,47 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 
+export interface OrderRecord {
+  id: string;
+  buyer_id: string;
+  seller_id: string | null;
+  order_type: string;
+  status: string;
+  title: string | null;
+  amount: number;
+  point_amount: number;
+  currency: string;
+  created_at: string;
+  paid_at: string | null;
+}
+
+export interface PointTransactionRecord {
+  id: string;
+  user_id: string;
+  direction: 'credit' | 'debit';
+  amount: number;
+  biz_type: string;
+  note: string | null;
+  created_at: string;
+}
+
+export interface EarningTransactionRecord {
+  id: string;
+  user_id: string;
+  direction: 'income' | 'expense' | 'adjustment';
+  amount: number;
+  status: 'pending' | 'available' | 'settled' | 'reversed';
+  biz_type: string;
+  note: string | null;
+  created_at: string;
+  settled_at: string | null;
+}
+
+export interface MyEarningsData {
+  pointTransactions: PointTransactionRecord[];
+  earningTransactions: EarningTransactionRecord[];
+}
+
 // Profile stats aggregation
 export const useProfileStats = () => {
   const { user } = useAuth();
@@ -12,7 +53,10 @@ export const useProfileStats = () => {
       if (!user) return { orders: 0, answers: 0, favorites: 0, following: 0 };
 
       const [ordersRes, answersRes, favoritesRes, followingRes] = await Promise.all([
-        supabase.from('orders').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
+        (supabase as any)
+          .from('orders')
+          .select('*', { count: 'exact', head: true })
+          .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`),
         supabase.from('answers').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
         supabase.from('favorites').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
         supabase.from('user_followers').select('*', { count: 'exact', head: true }).eq('follower_id', user.id),
@@ -88,10 +132,10 @@ export const useMyOrders = (statusFilter?: string) => {
     queryFn: async () => {
       if (!user) return [];
 
-      let query = supabase
+      let query = (supabase as any)
         .from('orders')
         .select('*')
-        .eq('user_id', user.id)
+        .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`)
         .order('created_at', { ascending: false });
 
       if (statusFilter && statusFilter !== 'all') {
@@ -100,7 +144,7 @@ export const useMyOrders = (statusFilter?: string) => {
 
       const { data, error } = await query;
       if (error) throw error;
-      return data || [];
+      return (data || []) as OrderRecord[];
     },
     enabled: !!user,
     staleTime: 30 * 1000,
@@ -154,16 +198,33 @@ export const useMyEarnings = () => {
   return useQuery({
     queryKey: ['my-earnings', user?.id],
     queryFn: async () => {
-      if (!user) return [];
+      if (!user) {
+        return {
+          pointTransactions: [],
+          earningTransactions: [],
+        } as MyEarningsData;
+      }
 
-      const { data, error } = await supabase
-        .from('points_transactions')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
+      const [pointRes, earningRes] = await Promise.all([
+        (supabase as any)
+          .from('point_transactions')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false }),
+        (supabase as any)
+          .from('earning_transactions')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false }),
+      ]);
 
-      if (error) throw error;
-      return data || [];
+      if (pointRes.error) throw pointRes.error;
+      if (earningRes.error) throw earningRes.error;
+
+      return {
+        pointTransactions: (pointRes.data || []) as PointTransactionRecord[],
+        earningTransactions: (earningRes.data || []) as EarningTransactionRecord[],
+      } as MyEarningsData;
     },
     enabled: !!user,
     staleTime: 30 * 1000,

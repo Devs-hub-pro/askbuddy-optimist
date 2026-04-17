@@ -68,6 +68,11 @@ BEGIN
   END IF;
 END $$;
 
+-- Drop legacy checks before normalization UPDATEs, otherwise legacy values
+-- cannot be converted to Pack06 vocabulary under old constraints.
+ALTER TABLE public.orders DROP CONSTRAINT IF EXISTS orders_order_type_check;
+ALTER TABLE public.orders DROP CONSTRAINT IF EXISTS orders_status_check;
+
 -- Backfill from legacy user_id/order_type/status
 DO $$
 BEGIN
@@ -137,8 +142,6 @@ ALTER TABLE public.orders
   ALTER COLUMN updated_at SET DEFAULT now();
 
 -- Drop old checks if present
-ALTER TABLE public.orders DROP CONSTRAINT IF EXISTS orders_order_type_check;
-ALTER TABLE public.orders DROP CONSTRAINT IF EXISTS orders_status_check;
 ALTER TABLE public.orders DROP CONSTRAINT IF EXISTS pack06_orders_order_type_check;
 ALTER TABLE public.orders DROP CONSTRAINT IF EXISTS pack06_orders_status_check;
 ALTER TABLE public.orders DROP CONSTRAINT IF EXISTS pack06_orders_amount_non_negative;

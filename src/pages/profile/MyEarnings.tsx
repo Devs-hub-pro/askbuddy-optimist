@@ -5,26 +5,22 @@ import { Wallet, Coins, TrendingUp, Receipt } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
-import { useMyEarnings } from '@/hooks/useProfileData';
+import {
+  useMyEarnings,
+  type EarningTransactionRecord,
+  type PointTransactionRecord,
+} from '@/hooks/useProfileData';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import PageStateCard from '@/components/common/PageStateCard';
 import { buildFromState } from '@/utils/navigation';
 
-interface PointsTransactionItem {
-  id: string;
-  amount: number;
-  type: string;
-  description: string | null;
-  created_at: string;
-}
-
 const MyEarnings = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { profile } = useAuth();
-  const { data: transactions, isLoading, error, refetch } = useMyEarnings();
+  const { data, isLoading, error, refetch } = useMyEarnings();
 
   const formatTime = (dateString: string) => {
     try {
@@ -32,10 +28,12 @@ const MyEarnings = () => {
     } catch { return '刚刚'; }
   };
 
-  const resolvedTransactions = (transactions || []) as PointsTransactionItem[];
-  const positiveTransactions = resolvedTransactions.filter((tx) => tx.amount > 0);
-  const monthlyIncome = positiveTransactions.reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
-  const totalRecords = transactions?.length || 0;
+  const pointTransactions = (data?.pointTransactions || []) as PointTransactionRecord[];
+  const earningTransactions = (data?.earningTransactions || []) as EarningTransactionRecord[];
+  const availableIncome = earningTransactions
+    .filter((tx) => tx.direction === 'income' && (tx.status === 'available' || tx.status === 'settled'))
+    .reduce((sum, tx) => sum + Number(tx.amount || 0), 0);
+  const totalRecords = pointTransactions.length + earningTransactions.length;
 
   return (
     <div className="pb-8 min-h-[100dvh] bg-slate-50">
@@ -71,8 +69,8 @@ const MyEarnings = () => {
                 <TrendingUp size={16} />
                 <span className="text-xs font-medium">累计入账</span>
               </div>
-              <p className="mt-2 text-xl font-semibold text-slate-900">{monthlyIncome}</p>
-              <p className="mt-1 text-xs text-slate-500">当前可用积分收益</p>
+              <p className="mt-2 text-xl font-semibold text-slate-900">{availableIncome.toFixed(2)}</p>
+              <p className="mt-1 text-xs text-slate-500">收益流水（可用/已结算）</p>
             </CardContent>
           </Card>
           <Card className="surface-card rounded-3xl border-none shadow-sm">
@@ -97,29 +95,52 @@ const MyEarnings = () => {
           <PageStateCard
             compact
             variant="error"
-            title="积分流水加载失败"
+            title="收益流水加载失败"
             description={error instanceof Error ? error.message : '请检查网络后重试'}
             actionLabel="重试"
             onAction={() => refetch()}
           />
         </div>
-      ) : transactions && transactions.length > 0 ? (
+      ) : totalRecords > 0 ? (
         <div className="px-5 pb-5 space-y-3">
           <div className="px-1">
-            <h3 className="text-sm font-medium text-slate-600">积分流水</h3>
-            <p className="mt-1 text-xs text-slate-400">按时间倒序展示你的收入、奖励和扣费记录。</p>
+            <h3 className="text-sm font-medium text-slate-600">收益流水</h3>
+            <p className="mt-1 text-xs text-slate-400">收益流水与积分流水分开展示，便于对账。</p>
           </div>
-          {resolvedTransactions.map((tx) => (
-            <div key={tx.id} className="surface-card rounded-3xl p-4 shadow-sm flex items-center justify-between">
-              <div>
-                <p className="text-sm font-medium text-slate-900">{tx.description || tx.type}</p>
-                <p className="text-xs text-slate-400">{formatTime(tx.created_at)}</p>
-              </div>
-              <span className={`text-sm font-bold ${tx.amount > 0 ? 'text-green-600' : 'text-red-500'}`}>
-                {tx.amount > 0 ? '+' : ''}{tx.amount}
-              </span>
-            </div>
-          ))}
+
+          {earningTransactions.length > 0 && (
+            <>
+              <h4 className="px-1 text-xs font-semibold text-muted-foreground">收益流水（earning_transactions）</h4>
+              {earningTransactions.map((tx) => (
+                <div key={tx.id} className="surface-card rounded-3xl p-4 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">{tx.note || tx.biz_type}</p>
+                    <p className="text-xs text-slate-400">{formatTime(tx.created_at)} · {tx.status}</p>
+                  </div>
+                  <span className={`text-sm font-bold ${tx.direction === 'income' ? 'text-green-600' : 'text-red-500'}`}>
+                    {tx.direction === 'income' ? '+' : '-'}{Number(tx.amount || 0).toFixed(2)}
+                  </span>
+                </div>
+              ))}
+            </>
+          )}
+
+          {pointTransactions.length > 0 && (
+            <>
+              <h4 className="px-1 pt-2 text-xs font-semibold text-muted-foreground">积分流水（point_transactions）</h4>
+              {pointTransactions.map((tx) => (
+                <div key={tx.id} className="surface-card rounded-3xl p-4 shadow-sm flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-slate-900">{tx.note || tx.biz_type}</p>
+                    <p className="text-xs text-slate-400">{formatTime(tx.created_at)}</p>
+                  </div>
+                  <span className={`text-sm font-bold ${tx.direction === 'credit' ? 'text-green-600' : 'text-red-500'}`}>
+                    {tx.direction === 'credit' ? '+' : '-'}{tx.amount}
+                  </span>
+                </div>
+              ))}
+            </>
+          )}
         </div>
       ) : (
         <div className="mx-5 mt-2">

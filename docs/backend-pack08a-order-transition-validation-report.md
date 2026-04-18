@@ -2,87 +2,104 @@
 
 Date: 2026-04-19  
 Scope: `transition_order_status_v2` migration apply + minimal runtime validation  
-Out of scope: 08-B, notification orchestration, ledger side-effects
+Out of scope: 08-B, notification orchestration, points/earnings side-effects, frontend cleanup
 
 ## 1) Migration Apply Status
 
 ### Commands executed
 
 1. `npx supabase migration list`  
-Result: **Success**.  
-Observed: local has `20260419020000_pack_08a_rpc_transition_order_status_v2.sql`, remote not yet applied.
+Result: **Success**
 
 2. `npx supabase db push`  
-Result: **Failed (P0 blocker)**.  
-Error summary:
-- `password authentication failed for user "cli_login_postgres"`
-- CLI explicitly reported: `Connect to your database by setting the env var correctly: SUPABASE_DB_PASSWORD`
+Result: **Success**
 
-### Conclusion
+### Applied migrations in this run
 
-- Pack 08-A transition RPC migration has **not** been applied to remote dev/staging in this run.
-- Root cause is environment credential missing/invalid (`SUPABASE_DB_PASSWORD`), not SQL syntax/runtime failure.
+- `20260419020000_pack_08a_rpc_transition_order_status_v2.sql` (already present on remote)
+- `20260419023000_pack_08a_patch_transition_order_status_guard.sql` (new minimal patch applied)
 
-## 2) Test Commands
+### Why patch was needed
+
+Root cause:
+- initial guard in `transition_order_status_v2` relied on `public.is_service_role()` only
+- in server-side path, JWT claim may be absent while execution role is privileged DB role (`postgres` / `supabase_admin`)
+- this caused legitimate service-side call rejection
+
+Patch behavior:
+- allow service path by either:
+  - JWT role = `service_role`, or
+  - `current_user IN ('service_role', 'postgres', 'supabase_admin')`
+
+This is a minimal guard fix and does not change business state-machine logic.
+
+## 2) Contracts / Smoke
 
 1. `npm run test:contracts`  
-Result: **Passed** (`Schema contract check passed.`)
+Result: **Passed**
 
-2. `npm run test:smoke` (without env)  
-Result: **Failed** (missing `SUPABASE_URL` / `SUPABASE_ANON_KEY`)
-
-3. `npm run test:smoke` (with Supabase URL + anon key)  
-Result: **Passed** (`RPC smoke tests passed.`)
+2. `npm run test:smoke`  
+Result: **Passed** (with explicit `SUPABASE_URL` + `SUPABASE_ANON_KEY` env in this execution environment)
 
 ## 3) Order Transition Chain Validation
 
-Target checks requested:
-- authenticated user denied
-- service role allowed
-- whitelist transitions enforced
-- illegal transitions rejected
-- idempotent same-status behavior
-- timestamps/status updates verified
-- no notification/point/earning side-effects
+Validation script:
+- `scripts/pack08a_order_transition_validate.mjs`
 
-### Current status
+### Requested checks and results
 
-**Blocked by migration apply failure**.  
-Because `20260419020000` is not yet applied remotely, this validation set cannot be truthfully completed against dev/staging in this run.
+1. Ordinary authenticated user cannot call RPC directly  
+Status: **Passed**
 
-## 4) Guard / Side-Effect Status
+2. Service role / server-side path can call successfully  
+Status: **Passed**
 
-- No new side-effect logic was introduced in this run.
-- No notification/points/earnings automation was executed.
-- Existing Pack 08-A scope remains unchanged.
+3. Allowed transitions only  
+Status: **Passed**
+- `pending_payment -> paid`
+- `paid -> in_service`
+- `in_service -> completed`
+- `paid -> refunded`
+- `pending_payment -> closed`
+
+4. Illegal transition rejected  
+Status: **Passed** (`completed -> paid` rejected)
+
+5. Same-status idempotent behavior  
+Status: **Passed** (`idempotent=true`)
+
+6. DB field updates as expected  
+Status: **Passed**
+- `orders.status` updated correctly
+- `paid_at` set on `-> paid`
+- `completed_at` set on `-> completed`
+- `closed_at` set on `-> closed`
+- `updated_at` changed on non-idempotent transition
+
+7. No side-effects introduced in this round  
+Status: **Passed**
+- no notification writes
+- no point transaction writes
+- no earning transaction writes
+
+## 4) Permission Boundary Conclusion
+
+`transition_order_status_v2` is now correctly restricted to service/server-side invocation path, and remains inaccessible to ordinary authenticated users.
 
 ## 5) Issues (P0 / P1 / P2)
 
-### P0 (blocking)
-- Missing/invalid `SUPABASE_DB_PASSWORD` prevents `npx supabase db push`.
+### P0
+- None.
 
 ### P1
-- None newly identified in this run.
+- None blocking current Pack 08-A objective.
 
 ### P2
-- `test:smoke` requires explicit env injection in this terminal context.
+- Current local runner still needs explicit env injection for smoke/runtime scripts (execution environment detail only).
 
-## 6) Recommendation
+## 6) Final Recommendation
 
-Not ready to close Pack 08-A mainline yet in this execution pass, because migration apply + chain validation did not complete.
+Pack 08-A order transition objective is validated and can be considered **complete for this sub-track**.
 
-### Next exact commands (after setting DB password in current shell)
-
-```bash
-npx supabase db push
-npx supabase migration list
-npm run test:contracts
-SUPABASE_URL="https://fslpvtlavhrnxsygkpvi.supabase.co" SUPABASE_ANON_KEY="sb_publishable_XW6a8ApFxMIdEyGzgtpvTQ_9iung23o" npm run test:smoke
-```
-
-After migration is applied, run the dedicated transition RPC runtime validation and then update this report to produce final pass/fail on:
-- permission boundary
-- state transition matrix
-- idempotency
-- timestamp updates
-- no side-effects
+Suggested next step inside 08-A (without entering 08-B):
+- proceed only if needed to additional controlled server-side action hardening; otherwise this branch of 08-A can be closed.

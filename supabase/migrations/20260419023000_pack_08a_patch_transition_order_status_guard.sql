@@ -1,14 +1,8 @@
--- Pack 08-A: RPC closure for order status transitions (minimal)
--- Goal:
--- - Introduce server-side-only order status transition path:
---   public.transition_order_status_v2(p_order_id, p_to_status, p_reason)
--- - Enforce a strict whitelist transition matrix in DB
--- - Keep side-effects minimal (no notification, no points/earnings writes)
---
--- Out of scope:
--- - payment callback orchestration
--- - settlement engine
--- - workflow/bpm engine
+-- Pack 08-A patch: allow transition_order_status_v2 on service-side paths
+-- Root cause:
+-- - initial guard relied on public.is_service_role() only
+-- - server-side calls made via privileged DB roles may not carry JWT role claim
+-- - this blocked legitimate service-side invocation path
 
 BEGIN;
 
@@ -29,7 +23,9 @@ DECLARE
   v_allowed boolean := false;
   v_claim_role text := coalesce(current_setting('request.jwt.claim.role', true), '');
 BEGIN
-  -- service-role/server-side only
+  -- service-role/server-side only:
+  -- 1) service role JWT path
+  -- 2) privileged DB roles for controlled server-side scripts/migrations
   IF NOT (
     v_claim_role = 'service_role'
     OR current_user IN ('service_role', 'postgres', 'supabase_admin')
@@ -113,6 +109,6 @@ REVOKE ALL ON FUNCTION public.transition_order_status_v2(uuid, text, text) FROM 
 GRANT EXECUTE ON FUNCTION public.transition_order_status_v2(uuid, text, text) TO service_role;
 
 COMMENT ON FUNCTION public.transition_order_status_v2(uuid, text, text) IS
-'Pack08-A server-side order status transition path. Whitelist transitions only. No notification/points/earnings side-effects in this version.';
+'Pack08-A order transition path (patched): server-side only, whitelist transitions, idempotent same-status handling, no notification/ledger side-effects.';
 
 COMMIT;

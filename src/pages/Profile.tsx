@@ -25,7 +25,7 @@ import BottomNav from '@/components/BottomNav';
 import SettingsMenu from '@/components/profile/SettingsMenu';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUploadAvatar, useUploadCover, useUpdateProfile } from '@/hooks/useProfile';
-import { useProfileStats } from '@/hooks/useProfileData';
+import { usePointAccountBalance, useProfileStats } from '@/hooks/useProfileData';
 import { useToast } from '@/hooks/use-toast';
 import { useIsAdmin } from '@/hooks/useHotTopics';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
@@ -48,6 +48,7 @@ const Profile = () => {
   const uploadCover = useUploadCover();
   const updateProfile = useUpdateProfile();
   const { data: stats } = useProfileStats();
+  const { data: availableBalance = 0 } = usePointAccountBalance();
   const { data: isAdmin } = useIsAdmin();
   usePageScrollMemory('profile');
 
@@ -286,7 +287,7 @@ const Profile = () => {
                       onClick={() => navigate('/profile/recharge', { state: buildFromState(location) })}
                     >
                       <Star size={11} className="mr-1" />
-                      {profile?.points_balance || 0} 积分
+                      {Number(availableBalance ?? profile?.available_balance ?? 0)} 积分
                       <ChevronRight size={11} className="ml-1 opacity-70" />
                     </button>
                   </div>

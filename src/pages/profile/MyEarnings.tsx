@@ -7,6 +7,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useAuth } from '@/contexts/AuthContext';
 import {
   useMyEarnings,
+  usePointAccountBalance,
   type EarningTransactionRecord,
   type PointTransactionRecord,
 } from '@/hooks/useProfileData';
@@ -21,6 +22,7 @@ const MyEarnings = () => {
   const location = useLocation();
   const { profile } = useAuth();
   const { data, isLoading, error, refetch } = useMyEarnings();
+  const { data: availableBalance = 0 } = usePointAccountBalance();
 
   const formatTime = (dateString: string) => {
     try {
@@ -47,7 +49,7 @@ const MyEarnings = () => {
               <h2 className="text-lg font-semibold">我的积分</h2>
             </div>
             <div className="flex items-end space-x-1 mb-3">
-              <span className="text-3xl font-bold">{profile?.points_balance || 0}</span>
+              <span className="text-3xl font-bold">{Number(availableBalance ?? profile?.available_balance ?? 0)}</span>
               <span className="text-white/70 mb-1">积分</span>
             </div>
             <Button

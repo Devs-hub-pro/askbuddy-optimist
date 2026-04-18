@@ -10,7 +10,10 @@ interface Profile {
   cover_url?: string | null;
   bio: string | null;
   phone: string | null;
-  points_balance: number;
+  // Deprecated: legacy compatibility only, no longer ledger source of truth.
+  points_balance?: number | null;
+  // Canonical balance source: point_accounts.available_balance
+  available_balance: number;
   city: string | null;
 }
 
@@ -43,14 +46,28 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchProfile = async (userId: string) => {
     try {
-      const { data, error } = await supabase
+      const { data: profileData, error: profileError } = await supabase
         .from('profiles')
-        .select('*')
+        .select('id,user_id,nickname,avatar_url,cover_url,bio,phone,city')
         .eq('user_id', userId)
         .single();
-      
-      if (error) throw error;
-      setProfile(data);
+
+      if (profileError) throw profileError;
+
+      const { data: pointAccount, error: pointError } = await (supabase as any)
+        .from('point_accounts')
+        .select('available_balance')
+        .eq('user_id', userId)
+        .maybeSingle();
+
+      if (pointError) {
+        console.warn('Error fetching point account balance:', pointError);
+      }
+
+      setProfile({
+        ...profileData,
+        available_balance: Number(pointAccount?.available_balance ?? 0),
+      });
     } catch (error) {
       console.error('Error fetching profile:', error);
       setProfile(null);

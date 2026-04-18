@@ -460,6 +460,84 @@ export type Database = {
         }
         Relationships: []
       }
+      point_accounts: {
+        Row: {
+          available_balance: number
+          created_at: string
+          frozen_balance: number
+          total_earned: number
+          total_spent: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          available_balance?: number
+          created_at?: string
+          frozen_balance?: number
+          total_earned?: number
+          total_spent?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          available_balance?: number
+          created_at?: string
+          frozen_balance?: number
+          total_earned?: number
+          total_spent?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      point_transactions: {
+        Row: {
+          amount: number
+          balance_after: number | null
+          biz_id: string | null
+          biz_type: string
+          created_at: string
+          direction: "credit" | "debit"
+          id: string
+          idempotency_key: string | null
+          note: string | null
+          order_id: string | null
+          point_account_id: string
+          status: "pending" | "completed" | "failed" | "reversed"
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          balance_after?: number | null
+          biz_id?: string | null
+          biz_type: string
+          created_at?: string
+          direction: "credit" | "debit"
+          id?: string
+          idempotency_key?: string | null
+          note?: string | null
+          order_id?: string | null
+          point_account_id: string
+          status?: "pending" | "completed" | "failed" | "reversed"
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number | null
+          biz_id?: string | null
+          biz_type?: string
+          created_at?: string
+          direction?: "credit" | "debit"
+          id?: string
+          idempotency_key?: string | null
+          note?: string | null
+          order_id?: string | null
+          point_account_id?: string
+          status?: "pending" | "completed" | "failed" | "reversed"
+          user_id?: string
+        }
+        Relationships: []
+      }
       points_transactions: {
         Row: {
           amount: number
@@ -492,6 +570,51 @@ export type Database = {
           related_id?: string | null
           status?: string
           type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      earning_transactions: {
+        Row: {
+          amount: number
+          biz_id: string | null
+          biz_type: string
+          created_at: string
+          direction: "income" | "expense" | "adjustment"
+          id: string
+          note: string | null
+          order_id: string | null
+          settled_at: string | null
+          status: "pending" | "available" | "settled" | "reversed"
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          biz_id?: string | null
+          biz_type: string
+          created_at?: string
+          direction?: "income" | "expense" | "adjustment"
+          id?: string
+          note?: string | null
+          order_id?: string | null
+          settled_at?: string | null
+          status?: "pending" | "available" | "settled" | "reversed"
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          biz_id?: string | null
+          biz_type?: string
+          created_at?: string
+          direction?: "income" | "expense" | "adjustment"
+          id?: string
+          note?: string | null
+          order_id?: string | null
+          settled_at?: string | null
+          status?: "pending" | "available" | "settled" | "reversed"
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

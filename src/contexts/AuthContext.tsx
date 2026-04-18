@@ -10,8 +10,6 @@ interface Profile {
   cover_url?: string | null;
   bio: string | null;
   phone: string | null;
-  // Deprecated: legacy compatibility only, no longer ledger source of truth.
-  points_balance?: number | null;
   // Canonical balance source: point_accounts.available_balance
   available_balance: number;
   city: string | null;
@@ -54,7 +52,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (profileError) throw profileError;
 
-      const { data: pointAccount, error: pointError } = await (supabase as any)
+      const { data: pointAccount, error: pointError } = await supabase
         .from('point_accounts')
         .select('available_balance')
         .eq('user_id', userId)

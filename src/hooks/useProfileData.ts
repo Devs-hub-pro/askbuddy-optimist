@@ -51,7 +51,7 @@ export const usePointAccountBalance = () => {
     queryFn: async () => {
       if (!user) return 0;
 
-      const { data, error } = await (supabase as any)
+      const { data, error } = await supabase
         .from('point_accounts')
         .select('available_balance')
         .eq('user_id', user.id)
@@ -229,12 +229,12 @@ export const useMyEarnings = () => {
       }
 
       const [pointRes, earningRes] = await Promise.all([
-        (supabase as any)
+        supabase
           .from('point_transactions')
           .select('*')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false }),
-        (supabase as any)
+        supabase
           .from('earning_transactions')
           .select('*')
           .eq('user_id', user.id)

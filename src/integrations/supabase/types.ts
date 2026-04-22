@@ -1116,6 +1116,14 @@ export type Database = {
         Args: { p_limit?: number; p_query: string }
         Returns: Json
       }
+      search_app_content_v2: {
+        Args: { p_limit?: number; p_query: string }
+        Returns: Json
+      }
+      get_search_suggestions_v2: {
+        Args: { p_limit?: number; p_query?: string; p_type?: string }
+        Returns: Json
+      }
       send_direct_message: {
         Args: { p_content: string; p_message_type?: string; p_receiver_id: string }
         Returns: string

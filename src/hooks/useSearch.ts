@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { demoExperts, demoQuestions } from '@/lib/demoData';
+import { demoExperts, demoQuestions, demoTopics } from '@/lib/demoData';
 import { mergeUniqueById } from '@/lib/adapters/contentAdapters';
 
 const isMissingRpcError = (error: unknown, functionName: string) => {
@@ -22,28 +22,55 @@ export interface SearchQuestion {
   answers_count?: number;
 }
 
-export interface SearchTopic {
-  id: string;
-  title: string;
-  description: string | null;
-  cover_image: string | null;
-  category: string | null;
-  discussions_count: number;
-  participants_count: number;
-}
-
-export interface SearchUser {
+export interface SearchExpert {
   id: string;
   user_id: string;
   nickname: string | null;
   avatar_url: string | null;
-  bio: string | null;
+  headline: string | null;
+  intro: string | null;
+  verification_status?: string | null;
+  follower_count?: number;
+  service_count?: number;
+}
+
+export interface SearchSkill {
+  id: string;
+  expert_id: string;
+  title: string;
+  description: string | null;
+  category_name?: string | null;
+  pricing_mode?: string | null;
+  price_amount?: number | null;
+  price_currency?: string | null;
+  city?: string | null;
+  city_code?: string | null;
+  is_remote_supported?: boolean;
+  delivery_mode?: string | null;
+  created_at?: string;
+  expert_nickname?: string | null;
+  expert_avatar?: string | null;
+}
+
+export interface SearchPost {
+  id: string;
+  author_id: string;
+  content: string;
+  city?: string | null;
+  city_code?: string | null;
+  created_at: string;
+  like_count?: number;
+  favorite_count?: number;
+  comment_count?: number;
+  author_nickname?: string | null;
+  author_avatar?: string | null;
 }
 
 export interface SearchResults {
   questions: SearchQuestion[];
-  topics: SearchTopic[];
-  users: SearchUser[];
+  experts: SearchExpert[];
+  skills: SearchSkill[];
+  posts: SearchPost[];
 }
 
 const SEARCH_RELATED_TERMS: Record<string, string[]> = {
@@ -76,10 +103,10 @@ export const useSearch = (query: string) => {
     queryKey: ['search', query],
     queryFn: async (): Promise<SearchResults> => {
       if (!query.trim()) {
-        return { questions: [], topics: [], users: [] };
+        return { questions: [], experts: [], skills: [], posts: [] };
       }
 
-      const rpcResult = await (supabase as any).rpc('search_app_content', {
+      const rpcV2Result = await (supabase as any).rpc('search_app_content_v2', {
         p_query: query.trim(),
         p_limit: 10,
       });
@@ -113,83 +140,192 @@ export const useSearch = (query: string) => {
           user_id: item.user_id,
           nickname: item.nickname,
           avatar_url: item.avatar_url,
-          bio: item.bio,
-        })) as SearchUser[];
+          headline: item.title || null,
+          intro: item.bio,
+          verification_status: item.is_verified ? 'verified' : 'unverified',
+          follower_count: item.followers_count || 0,
+          service_count: item.consultation_count || 0,
+        })) as SearchExpert[];
 
-      if (!rpcResult.error) {
-        const payload = (rpcResult.data || {}) as Partial<SearchResults>;
+      const demoMatchedPosts = demoTopics
+        .filter((item) => {
+          const bag = [item.title || '', item.description || '', item.category || ''].join(' ').toLowerCase();
+          return isMatched(bag);
+        })
+        .slice(0, 8)
+        .map((item) => ({
+          id: item.id,
+          author_id: item.created_by || 'demo',
+          content: `${item.title}${item.description ? `：${item.description}` : ''}`,
+          city: null,
+          city_code: null,
+          created_at: item.created_at,
+          like_count: 0,
+          favorite_count: 0,
+          comment_count: item.discussions_count || 0,
+          author_nickname: '问问专题',
+          author_avatar: null,
+        })) as SearchPost[];
+
+      if (!rpcV2Result.error) {
+        const payload = (rpcV2Result.data || {}) as Partial<SearchResults>;
         const questions = (payload.questions || []) as SearchQuestion[];
-        const topics = (payload.topics || []) as SearchTopic[];
-        const users = (payload.users || []) as SearchUser[];
+        const experts = (payload.experts || []) as SearchExpert[];
+        const skills = (payload.skills || []) as SearchSkill[];
+        const posts = (payload.posts || []) as SearchPost[];
         const mergedQuestions = mergeUniqueById(questions, demoMatchedQuestions);
-        const mergedUsers = mergeUniqueById(users, demoMatchedUsers);
+        const mergedExperts = mergeUniqueById(experts, demoMatchedUsers);
+        const mergedPosts = mergeUniqueById(posts, demoMatchedPosts);
 
         return {
           questions: mergedQuestions,
-          topics,
-          users: mergedUsers,
+          experts: mergedExperts,
+          skills,
+          posts: mergedPosts,
         };
       }
 
-      if (!isMissingRpcError(rpcResult.error, 'search_app_content')) {
-        throw rpcResult.error;
+      if (!isMissingRpcError(rpcV2Result.error, 'search_app_content_v2')) {
+        throw rpcV2Result.error;
+      }
+
+      const rpcLegacyResult = await (supabase as any).rpc('search_app_content', {
+        p_query: query.trim(),
+        p_limit: 10,
+      });
+
+      if (!rpcLegacyResult.error) {
+        const payload = (rpcLegacyResult.data || {}) as {
+          questions?: SearchQuestion[];
+          users?: Array<{
+            id: string;
+            user_id: string;
+            nickname: string | null;
+            avatar_url: string | null;
+            bio: string | null;
+          }>;
+          topics?: Array<{
+            id: string;
+            title: string;
+            description: string | null;
+            discussions_count: number;
+            created_at?: string;
+          }>;
+        };
+
+        const experts = (payload.users || []).map((item) => ({
+          id: item.id,
+          user_id: item.user_id,
+          nickname: item.nickname,
+          avatar_url: item.avatar_url,
+          headline: null,
+          intro: item.bio,
+          verification_status: null,
+          follower_count: 0,
+          service_count: 0,
+        })) as SearchExpert[];
+
+        const posts = (payload.topics || []).map((item) => ({
+          id: item.id,
+          author_id: 'legacy-topic',
+          content: `${item.title}${item.description ? `：${item.description}` : ''}`,
+          created_at: item.created_at || new Date().toISOString(),
+          like_count: 0,
+          favorite_count: 0,
+          comment_count: item.discussions_count || 0,
+          author_nickname: '问问专题',
+          author_avatar: null,
+        })) as SearchPost[];
+
+        return {
+          questions: mergeUniqueById((payload.questions || []) as SearchQuestion[], demoMatchedQuestions),
+          experts: mergeUniqueById(experts, demoMatchedUsers),
+          skills: [],
+          posts: mergeUniqueById(posts, demoMatchedPosts),
+        };
+      }
+
+      if (!isMissingRpcError(rpcLegacyResult.error, 'search_app_content')) {
+        throw rpcLegacyResult.error;
       }
 
       const searchTerm = `%${trimmedQuery}%`;
 
-      const [questionsResult, topicsResult, usersResult] = await Promise.all([
+      const [questionsResult, expertsResult, skillsResult, postsResult] = await Promise.all([
         supabase
           .from('questions')
           .select('*')
-          .or(`title.ilike.${searchTerm},content.ilike.${searchTerm},tags::text.ilike.${searchTerm}`)
+          .or(`title.ilike.${searchTerm},description.ilike.${searchTerm},tags::text.ilike.${searchTerm}`)
+          .eq('status', 'open')
           .order('created_at', { ascending: false })
           .limit(20),
         supabase
-          .from('hot_topics')
-          .select('*')
-          .eq('is_active', true)
-          .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
-          .order('discussions_count', { ascending: false })
+          .from('experts')
+          .select('id,user_id,headline,intro,verification_status,follower_count,service_count,title,bio,profile_status')
+          .or(`headline.ilike.${searchTerm},intro.ilike.${searchTerm},title.ilike.${searchTerm},bio.ilike.${searchTerm}`)
+          .eq('profile_status', 'active')
           .limit(10),
         supabase
-          .from('profiles')
-          .select('id, user_id, nickname, avatar_url, bio')
-          .or(`nickname.ilike.${searchTerm},bio.ilike.${searchTerm}`)
+          .from('skill_offers')
+          .select('id,expert_id,title,description,pricing_mode,price_amount,price_currency,city,city_code,is_remote_supported,delivery_mode,created_at,status')
+          .eq('status', 'published')
+          .or(`title.ilike.${searchTerm},description.ilike.${searchTerm}`)
+          .order('created_at', { ascending: false })
+          .limit(10),
+        supabase
+          .from('posts')
+          .select('id,author_id,content,city,city_code,created_at,like_count,favorite_count,comment_count,visibility,status')
+          .eq('status', 'active')
+          .eq('visibility', 'public')
+          .ilike('content', searchTerm)
+          .order('created_at', { ascending: false })
           .limit(10),
       ]);
 
       if (questionsResult.error) throw questionsResult.error;
-      if (topicsResult.error) throw topicsResult.error;
-      if (usersResult.error) throw usersResult.error;
+      if (expertsResult.error) throw expertsResult.error;
+      if (skillsResult.error) throw skillsResult.error;
+      if (postsResult.error) throw postsResult.error;
 
       const questionsData = questionsResult.data || [];
-      const topics = (topicsResult.data || []) as SearchTopic[];
-      const users = (usersResult.data || []) as SearchUser[];
+      const expertRows = expertsResult.data || [];
+      const skillRows = (skillsResult.data || []) as SearchSkill[];
+      const postRows = (postsResult.data || []) as SearchPost[];
 
-      if (questionsData.length === 0) {
-        const mergedUsers = mergeUniqueById(users, demoMatchedUsers);
-        return { questions: demoMatchedQuestions, topics, users: mergedUsers };
-      }
-
-      const userIds = Array.from(new Set(questionsData.map((item) => item.user_id)));
+      const userIds = Array.from(
+        new Set([
+          ...questionsData.map((item) => item.author_id || item.user_id),
+          ...expertRows.map((item) => item.user_id),
+          ...postRows.map((item) => item.author_id),
+        ].filter(Boolean))
+      );
       const questionIds = questionsData.map((item) => item.id);
+      const skillExpertIds = Array.from(new Set(skillRows.map((item) => item.expert_id).filter(Boolean)));
 
-      const [profilesResult, answersResult] = await Promise.all([
+      const [profilesResult, answersResult, skillCategoryResult] = await Promise.all([
         supabase
           .from('profiles')
           .select('user_id, nickname, avatar_url')
-          .in('user_id', userIds),
+          .in('user_id', userIds.length > 0 ? userIds : ['00000000-0000-0000-0000-000000000000']),
         supabase
           .from('answers')
           .select('question_id')
           .in('question_id', questionIds),
+        supabase
+          .from('skill_categories')
+          .select('id,name')
+          .in('id', Array.from(new Set((skillRows || []).map((row) => row.category_id).filter(Boolean)))),
       ]);
 
       if (profilesResult.error) throw profilesResult.error;
       if (answersResult.error) throw answersResult.error;
+      if (skillCategoryResult.error) throw skillCategoryResult.error;
 
       const profileMap = new Map(
         (profilesResult.data || []).map((profile) => [profile.user_id, profile])
+      );
+      const categoryMap = new Map(
+        (skillCategoryResult.data || []).map((item) => [item.id, item.name])
       );
       const answerCountMap = new Map<string, number>();
 
@@ -199,22 +335,92 @@ export const useSearch = (query: string) => {
 
       const questions = questionsData.map((item) => ({
         ...item,
-        profile_nickname: profileMap.get(item.user_id)?.nickname || '匿名用户',
-        profile_avatar: profileMap.get(item.user_id)?.avatar_url,
+        content: item.description || item.content || null,
+        category: item.category || null,
+        bounty_points: Number(item.reward_points ?? item.bounty_points ?? 0),
+        profile_nickname: profileMap.get(item.author_id || item.user_id)?.nickname || '匿名用户',
+        profile_avatar: profileMap.get(item.author_id || item.user_id)?.avatar_url,
         answers_count: answerCountMap.get(item.id) || 0,
       })) as SearchQuestion[];
 
+      const experts = expertRows.map((item) => ({
+        id: item.id,
+        user_id: item.user_id,
+        nickname: profileMap.get(item.user_id)?.nickname || null,
+        avatar_url: profileMap.get(item.user_id)?.avatar_url || null,
+        headline: item.headline || item.title || null,
+        intro: item.intro || item.bio || null,
+        verification_status: item.verification_status || null,
+        follower_count: Number(item.follower_count || 0),
+        service_count: Number(item.service_count || 0),
+      })) as SearchExpert[];
+
+      const skills = skillRows.map((item) => {
+        const expertProfile = profileMap.get(item.expert_id);
+        return {
+          ...item,
+          category_name: categoryMap.get(item.category_id || '') || null,
+          expert_nickname: expertProfile?.nickname || null,
+          expert_avatar: expertProfile?.avatar_url || null,
+        };
+      }) as SearchSkill[];
+
+      const posts = postRows.map((item) => ({
+        ...item,
+        author_nickname: profileMap.get(item.author_id)?.nickname || null,
+        author_avatar: profileMap.get(item.author_id)?.avatar_url || null,
+      })) as SearchPost[];
+
       const mergedQuestions = mergeUniqueById(questions, demoMatchedQuestions);
-      const mergedUsers = mergeUniqueById(users, demoMatchedUsers);
+      const mergedExperts = mergeUniqueById(experts, demoMatchedUsers);
+      const mergedPosts = mergeUniqueById(posts, demoMatchedPosts);
 
       return {
         questions: mergedQuestions,
-        topics,
-        users: mergedUsers,
+        experts: mergedExperts,
+        skills,
+        posts: mergedPosts,
       };
     },
     enabled: !!query.trim(),
     staleTime: 30_000,
+  });
+};
+
+export const useHotKeywords = (keywordType: 'all' | 'question' | 'expert' | 'skill' | 'post' = 'all') => {
+  return useQuery({
+    queryKey: ['search-hot-keywords', keywordType],
+    queryFn: async (): Promise<string[]> => {
+      const fromRpc = await (supabase as any).rpc('get_search_suggestions_v2', {
+        p_query: '',
+        p_limit: 12,
+        p_type: keywordType,
+      });
+
+      if (!fromRpc.error) {
+        const payload = (fromRpc.data || {}) as { hot_keywords?: string[] };
+        const hot = Array.isArray(payload.hot_keywords)
+          ? payload.hot_keywords.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
+          : [];
+        if (hot.length > 0) return hot;
+      } else if (!isMissingRpcError(fromRpc.error, 'get_search_suggestions_v2')) {
+        throw fromRpc.error;
+      }
+
+      const { data, error } = await supabase
+        .from('hot_keywords')
+        .select('keyword')
+        .eq('is_active', true)
+        .in('keyword_type', ['all', keywordType])
+        .order('score', { ascending: false })
+        .limit(12);
+      if (error) throw error;
+
+      return (data || [])
+        .map((item) => item.keyword)
+        .filter((item): item is string => typeof item === 'string' && item.trim().length > 0);
+    },
+    staleTime: 60_000,
   });
 };
 

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { Skeleton } from '@/components/ui/skeleton';
 import SearchBar from "@/components/SearchBar";
-import { getSearchRelatedTerms, useSearch, popularSearchTerms, type SearchQuestion, type SearchTopic, type SearchUser } from '@/hooks/useSearch';
+import { getSearchRelatedTerms, useHotKeywords, useSearch, popularSearchTerms, type SearchExpert, type SearchPost, type SearchQuestion, type SearchSkill } from '@/hooks/useSearch';
 import { demoExperts, demoQuestions } from '@/lib/demoData';
 import { formatDistanceToNow } from 'date-fns';
 import { zhCN } from 'date-fns/locale';
@@ -14,6 +14,8 @@ import { buildFromState, navigateBackOr } from '@/utils/navigation';
 import PageStateCard from '@/components/common/PageStateCard';
 import { isNativeApp } from '@/utils/platform';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
+import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 const SEARCH_HISTORY_KEY = 'searchHistory';
 const channelThemes = {
@@ -102,7 +104,7 @@ const SearchResults = () => {
     if (!raw) return null;
     try {
       const parsed = JSON.parse(raw) as {
-        activeTab?: 'all' | 'questions' | 'topics' | 'users';
+        activeTab?: 'all' | 'question' | 'expert' | 'skill' | 'post';
         questionSort?: 'relevance' | 'latest' | 'hot';
         questionCategoryFilter?: string;
       };
@@ -114,9 +116,9 @@ const SearchResults = () => {
 
   const [searchQuery, setSearchQuery] = useState(initialQuery);
   const [debouncedQuery, setDebouncedQuery] = useState(initialQuery);
-  const [activeTab, setActiveTab] = useState<'all' | 'questions' | 'topics' | 'users'>(() => {
+  const [activeTab, setActiveTab] = useState<'all' | 'question' | 'expert' | 'skill' | 'post'>(() => {
     const cached = readUiState()?.activeTab;
-    if (cached === 'questions' || cached === 'topics' || cached === 'users') return cached;
+    if (cached === 'question' || cached === 'expert' || cached === 'skill' || cached === 'post') return cached;
     return 'all';
   });
   const [questionSort, setQuestionSort] = useState<'relevance' | 'latest' | 'hot'>(() => {
@@ -134,10 +136,12 @@ const SearchResults = () => {
         ? '搜租房、法律、生活服务'
         : channel === 'hobbies'
           ? '搜摄影、音乐、技能话题'
-          : '搜索问题/话题/用户';
+          : '搜索问题/专家/技能/动态';
   const contentTopOffset = 'calc(env(safe-area-inset-top) + 8rem)';
 
   const { data: results, isLoading, error, refetch } = useSearch(debouncedQuery);
+  const { data: hotKeywords = [] } = useHotKeywords('all');
+  const { user } = useAuth();
 
   // Debounce search
   useEffect(() => {
@@ -213,6 +217,15 @@ const SearchResults = () => {
       localStorage.setItem(historyStorageKey, JSON.stringify(next));
       return next;
     });
+
+    if (user) {
+      (supabase as any)
+        .rpc('upsert_search_history', {
+          p_query_text: normalized,
+          p_query_type: 'all',
+        })
+        .catch(() => {});
+    }
   };
 
   const handleTopicSelect = (topic: string) => {
@@ -220,11 +233,15 @@ const SearchResults = () => {
     setSearchFocused(false);
   };
 
-  const totalResults = (results?.questions.length || 0) + (results?.topics.length || 0) + (results?.users.length || 0);
+  const totalResults = (results?.questions.length || 0)
+    + (results?.experts.length || 0)
+    + (results?.skills.length || 0)
+    + (results?.posts.length || 0);
   const noResults = debouncedQuery.trim() && !isLoading && totalResults === 0;
   const showError = debouncedQuery.trim() && !!error;
   const showSuggestions = searchFocused && searchQuery.trim().length > 0;
   const showDefaultState = !debouncedQuery.trim() && !showSuggestions;
+  const displayHotTerms = hotKeywords.length > 0 ? hotKeywords : popularSearchTerms;
 
   const suggestionTerms = useMemo(() => {
     const keyword = searchQuery.trim().toLowerCase();
@@ -233,7 +250,7 @@ const SearchResults = () => {
     const relatedTerms = getSearchRelatedTerms(searchQuery);
     const candidates: Array<{ term: string; source: 'recent' | 'popular' | 'related' | 'content' }> = [
       ...recentSearches.map((term) => ({ term, source: 'recent' as const })),
-      ...popularSearchTerms.map((term) => ({ term, source: 'popular' as const })),
+      ...displayHotTerms.map((term) => ({ term, source: 'popular' as const })),
       ...relatedTerms.map((term) => ({ term, source: 'related' as const })),
       ...demoQuestions.flatMap((item) => [item.title, ...(item.tags || [])]).map((term) => ({ term, source: 'content' as const })),
       ...demoExperts.flatMap((item) => [item.title || '', ...(item.tags || [])]).map((term) => ({ term, source: 'content' as const })),
@@ -266,7 +283,7 @@ const SearchResults = () => {
       .sort((a, b) => b[1] - a[1])
       .slice(0, 8)
       .map(([lower]) => labelByTerm.get(lower) || lower);
-  }, [searchQuery, recentSearches]);
+  }, [displayHotTerms, searchQuery, recentSearches]);
 
   const relatedTerms = useMemo(() => {
     if (!debouncedQuery.trim()) return [] as string[];
@@ -421,7 +438,7 @@ const SearchResults = () => {
               <h2 className="app-section-title">热门搜索</h2>
             </div>
             <div className="flex flex-wrap gap-2 mb-6">
-              {popularSearchTerms.map((topic, i) => (
+              {displayHotTerms.map((topic, i) => (
                 <button
                   key={i}
                   onClick={() => handleTopicSelect(topic)}
@@ -473,7 +490,7 @@ const SearchResults = () => {
                 可换一个关键词，或直接发布问题让专家看到
               </p>
               <div className="mb-4 flex flex-wrap justify-center gap-2">
-                {popularSearchTerms.slice(0, 4).map((term) => (
+                {displayHotTerms.slice(0, 4).map((term) => (
                   <button
                     key={term}
                     onClick={() => handleTopicSelect(term)}
@@ -574,14 +591,17 @@ const SearchResults = () => {
                 <TabsTrigger value="all" className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
                   全部({totalResults})
                 </TabsTrigger>
-                <TabsTrigger value="questions" className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                <TabsTrigger value="question" className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
                   问题({results?.questions.length || 0})
                 </TabsTrigger>
-                <TabsTrigger value="topics" className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                  话题({results?.topics.length || 0})
+                <TabsTrigger value="expert" className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  专家({results?.experts.length || 0})
                 </TabsTrigger>
-                <TabsTrigger value="users" className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                  用户({results?.users.length || 0})
+                <TabsTrigger value="skill" className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  技能({results?.skills.length || 0})
+                </TabsTrigger>
+                <TabsTrigger value="post" className="flex-1 rounded-full text-sm data-[state=active]:bg-white data-[state=active]:shadow-sm">
+                  动态({results?.posts.length || 0})
                 </TabsTrigger>
               </TabsList>
 
@@ -590,31 +610,39 @@ const SearchResults = () => {
                 {results && results.questions.length > 0 && (
                   <QuestionSection
                     questions={filteredSortedQuestions.slice(0, 3)}
-                    onViewMore={() => setActiveTab('questions')}
+                    onViewMore={() => setActiveTab('question')}
                     showMore={filteredSortedQuestions.length > 3}
                     onOpenQuestion={(id) => navigate(`/question/${id}`, { state: buildFromState(location) })}
                   />
                 )}
-                {results && results.topics.length > 0 && (
-                  <TopicSection
-                    topics={results.topics.slice(0, 2)}
-                    onViewMore={() => setActiveTab('topics')}
-                    showMore={results.topics.length > 2}
-                    onOpenTopic={(id) => navigate(`/topic/${id}`, { state: buildFromState(location) })}
+                {results && results.experts.length > 0 && (
+                  <ExpertSection
+                    experts={results.experts.slice(0, 3)}
+                    onViewMore={() => setActiveTab('expert')}
+                    showMore={results.experts.length > 3}
+                    onOpenExpert={(id) => navigate(`/expert/${id}`, { state: buildFromState(location) })}
                   />
                 )}
-                {results && results.users.length > 0 && (
-                  <UserSection
-                    users={results.users.slice(0, 3)}
-                    onViewMore={() => setActiveTab('users')}
-                    showMore={results.users.length > 3}
-                    onOpenChat={(id) => navigate(`/chat/${id}`, { state: buildFromState(location) })}
+                {results && results.skills.length > 0 && (
+                  <SkillSection
+                    skills={results.skills.slice(0, 3)}
+                    onViewMore={() => setActiveTab('skill')}
+                    showMore={results.skills.length > 3}
+                    onOpenSkillExpert={(expertId) => navigate(`/expert/${expertId}`, { state: buildFromState(location) })}
+                  />
+                )}
+                {results && results.posts.length > 0 && (
+                  <PostSection
+                    posts={results.posts.slice(0, 3)}
+                    onViewMore={() => setActiveTab('post')}
+                    showMore={results.posts.length > 3}
+                    onOpenPost={() => navigate('/discover', { state: buildFromState(location) })}
                   />
                 )}
               </TabsContent>
 
               {/* Questions tab */}
-              <TabsContent value="questions" className="mt-0 space-y-3">
+              <TabsContent value="question" className="mt-0 space-y-3">
                 {filteredSortedQuestions.map((q) => (
                   <QuestionCard
                     key={q.id}
@@ -634,19 +662,19 @@ const SearchResults = () => {
                 )}
               </TabsContent>
 
-              {/* Topics tab */}
-              <TabsContent value="topics" className="mt-0 space-y-3">
-                {results?.topics.map((t) => (
-                  <TopicCard
-                    key={t.id}
-                    topic={t}
-                    onOpenTopic={(id) => navigate(`/topic/${id}`, { state: buildFromState(location) })}
+              {/* Expert tab */}
+              <TabsContent value="expert" className="mt-0 space-y-3">
+                {results?.experts.map((expert) => (
+                  <ExpertCard
+                    key={expert.id}
+                    expert={expert}
+                    onOpenExpert={(id) => navigate(`/expert/${id}`, { state: buildFromState(location) })}
                   />
                 ))}
-                {results?.topics.length === 0 && (
+                {results?.experts.length === 0 && (
                   <ResultEmptyState
-                    title="没有匹配的话题"
-                    description="可以换一个关键词，或先看看推荐内容。"
+                    title="没有匹配的专家"
+                    description="可以换一个关键词，或去发现页看看推荐专家。"
                     actionLabel="去发现页"
                     onAction={() => navigate('/discover', { state: buildFromState(location) })}
                     secondaryLabel="回到全部"
@@ -655,20 +683,41 @@ const SearchResults = () => {
                 )}
               </TabsContent>
 
-              {/* Users tab */}
-              <TabsContent value="users" className="mt-0 space-y-3">
-                {results?.users.map((u) => (
-                  <UserCard
-                    key={u.id}
-                    user={u}
-                    onOpenChat={(id) => navigate(`/chat/${id}`, { state: buildFromState(location) })}
+              {/* Skills tab */}
+              <TabsContent value="skill" className="mt-0 space-y-3">
+                {results?.skills.map((skill) => (
+                  <SkillCard
+                    key={skill.id}
+                    skill={skill}
+                    onOpenSkillExpert={(expertId) => navigate(`/expert/${expertId}`, { state: buildFromState(location) })}
                   />
                 ))}
-                {results?.users.length === 0 && (
+                {results?.skills.length === 0 && (
                   <ResultEmptyState
-                    title="没有匹配的用户"
-                    description="可先查看问题和话题，或到发现页找达人。"
-                    actionLabel="去找专家"
+                    title="没有匹配的技能服务"
+                    description="换个关键词试试，或到发现页浏览动态。"
+                    actionLabel="去发现页"
+                    onAction={() => navigate('/discover', { state: buildFromState(location) })}
+                    secondaryLabel="回到全部"
+                    onSecondary={() => setActiveTab('all')}
+                  />
+                )}
+              </TabsContent>
+
+              {/* Posts tab */}
+              <TabsContent value="post" className="mt-0 space-y-3">
+                {results?.posts.map((post) => (
+                  <PostCard
+                    key={post.id}
+                    post={post}
+                    onOpenPost={() => navigate('/discover', { state: buildFromState(location) })}
+                  />
+                ))}
+                {results?.posts.length === 0 && (
+                  <ResultEmptyState
+                    title="没有匹配的动态"
+                    description="可以先看看问题和专家，或稍后再试。"
+                    actionLabel="去发现页"
                     onAction={() => navigate('/discover', { state: buildFromState(location) })}
                     secondaryLabel="回到全部"
                     onSecondary={() => setActiveTab('all')}
@@ -771,64 +820,66 @@ const QuestionCard = ({ question: q, onOpenQuestion }: { question: SearchQuestio
   );
 };
 
-const TopicCard = ({ topic: t, onOpenTopic }: { topic: SearchTopic; onOpenTopic: (id: string) => void }) => (
-  <div className="surface-card overflow-hidden rounded-2xl transition-all hover:shadow-md">
-    <button type="button" className="block w-full text-left" onClick={() => onOpenTopic(t.id)}>
-      {t.cover_image && (
-        <img src={t.cover_image} alt={t.title} className="h-32 w-full object-cover" />
-      )}
-    </button>
-    <div className="p-3">
-      <button type="button" className="mb-1 block w-full text-left" onClick={() => onOpenTopic(t.id)}>
-      <h3 className="mb-1 text-sm font-semibold text-foreground">{t.title}</h3>
-      </button>
-      {t.description && (
-        <button type="button" className="mb-2 block w-full text-left" onClick={() => onOpenTopic(t.id)}>
-          <p className="line-clamp-1 text-xs text-muted-foreground">{t.description}</p>
-        </button>
-      )}
-      <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground/80">
-        <span className="flex items-center gap-1 text-muted-foreground">
-          <MessageCircle size={12} />
-          {t.discussions_count} 讨论
-        </span>
-        <div className="flex items-center gap-2">
-          {t.category && <span className="rounded-full app-soft-muted-bg px-2 py-0.5">{t.category}</span>}
-          <button
-            type="button"
-            className="app-chip-neutral px-2 py-0.5 text-[11px]"
-            onClick={() => onOpenTopic(t.id)}
-          >
-            查看
-          </button>
-        </div>
-      </div>
-    </div>
-  </div>
-);
-
-const UserCard = ({ user: u, onOpenChat }: { user: SearchUser; onOpenChat: (id: string) => void }) => (
+const ExpertCard = ({ expert, onOpenExpert }: { expert: SearchExpert; onOpenExpert: (id: string) => void }) => (
   <div className="surface-card flex items-center gap-3 rounded-2xl p-4">
     <Avatar className="w-12 h-12">
-      <AvatarImage src={u.avatar_url || ''} />
-      <AvatarFallback>{(u.nickname || '用')[0]}</AvatarFallback>
+      <AvatarImage src={expert.avatar_url || ''} />
+      <AvatarFallback>{(expert.nickname || '专')[0]}</AvatarFallback>
     </Avatar>
     <div className="flex-1 min-w-0">
-      <h3 className="text-sm font-medium text-foreground">{u.nickname || '匿名用户'}</h3>
-      {u.bio && <p className="line-clamp-1 text-xs text-muted-foreground">{u.bio}</p>}
+      <h3 className="text-sm font-medium text-foreground">{expert.nickname || '匿名专家'}</h3>
+      <p className="line-clamp-1 text-xs text-muted-foreground">{expert.headline || expert.intro || '擅长经验答疑与实战建议'}</p>
     </div>
     <div className="flex items-center gap-2">
       <button
         type="button"
-        className="app-chip-neutral px-3 py-1 text-xs disabled:cursor-not-allowed disabled:opacity-50"
-        disabled={!u.user_id}
+        className="app-chip-neutral px-3 py-1 text-xs"
+        onClick={() => onOpenExpert(expert.id)}
+      >
+        查看
+      </button>
+    </div>
+  </div>
+);
+
+const SkillCard = ({ skill, onOpenSkillExpert }: { skill: SearchSkill; onOpenSkillExpert: (expertId: string) => void }) => (
+  <div className="surface-card rounded-2xl p-4 transition-all hover:shadow-md">
+    <div className="mb-2 flex items-start justify-between gap-3">
+      <h3 className="text-sm font-semibold text-foreground">{skill.title}</h3>
+      {skill.price_amount ? (
+        <span className="rounded-full border border-amber-100 bg-amber-50/80 px-2 py-0.5 text-xs font-medium text-amber-700">
+          {skill.price_amount} {skill.price_currency || 'CNY'}
+        </span>
+      ) : null}
+    </div>
+    {skill.description ? (
+      <p className="mb-2 line-clamp-2 text-xs text-muted-foreground">{skill.description}</p>
+    ) : null}
+    <div className="flex items-center justify-between gap-2 text-xs text-muted-foreground">
+      <span>{skill.category_name || '技能服务'}</span>
+      <button
+        type="button"
+        className="app-chip-neutral px-2 py-0.5 text-[11px] disabled:cursor-not-allowed disabled:opacity-50"
+        disabled={!skill.expert_id}
         onClick={() => {
-          if (!u.user_id) return;
-          onOpenChat(u.user_id);
+          if (!skill.expert_id) return;
+          onOpenSkillExpert(skill.expert_id);
         }}
       >
-        私信
+        找我问问
       </button>
+    </div>
+  </div>
+);
+
+const PostCard = ({ post, onOpenPost }: { post: SearchPost; onOpenPost: () => void }) => (
+  <div className="surface-card rounded-2xl p-4 transition-all hover:shadow-md">
+    <button type="button" className="mb-2 block w-full text-left" onClick={onOpenPost}>
+      <p className="line-clamp-3 text-sm text-foreground">{post.content}</p>
+    </button>
+    <div className="flex items-center justify-between gap-3 text-xs text-muted-foreground">
+      <span>{post.author_nickname || '匿名用户'}</span>
+      <span>{post.comment_count || 0} 讨论</span>
     </div>
   </div>
 );
@@ -861,20 +912,20 @@ const QuestionSection = ({
   </div>
 );
 
-const TopicSection = ({
-  topics,
+const ExpertSection = ({
+  experts,
   onViewMore,
   showMore,
-  onOpenTopic,
+  onOpenExpert,
 }: {
-  topics: SearchTopic[];
+  experts: SearchExpert[];
   onViewMore: () => void;
   showMore: boolean;
-  onOpenTopic: (id: string) => void;
+  onOpenExpert: (id: string) => void;
 }) => (
   <div>
     <div className="flex items-center justify-between mb-2">
-      <h3 className="text-base font-semibold text-foreground">相关话题</h3>
+      <h3 className="text-base font-semibold text-foreground">相关专家</h3>
       {showMore && (
         <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={onViewMore}>
           查看更多
@@ -882,27 +933,27 @@ const TopicSection = ({
       )}
     </div>
     <div className="space-y-3">
-      {topics.map((t) => (
-        <TopicCard key={t.id} topic={t} onOpenTopic={onOpenTopic} />
+      {experts.map((expert) => (
+        <ExpertCard key={expert.id} expert={expert} onOpenExpert={onOpenExpert} />
       ))}
     </div>
   </div>
 );
 
-const UserSection = ({
-  users,
+const SkillSection = ({
+  skills,
   onViewMore,
   showMore,
-  onOpenChat,
+  onOpenSkillExpert,
 }: {
-  users: SearchUser[];
+  skills: SearchSkill[];
   onViewMore: () => void;
   showMore: boolean;
-  onOpenChat: (id: string) => void;
+  onOpenSkillExpert: (expertId: string) => void;
 }) => (
   <div>
     <div className="flex items-center justify-between mb-2">
-      <h3 className="text-base font-semibold text-foreground">相关用户</h3>
+      <h3 className="text-base font-semibold text-foreground">相关技能</h3>
       {showMore && (
         <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={onViewMore}>
           查看更多
@@ -910,8 +961,36 @@ const UserSection = ({
       )}
     </div>
     <div className="space-y-3">
-      {users.map((u) => (
-        <UserCard key={u.id} user={u} onOpenChat={onOpenChat} />
+      {skills.map((skill) => (
+        <SkillCard key={skill.id} skill={skill} onOpenSkillExpert={onOpenSkillExpert} />
+      ))}
+    </div>
+  </div>
+);
+
+const PostSection = ({
+  posts,
+  onViewMore,
+  showMore,
+  onOpenPost,
+}: {
+  posts: SearchPost[];
+  onViewMore: () => void;
+  showMore: boolean;
+  onOpenPost: () => void;
+}) => (
+  <div>
+    <div className="flex items-center justify-between mb-2">
+      <h3 className="text-base font-semibold text-foreground">相关动态</h3>
+      {showMore && (
+        <Button variant="ghost" size="sm" className="text-xs text-muted-foreground" onClick={onViewMore}>
+          查看更多
+        </Button>
+      )}
+    </div>
+    <div className="space-y-3">
+      {posts.map((post) => (
+        <PostCard key={post.id} post={post} onOpenPost={onOpenPost} />
       ))}
     </div>
   </div>

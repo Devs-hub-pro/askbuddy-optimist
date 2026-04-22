@@ -82,7 +82,7 @@ export const useProfileStats = () => {
           .or(`buyer_id.eq.${user.id},seller_id.eq.${user.id}`),
         supabase.from('answers').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
         supabase.from('favorites').select('*', { count: 'exact', head: true }).eq('user_id', user.id),
-        supabase.from('user_followers').select('*', { count: 'exact', head: true }).eq('follower_id', user.id),
+        (supabase as any).from('follows').select('*', { count: 'exact', head: true }).eq('follower_id', user.id),
       ]);
 
       return {
@@ -184,8 +184,8 @@ export const useMyFollowing = () => {
     queryFn: async () => {
       if (!user) return [];
 
-      const { data: following, error } = await supabase
-        .from('user_followers')
+      const { data: following, error } = await (supabase as any)
+        .from('follows')
         .select('*')
         .eq('follower_id', user.id)
         .order('created_at', { ascending: false });
@@ -194,7 +194,7 @@ export const useMyFollowing = () => {
 
       if (!following || following.length === 0) return [];
 
-      const followingIds = Array.from(new Set(following.map((item) => item.following_id)));
+      const followingIds = Array.from(new Set(following.map((item: { followee_id: string }) => item.followee_id)));
       const { data: profiles, error: profileError } = await supabase
         .from('profiles')
         .select('user_id, nickname, avatar_url, bio')
@@ -203,9 +203,10 @@ export const useMyFollowing = () => {
       if (profileError) throw profileError;
 
       const profileMap = new Map((profiles || []).map((profile) => [profile.user_id, profile]));
-      return following.map((item) => ({
+      return following.map((item: { followee_id: string; follower_id: string; created_at: string }) => ({
         ...item,
-        profile: profileMap.get(item.following_id) || null,
+        following_id: item.followee_id,
+        profile: profileMap.get(item.followee_id) || null,
       }));
     },
     enabled: !!user,
@@ -261,11 +262,11 @@ export const useUnfollow = () => {
 
   return async (followingId: string) => {
     if (!user) throw new Error('请先登录');
-    const { error } = await supabase
-      .from('user_followers')
+    const { error } = await (supabase as any)
+      .from('follows')
       .delete()
       .eq('follower_id', user.id)
-      .eq('following_id', followingId);
+      .eq('followee_id', followingId);
     if (error) throw error;
   };
 };

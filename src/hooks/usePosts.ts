@@ -38,7 +38,7 @@ export const usePosts = () => {
     queryKey: ['posts', user?.id],
     queryFn: async (): Promise<PostWithProfile[]> => {
       // Fetch posts
-      const { data: posts, error } = await supabase
+      const { data: posts, error } = await (supabase as any)
         .from('posts')
         .select('*')
         .order('created_at', { ascending: false });
@@ -47,7 +47,7 @@ export const usePosts = () => {
       if (!posts || posts.length === 0) return [];
 
       // Fetch profiles for post authors
-      const userIds = [...new Set(posts.map(p => p.user_id))];
+      const userIds = [...new Set(posts.map((p: any) => p.author_id ?? p.user_id))];
       const { data: profiles } = await supabase
         .from('profiles')
         .select('user_id, nickname, avatar_url')
@@ -67,10 +67,14 @@ export const usePosts = () => {
         likedPostIds = new Set((likes || []).map(l => l.post_id));
       }
 
-      return posts.map(post => {
-        const profile = profileMap.get(post.user_id);
+      return posts.map((post: any) => {
+        const authorId = post.author_id ?? post.user_id;
+        const profile = profileMap.get(authorId);
         return {
           ...post,
+          user_id: authorId,
+          likes_count: post.like_count ?? post.likes_count ?? 0,
+          comments_count: post.comment_count ?? post.comments_count ?? 0,
           images: post.images || [],
           topics: post.topics || [],
           profile_nickname: profile?.nickname || '匿名用户',
@@ -88,7 +92,7 @@ export const usePostComments = (postId: string | null) => {
     queryKey: ['post-comments', postId],
     enabled: !!postId,
     queryFn: async (): Promise<CommentWithProfile[]> => {
-      const { data: comments, error } = await supabase
+      const { data: comments, error } = await (supabase as any)
         .from('post_comments')
         .select('*')
         .eq('post_id', postId!)
@@ -97,7 +101,7 @@ export const usePostComments = (postId: string | null) => {
       if (error) throw error;
       if (!comments || comments.length === 0) return [];
 
-      const userIds = [...new Set(comments.map(c => c.user_id))];
+      const userIds = [...new Set(comments.map((c: any) => c.author_id ?? c.user_id))];
       const { data: profiles } = await supabase
         .from('profiles')
         .select('user_id, nickname, avatar_url')
@@ -107,10 +111,13 @@ export const usePostComments = (postId: string | null) => {
         (profiles || []).map(p => [p.user_id, p])
       );
 
-      return comments.map(comment => {
-        const profile = profileMap.get(comment.user_id);
+      return comments.map((comment: any) => {
+        const authorId = comment.author_id ?? comment.user_id;
+        const profile = profileMap.get(authorId);
         return {
           ...comment,
+          user_id: authorId,
+          likes_count: comment.like_count ?? comment.likes_count ?? 0,
           profile_nickname: profile?.nickname || '匿名用户',
           profile_avatar: profile?.avatar_url || null,
         };
@@ -162,10 +169,10 @@ export const useCreatePost = () => {
     mutationFn: async (data: { content: string; topics?: string[]; images?: string[] }) => {
       if (!user) throw new Error('请先登录');
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('posts')
         .insert({
-          user_id: user.id,
+          author_id: user.id,
           content: data.content,
           topics: data.topics || [],
           images: data.images || [],
@@ -192,11 +199,11 @@ export const useAddComment = () => {
     mutationFn: async ({ postId, content }: { postId: string; content: string }) => {
       if (!user) throw new Error('请先登录');
 
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('post_comments')
         .insert({
           post_id: postId,
-          user_id: user.id,
+          author_id: user.id,
           content,
         });
       if (error) throw error;
@@ -220,11 +227,11 @@ export const useDeletePost = () => {
   return useMutation({
     mutationFn: async (postId: string) => {
       if (!user) throw new Error('请先登录');
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('posts')
         .delete()
         .eq('id', postId)
-        .eq('user_id', user.id);
+        .eq('author_id', user.id);
       if (error) throw error;
     },
     onSuccess: () => {

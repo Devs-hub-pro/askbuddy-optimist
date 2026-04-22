@@ -26,10 +26,10 @@ export const useLocalPosts = (cityOverride?: string) => {
       const profileMap = new Map(localProfiles.map(p => [p.user_id, p]));
 
       // Fetch posts from same-city users
-      const { data: posts, error } = await supabase
+      const { data: posts, error } = await (supabase as any)
         .from('posts')
         .select('*')
-        .in('user_id', localUserIds)
+        .in('author_id', localUserIds)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -45,10 +45,12 @@ export const useLocalPosts = (cityOverride?: string) => {
         likedIds = new Set((likes || []).map(l => l.post_id));
       }
 
-      return posts.map(post => {
-        const p = profileMap.get(post.user_id);
+      return posts.map((post: any) => {
+        const authorId = post.author_id ?? post.user_id;
+        const p = profileMap.get(authorId);
         return {
           ...post,
+          user_id: authorId,
           images: post.images || [],
           topics: post.topics || [],
           profile_nickname: p?.nickname || '匿名用户',

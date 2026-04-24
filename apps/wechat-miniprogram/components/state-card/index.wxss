@@ -1,0 +1,13 @@
+.state-card {
+  margin-top: 24rpx;
+  text-align: center;
+}
+
+.state-card .subtitle {
+  margin-top: 12rpx;
+}
+
+.action-btn {
+  margin-top: 24rpx;
+  border-radius: 999rpx;
+}

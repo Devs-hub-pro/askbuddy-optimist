@@ -1,0 +1,16 @@
+<view class="container safe-bottom">
+  <view class="card">
+    <view class="title" style="font-size: 32rpx;">发布你的问题</view>
+    <view class="subtitle" style="margin-top: 8rpx;">结构和文案保持 iOS 基线，先走 Mock 提交链路。</view>
+
+    <view style="margin-top: 20rpx;">
+      <input class="input" placeholder="问题标题" maxlength="80" bindinput="onTitleInput" value="{{title}}" />
+    </view>
+
+    <view style="margin-top: 16rpx;">
+      <textarea class="textarea" placeholder="详细描述你的问题" maxlength="1000" auto-height bindinput="onContentInput" value="{{content}}" />
+    </view>
+
+    <button class="button-primary" style="margin-top: 20rpx;" loading="{{submitting}}" bindtap="submitQuestion">提交问题</button>
+  </view>
+</view>

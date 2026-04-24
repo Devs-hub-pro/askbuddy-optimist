@@ -1,0 +1,12 @@
+<view class="container safe-bottom">
+  <state-card wx:if="{{loading}}" title="加载中" desc="正在获取详情" />
+  <state-card wx:elif="{{error}}" title="加载失败" desc="{{error}}" actionText="重试" bind:action="loadDetail" />
+
+  <view wx:else class="card">
+    <view class="title">{{detail.title}}</view>
+    <view class="subtitle" style="margin-top: 12rpx;">{{detail.content}}</view>
+    <view class="subtitle" style="margin-top: 16rpx;">状态：{{detail.status}}</view>
+    <view class="subtitle" style="margin-top: 6rpx;">作者：{{detail.authorName}} · {{detail.createdAt}}</view>
+    <view class="subtitle" style="margin-top: 6rpx;">回答数：{{detail.answerCount}}</view>
+  </view>
+</view>

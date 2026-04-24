@@ -1,0 +1,6 @@
+input {
+  background: #fff;
+  border: 1px solid var(--ab-border);
+  border-radius: 16rpx;
+  padding: 18rpx;
+}

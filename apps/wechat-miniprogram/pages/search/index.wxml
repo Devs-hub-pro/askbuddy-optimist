@@ -1,0 +1,17 @@
+<view class="container safe-bottom">
+  <view class="card">
+    <input placeholder="搜索问题/关键词" value="{{keyword}}" bindinput="onKeywordInput" confirm-type="search" bindconfirm="onConfirmSearch" />
+    <button class="button-primary" size="mini" style="margin-top: 14rpx;" bindtap="onConfirmSearch">搜索</button>
+  </view>
+
+  <state-card wx:if="{{loading}}" title="搜索中" desc="正在匹配相关问题" />
+  <state-card wx:elif="{{error}}" title="搜索失败" desc="{{error}}" actionText="重试" bind:action="runSearch" />
+  <state-card wx:elif="{{!list.length}}" title="暂无结果" desc="换个关键词试试" />
+
+  <view wx:else>
+    <view wx:for="{{list}}" wx:key="id" class="card" style="margin-top: 20rpx;" bindtap="goDetail" data-id="{{item.id}}">
+      <view class="title" style="font-size: 30rpx;">{{item.title}}</view>
+      <view class="subtitle" style="margin-top: 10rpx;">{{item.content}}</view>
+    </view>
+  </view>
+</view>

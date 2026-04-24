@@ -9,7 +9,7 @@
 字段、状态机、RPC 命名冲突一律回 A 仲裁。
 
 ## 2. 当前目录边界（严格执行）
-- iOS：`src + ios`
+- iOS：`src + apps/ios`
 - Android：`apps/android`
 - 小程序：`apps/wechat-miniprogram`
 - 后端：`supabase`
@@ -37,4 +37,3 @@
 不允许：
 - 新 Pack
 - 大规模重构
-- 大范围目录搬迁（需单独迁移窗口）

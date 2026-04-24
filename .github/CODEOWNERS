@@ -1,0 +1,18 @@
+# Global fallback owner
+* @Devs-hub-pro
+
+# Backend and shared contracts (A)
+/supabase/** @Devs-hub-pro
+/packages/shared-types/** @Devs-hub-pro
+/packages/shared-api/** @Devs-hub-pro
+/docs/** @Devs-hub-pro
+
+# iOS (B)
+/apps/ios/** @Devs-hub-pro
+/src/** @Devs-hub-pro
+
+# Android (C)
+/apps/android/** @Devs-hub-pro
+
+# WeChat Mini Program (D)
+/apps/wechat-miniprogram/** @Devs-hub-pro

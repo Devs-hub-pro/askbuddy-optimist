@@ -1,35 +1,34 @@
 # 当前仓库结构说明（A 主线）
 
 日期：2026-04-24  
-状态：Phase 1 Freeze，暂停多端功能扩展，先做层级收口
+状态：Phase 1 Freeze，目录层级已完成同层级收口
 
 ## 当前可运行主路径
-- iOS：`src + ios`
+- iOS：`src + apps/ios`
 - Android：`apps/android`
 - 微信小程序：`apps/wechat-miniprogram`
 - 后端：`supabase`
 - 共享层：`packages/shared-types`、`packages/shared-api`
 
-## 当前风险点
-- 三端目录未同层级，存在认知成本：
-- iOS 在根目录
-- Android/小程序在 `apps/` 下
+## 当前目录结构
+- 三端已同层级放置在 `apps/` 下：
+- iOS：`apps/ios`
+- Android：`apps/android`
+- 微信小程序：`apps/wechat-miniprogram`
 
-## 当前执行策略（不打断可运行链路）
-1. 先不搬迁 `ios`、`android` 可运行工程。
-2. 先通过文档和占位目录统一“未来目标结构”。
-3. 再在单独迁移窗口逐端迁移，且每步可回滚。
+## 当前执行策略
+1. 多端开发统一在 `apps/*` 目录下进行。
+2. 后端与跨端契约冲突以 A 主线为准。
+3. Freeze 阶段仅接受 bugfix / 小 patch / cleanup。
 
 ## 目标结构（下一阶段）
 ```text
 apps/
   ios/
   android/
-  miniapp-wechat/
+  wechat-miniprogram/
 packages/
   shared-types/
   shared-api/
 supabase/
 ```
-
-> 说明：当前只做“路径规范与占位”，不做大规模目录搬迁。

@@ -1,7 +1,11 @@
-# apps/ios（目标路径占位）
+# apps/ios（iOS 主工程路径）
 
-当前阶段（Freeze）说明：
+当前仓库的 iOS 原生工程主路径为：
 
-- 本目录是后续 iOS 归一到 `apps/*` 的目标占位路径。
-- 当前可运行 iOS 主路径仍是：`src + ios`。
-- 在正式目录迁移窗口前，不在本目录开展主线开发。
+- `apps/ios/App/App.xcodeproj`
+
+说明：
+
+- iOS 开发请统一在 `apps/ios` 下进行。
+- 多端目录采用同层级结构：`apps/ios`、`apps/android`、`apps/wechat-miniprogram`。
+- 后端字段、状态机、RPC 命名冲突一律以 A 主线（后端契约与共享层）为准。

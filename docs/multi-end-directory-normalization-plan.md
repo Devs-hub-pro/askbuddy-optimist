@@ -1,17 +1,16 @@
-# 多端目录层级定版执行清单（先整理结构，再恢复开发）
+# 多端目录层级定版执行清单（执行完成记录）
 
 日期：2026-04-24  
-状态：执行前方案（暂停 Android / 小程序功能开发）
+状态：已执行完成（目录已归一到 apps 同层级）
 
 ## 1. 本次目标
 
 在不新增功能、不改后端契约的前提下，完成目录层级统一，避免 iOS / Android / 小程序后续协作混乱。
 
-本次只做：
+本次已完成：
 - 路径定版
-- 目录迁移计划
-- 执行顺序与回滚点
-- 恢复开发门槛
+- 目录迁移落地
+- 关键命令路径更新
 
 本次不做：
 - 新功能开发
@@ -25,9 +24,9 @@
 ```text
 askbuddy-optimist/
   apps/
-    ios/                # iOS 前端主路径（承接当前 src）
-    android/            # Android 前端/工程主路径（承接当前 android）
-    miniapp-wechat/     # 小程序主路径（保留）
+    ios/                  # iOS 原生工程主路径
+    android/              # Android 原生工程主路径
+    wechat-miniprogram/   # 微信小程序主路径
   packages/
     shared-types/
     shared-api/
@@ -43,60 +42,29 @@ askbuddy-optimist/
 
 ## 3. 当前基线（更新后事实）
 
-- iOS 当前可运行主线：`src + ios`
+- iOS 当前可运行主线：`src + apps/ios`
 - Android 当前可运行主线：`apps/android`
 - 小程序当前主线：`apps/wechat-miniprogram`
-- 占位目录：`apps/ios-app`
-
-风险：
-- iOS 仍是根目录主线，Android/小程序在 apps 下，存在层级不完全统一。
+- 根目录 `ios/` 已迁移收口到 `apps/ios`
 
 ---
 
-## 4. 迁移策略（两阶段，低风险）
+## 4. 执行结果（目录归一已完成）
 
-## 阶段 A：冻结与标注（今天可做）
-目标：先停止混乱，不立即搬运大目录。
+1. ✅ Android 已归一：`apps/android`
+2. ✅ 小程序已归一：`apps/wechat-miniprogram`
+3. ✅ iOS 原生工程已归一：`apps/ios`
 
-操作：
-1. 冻结 B/C/D 功能开发（只允许结构 PR）。
-2. 文档声明“唯一主路径”（当前阶段）：
-   - iOS：`src + ios`
-   - Android：`apps/android`
-   - Miniapp：`apps/wechat-miniprogram`
-3. 占位目录明确标注：
-   - `apps/ios-app`：占位，禁止开发
-   - （Android 已归一）无 `apps/android-app` 占位目录
-
-通过标准：
-- 团队对当前“暂行主路径”无歧义。
-
-回滚：
-- 无需回滚（仅文档层变更）。
-
----
-
-## 阶段 B：一次性目录归一（执行中）
-目标：把三端统一到 `apps/*` 下。
-
-当前进度：
-1. ✅ Android 先归一已完成（风险最低）  
-   - `android` -> `apps/android`
-2. 下一步：iOS 前端后归一（中风险）  
-   - `src` 迁移方案先定（可先映射，不必一步搬完）
-3. iOS 原生工程路径再评估  
-   - `ios` 是否迁到 `apps/ios-native`（可延后）
-
-关键原则：
-- 一次只迁一个端。
-- 每步都要“可构建 + 可运行 + 可回滚”。
+当前约束：
+- iOS/Android/小程序后续开发统一在 `apps/*` 目录进行。
+- `src` 仍作为 Web/H5 与跨端 UI 基线代码存在（不等于 iOS 原生工程目录）。
 
 ---
 
 ## 5. 执行前检查清单（必须全绿）
 
 1. 当前分支干净或已提交 checkpoint。  
-2. 已创建迁移专用分支（建议：`chore/normalize-multi-end-layout`）。  
+2. 已创建迁移专用分支并合并。  
 3. iOS/Android 当前构建命令可通过。  
 4. CI/本地冒烟命令可通过。  
 5. 已约定冻结窗口，不并行开发功能分支。
@@ -127,14 +95,14 @@ npm run build
 npm run test:contracts
 npm run test:smoke
 
-# iOS（按现有工程）
-xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator build
+# iOS（归一后）
+xcodebuild -project apps/ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator build
 
 # Android（按现有工程）
 cd apps/android && ./gradlew assembleDebug
 ```
 
-> 注：目录归一后命令中的路径要同步调整。
+> 注：`capacitor.config.ts` 中 iOS/Android path 也需保持和 `apps/*` 一致。
 
 ---
 
@@ -167,7 +135,7 @@ cd apps/android && ./gradlew assembleDebug
 
 ---
 
-## 11. 本轮建议结论
+## 11. 本轮结论
 
-先执行“阶段 A（冻结与标注）”，再安排“阶段 B（一次性目录归一）”。  
-不要边开发功能边搬目录，这是最容易引发混乱的做法。
+目录层级已完成归一。  
+后续进入常规开发阶段时，优先保证“按平台目录分责 + 按分支并行 + 共享 staging 联调”。

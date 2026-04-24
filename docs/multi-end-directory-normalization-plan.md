@@ -41,15 +41,15 @@ askbuddy-optimist/
 
 ---
 
-## 3. 当前基线（执行前事实）
+## 3. 当前基线（更新后事实）
 
 - iOS 当前可运行主线：`src + ios`
-- Android 当前可运行主线：`android`
-- 小程序当前主线：`apps/miniapp-wechat`
-- 占位目录：`apps/ios-app`、`apps/android-app`
+- Android 当前可运行主线：`apps/android`
+- 小程序当前主线：`apps/wechat-miniprogram`
+- 占位目录：`apps/ios-app`
 
 风险：
-- iOS/Android 存在“双路径感知”，新人容易改错目录。
+- iOS 仍是根目录主线，Android/小程序在 apps 下，存在层级不完全统一。
 
 ---
 
@@ -62,11 +62,11 @@ askbuddy-optimist/
 1. 冻结 B/C/D 功能开发（只允许结构 PR）。
 2. 文档声明“唯一主路径”（当前阶段）：
    - iOS：`src + ios`
-   - Android：`android`
-   - Miniapp：`apps/miniapp-wechat`
+   - Android：`apps/android`
+   - Miniapp：`apps/wechat-miniprogram`
 3. 占位目录明确标注：
    - `apps/ios-app`：占位，禁止开发
-   - `apps/android-app`：占位，禁止开发
+   - （Android 已归一）无 `apps/android-app` 占位目录
 
 通过标准：
 - 团队对当前“暂行主路径”无歧义。
@@ -76,13 +76,13 @@ askbuddy-optimist/
 
 ---
 
-## 阶段 B：一次性目录归一（建议单独窗口执行）
+## 阶段 B：一次性目录归一（执行中）
 目标：把三端统一到 `apps/*` 下。
 
-建议顺序：
-1. Android 先归一（风险最低）  
+当前进度：
+1. ✅ Android 先归一已完成（风险最低）  
    - `android` -> `apps/android`
-2. iOS 前端后归一（中风险）  
+2. 下一步：iOS 前端后归一（中风险）  
    - `src` 迁移方案先定（可先映射，不必一步搬完）
 3. iOS 原生工程路径再评估  
    - `ios` 是否迁到 `apps/ios-native`（可延后）
@@ -131,7 +131,7 @@ npm run test:smoke
 xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug -sdk iphonesimulator build
 
 # Android（按现有工程）
-cd android && ./gradlew assembleDebug
+cd apps/android && ./gradlew assembleDebug
 ```
 
 > 注：目录归一后命令中的路径要同步调整。

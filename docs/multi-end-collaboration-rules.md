@@ -10,7 +10,7 @@
 
 ## 2. 当前目录边界（严格执行）
 - iOS：`src + ios`
-- Android：`android`
+- Android：`apps/android`
 - 小程序：`apps/wechat-miniprogram`
 - 后端：`supabase`
 - 共享：`packages/shared-types`、`packages/shared-api`

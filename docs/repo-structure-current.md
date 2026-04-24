@@ -5,15 +5,15 @@
 
 ## 当前可运行主路径
 - iOS：`src + ios`
-- Android：`android`
+- Android：`apps/android`
 - 微信小程序：`apps/wechat-miniprogram`
 - 后端：`supabase`
 - 共享层：`packages/shared-types`、`packages/shared-api`
 
 ## 当前风险点
 - 三端目录未同层级，存在认知成本：
-  - iOS/Android 在根目录
-  - 小程序在 `apps/` 下
+- iOS 在根目录
+- Android/小程序在 `apps/` 下
 
 ## 当前执行策略（不打断可运行链路）
 1. 先不搬迁 `ios`、`android` 可运行工程。

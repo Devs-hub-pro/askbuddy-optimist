@@ -6,7 +6,8 @@
 
 - 搜索对象类型：`question|expert|skill|post`
 - 通用分页响应
-- 核心状态机枚举（仅与 Freeze 主线一致）
+- 核心状态机枚举（Question/Answer/SkillOffer/Order/Post）
+- 支付状态与通知读取状态最小类型
 
 ## 规则
 

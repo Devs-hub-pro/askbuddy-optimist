@@ -20,6 +20,7 @@ import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 import { mapExpertToUIModel, mapQuestionToUIModel, mergeUniqueById } from '@/lib/adapters/contentAdapters';
 import { isNativeApp } from '@/utils/platform';
 import { buildFromState } from '@/utils/navigation';
+import AppScreen from '@/components/layout/AppScreen';
 
 interface LocationState {
   location?: string;
@@ -211,7 +212,7 @@ const Index = () => {
   );
 
   return (
-    <div className="app-container bg-white pb-16">
+    <AppScreen className="bg-white" includeBottomNavPadding>
       {typeof document !== 'undefined' ? createPortal(fixedHeader, document.body) : null}
 
       <div
@@ -527,7 +528,7 @@ const Index = () => {
       </div>
       
       <BottomNav />
-    </div>
+    </AppScreen>
   );
 };
 

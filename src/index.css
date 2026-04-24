@@ -204,6 +204,14 @@
   .app-section-subtitle {
     @apply mt-1 text-xs leading-5 text-muted-foreground;
   }
+
+  .app-platform-screen {
+    overscroll-behavior-y: contain;
+  }
+
+  .app-bottom-nav-android {
+    height: calc(4rem + env(safe-area-inset-bottom));
+  }
 }
 
 body[data-native-app='true'] .app-container {
@@ -217,6 +225,19 @@ body[data-native-app='true'] .fixed.max-w-md {
   right: 0;
   max-width: none;
   transform: none;
+}
+
+body.platform-android {
+  --radius: 0.875rem;
+}
+
+body[data-native-platform='android'] .surface-card {
+  border-radius: 1rem;
+}
+
+body[data-native-platform='android'][data-keyboard-open='true'] .app-bottom-nav-android {
+  transform: translateY(120%);
+  transition: transform 180ms ease;
 }
 
 /* Animation utilities */

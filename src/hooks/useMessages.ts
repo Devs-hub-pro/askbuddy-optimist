@@ -3,6 +3,26 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { isAndroidMockMode } from '@/config/runtimeMode';
+
+const androidMockConversations: Conversation[] = [
+  {
+    partner_id: 'android-mock-mentor-1',
+    partner_nickname: '留学顾问_演示',
+    partner_avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+    last_message: '你的选校清单我看过了，今晚可以先聊时间线。',
+    last_message_time: new Date(Date.now() - 1000 * 60 * 18).toISOString(),
+    unread_count: 1,
+  },
+  {
+    partner_id: 'android-mock-mentor-2',
+    partner_nickname: '求职教练_演示',
+    partner_avatar: 'https://randomuser.me/api/portraits/men/42.jpg',
+    last_message: '简历我给你标了三处可优化点，记得看。',
+    last_message_time: new Date(Date.now() - 1000 * 60 * 75).toISOString(),
+    unread_count: 2,
+  },
+];
 
 const isMissingRpcError = (error: unknown, functionName: string) => {
   const message = error instanceof Error ? error.message : String(error || '');
@@ -39,6 +59,7 @@ export const useConversations = () => {
   return useQuery({
     queryKey: ['conversations', user?.id],
     queryFn: async (): Promise<Conversation[]> => {
+      if (isAndroidMockMode()) return androidMockConversations;
       if (!user) return [];
 
       const rpcResult = await supabase.rpc('get_user_conversations');
@@ -123,6 +144,24 @@ export const useMessagesWithUser = (partnerId: string) => {
   const query = useQuery({
     queryKey: ['messages', user?.id, partnerId],
     queryFn: async (): Promise<Message[]> => {
+      if (isAndroidMockMode() && partnerId) {
+        return [
+          {
+            id: 'android-mock-msg-1',
+            sender_id: partnerId,
+            receiver_id: user?.id || 'android-mock-user',
+            content: '这是安卓演示消息链路，后续会切到真实会话接口。',
+            message_type: 'text',
+            read_at: null,
+            created_at: new Date(Date.now() - 1000 * 60 * 12).toISOString(),
+            sender_nickname: '演示顾问',
+            sender_avatar: 'https://randomuser.me/api/portraits/women/44.jpg',
+            receiver_nickname: '我',
+            receiver_avatar: null,
+          },
+        ];
+      }
+
       if (!user || !partnerId) return [];
 
       const { data: messages, error } = await supabase
@@ -153,13 +192,14 @@ export const useMessagesWithUser = (partnerId: string) => {
         receiver_avatar: profilesMap.get(message.receiver_id)?.avatar_url || null,
       }));
     },
-    enabled: !!user && !!partnerId,
+    enabled: (!!user && !!partnerId) || (isAndroidMockMode() && !!partnerId),
     staleTime: 10_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
+    if (isAndroidMockMode()) return;
     if (!user || !partnerId) return;
 
     const channel = supabase
@@ -212,6 +252,10 @@ export const useSendMessage = () => {
       content: string;
       message_type?: string;
     }) => {
+      if (isAndroidMockMode()) {
+        return `android-mock-message-${Date.now()}`;
+      }
+
       if (!user) throw new Error('请先登录');
 
       const rpcResult = await supabase.rpc('send_direct_message', {
@@ -320,6 +364,7 @@ export const useUnreadMessageCount = () => {
   const query = useQuery({
     queryKey: ['unread-count', user?.id],
     queryFn: async () => {
+      if (isAndroidMockMode()) return 3;
       if (!user) return 0;
 
       const { count, error } = await supabase
@@ -332,13 +377,14 @@ export const useUnreadMessageCount = () => {
       if (error) throw error;
       return count || 0;
     },
-    enabled: !!user,
+    enabled: !!user || isAndroidMockMode(),
     staleTime: 15_000,
     gcTime: 5 * 60_000,
     refetchOnWindowFocus: false,
   });
 
   useEffect(() => {
+    if (isAndroidMockMode()) return;
     if (!user) return;
 
     const channel = supabase

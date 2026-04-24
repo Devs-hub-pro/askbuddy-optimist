@@ -23,6 +23,7 @@ import PageStateCard from '@/components/common/PageStateCard';
 import { buildFromState, navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import { isNativeApp } from '@/utils/platform';
+import AppScreen from '@/components/layout/AppScreen';
 
 const ExpertDetail = () => {
   const { id } = useParams();
@@ -42,15 +43,15 @@ const ExpertDetail = () => {
 
   if (!isDemoExpert && isLoading) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-white via-slate-50/80 to-slate-50 p-4">
+      <AppScreen className="flex items-center justify-center bg-gradient-to-b from-white via-slate-50/80 to-slate-50 p-4">
         <PageStateCard variant="loading" title="正在加载达人信息…" />
-      </div>
+      </AppScreen>
     );
   }
 
   if (!resolvedExpert) {
     return (
-      <div className="min-h-[100dvh] flex items-center justify-center bg-gradient-to-b from-white via-slate-50/80 to-slate-50 p-4">
+      <AppScreen className="flex items-center justify-center bg-gradient-to-b from-white via-slate-50/80 to-slate-50 p-4">
         <PageStateCard
           variant="error"
           title="暂时无法打开达人信息"
@@ -58,7 +59,7 @@ const ExpertDetail = () => {
           actionLabel="返回上页"
           onAction={() => navigateBackOr(navigate, '/', { location })}
         />
-      </div>
+      </AppScreen>
     );
   }
 
@@ -72,7 +73,7 @@ const ExpertDetail = () => {
   };
 
   return (
-    <div className="app-container bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-20 min-h-[100dvh]">
+    <AppScreen className="bg-gradient-to-b from-white via-slate-50/80 to-slate-50 pb-20">
       <SubPageHeader title="咨询页" onBack={() => navigateBackOr(navigate, '/', { location })} />
       
       <div className="px-4 pb-6 pt-4 space-y-5">
@@ -274,7 +275,7 @@ const ExpertDetail = () => {
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </AppScreen>
   );
 };
 

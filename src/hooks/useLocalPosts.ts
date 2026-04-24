@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import type { PostWithProfile } from './usePosts';
+import { isAndroidMockMode } from '@/config/runtimeMode';
 
 export const useLocalPosts = (cityOverride?: string) => {
   const { user, profile } = useAuth();
@@ -9,8 +10,28 @@ export const useLocalPosts = (cityOverride?: string) => {
 
   return useQuery({
     queryKey: ['local-posts', user?.id, effectiveCity],
-    enabled: !!effectiveCity,
+    enabled: !!effectiveCity || isAndroidMockMode(),
     queryFn: async (): Promise<PostWithProfile[]> => {
+      if (isAndroidMockMode()) {
+        return [
+          {
+            id: 'android-mock-local-post-1',
+            user_id: 'android-mock-local-user',
+            content: `同城流演示：${effectiveCity || '本地'}求职互助群今晚 8 点分享（Mock）。`,
+            images: [],
+            video: null,
+            topics: ['同城', '活动'],
+            likes_count: 4,
+            comments_count: 2,
+            shares_count: 0,
+            created_at: new Date(Date.now() - 1000 * 60 * 20).toISOString(),
+            profile_nickname: '同城用户_演示',
+            profile_avatar: 'https://randomuser.me/api/portraits/lego/6.jpg',
+            liked_by_me: false,
+          },
+        ];
+      }
+
       if (!effectiveCity) return [];
 
       // Get users in the same city

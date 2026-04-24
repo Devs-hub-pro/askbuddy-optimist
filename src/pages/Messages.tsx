@@ -16,6 +16,7 @@ import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 import { isNativeApp } from '@/utils/platform';
 import { buildFromState } from '@/utils/navigation';
 import { mapConversationToUIModel, mergeUniqueById } from '@/lib/adapters/contentAdapters';
+import AppScreen from '@/components/layout/AppScreen';
 
 const Messages = () => {
   const navigate = useNavigate();
@@ -146,7 +147,7 @@ const Messages = () => {
   };
 
   return (
-    <div className="min-h-[100dvh] app-soft-muted-bg pb-16">
+    <AppScreen className="app-soft-muted-bg" includeBottomNavPadding>
       <div className={`fixed top-0 z-[90] w-full shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`}>
         <div className="app-header-bg" style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="px-4 pb-3 pt-2">
@@ -377,7 +378,7 @@ const Messages = () => {
       </div>
 
       <BottomNav />
-    </div>
+    </AppScreen>
   );
 };
 

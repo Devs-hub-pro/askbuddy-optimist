@@ -4,7 +4,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { AuthProvider } from "./contexts/AuthContext";
 import SwipeBackWrapper from "./components/SwipeBackWrapper";
 import BrandSplashScreen from "./components/layout/BrandSplashScreen";
-import { isNativeApp } from "./utils/platform";
+import { useNativeShell } from "./hooks/useNativeShell";
 
 const queryClient = new QueryClient();
 const Index = lazy(() => import("./pages/Index"));
@@ -75,6 +75,7 @@ const RouteLoadingFallback = () => (
 
 function App() {
   const [showSplash, setShowSplash] = useState(false);
+  useNativeShell();
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -88,11 +89,6 @@ function App() {
     }, 220);
 
     return () => window.clearTimeout(timer);
-  }, []);
-
-  useEffect(() => {
-    if (typeof document === 'undefined') return;
-    document.body.dataset.nativeApp = isNativeApp() ? 'true' : 'false';
   }, []);
 
   useEffect(() => {

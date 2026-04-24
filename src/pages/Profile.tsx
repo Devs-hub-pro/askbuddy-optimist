@@ -31,6 +31,7 @@ import { useIsAdmin } from '@/hooks/useHotTopics';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 import PageStateCard from '@/components/common/PageStateCard';
 import { buildFromState, navigateToAuthWithReturn } from '@/utils/navigation';
+import AppScreen from '@/components/layout/AppScreen';
 
 const Profile = () => {
   const navigate = useNavigate();
@@ -157,9 +158,9 @@ const Profile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-[100dvh] app-soft-muted-bg pb-16 px-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
+      <AppScreen className="app-soft-muted-bg px-4 pt-[calc(env(safe-area-inset-top)+1rem)]" includeBottomNavPadding>
         <PageStateCard variant="loading" title="正在加载个人主页…" description="首次进入可能会稍慢一点。" />
-      </div>
+      </AppScreen>
     );
   }
 
@@ -174,7 +175,7 @@ const Profile = () => {
   }
 
   return (
-    <div className="min-h-[100dvh] app-soft-muted-bg pb-16">
+    <AppScreen className="app-soft-muted-bg" includeBottomNavPadding>
       {/* Hidden file inputs */}
       <input
         type="file"
@@ -396,7 +397,7 @@ const Profile = () => {
       </div>
 
       <BottomNav />
-    </div>
+    </AppScreen>
   );
 };
 

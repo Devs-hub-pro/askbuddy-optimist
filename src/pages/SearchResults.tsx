@@ -16,6 +16,7 @@ import { isNativeApp } from '@/utils/platform';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import AppScreen from '@/components/layout/AppScreen';
 
 const SEARCH_HISTORY_KEY = 'searchHistory';
 const channelThemes = {
@@ -325,7 +326,7 @@ const SearchResults = () => {
   }, [questionCategoryFilter, questionSort, results?.questions]);
 
   return (
-    <div className={`app-container min-h-[100dvh] pb-8 ${theme.pageClass}`}>
+    <AppScreen className={`pb-8 ${theme.pageClass}`}>
       {/* Header */}
       <div className={`fixed top-0 z-[90] w-full shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'} ${theme.headerClass}`}>
         <div style={{ height: 'env(safe-area-inset-top)' }} />
@@ -729,7 +730,7 @@ const SearchResults = () => {
         )}
       </div>
 
-    </div>
+    </AppScreen>
   );
 };
 

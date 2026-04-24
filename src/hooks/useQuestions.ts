@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { isAndroidMockMode } from '@/config/runtimeMode';
+import { demoQuestionDetails, demoQuestions } from '@/lib/demoData';
 
 const isMissingRpcError = (error: unknown, functionName: string) => {
   const message = error instanceof Error ? error.message : String(error || '');
@@ -44,6 +46,18 @@ export const useQuestions = (category?: string) => {
   return useQuery({
     queryKey: ['questions', category],
     queryFn: async () => {
+      if (isAndroidMockMode()) {
+        const rows = category
+          ? demoQuestions.filter((item) => (item.tags || []).includes(category))
+          : demoQuestions;
+        return rows.map((item) => ({
+          ...item,
+          category: item.tags?.[0] || null,
+          status: 'open',
+          updated_at: item.created_at,
+        })) as Question[];
+      }
+
       let query = supabase
         .from('questions')
         .select('id, title, content, category, tags, bounty_points, status, view_count, user_id, created_at, updated_at')
@@ -104,6 +118,29 @@ export const useQuestionDetail = (questionId: string) => {
   return useQuery({
     queryKey: ['question', questionId],
     queryFn: async () => {
+      if (isAndroidMockMode()) {
+        const detail =
+          (demoQuestionDetails as Record<string, { question: any; answers: any[] }>)[questionId] ||
+          Object.values(demoQuestionDetails)[0];
+        if (!detail) throw new Error('问题不存在');
+
+        return {
+          question: {
+            ...detail.question,
+            category: detail.question.tags?.[0] || null,
+            status: 'open',
+            updated_at: detail.question.created_at,
+            answers_count: detail.answers.length,
+          } as Question,
+          answers: detail.answers.map((answer) => ({
+            ...answer,
+            updated_at: answer.updated_at || answer.created_at,
+            likes_count: answer.likes_count || 0,
+            is_accepted: !!answer.is_accepted,
+          })) as Answer[],
+        };
+      }
+
       const { data: question, error: questionError } = await supabase
         .from('questions')
         .select('*')
@@ -179,6 +216,10 @@ export const useCreateQuestion = () => {
       tags?: string[];
       bounty_points?: number;
     }) => {
+      if (isAndroidMockMode()) {
+        return `android-mock-question-${Date.now()}`;
+      }
+
       if (!user) throw new Error('请先登录');
 
       const rpcResult = await (supabase as any).rpc('create_question_secure', {
@@ -237,6 +278,10 @@ export const useCreateAnswer = () => {
       question_id: string;
       content: string;
     }) => {
+      if (isAndroidMockMode()) {
+        return `android-mock-answer-${Date.now()}`;
+      }
+
       if (!user) throw new Error('请先登录');
 
       const rpcResult = await (supabase as any).rpc('create_answer_secure', {

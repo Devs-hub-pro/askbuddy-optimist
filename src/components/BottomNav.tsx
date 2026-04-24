@@ -4,7 +4,7 @@ import { Home, Compass, Plus, MessageSquare, User, Star } from 'lucide-react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useUnreadCount } from '@/hooks/useNotifications';
 import { useUnreadMessageCount } from '@/hooks/useMessages';
-import { isNativeApp } from '@/utils/platform';
+import { isAndroidNative, isNativeApp } from '@/utils/platform';
 import { 
   Sheet,
   SheetContent,
@@ -23,6 +23,7 @@ const BottomNav: React.FC = () => {
   const { data: unreadNotifCount } = useUnreadCount();
   const { count: unreadMessageCount } = useUnreadMessageCount();
   const nativeMode = isNativeApp();
+  const androidMode = isAndroidNative();
   const unreadCount = (unreadNotifCount || 0) + (unreadMessageCount || 0);
   const dispatchTabReselect = (path: string) => {
     window.dispatchEvent(new CustomEvent('app:tab-reselect', { detail: { path } }));
@@ -71,10 +72,10 @@ const BottomNav: React.FC = () => {
     <nav 
       className={`fixed bottom-0 left-0 right-0 bg-background border-t border-border z-50 shadow-[0_-2px_10px_rgba(0,0,0,0.06)] ${
         nativeMode ? '' : 'max-w-md mx-auto'
-      }`}
+      } ${androidMode ? 'app-bottom-nav-android' : ''}`}
       style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
     >
-      <div className="flex items-center justify-around h-14">
+      <div className={`flex items-center justify-around ${androidMode ? 'h-16' : 'h-14'}`}>
         <button 
           onClick={() => navigateOrScrollTop('/')}
           className={`nav-item flex flex-col items-center justify-center w-1/5 py-1 ${belongsToTab('/') ? 'active' : ''}`}

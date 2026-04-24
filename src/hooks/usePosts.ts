@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import { isAndroidMockMode } from '@/config/runtimeMode';
 
 export interface PostWithProfile {
   id: string;
@@ -37,6 +38,26 @@ export const usePosts = () => {
   return useQuery({
     queryKey: ['posts', user?.id],
     queryFn: async (): Promise<PostWithProfile[]> => {
+      if (isAndroidMockMode()) {
+        return [
+          {
+            id: 'android-mock-post-1',
+            user_id: 'android-mock-user-1',
+            content: '安卓演示广场：当前为 Mock 数据，后续将切到真实 posts 流。',
+            images: [],
+            video: null,
+            topics: ['安卓联调', '演示'],
+            likes_count: 12,
+            comments_count: 3,
+            shares_count: 1,
+            created_at: new Date(Date.now() - 1000 * 60 * 35).toISOString(),
+            profile_nickname: '演示用户',
+            profile_avatar: 'https://randomuser.me/api/portraits/lego/4.jpg',
+            liked_by_me: false,
+          },
+        ];
+      }
+
       // Fetch posts
       const { data: posts, error } = await (supabase as any)
         .from('posts')

@@ -8,6 +8,10 @@ export type CursorPage<T> = {
 export type QuestionStatus = 'open' | 'matched' | 'solved' | 'hidden' | 'deleted';
 export type AnswerStatus = 'active' | 'accepted' | 'hidden' | 'deleted';
 export type SkillOfferStatus = 'draft' | 'pending_review' | 'published' | 'offline';
+export type PostVisibility = 'public' | 'followers' | 'private';
+export type PostStatus = 'active' | 'hidden' | 'deleted';
+export type PaymentStatus = 'pending' | 'paid' | 'failed' | 'refunded';
+export type NotificationReadState = boolean;
 export type OrderStatus =
   | 'pending_payment'
   | 'paid'
@@ -15,4 +19,3 @@ export type OrderStatus =
   | 'completed'
   | 'refunded'
   | 'closed';
-

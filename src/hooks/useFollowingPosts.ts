@@ -2,14 +2,35 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import type { PostWithProfile } from './usePosts';
+import { isAndroidMockMode } from '@/config/runtimeMode';
 
 export const useFollowingPosts = () => {
   const { user } = useAuth();
 
   return useQuery({
     queryKey: ['following-posts', user?.id],
-    enabled: !!user,
+    enabled: !!user || isAndroidMockMode(),
     queryFn: async (): Promise<PostWithProfile[]> => {
+      if (isAndroidMockMode()) {
+        return [
+          {
+            id: 'android-mock-following-post-1',
+            user_id: 'android-mock-following-user',
+            content: '关注流演示：这是你关注对象的最新动态（Mock）。',
+            images: [],
+            video: null,
+            topics: ['关注广场'],
+            likes_count: 6,
+            comments_count: 1,
+            shares_count: 0,
+            created_at: new Date(Date.now() - 1000 * 60 * 55).toISOString(),
+            profile_nickname: '关注用户_演示',
+            profile_avatar: 'https://randomuser.me/api/portraits/lego/5.jpg',
+            liked_by_me: false,
+          },
+        ];
+      }
+
       if (!user) return [];
 
       // Get following user IDs

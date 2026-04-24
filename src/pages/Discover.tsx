@@ -32,6 +32,7 @@ import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 import { isNativeApp } from '@/utils/platform';
 import { buildFromState } from '@/utils/navigation';
 import { toast } from 'sonner';
+import AppScreen from '@/components/layout/AppScreen';
 
 const Discover: React.FC = () => {
   const navigate = useNavigate();
@@ -185,7 +186,7 @@ const Discover: React.FC = () => {
   
 
   return (
-    <div className="pb-16 min-h-[100dvh] app-soft-muted-bg">
+    <AppScreen className="app-soft-muted-bg" includeBottomNavPadding>
       <Tabs value={activeTab} onValueChange={(value) => setActiveTab(value as 'following' | 'recommended' | 'local')} className="w-full">
         <div className={`app-header-bg fixed top-0 z-[90] w-full shadow-sm ${nativeMode ? 'left-0' : 'left-1/2 max-w-md -translate-x-1/2'}`} style={{ paddingTop: 'env(safe-area-inset-top)' }}>
           <div className="flex items-center justify-between px-4 py-3">
@@ -412,7 +413,7 @@ const Discover: React.FC = () => {
       </AlertDialog>
 
       <BottomNav />
-    </div>
+    </AppScreen>
   );
 };
 

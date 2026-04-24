@@ -42,6 +42,7 @@ import {
 } from '@/lib/adapters/contentAdapters';
 import { buildFromState, navigateBackOr } from '@/utils/navigation';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
+import { CHANNEL_THEME_PRESETS } from '@/design/channelThemePresets';
 
 const EducationLearning = () => {
   const navigate = useNavigate();
@@ -217,6 +218,7 @@ const EducationLearning = () => {
   const featuredQuestion = filteredQuestions[0];
   const featuredExpert = filteredExperts[0];
   const featuredTopic = feed?.featured;
+  const theme = CHANNEL_THEME_PRESETS.education;
 
   const handleSearch = () => {};
 
@@ -245,18 +247,18 @@ const EducationLearning = () => {
   return (
     <ChannelPageScaffold
       title="教育学习"
-      pageClassName="bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white"
-      headerGradientClass="bg-gradient-to-r from-blue-500 to-indigo-500"
-      searchStripClass="bg-blue-50/90 border-blue-100/90"
-      searchAccentRingClass="ring-blue-400/25"
-      searchInputAccentClass="focus-visible:ring-blue-400/20 focus-visible:border-blue-200"
-      searchInputBorderClass="border-blue-200/80"
-      searchIconClass="text-blue-400"
-      searchNavigateToPath="/search?channel=education"
-      featuredBadgeClass="bg-blue-50 text-blue-600"
-      featuredHintClass="text-blue-600"
-      activeCategoryClass="bg-blue-500 text-white shadow-sm border-blue-500"
-      tabUnderlineClass="bg-gradient-to-r from-blue-500 to-indigo-500"
+      pageClassName={theme.pageClassName}
+      headerGradientClass={theme.headerGradientClass}
+      searchStripClass={theme.searchStripClass}
+      searchAccentRingClass={theme.searchAccentRingClass}
+      searchInputAccentClass={theme.searchInputAccentClass}
+      searchInputBorderClass={theme.searchInputBorderClass}
+      searchIconClass={theme.searchIconClass}
+      searchNavigateToPath={theme.searchNavigateToPath}
+      featuredBadgeClass={theme.featuredBadgeClass}
+      featuredHintClass={theme.featuredHintClass}
+      activeCategoryClass={theme.activeCategoryClass}
+      tabUnderlineClass={theme.tabUnderlineClass}
       categories={categories}
       activeCategory={activeCategory}
       categoryRef={categoryRef}

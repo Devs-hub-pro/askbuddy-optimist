@@ -44,6 +44,7 @@ import {
 } from '@/lib/adapters/contentAdapters';
 import { buildFromState, navigateBackOr } from '@/utils/navigation';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
+import { CHANNEL_THEME_PRESETS } from '@/design/channelThemePresets';
 
 const LifestyleServices = () => {
   const navigate = useNavigate();
@@ -213,6 +214,7 @@ const LifestyleServices = () => {
   const featuredQuestion = filteredQuestions[0];
   const featuredExpert = filteredExperts[0];
   const featuredTopic = feed?.featured;
+  const theme = CHANNEL_THEME_PRESETS.lifestyle;
 
   const handleSearch = () => {};
 
@@ -241,18 +243,18 @@ const LifestyleServices = () => {
   return (
     <ChannelPageScaffold
       title="生活服务"
-      pageClassName="bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white"
-      headerGradientClass="bg-gradient-to-r from-orange-500 to-amber-500"
-      searchStripClass="bg-orange-50/90 border-orange-100/90"
-      searchAccentRingClass="ring-orange-400/25"
-      searchInputAccentClass="focus-visible:ring-orange-400/20 focus-visible:border-orange-200"
-      searchInputBorderClass="border-orange-200/80"
-      searchIconClass="text-orange-400"
-      searchNavigateToPath="/search?channel=lifestyle"
-      featuredBadgeClass="bg-orange-50 text-orange-600"
-      featuredHintClass="text-orange-600"
-      activeCategoryClass="bg-orange-500 text-white shadow-sm border-orange-500"
-      tabUnderlineClass="bg-gradient-to-r from-app-orange to-amber-500"
+      pageClassName={theme.pageClassName}
+      headerGradientClass={theme.headerGradientClass}
+      searchStripClass={theme.searchStripClass}
+      searchAccentRingClass={theme.searchAccentRingClass}
+      searchInputAccentClass={theme.searchInputAccentClass}
+      searchInputBorderClass={theme.searchInputBorderClass}
+      searchIconClass={theme.searchIconClass}
+      searchNavigateToPath={theme.searchNavigateToPath}
+      featuredBadgeClass={theme.featuredBadgeClass}
+      featuredHintClass={theme.featuredHintClass}
+      activeCategoryClass={theme.activeCategoryClass}
+      tabUnderlineClass={theme.tabUnderlineClass}
       categories={categories}
       activeCategory={activeCategory}
       categoryRef={categoryRef}

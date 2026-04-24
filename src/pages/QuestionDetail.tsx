@@ -18,6 +18,8 @@ import { useSubmitContentReport } from '@/hooks/useModeration';
 import { demoQuestionDetails } from '@/lib/demoData';
 import PageStateCard from "@/components/common/PageStateCard";
 import { buildFromState, navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
+import AppScreen from '@/components/layout/AppScreen';
+import SectionCard from '@/components/common/SectionCard';
 
 // 分享选项
 const SHARE_OPTIONS = [
@@ -74,9 +76,9 @@ const QuestionDetail = () => {
 
   if (!isDemoQuestion && isLoading) {
     return (
-      <div className="app-container min-h-[100dvh] bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white flex items-center justify-center p-4">
+      <AppScreen className="bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white flex items-center justify-center p-4">
         <PageStateCard variant="loading" title="正在加载问题内容…" />
-      </div>
+      </AppScreen>
     );
   }
 
@@ -85,7 +87,7 @@ const QuestionDetail = () => {
 
   if (error || !resolvedData) {
     return (
-      <div className="app-container min-h-[100dvh] bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white flex items-center justify-center p-4">
+      <AppScreen className="bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white flex items-center justify-center p-4">
         <PageStateCard
           variant="error"
           title="暂时无法加载问题"
@@ -93,7 +95,7 @@ const QuestionDetail = () => {
           actionLabel="返回上页"
           onAction={() => navigateBackOr(navigate, '/', { location })}
         />
-      </div>
+      </AppScreen>
     );
   }
 
@@ -214,7 +216,7 @@ const QuestionDetail = () => {
   }));
 
   return (
-    <div className="app-container bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white pb-24 min-h-[100dvh]">
+    <AppScreen className="bg-gradient-to-b from-[rgb(248,253,251)] via-white to-white pb-24">
       <Header
         title="问题详情"
         asker={{
@@ -228,7 +230,7 @@ const QuestionDetail = () => {
         onBack={() => navigateBackOr(navigate, '/', { location })}
         onViewUser={handleViewUserProfile}
       />
-      <div className="mx-4 mb-5 mt-4 surface-card rounded-3xl p-5 animate-fade-in">
+      <SectionCard className="mx-4 mb-5 mt-4 animate-fade-in p-5">
         <div className="inline-flex rounded-full bg-secondary px-3 py-1 text-xs font-medium text-secondary-foreground">问题正文</div>
         <h1 className="mt-3 text-[21px] font-bold leading-8 text-gray-800 text-left">{question.title}</h1>
         <div className="mt-4 text-[15px] text-gray-700 leading-7 text-left mb-5">
@@ -271,9 +273,9 @@ const QuestionDetail = () => {
             {submitReport.isPending ? '提交中...' : '举报内容'}
           </button>
         </div>
-      </div>
+      </SectionCard>
       <div className="px-4 mb-5">
-        <div className="surface-card rounded-3xl p-5">
+        <SectionCard className="p-5">
         <div className="flex justify-between items-center mb-4">
           <div>
             <h2 className="font-semibold text-lg text-left text-slate-900">回答 ({answers.length})</h2>
@@ -297,7 +299,7 @@ const QuestionDetail = () => {
         ) : (
           <PageStateCard compact title="还没有回答" description="你可以成为第一个回答的人。" />
         )}
-        </div>
+        </SectionCard>
       </div>
       <BottomBar
         onAnswer={() => setIsAnswerDialogOpen(true)}
@@ -320,7 +322,7 @@ const QuestionDetail = () => {
         options={SHARE_OPTIONS}
         onShare={handleShareQuestion}
       />
-    </div>
+    </AppScreen>
   );
 };
 export default QuestionDetail;

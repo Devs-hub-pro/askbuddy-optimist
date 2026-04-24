@@ -54,6 +54,7 @@ import { useCreateQuestion } from '@/hooks/useQuestions';
 import { useAuth } from '@/contexts/AuthContext';
 import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 import SubPageHeader from '@/components/layout/SubPageHeader';
+import AppScreen from '@/components/layout/AppScreen';
 
 // Define categories with emojis
 const categories = [
@@ -474,7 +475,7 @@ const NewQuestion: React.FC = () => {
   };
   
   return (
-    <div className="min-h-[100dvh] app-soft-muted-bg pb-20">
+    <AppScreen className="app-soft-muted-bg pb-20">
       <SubPageHeader
         title="发布问题"
         onBack={handleBack}
@@ -932,7 +933,7 @@ const NewQuestion: React.FC = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </AppScreen>
   );
 };
 

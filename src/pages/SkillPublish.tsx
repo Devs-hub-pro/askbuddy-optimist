@@ -39,6 +39,7 @@ import { uploadExpertCoverImage, useExpertByUserId, useSaveExpertProfile } from 
 import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import PageStateCard from '@/components/common/PageStateCard';
+import AppScreen from '@/components/layout/AppScreen';
 
 const skillFormSchema = z.object({
   title: z.string().min(5, { message: '标题至少需要5个字符' }).max(100),
@@ -329,7 +330,7 @@ const SkillPublish = () => {
   };
 
   return (
-    <div className="bg-slate-50 min-h-[100dvh] pb-8">
+    <AppScreen className="bg-slate-50 pb-8">
       <SubPageHeader
         title={existingExpert ? '编辑专业技能' : '发布您的专业技能'}
         onBack={handleBack}
@@ -672,7 +673,7 @@ const SkillPublish = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </AppScreen>
   );
 };
 

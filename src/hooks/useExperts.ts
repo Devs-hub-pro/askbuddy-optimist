@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import type { SkillOfferStatus } from '../../packages/shared-types/index';
 
 export interface Expert {
   id: string;
@@ -43,6 +44,11 @@ interface SaveExpertProfileInput {
   cover_image?: string | null;
 }
 
+const isMissingColumnError = (error: unknown, columnName: string) => {
+  const message = error instanceof Error ? error.message : String(error || '');
+  return message.includes(columnName) || message.includes('column') || message.includes('schema cache');
+};
+
 const normalizeExpert = (expert: any, profile?: { nickname?: string | null; avatar_url?: string | null } | null): Expert => ({
   ...expert,
   subcategory: expert.subcategory || null,
@@ -55,9 +61,95 @@ const normalizeExpert = (expert: any, profile?: { nickname?: string | null; avat
   education: expert.education || [],
   experience: expert.experience || [],
   available_time_slots: expert.available_time_slots || [],
+  followers_count: Number(expert.followers_count ?? expert.follower_count ?? 0),
+  consultation_count: Number(expert.consultation_count ?? expert.service_count ?? 0),
   nickname: expert.display_name || profile?.nickname || '专家',
   avatar_url: expert.avatar_url || profile?.avatar_url,
 }) as Expert;
+
+const fetchActiveExperts = async (category?: string) => {
+  let query = (supabase as any)
+    .from('experts')
+    .select('id, user_id, title, bio, category, subcategory, consultation_price, response_time, response_time_label, experience_level, cover_image, tags, keywords, location, rating, response_rate, order_count, consultation_count, followers_count, follower_count, is_verified, verification_status, education, experience, available_time_slots, created_at, display_name, avatar_url, profile_status')
+    .eq('profile_status', 'active')
+    .order('rating', { ascending: false });
+
+  if (category) {
+    query = query.eq('category', category);
+  }
+
+  const result = await query.limit(20);
+  if (!result.error) return result;
+
+  if (!isMissingColumnError(result.error, 'profile_status')) {
+    throw result.error;
+  }
+
+  let legacyQuery = (supabase as any)
+    .from('experts')
+    .select('id, user_id, title, bio, category, subcategory, consultation_price, response_time, response_time_label, experience_level, cover_image, tags, keywords, location, rating, response_rate, order_count, consultation_count, followers_count, follower_count, is_verified, verification_status, education, experience, available_time_slots, created_at, display_name, avatar_url, is_active')
+    .eq('is_active', true)
+    .order('rating', { ascending: false });
+
+  if (category) {
+    legacyQuery = legacyQuery.eq('category', category);
+  }
+
+  const legacy = await legacyQuery.limit(20);
+  if (legacy.error) throw legacy.error;
+  return legacy;
+};
+
+const upsertPublishedSkillOffer = async (params: {
+  expertUserId: string;
+  title: string;
+  description: string;
+  consultationPrice: number;
+  city: string | null;
+}) => {
+  const status: SkillOfferStatus = 'published';
+  const payload = {
+    expert_id: params.expertUserId,
+    title: params.title,
+    description: params.description,
+    pricing_mode: 'per_session',
+    price_amount: params.consultationPrice,
+    price_currency: 'CNY',
+    status,
+    city: params.city,
+    city_code: null,
+    is_remote_supported: true,
+    delivery_mode: 'online',
+  };
+
+  const existing = await (supabase as any)
+    .from('skill_offers')
+    .select('id')
+    .eq('expert_id', params.expertUserId)
+    .order('updated_at', { ascending: false })
+    .limit(1)
+    .maybeSingle();
+
+  if (existing.error) throw existing.error;
+
+  if (existing.data?.id) {
+    const { error } = await (supabase as any)
+      .from('skill_offers')
+      .update(payload)
+      .eq('id', existing.data.id);
+    if (error) throw error;
+    return existing.data.id;
+  }
+
+  const { data, error } = await (supabase as any)
+    .from('skill_offers')
+    .insert(payload)
+    .select('id')
+    .single();
+
+  if (error) throw error;
+  return data?.id as string;
+};
 
 export const uploadExpertCoverImage = async (userId: string, file: File) => {
   const allowedTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
@@ -88,17 +180,7 @@ export const useExperts = (category?: string) => {
   return useQuery({
     queryKey: ['experts', category],
     queryFn: async (): Promise<Expert[]> => {
-      let query = supabase
-        .from('experts')
-        .select('id, user_id, title, bio, category, subcategory, consultation_price, response_time, experience_level, cover_image, tags, keywords, location, rating, response_rate, order_count, consultation_count, followers_count, is_verified, education, experience, available_time_slots, created_at, display_name, avatar_url')
-        .eq('is_active', true)
-        .order('rating', { ascending: false });
-
-      if (category) {
-        query = query.eq('category', category);
-      }
-
-      const { data, error } = await query.limit(20);
+      const { data, error } = await fetchActiveExperts(category);
       if (error) throw error;
       if (!data || data.length === 0) return [];
 
@@ -124,12 +206,52 @@ export const useExpertDetail = (expertId: string) => {
   return useQuery({
     queryKey: ['expert', expertId],
     queryFn: async (): Promise<Expert | null> => {
-      const { data, error } = await supabase
+      const queryByIdNew = await (supabase as any)
         .from('experts')
         .select('*')
         .eq('id', expertId)
-        .eq('is_active', true)
+        .eq('profile_status', 'active')
         .maybeSingle();
+
+      let data = queryByIdNew.data;
+      let error = queryByIdNew.error;
+
+      if (error && isMissingColumnError(error, 'profile_status')) {
+        const queryByIdLegacy = await (supabase as any)
+          .from('experts')
+          .select('*')
+          .eq('id', expertId)
+          .eq('is_active', true)
+          .maybeSingle();
+        data = queryByIdLegacy.data;
+        error = queryByIdLegacy.error;
+      }
+
+      if (error) throw error;
+
+      // Pack03 skill_offers.expert_id points to experts.user_id; allow user_id path fallback.
+      if (!data) {
+        const queryByUserIdNew = await (supabase as any)
+          .from('experts')
+          .select('*')
+          .eq('user_id', expertId)
+          .eq('profile_status', 'active')
+          .maybeSingle();
+
+        data = queryByUserIdNew.data;
+        error = queryByUserIdNew.error;
+
+        if (error && isMissingColumnError(error, 'profile_status')) {
+          const queryByUserIdLegacy = await (supabase as any)
+            .from('experts')
+            .select('*')
+            .eq('user_id', expertId)
+            .eq('is_active', true)
+            .maybeSingle();
+          data = queryByUserIdLegacy.data;
+          error = queryByUserIdLegacy.error;
+        }
+      }
 
       if (error) throw error;
       if (!data) return null;
@@ -195,11 +317,14 @@ export const useSaveExpertProfile = () => {
       const payload = {
         title: input.title,
         bio: input.bio,
+        intro: input.bio,
+        headline: input.title,
         category: input.category,
         subcategory: input.subcategory,
         consultation_price: input.consultation_price,
         experience_level: input.experience_level,
         response_time: input.response_time,
+        response_time_label: input.response_time,
         tags: input.tags,
         keywords: input.tags,
         cover_image: input.cover_image || null,
@@ -207,6 +332,7 @@ export const useSaveExpertProfile = () => {
         avatar_url: profile?.avatar_url || null,
         location: profile?.city || null,
         is_active: true,
+        profile_status: 'active',
       };
 
       if (existing) {
@@ -218,6 +344,13 @@ export const useSaveExpertProfile = () => {
           .single();
 
         if (error) throw error;
+        await upsertPublishedSkillOffer({
+          expertUserId: user.id,
+          title: input.title,
+          description: input.bio,
+          consultationPrice: input.consultation_price,
+          city: profile?.city || null,
+        });
         return data;
       }
 
@@ -231,6 +364,13 @@ export const useSaveExpertProfile = () => {
         .single();
 
       if (error) throw error;
+      await upsertPublishedSkillOffer({
+        expertUserId: user.id,
+        title: input.title,
+        description: input.bio,
+        consultationPrice: input.consultation_price,
+        city: profile?.city || null,
+      });
       return data;
     },
     onSuccess: (_, variables) => {

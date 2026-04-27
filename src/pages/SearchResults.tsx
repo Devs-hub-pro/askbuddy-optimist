@@ -16,6 +16,7 @@ import { isNativeApp } from '@/utils/platform';
 import { usePageScrollMemory } from '@/hooks/usePageScrollMemory';
 import { useAuth } from '@/contexts/AuthContext';
 import { supabase } from '@/integrations/supabase/client';
+import { OPERATIONS_RPC } from '../../packages/shared-api/endpoints';
 
 const SEARCH_HISTORY_KEY = 'searchHistory';
 const channelThemes = {
@@ -220,7 +221,7 @@ const SearchResults = () => {
 
     if (user) {
       (supabase as any)
-        .rpc('upsert_search_history', {
+        .rpc(OPERATIONS_RPC.upsertSearchHistory, {
           p_query_text: normalized,
           p_query_type: 'all',
         })

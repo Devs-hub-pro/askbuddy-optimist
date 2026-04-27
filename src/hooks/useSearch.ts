@@ -2,6 +2,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { demoExperts, demoQuestions, demoTopics } from '@/lib/demoData';
 import { mergeUniqueById } from '@/lib/adapters/contentAdapters';
+import { SEARCH_RPC } from '../../packages/shared-api/endpoints';
+import type { SearchObjectType } from '../../packages/shared-types/index';
 
 const isMissingRpcError = (error: unknown, functionName: string) => {
   const message = error instanceof Error ? error.message : String(error || '');
@@ -106,7 +108,7 @@ export const useSearch = (query: string) => {
         return { questions: [], experts: [], skills: [], posts: [] };
       }
 
-      const rpcV2Result = await (supabase as any).rpc('search_app_content_v2', {
+      const rpcV2Result = await (supabase as any).rpc(SEARCH_RPC.contentV2, {
         p_query: query.trim(),
         p_limit: 10,
       });
@@ -185,7 +187,7 @@ export const useSearch = (query: string) => {
         };
       }
 
-      if (!isMissingRpcError(rpcV2Result.error, 'search_app_content_v2')) {
+      if (!isMissingRpcError(rpcV2Result.error, SEARCH_RPC.contentV2)) {
         throw rpcV2Result.error;
       }
 
@@ -387,11 +389,11 @@ export const useSearch = (query: string) => {
   });
 };
 
-export const useHotKeywords = (keywordType: 'all' | 'question' | 'expert' | 'skill' | 'post' = 'all') => {
+export const useHotKeywords = (keywordType: SearchObjectType | 'all' = 'all') => {
   return useQuery({
     queryKey: ['search-hot-keywords', keywordType],
     queryFn: async (): Promise<string[]> => {
-      const fromRpc = await (supabase as any).rpc('get_search_suggestions_v2', {
+      const fromRpc = await (supabase as any).rpc(SEARCH_RPC.suggestionsV2, {
         p_query: '',
         p_limit: 12,
         p_type: keywordType,
@@ -403,7 +405,7 @@ export const useHotKeywords = (keywordType: 'all' | 'question' | 'expert' | 'ski
           ? payload.hot_keywords.filter((item): item is string => typeof item === 'string' && item.trim().length > 0)
           : [];
         if (hot.length > 0) return hot;
-      } else if (!isMissingRpcError(fromRpc.error, 'get_search_suggestions_v2')) {
+      } else if (!isMissingRpcError(fromRpc.error, SEARCH_RPC.suggestionsV2)) {
         throw fromRpc.error;
       }
 

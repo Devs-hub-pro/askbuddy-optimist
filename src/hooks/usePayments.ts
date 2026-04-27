@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+import type { PaymentStatus } from '../../packages/shared-types/index';
 
 export type RechargeProvider = 'wechat' | 'alipay' | 'stripe';
 
@@ -11,7 +12,7 @@ export interface RechargePaymentIntent {
   provider: RechargeProvider;
   points: number;
   cash_amount: number;
-  status: 'pending' | 'completed';
+  status: PaymentStatus;
   legacy_mode?: boolean;
   payment_payload: {
     provider?: RechargeProvider;
@@ -33,6 +34,20 @@ export interface RechargePaymentIntent {
     is_mock_gateway?: boolean;
   };
 }
+
+const normalizePaymentStatus = (status: unknown): PaymentStatus => {
+  if (status === 'pending' || status === 'paid' || status === 'failed' || status === 'refunded') {
+    return status;
+  }
+  // legacy compat: historical completed -> paid
+  if (status === 'completed') return 'paid';
+  return 'pending';
+};
+
+const normalizePaymentIntent = (intent: RechargePaymentIntent): RechargePaymentIntent => ({
+  ...intent,
+  status: normalizePaymentStatus(intent.status),
+});
 
 const isMissingRpcError = (error: unknown, functionName: string) => {
   const message = error instanceof Error ? error.message : String(error || '');
@@ -60,7 +75,7 @@ export const useCreateRechargePayment = () => {
         });
 
         if (!invokeResult.error) {
-          return invokeResult.data as RechargePaymentIntent;
+          return normalizePaymentIntent(invokeResult.data as RechargePaymentIntent);
         }
 
         if (!isMissingFunctionError(invokeResult.error, 'wechat-prepay')) {
@@ -74,7 +89,7 @@ export const useCreateRechargePayment = () => {
       });
 
       if (!rpcResult.error) {
-        return rpcResult.data as RechargePaymentIntent;
+        return normalizePaymentIntent(rpcResult.data as RechargePaymentIntent);
       }
 
       if (!isMissingRpcError(rpcResult.error, 'create_recharge_payment_order')) {
@@ -96,14 +111,14 @@ export const useCreateRechargePayment = () => {
         provider: params.provider,
         points: params.points,
         cash_amount: Number((params.points * 0.1).toFixed(2)),
-        status: 'completed' as const,
+        status: 'paid' as const,
         legacy_mode: true,
         payment_payload: {
           provider: params.provider,
           cash_amount: Number((params.points * 0.1).toFixed(2)),
           currency: 'CNY' as const,
         },
-      };
+      } satisfies RechargePaymentIntent;
     },
     onError: (error: Error) => {
       toast({

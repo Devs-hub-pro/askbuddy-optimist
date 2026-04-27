@@ -48,6 +48,10 @@ const tabs = [
   { key: "all", label: "全部" },
   { key: "pending_payment", label: "待支付" },
   { key: "paid", label: "已支付" },
+  { key: "in_service", label: "服务中" },
+  { key: "completed", label: "已完成" },
+  { key: "refunded", label: "已退款" },
+  { key: "closed", label: "已关闭" },
 ];
 
 interface OrderItem {
@@ -79,11 +83,11 @@ const OrderList: React.FC = () => {
   return (
     <div className="px-5 py-5">
       <div className="surface-card rounded-3xl p-1 shadow-sm">
-        <div className="grid grid-cols-3 gap-1">
+        <div className="flex gap-1 overflow-x-auto scrollbar-hide" data-no-swipe-back="true">
         {tabs.map(t => (
           <button
             key={t.key}
-            className={`rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors ${
+            className={`shrink-0 rounded-2xl px-3 py-2.5 text-sm font-medium transition-colors ${
               tab === t.key
                 ? 'app-soft-surface-bg app-accent-text'
                 : 'text-muted-foreground hover:bg-muted/50'

@@ -1,13 +1,14 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
+import type { OrderStatus } from '../../packages/shared-types/index';
 
 export interface OrderRecord {
   id: string;
   buyer_id: string;
   seller_id: string | null;
   order_type: string;
-  status: string;
+  status: OrderStatus;
   title: string | null;
   amount: number;
   point_amount: number;
@@ -20,6 +21,7 @@ export interface PointTransactionRecord {
   id: string;
   user_id: string;
   direction: 'credit' | 'debit';
+  status?: 'pending' | 'completed' | 'failed' | 'reversed';
   amount: number;
   biz_type: string;
   note: string | null;

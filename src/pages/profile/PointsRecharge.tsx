@@ -59,7 +59,7 @@ const PointsRecharge = () => {
       });
 
       setPaymentIntent(intent);
-      if (intent.status === 'completed') {
+      if (intent.status === 'paid') {
         setSuccess(true);
         toast({
           title: '充值成功',

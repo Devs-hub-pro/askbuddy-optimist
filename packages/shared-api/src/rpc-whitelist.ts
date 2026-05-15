@@ -14,13 +14,22 @@ export type ContentTargetType =
   | "message"
   | "order"
   | "user_verification"
-  | "manual";
+  | "manual"
+  | "call_session";
 
 export const RPC_WHITELIST = {
   // Pack 08-A
   accept_answer_v2: "public.accept_answer_v2",
   create_system_notification_v2: "public.create_system_notification_v2",
   transition_order_status_v2: "public.transition_order_status_v2",
+
+  // Call v1 (planned in A-main, not yet migrated)
+  create_call_session_v1: "public.create_call_session_v1",
+  accept_call_v1: "public.accept_call_v1",
+  reject_call_v1: "public.reject_call_v1",
+  end_call_v1: "public.end_call_v1",
+  heartbeat_call_v1: "public.heartbeat_call_v1",
+  mark_call_timeout_v1: "public.mark_call_timeout_v1",
 
   // Pack 08-B
   search_app_content_v2: "public.search_app_content_v2",
@@ -99,4 +108,39 @@ export interface GetSearchSuggestionsV2Result {
 export interface UpsertSearchHistoryParams {
   p_query_text: string;
   p_query_type?: SearchObjectType;
+}
+
+export interface CreateCallSessionV1Params {
+  p_callee_id: string;
+  p_mode: "voice" | "video";
+  p_target_type?: ContentTargetType | null;
+  p_target_id?: string | null;
+  p_order_id?: string | null;
+}
+
+export interface CreateCallSessionV1Result {
+  call_session_id: string;
+  status: "initiated" | "ringing";
+}
+
+export interface AcceptCallV1Params {
+  p_call_session_id: string;
+}
+
+export interface RejectCallV1Params {
+  p_call_session_id: string;
+  p_reason?: string | null;
+}
+
+export interface EndCallV1Params {
+  p_call_session_id: string;
+  p_reason?: string | null;
+}
+
+export interface HeartbeatCallV1Params {
+  p_call_session_id: string;
+}
+
+export interface MarkCallTimeoutV1Params {
+  p_call_session_id: string;
 }

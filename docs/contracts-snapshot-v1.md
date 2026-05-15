@@ -30,6 +30,7 @@
 8. 订单：`orders`, `payments`
 9. 积分：`point_accounts`, `point_transactions`
 10. 收益：`earning_transactions`
+11. 通话：`call_sessions`（Call v1 规划白名单）
 
 类型定义以 `packages/shared-types/src/contracts.ts` 为准。
 
@@ -65,6 +66,11 @@
 - `messages.status`：`active | deleted`
 - 通知读取主语义：`notifications.is_read`（布尔）
 
+### 3.5 通话域（Call v1）
+
+- `call_sessions.mode`：`voice | video`
+- `call_sessions.status`：`initiated | ringing | answered | ended | cancelled | timeout | failed`
+
 ### 3.5 订单/账务域
 
 - `orders.order_type`：`question_reward | skill_service | points_recharge | system_adjustment`
@@ -92,6 +98,7 @@
 - `order`
 - `user_verification`
 - `manual`
+- `call_session`
 
 ---
 
@@ -111,7 +118,16 @@
 - `get_search_suggestions_v2(p_query?, p_limit?, p_type?)`
 - `upsert_search_history(p_query_text, p_query_type?)`
 
-### 5.3 未读数 RPC（Pack 05）
+### 5.3 Call v1 RPC（规划白名单）
+
+- `create_call_session_v1(p_callee_id, p_mode, p_target_type, p_target_id, p_order_id?)`
+- `accept_call_v1(p_call_session_id)`
+- `reject_call_v1(p_call_session_id, p_reason?)`
+- `end_call_v1(p_call_session_id, p_reason?)`
+- `heartbeat_call_v1(p_call_session_id)`（可选）
+- `mark_call_timeout_v1(p_call_session_id)`（可选）
+
+### 5.4 未读数 RPC（Pack 05）
 
 - `get_my_unread_message_count()`
 - `get_my_unread_notification_count()`
@@ -170,6 +186,7 @@
   - 余额：`point_accounts.available_balance`
   - 积分流水：`point_transactions.direction/amount/status`
   - 收益流水：`earning_transactions.direction/amount/status`
+  - 通话：`call_sessions.id/status/mode/caller_id/callee_id/order_id`
 
 ---
 
@@ -189,4 +206,3 @@
   - 小 patch
   - cleanup
 - 任何涉及 schema 语义变化，必须由 A 主线先更新 shared-types/shared-api，再通知 B/C/D 同步。
-

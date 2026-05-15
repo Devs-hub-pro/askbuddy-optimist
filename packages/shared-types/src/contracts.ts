@@ -55,6 +55,20 @@ export type ConversationType = (typeof CONVERSATION_TYPE)[number];
 export const MESSAGE_STATUS = ["active", "deleted"] as const;
 export type MessageStatus = (typeof MESSAGE_STATUS)[number];
 
+export const CALL_MODE = ["voice", "video"] as const;
+export type CallMode = (typeof CALL_MODE)[number];
+
+export const CALL_STATUS = [
+  "initiated",
+  "ringing",
+  "answered",
+  "ended",
+  "cancelled",
+  "timeout",
+  "failed",
+] as const;
+export type CallStatus = (typeof CALL_STATUS)[number];
+
 export const ORDER_TYPE = ["question_reward", "skill_service", "points_recharge", "system_adjustment"] as const;
 export type OrderType = (typeof ORDER_TYPE)[number];
 
@@ -98,6 +112,7 @@ export const CONTENT_TARGET_TYPE = [
   "order",
   "user_verification",
   "manual",
+  "call_session",
 ] as const;
 export type ContentTargetType = (typeof CONTENT_TARGET_TYPE)[number];
 
@@ -222,6 +237,24 @@ export interface NotificationItem {
   updated_at: ISODateTime;
 }
 
+export interface CallSession {
+  id: Id;
+  order_id: Id | null;
+  target_type: ContentTargetType | null;
+  target_id: Id | null;
+  caller_id: Id;
+  callee_id: Id;
+  mode: CallMode;
+  status: CallStatus;
+  started_at: ISODateTime | null;
+  ended_at: ISODateTime | null;
+  end_reason: string | null;
+  rtc_channel: string | null;
+  metadata: Record<string, unknown> | null;
+  created_at: ISODateTime;
+  updated_at: ISODateTime;
+}
+
 export interface Order {
   id: Id;
   buyer_id: Id;
@@ -281,4 +314,3 @@ export interface EarningTransaction {
   settled_at: ISODateTime | null;
   updated_at: ISODateTime;
 }
-

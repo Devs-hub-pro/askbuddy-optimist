@@ -12,7 +12,7 @@ export interface PageContract {
 export const PAGE_CONTRACT_MAP: PageContract[] = [
   {
     page: "首页",
-    tables: ["questions", "profiles", "experts", "skill_offers", "recommendation_slots", "notifications"],
+    tables: ["questions", "profiles", "experts", "skill_offers", "recommendation_slots", "notifications", "call_sessions"],
     rpcs: ["search_app_content_v2", "get_my_unread_notification_count"],
     keyFields: [
       "questions.id/title/status/reward_points/answer_count/view_count",
@@ -33,8 +33,8 @@ export const PAGE_CONTRACT_MAP: PageContract[] = [
   },
   {
     page: "详情（问题/专家/技能）",
-    tables: ["questions", "answers", "profiles", "experts", "skill_offers"],
-    rpcs: ["accept_answer_v2"],
+    tables: ["questions", "answers", "profiles", "experts", "skill_offers", "call_sessions"],
+    rpcs: ["accept_answer_v2", "create_call_session_v1", "accept_call_v1", "reject_call_v1", "end_call_v1"],
     keyFields: [
       "questions.accepted_answer_id/status",
       "answers.question_id/content/is_accepted/status",
@@ -54,7 +54,7 @@ export const PAGE_CONTRACT_MAP: PageContract[] = [
   },
   {
     page: "消息",
-    tables: ["conversations", "conversation_members", "messages", "notifications"],
+    tables: ["conversations", "conversation_members", "messages", "notifications", "call_sessions"],
     rpcs: ["get_my_unread_message_count", "get_my_unread_notification_count"],
     keyFields: [
       "conversations.id/type/last_message_at",
@@ -73,8 +73,9 @@ export const PAGE_CONTRACT_MAP: PageContract[] = [
       "point_transactions",
       "earning_transactions",
       "user_verifications",
+      "call_sessions",
     ],
-    rpcs: ["transition_order_status_v2", "create_system_notification_v2"],
+    rpcs: ["transition_order_status_v2", "create_system_notification_v2", "end_call_v1"],
     keyFields: [
       "orders.buyer_id/seller_id/order_type/status/amount/point_amount",
       "point_accounts.user_id/available_balance/frozen_balance",
@@ -83,4 +84,3 @@ export const PAGE_CONTRACT_MAP: PageContract[] = [
     ],
   },
 ];
-

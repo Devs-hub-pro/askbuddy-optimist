@@ -1,21 +1,21 @@
 <view class="container safe-bottom">
   <view class="card">
-    <input placeholder="搜索 question/expert/skill/post" value="{{keyword}}" bindinput="onKeywordInput" confirm-type="search" bindconfirm="onConfirmSearch" />
+    <input placeholder="搜索问题、专家、技能、动态" value="{{keyword}}" bindinput="onKeywordInput" confirm-type="search" bindconfirm="onConfirmSearch" />
     <button class="button-primary" size="mini" style="margin-top: 14rpx;" bindtap="onConfirmSearch">搜索</button>
   </view>
 
   <view class="type-tabs">
-    <view class="type-tab {{activeType === 'question' ? 'active' : ''}}" data-type="question" bindtap="switchType">question ({{resultBag.question.length}})</view>
-    <view class="type-tab {{activeType === 'expert' ? 'active' : ''}}" data-type="expert" bindtap="switchType">expert ({{resultBag.expert.length}})</view>
-    <view class="type-tab {{activeType === 'skill' ? 'active' : ''}}" data-type="skill" bindtap="switchType">skill ({{resultBag.skill.length}})</view>
-    <view class="type-tab {{activeType === 'post' ? 'active' : ''}}" data-type="post" bindtap="switchType">post ({{resultBag.post.length}})</view>
+    <view class="type-tab {{activeType === 'question' ? 'active' : ''}}" data-type="question" bindtap="switchType">问题 ({{resultBag.question.length}})</view>
+    <view class="type-tab {{activeType === 'expert' ? 'active' : ''}}" data-type="expert" bindtap="switchType">专家 ({{resultBag.expert.length}})</view>
+    <view class="type-tab {{activeType === 'skill' ? 'active' : ''}}" data-type="skill" bindtap="switchType">技能 ({{resultBag.skill.length}})</view>
+    <view class="type-tab {{activeType === 'post' ? 'active' : ''}}" data-type="post" bindtap="switchType">动态 ({{resultBag.post.length}})</view>
   </view>
 
   <state-card wx:if="{{loading}}" title="搜索中" desc="正在请求 staging" />
   <state-card wx:elif="{{error}}" title="搜索失败" desc="{{error}}" actionText="重试" bind:action="runSearch" />
 
   <view wx:elif="{{activeType === 'question'}}">
-    <state-card wx:if="{{!resultBag.question.length}}" title="暂无 question 结果" desc="可切换 expert/skill/post 查看" />
+    <state-card wx:if="{{!resultBag.question.length}}" title="暂无问题结果" desc="可切换专家/技能/动态查看" />
     <view wx:for="{{resultBag.question}}" wx:key="id" class="card" style="margin-top: 20rpx;" bindtap="goQuestionDetail" data-id="{{item.id}}">
       <view class="title" style="font-size: 30rpx;">{{item.title}}</view>
       <view class="subtitle" style="margin-top: 10rpx;">{{item.content || '暂无描述'}}</view>
@@ -23,7 +23,7 @@
   </view>
 
   <view wx:elif="{{activeType === 'expert'}}">
-    <state-card wx:if="{{!resultBag.expert.length}}" title="暂无 expert 结果" desc="请更换关键词" />
+    <state-card wx:if="{{!resultBag.expert.length}}" title="暂无专家结果" desc="请更换关键词" />
     <view wx:for="{{resultBag.expert}}" wx:key="id" class="card" style="margin-top: 20rpx;">
       <view class="title" style="font-size: 30rpx;">{{item.nickname || item.title || '未命名专家'}}</view>
       <view class="subtitle" style="margin-top: 10rpx;">{{item.headline || item.intro || item.bio || '-'}}</view>
@@ -31,7 +31,7 @@
   </view>
 
   <view wx:elif="{{activeType === 'skill'}}">
-    <state-card wx:if="{{!resultBag.skill.length}}" title="暂无 skill 结果" desc="请更换关键词" />
+    <state-card wx:if="{{!resultBag.skill.length}}" title="暂无技能结果" desc="请更换关键词" />
     <view wx:for="{{resultBag.skill}}" wx:key="id" class="card" style="margin-top: 20rpx;">
       <view class="title" style="font-size: 30rpx;">{{item.title || '未命名技能'}}</view>
       <view class="subtitle" style="margin-top: 10rpx;">{{item.category_name || item.description || '-'}}</view>
@@ -39,7 +39,7 @@
   </view>
 
   <view wx:else>
-    <state-card wx:if="{{!resultBag.post.length}}" title="暂无 post 结果" desc="请更换关键词" />
+    <state-card wx:if="{{!resultBag.post.length}}" title="暂无动态结果" desc="请更换关键词" />
     <view wx:for="{{resultBag.post}}" wx:key="id" class="card" style="margin-top: 20rpx;">
       <view class="subtitle">{{item.content || item.title || '-'}}</view>
     </view>

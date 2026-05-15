@@ -1,6 +1,6 @@
 input {
   background: #fff;
-  border: 1px solid var(--ab-border);
+  border: 1px solid #e2e8f0;
   border-radius: 16rpx;
   padding: 18rpx;
 }
@@ -14,15 +14,15 @@ input {
 
 .type-tab {
   background: #ffffff;
-  border: 1px solid var(--ab-border);
+  border: 1px solid #e2e8f0;
   border-radius: 999rpx;
   padding: 8rpx 18rpx;
   font-size: 24rpx;
-  color: var(--ab-text-muted);
+  color: #64748b;
 }
 
 .type-tab.active {
-  border-color: var(--ab-primary);
-  color: var(--ab-primary);
-  background: #effcf4;
+  border-color: #16a34a;
+  color: #15803d;
+  background: #ecfdf3;
 }

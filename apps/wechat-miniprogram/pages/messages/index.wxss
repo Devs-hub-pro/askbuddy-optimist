@@ -4,3 +4,8 @@
   border-radius: 50%;
   background: #ef4444;
 }
+
+.page-actions {
+  display: flex;
+  gap: 8rpx;
+}

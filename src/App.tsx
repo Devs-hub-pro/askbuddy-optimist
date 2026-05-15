@@ -30,6 +30,7 @@ const SkillPublish = lazy(() => import("./pages/SkillPublish"));
 const Auth = lazy(() => import("./pages/Auth"));
 const TopicDetail = lazy(() => import("./pages/TopicDetail"));
 const Notifications = lazy(() => import("./pages/Notifications"));
+const CallSession = lazy(() => import("./pages/CallSession"));
 import { Toaster } from "@/components/ui/toaster";
 import "./App.css";
 
@@ -129,6 +130,7 @@ function App() {
                 <Route path="/new" element={<NewQuestion />} />
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/chat/:chatId" element={<ChatDetail />} />
+                <Route path="/call/:sessionId" element={<CallSession />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/edit-profile" element={<EditProfile />} />
                 <Route path="/skill-publish" element={<SkillPublish />} />

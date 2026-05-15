@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { ArrowRight, Clock3, CheckCircle2, ShoppingCart } from 'lucide-react';
+import { ArrowRight, Clock3, CheckCircle2, ShoppingCart, Phone } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useMyOrders } from '@/hooks/useProfileData';
@@ -174,6 +174,22 @@ const OrderList: React.FC = () => {
                       >
                         去支付
                         <ArrowRight size={14} className="ml-1" />
+                      </Button>
+                    </div>
+                  ) : order.status === 'in_service' ? (
+                    <div className="mt-4 flex justify-end">
+                      <Button
+                        size="sm"
+                        variant="secondary"
+                        className="h-10 rounded-full px-4 text-sm font-medium"
+                        onClick={() =>
+                          navigate(`/call/${order.id}?mode=voice&role=callee&peer=${encodeURIComponent(orderTitle)}`, {
+                            state: buildFromState(location),
+                          })
+                        }
+                      >
+                        <Phone size={14} className="mr-1" />
+                        进入通话
                       </Button>
                     </div>
                   ) : (

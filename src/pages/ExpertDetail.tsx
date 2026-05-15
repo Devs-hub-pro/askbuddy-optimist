@@ -225,6 +225,21 @@ const ExpertDetail = () => {
           <MessageSquare size={16} className="mr-2" />
           立即咨询
         </Button>
+        {(selectedConsultType === 'voice' || selectedConsultType === 'video') && (
+          <Button
+            className="flex-1 rounded-full"
+            variant="secondary"
+            onClick={() => {
+              if (!user) { navigateToAuthWithReturn(navigate, location); return; }
+              navigate(
+                `/call/mock-${Date.now()}?mode=${selectedConsultType}&role=caller&peer=${encodeURIComponent(displayName)}`,
+                { state: buildFromState(location) }
+              );
+            }}
+          >
+            {selectedConsultType === 'voice' ? '发起语音' : '发起视频'}
+          </Button>
+        )}
       </div>
 
       {/* Order Dialog */}

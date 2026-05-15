@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { ChevronLeft, Image, Smile, Loader2 } from 'lucide-react';
+import { ChevronLeft, Image, Smile, Loader2, Phone } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useMessagesWithUser, useSendMessage, useMarkMessagesAsRead } from '@/hooks/useMessages';
@@ -154,6 +154,18 @@ const ChatDetail: React.FC = () => {
               <p className="text-[11px] text-white/75">在线私信</p>
             </div>
           </div>
+          <button
+            className="ml-auto rounded-full p-2 text-white/95"
+            onClick={() =>
+              navigate(
+                `/call/mock-${Date.now()}?mode=voice&role=caller&peer=${encodeURIComponent(partnerName)}`,
+                { state: { from: location.pathname + location.search } }
+              )
+            }
+            aria-label="发起语音通话"
+          >
+            <Phone size={18} />
+          </button>
         </div>
       </div>
 

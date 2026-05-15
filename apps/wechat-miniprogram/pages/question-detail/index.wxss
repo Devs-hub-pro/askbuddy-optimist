@@ -1,3 +1,5 @@
-page {
-  background: var(--ab-bg);
+.answer-item {
+  margin-top: 18rpx;
+  padding-top: 18rpx;
+  border-top: 1px solid var(--ab-border);
 }

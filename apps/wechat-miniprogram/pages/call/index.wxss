@@ -1,0 +1,21 @@
+.input {
+  background: #fff;
+  border: 1px solid var(--ab-border);
+  border-radius: 16rpx;
+  padding: 18rpx;
+}
+
+.mode-switch {
+  display: flex;
+  gap: 10rpx;
+}
+
+.action-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12rpx;
+}
+
+.warn {
+  color: #b45309;
+}

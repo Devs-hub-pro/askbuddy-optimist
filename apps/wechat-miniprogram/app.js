@@ -13,7 +13,8 @@ App({
     authToken: '',
     currentUser: null,
     safeAreaBottom: 0,
-    useMock: true,
+    // 默认走 staging 请求层；失败再降级 mock。
+    useMock: false,
     conflictPolicy: 'A'
   },
 

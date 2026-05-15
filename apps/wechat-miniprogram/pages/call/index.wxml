@@ -1,0 +1,32 @@
+<view class="container safe-bottom">
+  <view class="card">
+    <view class="title">Call v1 联调壳</view>
+    <view class="subtitle">语音优先，视频可选；契约缺口不猜字段。</view>
+
+    <view class="row" style="margin-top: 16rpx;">
+      <text class="subtitle">模式</text>
+      <view class="mode-switch">
+        <button size="mini" class="{{mode==='voice'?'button-primary':''}}" bindtap="setVoice">语音</button>
+        <button size="mini" class="{{mode==='video'?'button-primary':''}}" bindtap="setVideo">视频</button>
+      </view>
+    </view>
+
+    <view style="margin-top: 16rpx;">
+      <input class="input" placeholder="对端用户ID（联调用）" value="{{peerId}}" bindinput="onPeerInput" />
+    </view>
+
+    <view class="subtitle" style="margin-top: 12rpx;">状态：{{status}}</view>
+    <view class="subtitle" style="margin-top: 8rpx;">会话ID：{{sessionId || '-'}}</view>
+    <view class="subtitle" style="margin-top: 8rpx;">来源：{{source || '-'}}</view>
+    <view class="subtitle warn" wx:if="{{contractGap}}" style="margin-top: 8rpx;">{{contractGap}}</view>
+  </view>
+
+  <view class="card" style="margin-top: 20rpx;">
+    <view class="action-grid">
+      <button class="button-primary" loading="{{loadingAction==='initiate'}}" bindtap="onInitiate">发起</button>
+      <button loading="{{loadingAction==='accept'}}" bindtap="onAccept">接听</button>
+      <button loading="{{loadingAction==='reject'}}" bindtap="onReject">拒绝</button>
+      <button loading="{{loadingAction==='hangup'}}" bindtap="onHangup">挂断</button>
+    </view>
+  </view>
+</view>

@@ -1,20 +1,27 @@
 <view class="container safe-bottom">
-  <view class="title">消息</view>
-  <view class="subtitle">会话列表（联调前使用 Mock）</view>
+  <view class="row">
+    <view>
+      <view class="title">通知列表（读）</view>
+      <view class="subtitle">未读数（读）：{{unreadCount}}</view>
+    </view>
+    <view class="row" style="gap: 8rpx;">
+      <button size="mini" bindtap="loadData">刷新</button>
+      <button size="mini" bindtap="goCallPage">去通话联调页</button>
+    </view>
+  </view>
 
-  <state-card wx:if="{{loading}}" title="加载中" desc="正在拉取会话" />
+  <state-card wx:if="{{loading}}" title="加载中" desc="正在读取通知与未读数" />
   <state-card wx:elif="{{error}}" title="加载失败" desc="{{error}}" actionText="重试" bind:action="loadData" />
+  <state-card wx:elif="{{!list.length}}" title="暂无通知" desc="当前账号暂无可读通知" />
 
   <view wx:else>
-    <view wx:for="{{list}}" wx:key="id" class="card" style="margin-top: 20rpx;">
+    <view wx:for="{{list}}" wx:key="id" class="card" style="margin-top: 20rpx;" bindtap="openRelated" data-related-id="{{item.related_id}}" data-related-type="{{item.related_type}}">
       <view class="row">
-        <view class="title" style="font-size: 30rpx;">{{item.peerName}}</view>
-        <text class="subtitle">{{item.updatedAt}}</text>
+        <view class="title" style="font-size: 30rpx;">{{item.title || item.type}}</view>
+        <text wx:if="{{!item.is_read}}" class="dot" />
       </view>
-      <view class="row" style="margin-top: 8rpx;">
-        <text class="subtitle">{{item.lastMessage}}</text>
-        <text wx:if="{{item.unread > 0}}" style="font-size:24rpx;color:#ef4444;">{{item.unread}}</text>
-      </view>
+      <view class="subtitle" style="margin-top: 8rpx;">{{item.content || '-'}}</view>
+      <view class="subtitle" style="margin-top: 8rpx;">{{item.created_at_text}}</view>
     </view>
   </view>
 </view>

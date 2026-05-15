@@ -1,3 +1,6 @@
-page {
-  background: var(--ab-bg);
+.dot {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  background: #ef4444;
 }

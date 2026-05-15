@@ -4,3 +4,25 @@ input {
   border-radius: 16rpx;
   padding: 18rpx;
 }
+
+.type-tabs {
+  margin-top: 16rpx;
+  display: flex;
+  gap: 10rpx;
+  flex-wrap: wrap;
+}
+
+.type-tab {
+  background: #ffffff;
+  border: 1px solid var(--ab-border);
+  border-radius: 999rpx;
+  padding: 8rpx 18rpx;
+  font-size: 24rpx;
+  color: var(--ab-text-muted);
+}
+
+.type-tab.active {
+  border-color: var(--ab-primary);
+  color: var(--ab-primary);
+  background: #effcf4;
+}

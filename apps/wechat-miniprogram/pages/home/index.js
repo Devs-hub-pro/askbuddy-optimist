@@ -1,5 +1,10 @@
 const { callRpc } = require('../../utils/request');
 
+function formatTime(time) {
+  if (!time) return '';
+  return String(time).replace('T', ' ').slice(0, 16);
+}
+
 Page({
   data: {
     loading: true,
@@ -26,14 +31,14 @@ Page({
     this.setData({ loading: true, error: '' });
     try {
       const list = await callRpc('fetchHomeFeed');
-      this.setData({ list, loading: false });
+      const normalized = (Array.isArray(list) ? list : []).map((item) => ({
+        ...item,
+        created_at_text: formatTime(item.created_at)
+      }));
+      this.setData({ list: normalized, loading: false });
     } catch (error) {
       this.setData({ loading: false, error: error.message || '加载失败' });
     }
-  },
-
-  goAsk() {
-    wx.navigateTo({ url: '/pages/ask/index' });
   },
 
   goDetail(event) {

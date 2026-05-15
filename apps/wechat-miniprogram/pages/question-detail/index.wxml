@@ -1,12 +1,30 @@
 <view class="container safe-bottom">
-  <state-card wx:if="{{loading}}" title="加载中" desc="正在获取详情" />
+  <state-card wx:if="{{loading}}" title="加载中" desc="正在获取问题详情" />
   <state-card wx:elif="{{error}}" title="加载失败" desc="{{error}}" actionText="重试" bind:action="loadDetail" />
 
-  <view wx:else class="card">
-    <view class="title">{{detail.title}}</view>
-    <view class="subtitle" style="margin-top: 12rpx;">{{detail.content}}</view>
-    <view class="subtitle" style="margin-top: 16rpx;">状态：{{detail.status}}</view>
-    <view class="subtitle" style="margin-top: 6rpx;">作者：{{detail.authorName}} · {{detail.createdAt}}</view>
-    <view class="subtitle" style="margin-top: 6rpx;">回答数：{{detail.answerCount}}</view>
+  <view wx:else>
+    <view class="card">
+      <view class="title">{{detail.title}}</view>
+      <view class="subtitle" style="margin-top: 12rpx;">{{detail.content || '暂无详细描述'}}</view>
+      <view class="subtitle" style="margin-top: 10rpx;">状态：{{detail.status || '-'}}</view>
+      <view class="subtitle" style="margin-top: 6rpx;">创建时间：{{detail.created_at_text}}</view>
+    </view>
+
+    <view class="card" style="margin-top: 20rpx;">
+      <view class="title" style="font-size: 30rpx;">回答列表 ({{answers.length}})</view>
+      <state-card wx:if="{{!answers.length}}" title="暂无回答" desc="当前问题还没有公开回答" />
+
+      <view wx:for="{{answers}}" wx:key="id" class="answer-item">
+        <view class="row">
+          <text class="subtitle">{{item.profile_nickname || item.user_id || '匿名用户'}}</text>
+          <text class="subtitle">{{item.created_at_text}}</text>
+        </view>
+        <view class="subtitle" style="margin-top: 8rpx; color: #111827;">{{item.content}}</view>
+        <view class="row" style="margin-top: 8rpx;">
+          <text class="subtitle">点赞 {{item.likes_count || 0}}</text>
+          <text wx:if="{{item.is_accepted}}" style="color: #18a058; font-size: 24rpx;">已采纳</text>
+        </view>
+      </view>
+    </view>
   </view>
 </view>

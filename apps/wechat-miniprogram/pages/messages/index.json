@@ -3,5 +3,5 @@
     "state-card": "/components/state-card/index"
   },
   "enablePullDownRefresh": true,
-  "navigationBarTitleText": "消息"
+  "navigationBarTitleText": "通知"
 }

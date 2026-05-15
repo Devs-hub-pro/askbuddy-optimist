@@ -10,6 +10,7 @@ const queryClient = new QueryClient();
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const ChatDetail = lazy(() => import("./pages/ChatDetail"));
+const CallSession = lazy(() => import("./pages/call/CallSession"));
 const Discover = lazy(() => import("./pages/Discover"));
 const DiscoverInteractions = lazy(() => import("./pages/DiscoverInteractions"));
 const CareerDevelopment = lazy(() => import("./pages/CareerDevelopment"));
@@ -129,6 +130,7 @@ function App() {
                 <Route path="/new" element={<NewQuestion />} />
                 <Route path="/messages" element={<Messages />} />
                 <Route path="/chat/:chatId" element={<ChatDetail />} />
+                <Route path="/call/:sessionId" element={<CallSession />} />
                 <Route path="/profile" element={<Profile />} />
                 <Route path="/edit-profile" element={<EditProfile />} />
                 <Route path="/skill-publish" element={<SkillPublish />} />

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect, useMemo } from 'react';
-import { ChevronLeft, Image, Smile, Loader2 } from 'lucide-react';
+import { ChevronLeft, Image, Smile, Loader2, Phone, Video } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 import { useMessagesWithUser, useSendMessage, useMarkMessagesAsRead } from '@/hooks/useMessages';
@@ -11,6 +11,7 @@ import { zhCN } from 'date-fns/locale';
 import { demoConversations, demoMessagesByPartner } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
+import { createCallSession } from '@/features/call/callRpc';
 
 const ChatDetail: React.FC = () => {
   const navigate = useNavigate();
@@ -18,6 +19,7 @@ const ChatDetail: React.FC = () => {
   const { chatId } = useParams<{ chatId: string }>();
   const { user } = useAuth();
   const [inputValue, setInputValue] = useState('');
+  const [startingCall, setStartingCall] = useState<null | 'audio' | 'video'>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const isDemoChat = !!chatId?.startsWith('demo-user-');
@@ -122,6 +124,31 @@ const ChatDetail: React.FC = () => {
   const partnerName = demoConversation?.partner_nickname || partnerProfile?.nickname || '用户';
   const partnerAvatar = demoConversation?.partner_avatar || partnerProfile?.avatar_url || undefined;
 
+  const handleStartCall = async (mediaType: 'audio' | 'video') => {
+    if (!chatId || !user) return;
+    setStartingCall(mediaType);
+    try {
+      const callMode = mediaType === 'video' ? 'video' : 'voice';
+      const created = await createCallSession({
+        p_callee_id: chatId,
+        p_mode: callMode,
+        p_target_type: null,
+        p_target_id: null,
+        p_order_id: null,
+      });
+      navigate(`/call/${created.callSessionId}`, {
+        state: {
+          peerId: chatId,
+          peerName: partnerName,
+          mediaType,
+          isMockSession: created.mock,
+        },
+      });
+    } finally {
+      setStartingCall(null);
+    }
+  };
+
   if (!user) {
     return (
       <div className="min-h-[100dvh] flex items-center justify-center p-4">
@@ -153,6 +180,22 @@ const ChatDetail: React.FC = () => {
               <p className="font-medium text-white">{partnerName}</p>
               <p className="text-[11px] text-white/75">在线私信</p>
             </div>
+          </div>
+          <div className="ml-auto flex items-center gap-2">
+            <button
+              className="rounded-full bg-white/15 p-2 text-white"
+              onClick={() => void handleStartCall('audio')}
+              disabled={startingCall !== null}
+            >
+              {startingCall === 'audio' ? <Loader2 size={16} className="animate-spin" /> : <Phone size={16} />}
+            </button>
+            <button
+              className="rounded-full bg-white/15 p-2 text-white"
+              onClick={() => void handleStartCall('video')}
+              disabled={startingCall !== null}
+            >
+              {startingCall === 'video' ? <Loader2 size={16} className="animate-spin" /> : <Video size={16} />}
+            </button>
           </div>
         </div>
       </div>

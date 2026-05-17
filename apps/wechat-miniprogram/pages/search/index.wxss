@@ -1,19 +1,35 @@
-input {
+.search-panel {
+  margin-bottom: 18rpx;
+}
+
+.search-row {
+  display: flex;
+  gap: 10rpx;
+  align-items: center;
+}
+
+.search-input {
+  flex: 1;
   background: #fff;
   border: 1px solid #e2e8f0;
-  border-radius: 16rpx;
+  border-radius: 14rpx;
   padding: 18rpx;
+  font-size: 26rpx;
+}
+
+.search-btn {
+  min-width: 124rpx;
 }
 
 .type-tabs {
-  margin-top: 16rpx;
+  margin-top: 14rpx;
   display: flex;
   gap: 10rpx;
   flex-wrap: wrap;
 }
 
 .type-tab {
-  background: #ffffff;
+  background: #f8fafc;
   border: 1px solid #e2e8f0;
   border-radius: 999rpx;
   padding: 8rpx 18rpx;
@@ -25,4 +41,22 @@ input {
   border-color: #16a34a;
   color: #15803d;
   background: #ecfdf3;
+}
+
+.result-card {
+  margin-bottom: 14rpx;
+}
+
+.result-title {
+  font-size: 32rpx;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.35;
+}
+
+.result-desc {
+  margin-top: 10rpx;
+  font-size: 25rpx;
+  color: #64748b;
+  line-height: 1.48;
 }

@@ -1,13 +1,18 @@
 .state-card {
-  margin-top: 24rpx;
-  text-align: center;
+  margin-top: 16rpx;
+  text-align: left;
+}
+
+.state-card .title {
+  font-size: 30rpx;
 }
 
 .state-card .subtitle {
-  margin-top: 12rpx;
+  margin-top: 8rpx;
+  line-height: 1.45;
 }
 
 .action-btn {
-  margin-top: 24rpx;
+  margin-top: 18rpx;
   border-radius: 999rpx;
 }

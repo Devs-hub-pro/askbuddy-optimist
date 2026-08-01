@@ -69,6 +69,18 @@ export const CALL_STATUS = [
 ] as const;
 export type CallStatus = (typeof CALL_STATUS)[number];
 
+export const CALL_ERROR_CODE = [
+  "CALL_UNAUTHORIZED",
+  "CALL_FORBIDDEN",
+  "CALL_NOT_FOUND",
+  "CALL_INVALID_STATE",
+  "CALL_INVALID_PARTICIPANT",
+  "CALL_ALREADY_ENDED",
+  "CALL_TIMEOUT",
+  "CALL_INTERNAL_ERROR",
+] as const;
+export type CallErrorCode = (typeof CALL_ERROR_CODE)[number];
+
 export const ORDER_TYPE = ["question_reward", "skill_service", "points_recharge", "system_adjustment"] as const;
 export type OrderType = (typeof ORDER_TYPE)[number];
 

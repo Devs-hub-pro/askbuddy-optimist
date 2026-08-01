@@ -1,32 +1,36 @@
 <view class="container safe-bottom">
   <view class="card">
-    <view class="title">Call v1 联调壳</view>
-    <view class="subtitle">语音优先，视频可选；契约缺口不猜字段。</view>
+    <view class="title">Call v1 会话</view>
+    <view class="subtitle">仅同步业务会话状态，不传输实时音视频。</view>
 
-    <view class="row" style="margin-top: 16rpx;">
+    <view class="row section-row">
       <text class="subtitle">模式</text>
       <view class="mode-switch">
-        <button size="mini" class="{{mode==='voice'?'button-primary':''}}" bindtap="setVoice">语音</button>
-        <button size="mini" class="{{mode==='video'?'button-primary':''}}" bindtap="setVideo">视频</button>
+        <button size="mini" class="{{mode==='voice'?'button-primary':''}}" bindtap="setVoice" disabled="{{!canInitiate}}">语音</button>
+        <button size="mini" class="{{mode==='video'?'button-primary':''}}" bindtap="setVideo" disabled="{{!canInitiate}}">视频</button>
       </view>
     </view>
 
-    <view style="margin-top: 16rpx;">
-      <input class="input" placeholder="对端用户ID（联调用）" value="{{peerId}}" bindinput="onPeerInput" />
+    <view class="section-row">
+      <input class="input" placeholder="被叫用户 ID" value="{{calleeId}}" bindinput="onCalleeInput" disabled="{{!canInitiate}}" />
     </view>
 
-    <view class="subtitle" style="margin-top: 12rpx;">状态：{{status}}</view>
-    <view class="subtitle" style="margin-top: 8rpx;">会话ID：{{sessionId || '-'}}</view>
-    <view class="subtitle" style="margin-top: 8rpx;">来源：{{source || '-'}}</view>
-    <view class="subtitle warn" wx:if="{{contractGap}}" style="margin-top: 8rpx;">{{contractGap}}</view>
+    <view class="session-status">
+      <view class="status-label">{{statusLabel}}</view>
+      <view class="subtitle">后端状态：{{status}}</view>
+      <view class="subtitle session-id">会话 ID：{{callSessionId || '-'}}</view>
+    </view>
+
+    <view class="error-text" wx:if="{{errorMessage}}">{{errorMessage}}</view>
+    <view class="poll-text" wx:if="{{pollMessage}}">状态刷新：{{pollMessage}}</view>
   </view>
 
-  <view class="card" style="margin-top: 20rpx;">
+  <view class="card action-card">
     <view class="action-grid">
-      <button class="button-primary" loading="{{loadingAction==='initiate'}}" bindtap="onInitiate">发起</button>
-      <button loading="{{loadingAction==='accept'}}" bindtap="onAccept">接听</button>
-      <button loading="{{loadingAction==='reject'}}" bindtap="onReject">拒绝</button>
-      <button loading="{{loadingAction==='hangup'}}" bindtap="onHangup">挂断</button>
+      <button class="button-primary" loading="{{loadingAction==='initiate'}}" bindtap="onInitiate" disabled="{{!canInitiate || loadingAction}}">发起</button>
+      <button loading="{{loadingAction==='accept'}}" bindtap="onAccept" disabled="{{!canAccept || loadingAction}}">接听</button>
+      <button loading="{{loadingAction==='reject'}}" bindtap="onReject" disabled="{{!canReject || loadingAction}}">拒绝</button>
+      <button loading="{{loadingAction==='hangup'}}" bindtap="onHangup" disabled="{{!canHangup || loadingAction}}">挂断</button>
     </view>
   </view>
 </view>

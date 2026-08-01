@@ -1,6 +1,15 @@
 const mock = require('./mock');
 const env = require('./env');
 
+const CALL_RPC_NAMES = new Set([
+  'create_call_session_v1',
+  'accept_call_v1',
+  'reject_call_v1',
+  'end_call_v1'
+]);
+
+const CALL_REQUEST_NAMES = new Set(['callV1Invoke', 'fetchCallSession']);
+
 function isJwtToken(token) {
   if (!token || typeof token !== 'string') return false;
   return token.split('.').length === 3;
@@ -36,6 +45,23 @@ function buildHeaders(userToken) {
   };
 }
 
+function requireUserJwt(userToken) {
+  if (isJwtToken(userToken)) return;
+  const error = new Error('CALL_UNAUTHORIZED: 请先完成 Supabase 登录');
+  error.code = 'CALL_UNAUTHORIZED';
+  throw error;
+}
+
+function createHttpError(scope, response) {
+  const message = response && response.data && response.data.message
+    ? String(response.data.message)
+    : `${scope} failed: ${response ? response.statusCode : 'unknown'}`;
+  const error = new Error(message);
+  const matchedCode = message.match(/CALL_[A-Z_]+/);
+  if (matchedCode) error.code = matchedCode[0];
+  return error;
+}
+
 function ensureEnvReady() {
   if (!env.supabaseUrl || !env.supabaseAnonKey) {
     throw new Error('staging config missing: supabaseUrl/supabaseAnonKey');
@@ -47,6 +73,7 @@ async function callRpcHttp(functionName, payload = {}, options = {}) {
 
   const app = getApp();
   const userToken = options.userToken || app.globalData.authToken;
+  if (options.requireAuth) requireUserJwt(userToken);
   const url = `${env.supabaseUrl}/rest/v1/rpc/${functionName}`;
   const response = await wxRequest({
     url,
@@ -59,7 +86,7 @@ async function callRpcHttp(functionName, payload = {}, options = {}) {
     return response.data;
   }
 
-  throw new Error(`rpc ${functionName} failed: ${response.statusCode}`);
+  throw createHttpError(`rpc ${functionName}`, response);
 }
 
 async function selectTable(table, query, options = {}) {
@@ -67,6 +94,7 @@ async function selectTable(table, query, options = {}) {
 
   const app = getApp();
   const userToken = options.userToken || app.globalData.authToken;
+  if (options.requireAuth) requireUserJwt(userToken);
   const url = `${env.supabaseUrl}/rest/v1/${table}${query ? `?${query}` : ''}`;
   const response = await wxRequest({
     url,
@@ -78,7 +106,7 @@ async function selectTable(table, query, options = {}) {
     return response.data;
   }
 
-  throw new Error(`select ${table} failed: ${response.statusCode}`);
+  throw createHttpError(`select ${table}`, response);
 }
 
 function getSearchBag(payload) {
@@ -152,11 +180,26 @@ async function fromStaging(name, payload = {}) {
     return Number(data || 0);
   }
 
+  if (name === 'fetchCallSession') {
+    const callSessionId = payload && payload.callSessionId;
+    if (!callSessionId) throw new Error('CALL_NOT_FOUND: missing callSessionId');
+    const rows = await selectTable(
+      'call_sessions',
+      `select=id,order_id,target_type,target_id,caller_id,callee_id,mode,status,started_at,ended_at,end_reason,rtc_channel,created_at,updated_at&id=eq.${encodeURIComponent(callSessionId)}&limit=1`,
+      { requireAuth: true }
+    );
+    return Array.isArray(rows) && rows.length > 0 ? rows[0] : null;
+  }
+
   if (name === 'callV1Invoke') {
     const rpcName = payload && payload.rpcName;
     const rpcPayload = payload && payload.payload ? payload.payload : {};
-    if (!rpcName) throw new Error('A_CONTRACT_GAP: missing call rpcName');
-    return callRpcHttp(rpcName, rpcPayload);
+    if (!CALL_RPC_NAMES.has(rpcName)) {
+      const error = new Error(`A_CONTRACT_GAP: unapproved call RPC ${rpcName || 'empty'}`);
+      error.code = 'A_CONTRACT_GAP';
+      throw error;
+    }
+    return callRpcHttp(rpcName, rpcPayload, { requireAuth: true });
   }
 
   throw new Error(`unsupported request: ${name}`);
@@ -174,6 +217,9 @@ async function callRpc(name, payload = {}) {
   try {
     return await fromStaging(name, payload);
   } catch (error) {
+    if (CALL_REQUEST_NAMES.has(name)) {
+      throw normalizeError(error);
+    }
     if (!env.useMockFallback) {
       throw normalizeError(error);
     }

@@ -12,14 +12,16 @@ import { demoConversations, demoMessagesByPartner } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
 import { createCallSession } from '@/features/call/callRpc';
+import { useToast } from '@/hooks/use-toast';
 
 const ChatDetail: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { chatId } = useParams<{ chatId: string }>();
   const { user } = useAuth();
+  const { toast } = useToast();
   const [inputValue, setInputValue] = useState('');
-  const [startingCall, setStartingCall] = useState<null | 'audio' | 'video'>(null);
+  const [startingCall, setStartingCall] = useState<null | 'voice' | 'video'>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const isDemoChat = !!chatId?.startsWith('demo-user-');
@@ -124,25 +126,36 @@ const ChatDetail: React.FC = () => {
   const partnerName = demoConversation?.partner_nickname || partnerProfile?.nickname || '用户';
   const partnerAvatar = demoConversation?.partner_avatar || partnerProfile?.avatar_url || undefined;
 
-  const handleStartCall = async (mediaType: 'audio' | 'video') => {
+  const handleStartCall = async (mode: 'voice' | 'video') => {
     if (!chatId || !user) return;
-    setStartingCall(mediaType);
+    if (isDemoChat) {
+      toast({
+        title: '演示会话不能发起真实通话',
+        description: '请选择真实用户会话后重试。',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setStartingCall(mode);
     try {
-      const callMode = mediaType === 'video' ? 'video' : 'voice';
       const created = await createCallSession({
         p_callee_id: chatId,
-        p_mode: callMode,
+        p_mode: mode,
         p_target_type: null,
         p_target_id: null,
         p_order_id: null,
       });
       navigate(`/call/${created.callSessionId}`, {
         state: {
-          peerId: chatId,
           peerName: partnerName,
-          mediaType,
-          isMockSession: created.mock,
         },
+      });
+    } catch (error) {
+      toast({
+        title: '发起通话失败',
+        description: error instanceof Error ? error.message : '通话服务暂时不可用',
+        variant: 'destructive',
       });
     } finally {
       setStartingCall(null);
@@ -184,10 +197,10 @@ const ChatDetail: React.FC = () => {
           <div className="ml-auto flex items-center gap-2">
             <button
               className="rounded-full bg-white/15 p-2 text-white"
-              onClick={() => void handleStartCall('audio')}
+              onClick={() => void handleStartCall('voice')}
               disabled={startingCall !== null}
             >
-              {startingCall === 'audio' ? <Loader2 size={16} className="animate-spin" /> : <Phone size={16} />}
+              {startingCall === 'voice' ? <Loader2 size={16} className="animate-spin" /> : <Phone size={16} />}
             </button>
             <button
               className="rounded-full bg-white/15 p-2 text-white"

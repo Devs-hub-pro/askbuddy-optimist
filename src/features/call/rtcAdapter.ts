@@ -6,7 +6,7 @@ export type CallRuntime = {
 };
 
 export interface RtcAdapter {
-  ensurePermission(mediaType: CallMediaType): Promise<CallCapability>;
+  ensurePermission(mode: CallMediaType): Promise<CallCapability>;
   start(context: CallSessionContext): Promise<CallRuntime>;
   setMicMuted(muted: boolean): Promise<void>;
   setSpeakerOn(enabled: boolean): Promise<void>;
@@ -22,8 +22,8 @@ export class WebRtcShellAdapter implements RtcAdapter {
     cameraEnabled: true,
   };
 
-  async ensurePermission(mediaType: CallMediaType): Promise<CallCapability> {
-    const needVideo = mediaType === 'video';
+  async ensurePermission(mode: CallMediaType): Promise<CallCapability> {
+    const needVideo = mode === 'video';
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: true,
@@ -37,7 +37,7 @@ export class WebRtcShellAdapter implements RtcAdapter {
   }
 
   async start(context: CallSessionContext): Promise<CallRuntime> {
-    const needVideo = context.mediaType === 'video';
+    const needVideo = context.mode === 'video';
     this.localStream = await navigator.mediaDevices.getUserMedia({
       audio: true,
       video: needVideo,

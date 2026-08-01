@@ -1,111 +1,260 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Mic, MicOff, PhoneOff, Video, VideoOff, Volume2, VolumeX } from 'lucide-react';
+import { Mic, MicOff, Phone, PhoneOff, Video, VideoOff, Volume2, VolumeX } from 'lucide-react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import PageStateCard from '@/components/common/PageStateCard';
+import { useAuth } from '@/contexts/AuthContext';
 import { navigateBackOr } from '@/utils/navigation';
+import {
+  acceptCallSession,
+  CallRpcError,
+  endCallSession,
+  getCallSession,
+  rejectCallSession,
+  subscribeToCallSession,
+} from '@/features/call/callRpc';
 import { WebRtcShellAdapter } from '@/features/call/rtcAdapter';
-import type { CallMediaType, CallUiStatus } from '@/features/call/types';
+import {
+  mapCallStatusToUiStatus,
+  type CallParticipantRole,
+  type CallUiStatus,
+} from '@/features/call/types';
 import { useCallLifecycle } from '@/features/call/useCallLifecycle';
-import { endCallSession, heartbeatCallSession } from '@/features/call/callRpc';
+import type { CallSession as CallSessionRecord } from '../../../packages/shared-types/src/contracts';
 
 type LocationState = {
-  peerId?: string;
   peerName?: string;
-  mediaType?: CallMediaType;
-  orderId?: string;
-  isMockSession?: boolean;
 };
 
+type PendingAction = 'accept' | 'reject' | 'end' | null;
+
 const statusLabel: Record<CallUiStatus, string> = {
-  idle: '待接入',
+  loading_session: '正在读取会话',
+  ringing: '等待接听',
   requesting_permission: '申请权限中',
-  connecting: '连接中',
-  in_call: '通话中',
+  connecting_media: '正在准备本地媒体',
+  in_call: '已接通',
   background: '后台运行',
   ending: '正在结束',
-  ended: '已结束',
-  failed: '连接失败',
+  ended: '通话已结束',
+  cancelled: '通话已取消',
+  timeout: '无人接听',
+  failed: '通话失败',
+};
+
+const terminalStatuses = new Set(['ended', 'cancelled', 'timeout', 'failed']);
+
+const getErrorMessage = (error: unknown) => {
+  if (error instanceof CallRpcError) {
+    if (error.message.includes('CALL_NOT_FOUND')) return '会话不存在，或当前账号不是会话参与者';
+    if (error.message.includes('CALL_FORBIDDEN')) return '当前账号无权执行该通话操作';
+    if (error.message.includes('CALL_INVALID_STATE')) return '当前会话状态不允许执行此操作';
+  }
+  return error instanceof Error ? error.message : '通话服务暂时不可用';
 };
 
 const CallSession: React.FC = () => {
   const { sessionId = '' } = useParams<{ sessionId: string }>();
+  const { user, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const state = (location.state || {}) as LocationState;
-
-  const peerId = state.peerId || sessionId;
-  const peerName = state.peerName || '对方';
-  const mediaType: CallMediaType = state.mediaType || 'audio';
-  const orderId = state.orderId;
-  const isMockSession = !!state.isMockSession || sessionId.startsWith('mock-');
+  const routeState = (location.state || {}) as LocationState;
 
   const adapterRef = useRef(new WebRtcShellAdapter());
   const localVideoRef = useRef<HTMLVideoElement | null>(null);
+  const mediaStartedRef = useRef(false);
+  const sessionRef = useRef<CallSessionRecord | null>(null);
 
-  const [status, setStatus] = useState<CallUiStatus>('idle');
-  const [errorText, setErrorText] = useState<string>('');
+  const [session, setSession] = useState<CallSessionRecord | null>(null);
+  const [uiStatus, setUiStatus] = useState<CallUiStatus>('loading_session');
+  const [errorText, setErrorText] = useState('');
+  const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+  const [isForeground, setIsForeground] = useState(true);
   const [micMuted, setMicMuted] = useState(false);
   const [speakerOn, setSpeakerOn] = useState(false);
-  const [cameraEnabled, setCameraEnabled] = useState(mediaType === 'video');
+  const [cameraEnabled, setCameraEnabled] = useState(false);
 
-  const subtitle = useMemo(() => {
-    const kind = mediaType === 'video' ? '视频通话' : '语音通话';
-    const order = orderId ? ` · 订单 ${orderId.slice(0, 8)}` : '';
-    return `${kind}${order}`;
-  }, [mediaType, orderId]);
+  const role = useMemo<CallParticipantRole | null>(() => {
+    if (!session || !user) return null;
+    if (session.caller_id === user.id) return 'caller';
+    if (session.callee_id === user.id) return 'callee';
+    return null;
+  }, [session, user]);
+
+  const peerId = useMemo(() => {
+    if (!session || !user) return '';
+    return session.caller_id === user.id ? session.callee_id : session.caller_id;
+  }, [session, user]);
+
+  const peerName = routeState.peerName || (peerId ? `用户 ${peerId.slice(0, 8)}` : '对方');
+  const isTerminal = !!session && terminalStatuses.has(session.status);
 
   const attachLocalPreview = useCallback((stream: MediaStream | null) => {
-    if (!localVideoRef.current) return;
-    localVideoRef.current.srcObject = stream;
+    if (localVideoRef.current) localVideoRef.current.srcObject = stream;
   }, []);
 
-  const startCall = useCallback(async () => {
-    try {
-      setStatus('requesting_permission');
-      setErrorText('');
-      const capability = await adapterRef.current.ensurePermission(mediaType);
-      if (!capability.canUseMic || (mediaType === 'video' && !capability.canUseCamera)) {
-        setStatus('failed');
-        setErrorText('麦克风或摄像头权限未授予');
-        return;
-      }
+  const applySession = useCallback((nextSession: CallSessionRecord) => {
+    sessionRef.current = nextSession;
+    setSession(nextSession);
+    setErrorText('');
+    setUiStatus(
+      !isForeground && nextSession.status === 'answered'
+        ? 'background'
+        : mapCallStatusToUiStatus(nextSession.status)
+    );
+  }, [isForeground]);
 
-      setStatus('connecting');
-      const runtime = await adapterRef.current.start({
-        sessionId,
-        peerId,
-        peerName,
-        mediaType,
-        orderId,
-      });
-      attachLocalPreview(runtime.localStream);
-      setStatus('in_call');
+  const loadSession = useCallback(async () => {
+    if (!sessionId || !user) return;
+    try {
+      const nextSession = await getCallSession(sessionId);
+      if (nextSession.caller_id !== user.id && nextSession.callee_id !== user.id) {
+        throw new CallRpcError('read_call_session', new Error('CALL_FORBIDDEN'));
+      }
+      applySession(nextSession);
     } catch (error) {
-      setStatus('failed');
-      setErrorText(error instanceof Error ? error.message : '无法启动通话');
+      setErrorText(getErrorMessage(error));
+      setUiStatus('failed');
     }
-  }, [attachLocalPreview, mediaType, orderId, peerId, peerName, sessionId]);
+  }, [applySession, sessionId, user]);
+
+  useCallLifecycle({
+    onBackground: useCallback(() => {
+      setIsForeground(false);
+      if (sessionRef.current?.status === 'answered') setUiStatus('background');
+    }, []),
+    onForeground: useCallback(() => {
+      setIsForeground(true);
+    }, []),
+  });
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) {
+      setErrorText('请先登录后再进入通话');
+      setUiStatus('failed');
+      return;
+    }
+    void loadSession();
+  }, [authLoading, loadSession, user]);
+
+  useEffect(() => {
+    if (!isForeground || !sessionId || !user) return;
+    void loadSession();
+    return subscribeToCallSession(
+      sessionId,
+      applySession,
+      (error) => setErrorText(`实时状态同步异常：${getErrorMessage(error)}`)
+    );
+  }, [applySession, isForeground, loadSession, sessionId, user]);
+
+  useEffect(() => {
+    if (session?.status !== 'answered' || mediaStartedRef.current) return;
+    let active = true;
+    mediaStartedRef.current = true;
+
+    const startLocalMediaShell = async () => {
+      try {
+        setUiStatus('requesting_permission');
+        const capability = await adapterRef.current.ensurePermission(session.mode);
+        if (!capability.canUseMic || (session.mode === 'video' && !capability.canUseCamera)) {
+          throw new Error('麦克风或摄像头权限未授予');
+        }
+
+        setUiStatus('connecting_media');
+        const runtime = await adapterRef.current.start({
+          sessionId: session.id,
+          peerId,
+          peerName,
+          mode: session.mode,
+          orderId: session.order_id || undefined,
+        });
+        if (!active) {
+          await adapterRef.current.end();
+          return;
+        }
+        attachLocalPreview(runtime.localStream);
+        setCameraEnabled(session.mode === 'video');
+        setUiStatus('in_call');
+      } catch (error) {
+        mediaStartedRef.current = false;
+        setErrorText(getErrorMessage(error));
+        setUiStatus('failed');
+      }
+    };
+
+    void startLocalMediaShell();
+    return () => {
+      active = false;
+    };
+  }, [attachLocalPreview, peerId, peerName, session]);
+
+  useEffect(() => {
+    if (!isTerminal) return;
+    mediaStartedRef.current = false;
+    void adapterRef.current.end();
+    attachLocalPreview(null);
+  }, [attachLocalPreview, isTerminal]);
+
+  useEffect(() => () => {
+    mediaStartedRef.current = false;
+    void adapterRef.current.end();
+  }, []);
+
+  const refreshAfterAction = useCallback(async () => {
+    const nextSession = await getCallSession(sessionId);
+    applySession(nextSession);
+  }, [applySession, sessionId]);
+
+  const acceptCall = useCallback(async () => {
+    if (role !== 'callee' || session?.status !== 'ringing') return;
+    setPendingAction('accept');
+    setErrorText('');
+    try {
+      await acceptCallSession({ p_call_session_id: sessionId });
+      await refreshAfterAction();
+    } catch (error) {
+      setErrorText(getErrorMessage(error));
+    } finally {
+      setPendingAction(null);
+    }
+  }, [refreshAfterAction, role, session?.status, sessionId]);
+
+  const rejectCall = useCallback(async () => {
+    if (role !== 'callee' || session?.status !== 'ringing') return;
+    setPendingAction('reject');
+    setErrorText('');
+    try {
+      await rejectCallSession({
+        p_call_session_id: sessionId,
+        p_reason: 'rejected_by_callee',
+      });
+      await refreshAfterAction();
+    } catch (error) {
+      setErrorText(getErrorMessage(error));
+    } finally {
+      setPendingAction(null);
+    }
+  }, [refreshAfterAction, role, session?.status, sessionId]);
 
   const endCall = useCallback(async () => {
-    setStatus('ending');
-    if (!isMockSession) {
-      try {
-        await endCallSession({
-          p_call_session_id: sessionId,
-          p_reason: 'ended_by_user',
-        });
-      } catch {
-        // Keep UX responsive even if backend call fails.
-      }
+    if (!session || (session.status !== 'ringing' && session.status !== 'answered')) return;
+    setPendingAction('end');
+    setUiStatus('ending');
+    setErrorText('');
+    try {
+      await endCallSession({
+        p_call_session_id: sessionId,
+        p_reason: session.status === 'ringing' ? 'cancelled_by_caller' : 'ended_by_user',
+      });
+      await refreshAfterAction();
+    } catch (error) {
+      setErrorText(getErrorMessage(error));
+      setUiStatus(mapCallStatusToUiStatus(session.status));
+    } finally {
+      setPendingAction(null);
     }
-    await adapterRef.current.end();
-    attachLocalPreview(null);
-    setStatus('ended');
-    window.setTimeout(() => {
-      navigateBackOr(navigate, '/messages', { location });
-    }, 350);
-  }, [attachLocalPreview, isMockSession, location, navigate, sessionId]);
+  }, [refreshAfterAction, session, sessionId]);
 
   const toggleMic = useCallback(async () => {
     const next = !micMuted;
@@ -125,92 +274,110 @@ const CallSession: React.FC = () => {
     setCameraEnabled(next);
   }, [cameraEnabled]);
 
-  useCallLifecycle({
-    onBackground: () => {
-      setStatus((prev) => (prev === 'in_call' ? 'background' : prev));
-    },
-    onForeground: () => {
-      setStatus((prev) => (prev === 'background' ? 'in_call' : prev));
-    },
-  });
-
-  useEffect(() => {
-    void startCall();
-    return () => {
-      void adapterRef.current.end();
-    };
-  }, [startCall]);
-
-  useEffect(() => {
-    if (isMockSession) return;
-    if (status !== 'in_call' && status !== 'background') return;
-
-    const timer = window.setInterval(() => {
-      void heartbeatCallSession({ p_call_session_id: sessionId });
-    }, 15000);
-
-    return () => {
-      window.clearInterval(timer);
-    };
-  }, [isMockSession, sessionId, status]);
+  const goBack = () => navigateBackOr(navigate, '/messages', { location });
 
   return (
     <div className="min-h-[100dvh] bg-slate-950 text-white">
       <div style={{ paddingTop: 'env(safe-area-inset-top)' }} />
-      <div className="mx-auto flex max-w-md flex-col px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-5">
+      <div className="mx-auto flex min-h-[100dvh] max-w-md flex-col px-4 pb-[calc(env(safe-area-inset-bottom)+1rem)] pt-5">
         <div className="text-center">
           <h1 className="text-xl font-semibold">{peerName}</h1>
-          <p className="mt-1 text-sm text-slate-300">{subtitle}</p>
-          <p className="mt-2 text-xs text-emerald-300">{statusLabel[status]}</p>
-          {isMockSession ? (
-            <p className="mt-1 text-[11px] text-amber-300">当前为本地 mock 会话（等待 A 侧 RPC 上线）</p>
+          <p className="mt-1 text-sm text-slate-300">
+            {session?.mode === 'video' ? '视频通话' : '语音通话'}
+          </p>
+          <p className="mt-2 text-xs text-emerald-300">{statusLabel[uiStatus]}</p>
+          {session ? (
+            <p className="mt-1 text-[11px] text-slate-400">
+              后端状态：{session.status} · {role === 'callee' ? '被叫方' : '主叫方'}
+            </p>
           ) : null}
         </div>
 
         <div className="mt-6 overflow-hidden rounded-3xl border border-white/15 bg-black/30">
           <div className="aspect-[3/4] w-full">
-            {mediaType === 'video' ? (
+            {session?.mode === 'video' ? (
               <video ref={localVideoRef} autoPlay muted playsInline className="h-full w-full object-cover" />
             ) : (
-              <div className="flex h-full items-center justify-center text-slate-400">语音通话无本地视频预览</div>
+              <div className="flex h-full items-center justify-center px-6 text-center text-slate-400">
+                本轮仅接入会话状态；RTC 适配器暂只保留本地媒体占位
+              </div>
             )}
           </div>
         </div>
 
-        {status === 'failed' ? (
-          <div className="mt-4">
-            <PageStateCard
-              compact
-              variant="error"
-              title="通话暂时不可用"
-              description={errorText || '请检查权限后重试'}
-              actionLabel="重试"
-              onAction={() => void startCall()}
-            />
+        {errorText ? (
+          <div className="mt-4 rounded-2xl border border-red-400/30 bg-red-950/50 px-4 py-3 text-sm text-red-100">
+            {errorText}
           </div>
         ) : null}
 
-        <div className="mt-8 grid grid-cols-3 gap-3">
-          <Button variant="secondary" className="h-12 rounded-full" onClick={() => void toggleMic()}>
-            {micMuted ? <MicOff size={18} /> : <Mic size={18} />}
-          </Button>
-          <Button variant="secondary" className="h-12 rounded-full" onClick={() => void toggleSpeaker()}>
-            {speakerOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
-          </Button>
-          <Button
-            variant="secondary"
-            className="h-12 rounded-full"
-            onClick={() => void toggleCamera()}
-            disabled={mediaType !== 'video'}
-          >
-            {cameraEnabled ? <Video size={18} /> : <VideoOff size={18} />}
-          </Button>
-        </div>
+        {uiStatus === 'loading_session' ? (
+          <div className="mt-4">
+            <PageStateCard compact variant="loading" title="正在读取通话会话" />
+          </div>
+        ) : null}
 
-        <Button className="mt-5 h-12 rounded-full bg-red-600 hover:bg-red-700" onClick={() => void endCall()}>
-          <PhoneOff size={18} className="mr-2" />
-          结束通话
-        </Button>
+        {session?.status === 'answered' ? (
+          <div className="mt-8 grid grid-cols-3 gap-3">
+            <Button variant="secondary" className="h-12 rounded-full" onClick={() => void toggleMic()}>
+              {micMuted ? <MicOff size={18} /> : <Mic size={18} />}
+            </Button>
+            <Button variant="secondary" className="h-12 rounded-full" onClick={() => void toggleSpeaker()}>
+              {speakerOn ? <Volume2 size={18} /> : <VolumeX size={18} />}
+            </Button>
+            <Button
+              variant="secondary"
+              className="h-12 rounded-full"
+              onClick={() => void toggleCamera()}
+              disabled={session.mode !== 'video'}
+            >
+              {cameraEnabled ? <Video size={18} /> : <VideoOff size={18} />}
+            </Button>
+          </div>
+        ) : null}
+
+        {session?.status === 'ringing' && role === 'callee' ? (
+          <div className="mt-8 grid grid-cols-2 gap-3">
+            <Button
+              className="h-12 rounded-full bg-emerald-600 hover:bg-emerald-700"
+              onClick={() => void acceptCall()}
+              disabled={pendingAction !== null}
+            >
+              <Phone size={18} className="mr-2" />接听
+            </Button>
+            <Button
+              className="h-12 rounded-full bg-red-600 hover:bg-red-700"
+              onClick={() => void rejectCall()}
+              disabled={pendingAction !== null}
+            >
+              <PhoneOff size={18} className="mr-2" />拒绝
+            </Button>
+          </div>
+        ) : null}
+
+        {(session?.status === 'answered' || (session?.status === 'ringing' && role === 'caller')) ? (
+          <Button
+            className="mt-5 h-12 rounded-full bg-red-600 hover:bg-red-700"
+            onClick={() => void endCall()}
+            disabled={pendingAction !== null}
+          >
+            <PhoneOff size={18} className="mr-2" />
+            {session.status === 'ringing' ? '取消呼叫' : '结束通话'}
+          </Button>
+        ) : null}
+
+        {(isTerminal || (!session && uiStatus === 'failed')) ? (
+          <div className="mt-5 grid grid-cols-1 gap-3">
+            {!session ? (
+              <Button variant="secondary" className="h-12 rounded-full" onClick={() => void loadSession()}>
+                重试读取
+              </Button>
+            ) : null}
+            <Button variant="secondary" className="h-12 rounded-full" onClick={goBack}>
+              返回消息
+            </Button>
+          </div>
+        ) : null}
       </div>
     </div>
   );

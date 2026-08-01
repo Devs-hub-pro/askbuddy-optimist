@@ -156,12 +156,20 @@ const ChatDetail: React.FC = () => {
           </div>
           <button
             className="ml-auto rounded-full p-2 text-white/95"
-            onClick={() =>
-              navigate(
-                `/call/mock-${Date.now()}?mode=voice&role=caller&peer=${encodeURIComponent(partnerName)}`,
-                { state: { from: location.pathname + location.search } }
-              )
-            }
+            onClick={() => {
+              if (isDemoChat) {
+                window.alert('演示会话不支持真实通话联调');
+                return;
+              }
+              const callQuery = new URLSearchParams({
+                mode: 'voice',
+                calleeId: chatId || '',
+                peer: partnerName,
+              });
+              navigate(`/call/new?${callQuery.toString()}`, {
+                state: { from: location.pathname + location.search },
+              });
+            }}
             aria-label="发起语音通话"
           >
             <Phone size={18} />

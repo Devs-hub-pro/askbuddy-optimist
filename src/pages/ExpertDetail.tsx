@@ -231,10 +231,18 @@ const ExpertDetail = () => {
             variant="secondary"
             onClick={() => {
               if (!user) { navigateToAuthWithReturn(navigate, location); return; }
-              navigate(
-                `/call/mock-${Date.now()}?mode=${selectedConsultType}&role=caller&peer=${encodeURIComponent(displayName)}`,
-                { state: buildFromState(location) }
-              );
+              if (isDemoExpert) {
+                window.alert('演示专家不支持真实通话联调');
+                return;
+              }
+              const callQuery = new URLSearchParams({
+                mode: selectedConsultType,
+                calleeId: resolvedExpert.user_id,
+                peer: displayName,
+                targetType: 'expert',
+                targetId: resolvedExpert.id,
+              });
+              navigate(`/call/new?${callQuery.toString()}`, { state: buildFromState(location) });
             }}
           >
             {selectedConsultType === 'voice' ? '发起语音' : '发起视频'}

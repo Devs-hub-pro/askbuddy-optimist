@@ -105,6 +105,7 @@ const OrderList: React.FC = () => {
           {(orders as OrderItem[]).map((order) => {
             const status = statusMap[order.status] || statusMap.pending_payment;
             const roleLabel = order.buyer_id === user?.id ? '我买的' : '我卖的';
+            const callPeerId = order.buyer_id === user?.id ? order.seller_id : order.buyer_id;
             const orderTitle =
               order.title ||
               (order.order_type === 'question_reward'
@@ -182,11 +183,21 @@ const OrderList: React.FC = () => {
                         size="sm"
                         variant="secondary"
                         className="h-10 rounded-full px-4 text-sm font-medium"
-                        onClick={() =>
-                          navigate(`/call/${order.id}?mode=voice&role=callee&peer=${encodeURIComponent(orderTitle)}`, {
+                        onClick={() => {
+                          if (!callPeerId) return;
+                          const callQuery = new URLSearchParams({
+                            mode: 'voice',
+                            orderId: order.id,
+                            calleeId: callPeerId,
+                            peer: orderTitle,
+                            targetType: 'order',
+                            targetId: order.id,
+                          });
+                          navigate(`/call/order?${callQuery.toString()}`, {
                             state: buildFromState(location),
-                          })
-                        }
+                          });
+                        }}
+                        disabled={!callPeerId}
                       >
                         <Phone size={14} className="mr-1" />
                         进入通话

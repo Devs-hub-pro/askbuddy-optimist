@@ -1,7 +1,9 @@
-# Call v1 Migration Plan（先计划，不直接执行）
+# Call v1 Migration Plan
 
 更新时间：2026-05-15  
 范围：Call v1 后端最小闭环（A 主线）
+
+实施状态：`20260802120000_call_v1_sessions_and_rpcs.sql` 已应用到 staging，并通过最小 RLS/RPC 联调验证。
 
 ---
 
@@ -59,12 +61,12 @@
 
 ## 3. 计划新增 RPC（最小）
 
-1. `create_call_session_v1`
+1. `create_call_session_v1`（创建与进入 `ringing` 合并为一个原子动作）
 2. `accept_call_v1`
 3. `reject_call_v1`
 4. `end_call_v1`
-5. `heartbeat_call_v1`（可选）
-6. `mark_call_timeout_v1`（服务端/定时路径）
+5. `heartbeat_call_v1`（已保留命名，本轮不实现）
+6. `mark_call_timeout_v1`（已保留命名，本轮不实现）
 
 说明：
 
@@ -118,8 +120,7 @@
 
 ## 7. 实施顺序建议
 
-1. migration：建表 + 约束 + 索引 + RLS
-2. migration：RPC（create/accept/reject/end）
+1. dev/staging 执行：建表 + 约束 + 索引 + RLS + RPC（create/accept/reject/end）
+2. 生成最新 Supabase types
 3. staging 联调（B/C/D）
 4. 观测后再决定是否加 `heartbeat_call_v1` / `mark_call_timeout_v1`
-

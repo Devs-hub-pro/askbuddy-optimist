@@ -17,6 +17,11 @@ const requiredMigrationPatterns = [
   'content_reports',
   'audit_events',
   'app_config',
+  'call_sessions',
+  'create_call_session_v1',
+  'accept_call_v1',
+  'reject_call_v1',
+  'end_call_v1',
 ];
 
 const migrationFiles = readdirSync(migrationsDir)
@@ -46,6 +51,11 @@ const requiredTypePatterns = [
   'list_pending_recharge_orders',
   'admin_confirm_recharge_order',
   'upsert_app_config',
+  'call_sessions',
+  'create_call_session_v1',
+  'accept_call_v1',
+  'reject_call_v1',
+  'end_call_v1',
 ];
 
 const missingTypePatterns = requiredTypePatterns.filter(

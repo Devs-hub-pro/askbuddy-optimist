@@ -127,15 +127,28 @@ export interface AcceptCallV1Params {
   p_call_session_id: string;
 }
 
+export interface CallActionV1Result {
+  ok: boolean;
+  idempotent: boolean;
+  call_session_id: string;
+  status: "answered" | "ended" | "cancelled";
+}
+
+export type AcceptCallV1Result = CallActionV1Result;
+
 export interface RejectCallV1Params {
   p_call_session_id: string;
   p_reason?: string | null;
 }
 
+export type RejectCallV1Result = CallActionV1Result;
+
 export interface EndCallV1Params {
   p_call_session_id: string;
   p_reason?: string | null;
 }
+
+export type EndCallV1Result = CallActionV1Result;
 
 export interface HeartbeatCallV1Params {
   p_call_session_id: string;

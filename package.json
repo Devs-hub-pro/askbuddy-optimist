@@ -10,7 +10,8 @@
     "lint": "eslint .",
     "preview": "vite preview",
     "test:contracts": "node scripts/schema-contract-check.mjs",
-    "test:smoke": "node scripts/rpc-smoke-test.mjs"
+    "test:smoke": "node scripts/rpc-smoke-test.mjs",
+    "test:call": "node scripts/call-v1-validation.mjs"
   },
   "dependencies": {
     "@capacitor/android": "^8.0.0",

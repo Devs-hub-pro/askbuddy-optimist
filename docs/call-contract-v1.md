@@ -125,14 +125,17 @@
 
 ## 6. RPC 白名单命名（Call v1）
 
-本期建议新增 RPC（命名固定）：
+当前已部署并通过 staging 验证的端侧可调用 RPC：
 
 1. `create_call_session_v1`
 2. `accept_call_v1`
 3. `reject_call_v1`
 4. `end_call_v1`
-5. `heartbeat_call_v1`（可选，建议做最小版）
-6. `mark_call_timeout_v1`（可选，服务端定时/后台路径）
+
+保留名称但尚未实现，端侧不得调用：
+
+1. `heartbeat_call_v1`
+2. `mark_call_timeout_v1`
 
 建议参数（最小）：
 
@@ -140,7 +143,6 @@
 - `accept_call_v1(p_call_session_id)`
 - `reject_call_v1(p_call_session_id, p_reason?)`
 - `end_call_v1(p_call_session_id, p_reason?)`
-- `heartbeat_call_v1(p_call_session_id)`（刷新 `updated_at` / 活跃标记）
 
 ---
 
@@ -159,9 +161,9 @@
 
 ---
 
-## 8. Migration 计划（先计划，不直接实现）
+## 8. Migration 落地状态
 
-本轮仅规划，后续执行时再分 migration：
+Call v1 最小 migration 已在 staging 应用并验证：
 
 1. 新增表：`call_sessions`
 2. 索引：
@@ -174,7 +176,9 @@
    - 仅 caller 可创建
    - 状态变更通过 RPC（受控）
 4. 最小 RPC：
-   - create / accept / reject / end / timeout(or heartbeat)
+   - create / accept / reject / end
+
+`heartbeat_call_v1` 与 `mark_call_timeout_v1` 继续作为后续候选能力，不属于当前端侧契约。
 
 不做项（明确）：
 
@@ -191,4 +195,3 @@
 2. B/C/D 不得私改 RPC 入参/出参语义
 3. 如端侧发现契约不足，必须提报 A 仲裁后再变更
 4. 多端联调统一接 staging，禁止依赖个人 local 后端语义
-

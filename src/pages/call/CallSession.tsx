@@ -4,15 +4,7 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import PageStateCard from '@/components/common/PageStateCard';
 import { useAuth } from '@/contexts/AuthContext';
-import { navigateBackOr } from '@/utils/navigation';
-import {
-  acceptCallSession,
-  CallRpcError,
-  endCallSession,
-  getCallSession,
-  rejectCallSession,
-  subscribeToCallSession,
-} from '@/features/call/callRpc';
+import { CallRpcError, useCallSession } from '@/features/call';
 import { WebRtcShellAdapter } from '@/features/call/rtcAdapter';
 import {
   mapCallStatusToUiStatus,
@@ -20,13 +12,12 @@ import {
   type CallUiStatus,
 } from '@/features/call/types';
 import { useCallLifecycle } from '@/features/call/useCallLifecycle';
+import { navigateBackOr } from '@/utils/navigation';
 import type { CallSession as CallSessionRecord } from '../../../packages/shared-types/src/contracts';
 
 type LocationState = {
   peerName?: string;
 };
-
-type PendingAction = 'accept' | 'reject' | 'end' | null;
 
 const statusLabel: Record<CallUiStatus, string> = {
   loading_session: '正在读取会话',
@@ -46,9 +37,9 @@ const terminalStatuses = new Set(['ended', 'cancelled', 'timeout', 'failed']);
 
 const getErrorMessage = (error: unknown) => {
   if (error instanceof CallRpcError) {
-    if (error.message.includes('CALL_NOT_FOUND')) return '会话不存在，或当前账号不是会话参与者';
-    if (error.message.includes('CALL_FORBIDDEN')) return '当前账号无权执行该通话操作';
-    if (error.message.includes('CALL_INVALID_STATE')) return '当前会话状态不允许执行此操作';
+    if (error.code === 'CALL_NOT_FOUND') return '会话不存在，或当前账号不是会话参与者';
+    if (error.code === 'CALL_FORBIDDEN') return '当前账号无权执行该通话操作';
+    if (error.code === 'CALL_INVALID_STATE') return '当前会话状态不允许执行此操作';
   }
   return error instanceof Error ? error.message : '通话服务暂时不可用';
 };
@@ -65,14 +56,26 @@ const CallSession: React.FC = () => {
   const mediaStartedRef = useRef(false);
   const sessionRef = useRef<CallSessionRecord | null>(null);
 
-  const [session, setSession] = useState<CallSessionRecord | null>(null);
   const [uiStatus, setUiStatus] = useState<CallUiStatus>('loading_session');
-  const [errorText, setErrorText] = useState('');
-  const [pendingAction, setPendingAction] = useState<PendingAction>(null);
+  const [localError, setLocalError] = useState('');
   const [isForeground, setIsForeground] = useState(true);
   const [micMuted, setMicMuted] = useState(false);
   const [speakerOn, setSpeakerOn] = useState(false);
   const [cameraEnabled, setCameraEnabled] = useState(false);
+
+  const publicSessionId = !authLoading && user && isForeground ? sessionId : null;
+  const {
+    session: liveSession,
+    isLoading,
+    activeAction,
+    error: callError,
+    refresh,
+    accept,
+    reject,
+    end,
+  } = useCallSession({ sessionId: publicSessionId });
+
+  const session = liveSession || sessionRef.current;
 
   const role = useMemo<CallParticipantRole | null>(() => {
     if (!session || !user) return null;
@@ -88,35 +91,41 @@ const CallSession: React.FC = () => {
 
   const peerName = routeState.peerName || (peerId ? `用户 ${peerId.slice(0, 8)}` : '对方');
   const isTerminal = !!session && terminalStatuses.has(session.status);
+  const errorText = localError || (callError ? getErrorMessage(callError) : '');
 
   const attachLocalPreview = useCallback((stream: MediaStream | null) => {
     if (localVideoRef.current) localVideoRef.current.srcObject = stream;
   }, []);
 
-  const applySession = useCallback((nextSession: CallSessionRecord) => {
-    sessionRef.current = nextSession;
-    setSession(nextSession);
-    setErrorText('');
-    setUiStatus(
-      !isForeground && nextSession.status === 'answered'
-        ? 'background'
-        : mapCallStatusToUiStatus(nextSession.status)
-    );
-  }, [isForeground]);
+  useEffect(() => {
+    sessionRef.current = null;
+    mediaStartedRef.current = false;
+    setUiStatus('loading_session');
+    setLocalError('');
+  }, [sessionId]);
 
-  const loadSession = useCallback(async () => {
-    if (!sessionId || !user) return;
-    try {
-      const nextSession = await getCallSession(sessionId);
-      if (nextSession.caller_id !== user.id && nextSession.callee_id !== user.id) {
-        throw new CallRpcError('read_call_session', new Error('CALL_FORBIDDEN'));
-      }
-      applySession(nextSession);
-    } catch (error) {
-      setErrorText(getErrorMessage(error));
-      setUiStatus('failed');
-    }
-  }, [applySession, sessionId, user]);
+  useEffect(() => {
+    if (!liveSession) return;
+    sessionRef.current = liveSession;
+    setLocalError('');
+    setUiStatus(
+      !isForeground && liveSession.status === 'answered'
+        ? 'background'
+        : mapCallStatusToUiStatus(liveSession.status)
+    );
+  }, [isForeground, liveSession]);
+
+  useEffect(() => {
+    if (authLoading || user) return;
+    setLocalError('请先登录后再进入通话');
+    setUiStatus('failed');
+  }, [authLoading, user]);
+
+  useEffect(() => {
+    if (!liveSession || role) return;
+    setLocalError('当前账号不是该通话的参与者');
+    setUiStatus('failed');
+  }, [liveSession, role]);
 
   useCallLifecycle({
     onBackground: useCallback(() => {
@@ -127,26 +136,6 @@ const CallSession: React.FC = () => {
       setIsForeground(true);
     }, []),
   });
-
-  useEffect(() => {
-    if (authLoading) return;
-    if (!user) {
-      setErrorText('请先登录后再进入通话');
-      setUiStatus('failed');
-      return;
-    }
-    void loadSession();
-  }, [authLoading, loadSession, user]);
-
-  useEffect(() => {
-    if (!isForeground || !sessionId || !user) return;
-    void loadSession();
-    return subscribeToCallSession(
-      sessionId,
-      applySession,
-      (error) => setErrorText(`实时状态同步异常：${getErrorMessage(error)}`)
-    );
-  }, [applySession, isForeground, loadSession, sessionId, user]);
 
   useEffect(() => {
     if (session?.status !== 'answered' || mediaStartedRef.current) return;
@@ -178,7 +167,7 @@ const CallSession: React.FC = () => {
         setUiStatus('in_call');
       } catch (error) {
         mediaStartedRef.current = false;
-        setErrorText(getErrorMessage(error));
+        setLocalError(getErrorMessage(error));
         setUiStatus('failed');
       }
     };
@@ -201,60 +190,27 @@ const CallSession: React.FC = () => {
     void adapterRef.current.end();
   }, []);
 
-  const refreshAfterAction = useCallback(async () => {
-    const nextSession = await getCallSession(sessionId);
-    applySession(nextSession);
-  }, [applySession, sessionId]);
-
   const acceptCall = useCallback(async () => {
     if (role !== 'callee' || session?.status !== 'ringing') return;
-    setPendingAction('accept');
-    setErrorText('');
-    try {
-      await acceptCallSession({ p_call_session_id: sessionId });
-      await refreshAfterAction();
-    } catch (error) {
-      setErrorText(getErrorMessage(error));
-    } finally {
-      setPendingAction(null);
-    }
-  }, [refreshAfterAction, role, session?.status, sessionId]);
+    setLocalError('');
+    await accept();
+  }, [accept, role, session?.status]);
 
   const rejectCall = useCallback(async () => {
     if (role !== 'callee' || session?.status !== 'ringing') return;
-    setPendingAction('reject');
-    setErrorText('');
-    try {
-      await rejectCallSession({
-        p_call_session_id: sessionId,
-        p_reason: 'rejected_by_callee',
-      });
-      await refreshAfterAction();
-    } catch (error) {
-      setErrorText(getErrorMessage(error));
-    } finally {
-      setPendingAction(null);
-    }
-  }, [refreshAfterAction, role, session?.status, sessionId]);
+    setLocalError('');
+    await reject('rejected_by_callee');
+  }, [reject, role, session?.status]);
 
   const endCall = useCallback(async () => {
     if (!session || (session.status !== 'ringing' && session.status !== 'answered')) return;
-    setPendingAction('end');
     setUiStatus('ending');
-    setErrorText('');
-    try {
-      await endCallSession({
-        p_call_session_id: sessionId,
-        p_reason: session.status === 'ringing' ? 'cancelled_by_caller' : 'ended_by_user',
-      });
-      await refreshAfterAction();
-    } catch (error) {
-      setErrorText(getErrorMessage(error));
-      setUiStatus(mapCallStatusToUiStatus(session.status));
-    } finally {
-      setPendingAction(null);
-    }
-  }, [refreshAfterAction, session, sessionId]);
+    setLocalError('');
+    const result = await end(
+      session.status === 'ringing' ? 'cancelled_by_caller' : 'ended_by_user'
+    );
+    if (!result) setUiStatus(mapCallStatusToUiStatus(session.status));
+  }, [end, session]);
 
   const toggleMic = useCallback(async () => {
     const next = !micMuted;
@@ -311,7 +267,7 @@ const CallSession: React.FC = () => {
           </div>
         ) : null}
 
-        {uiStatus === 'loading_session' ? (
+        {(isLoading || uiStatus === 'loading_session') && !session ? (
           <div className="mt-4">
             <PageStateCard compact variant="loading" title="正在读取通话会话" />
           </div>
@@ -341,14 +297,14 @@ const CallSession: React.FC = () => {
             <Button
               className="h-12 rounded-full bg-emerald-600 hover:bg-emerald-700"
               onClick={() => void acceptCall()}
-              disabled={pendingAction !== null}
+              disabled={activeAction !== null}
             >
               <Phone size={18} className="mr-2" />接听
             </Button>
             <Button
               className="h-12 rounded-full bg-red-600 hover:bg-red-700"
               onClick={() => void rejectCall()}
-              disabled={pendingAction !== null}
+              disabled={activeAction !== null}
             >
               <PhoneOff size={18} className="mr-2" />拒绝
             </Button>
@@ -359,17 +315,17 @@ const CallSession: React.FC = () => {
           <Button
             className="mt-5 h-12 rounded-full bg-red-600 hover:bg-red-700"
             onClick={() => void endCall()}
-            disabled={pendingAction !== null}
+            disabled={activeAction !== null}
           >
             <PhoneOff size={18} className="mr-2" />
             {session.status === 'ringing' ? '取消呼叫' : '结束通话'}
           </Button>
         ) : null}
 
-        {(isTerminal || (!session && uiStatus === 'failed')) ? (
+        {(isTerminal || (!session && !isLoading && uiStatus === 'failed')) ? (
           <div className="mt-5 grid grid-cols-1 gap-3">
-            {!session ? (
-              <Button variant="secondary" className="h-12 rounded-full" onClick={() => void loadSession()}>
+            {!session && user ? (
+              <Button variant="secondary" className="h-12 rounded-full" onClick={() => void refresh()}>
                 重试读取
               </Button>
             ) : null}

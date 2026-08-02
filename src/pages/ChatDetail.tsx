@@ -11,7 +11,7 @@ import { zhCN } from 'date-fns/locale';
 import { demoConversations, demoMessagesByPartner } from '@/lib/demoData';
 import PageStateCard from '@/components/common/PageStateCard';
 import { navigateBackOr, navigateToAuthWithReturn } from '@/utils/navigation';
-import { createCallSession } from '@/features/call/callRpc';
+import { createCallSession } from '@/features/call';
 import { useToast } from '@/hooks/use-toast';
 
 const ChatDetail: React.FC = () => {
@@ -146,7 +146,7 @@ const ChatDetail: React.FC = () => {
         p_target_id: null,
         p_order_id: null,
       });
-      navigate(`/call/${created.callSessionId}`, {
+      navigate(`/call/${created.call_session_id}`, {
         state: {
           peerName: partnerName,
         },

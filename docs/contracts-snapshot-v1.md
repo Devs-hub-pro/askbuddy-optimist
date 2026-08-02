@@ -124,8 +124,8 @@
 - `accept_call_v1(p_call_session_id)`
 - `reject_call_v1(p_call_session_id, p_reason?)`
 - `end_call_v1(p_call_session_id, p_reason?)`
-- `heartbeat_call_v1(p_call_session_id)`（可选）
-- `mark_call_timeout_v1(p_call_session_id)`（可选）
+- `heartbeat_call_v1(p_call_session_id)`（保留名称，尚未实现，端侧不得调用）
+- `mark_call_timeout_v1(p_call_session_id)`（保留名称，尚未实现，端侧不得调用）
 
 ### 5.4 未读数 RPC（Pack 05）
 

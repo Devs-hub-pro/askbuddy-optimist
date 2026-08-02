@@ -23,13 +23,11 @@ export const RPC_WHITELIST = {
   create_system_notification_v2: "public.create_system_notification_v2",
   transition_order_status_v2: "public.transition_order_status_v2",
 
-  // Call v1 (planned in A-main, not yet migrated)
+  // Call v1 (implemented and validated on staging)
   create_call_session_v1: "public.create_call_session_v1",
   accept_call_v1: "public.accept_call_v1",
   reject_call_v1: "public.reject_call_v1",
   end_call_v1: "public.end_call_v1",
-  heartbeat_call_v1: "public.heartbeat_call_v1",
-  mark_call_timeout_v1: "public.mark_call_timeout_v1",
 
   // Pack 08-B
   search_app_content_v2: "public.search_app_content_v2",
@@ -42,6 +40,16 @@ export const RPC_WHITELIST = {
 } as const;
 
 export type RpcName = keyof typeof RPC_WHITELIST;
+
+/**
+ * Reserved Call v1 names are not deployed RPCs and must not be called by clients.
+ * A will move a name into RPC_WHITELIST only after its migration is applied and validated.
+ */
+export const RESERVED_CALL_RPC_NAMES = [
+  "heartbeat_call_v1",
+  "mark_call_timeout_v1",
+] as const;
+export type ReservedCallRpcName = (typeof RESERVED_CALL_RPC_NAMES)[number];
 
 export interface AcceptAnswerV2Params {
   p_question_id: string;
@@ -149,11 +157,3 @@ export interface EndCallV1Params {
 }
 
 export type EndCallV1Result = CallActionV1Result;
-
-export interface HeartbeatCallV1Params {
-  p_call_session_id: string;
-}
-
-export interface MarkCallTimeoutV1Params {
-  p_call_session_id: string;
-}

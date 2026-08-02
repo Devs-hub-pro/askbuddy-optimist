@@ -3,53 +3,24 @@ import {
   CALL_MODE,
   CALL_STATUS,
   CONTENT_TARGET_TYPE,
+  type CallErrorCode,
+  type CallMode,
+  type CallStatus,
+  type ContentTargetType,
 } from "../../packages/shared-types/src/contracts";
-import type {
-  CallErrorCode,
-  CallSession,
-  ContentTargetType,
-} from "../../packages/shared-types/src/contracts";
-import { RPC_WHITELIST } from "../../packages/shared-api/src/rpc-whitelist";
-import type {
-  AcceptCallV1Params,
-  AcceptCallV1Result,
-  CallActionV1Result,
-  CreateCallSessionV1Params,
-  CreateCallSessionV1Result,
-  EndCallV1Params,
-  EndCallV1Result,
-  RejectCallV1Params,
-  RejectCallV1Result,
-} from "../../packages/shared-api/src/rpc-whitelist";
 
-export { CALL_ERROR_CODE, CALL_MODE, CALL_STATUS, CONTENT_TARGET_TYPE };
+export { CALL_MODE, CALL_STATUS, CONTENT_TARGET_TYPE };
+export type { CallMode, CallStatus, ContentTargetType };
 
-export type CallMode = (typeof CALL_MODE)[number];
-export type CallStatus = (typeof CALL_STATUS)[number];
-export type {
-  AcceptCallV1Params,
-  AcceptCallV1Result,
-  CallActionV1Result,
-  CallErrorCode,
-  CallSession,
-  ContentTargetType,
-  CreateCallSessionV1Params,
-  CreateCallSessionV1Result,
-  EndCallV1Params,
-  EndCallV1Result,
-  RejectCallV1Params,
-  RejectCallV1Result,
+export const CALL_STATUS_LABEL: Record<CallStatus, string> = {
+  initiated: "发起中",
+  ringing: "等待接听",
+  answered: "通话中",
+  ended: "通话已结束",
+  cancelled: "通话已取消",
+  timeout: "通话已超时",
+  failed: "通话异常中断",
 };
-
-const publicRpcName = <T extends string>(name: `public.${T}`): T =>
-  name.slice("public.".length) as T;
-
-export const CALL_V1_RPC = {
-  create: publicRpcName(RPC_WHITELIST.create_call_session_v1),
-  accept: publicRpcName(RPC_WHITELIST.accept_call_v1),
-  reject: publicRpcName(RPC_WHITELIST.reject_call_v1),
-  end: publicRpcName(RPC_WHITELIST.end_call_v1),
-} as const;
 
 const CALL_ERROR_MESSAGE: Record<CallErrorCode, string> = {
   CALL_UNAUTHORIZED: "登录状态已失效，请重新登录后重试。",
@@ -63,12 +34,7 @@ const CALL_ERROR_MESSAGE: Record<CallErrorCode, string> = {
 };
 
 export const getCallErrorMessage = (error: unknown): string => {
-  const rawMessage = error instanceof Error
-    ? error.message
-    : typeof error === "object" && error && "message" in error
-      ? String(error.message)
-      : String(error || "");
+  const rawMessage = error instanceof Error ? error.message : String(error || "");
   const code = CALL_ERROR_CODE.find((item) => rawMessage.includes(item));
-
   return code ? CALL_ERROR_MESSAGE[code] : rawMessage || CALL_ERROR_MESSAGE.CALL_INTERNAL_ERROR;
 };

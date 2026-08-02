@@ -3,27 +3,17 @@ import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { Mic, MicOff, Phone, PhoneCall, PhoneOff, RotateCcw, Video, VideoOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
+  CALL_STATUS_LABEL,
   CONTENT_TARGET_TYPE,
+  getCallErrorMessage,
   type CallMode,
-  type CallStatus,
   type ContentTargetType,
-  type CreateCallSessionV1Params,
 } from '@/contracts/callV1';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCallSession } from '@/features/call';
 import { useCallPermissions } from '@/hooks/useCallPermissions';
-import { useCallSession } from '@/hooks/useCallSession';
 import SubPageHeader from '@/components/layout/SubPageHeader';
 import { navigateBackOr } from '@/utils/navigation';
-
-const statusLabel: Record<CallStatus, string> = {
-  initiated: '发起中',
-  ringing: '等待接听',
-  answered: '通话中',
-  ended: '通话已结束',
-  cancelled: '通话已取消',
-  timeout: '通话已超时',
-  failed: '通话异常中断',
-};
 
 const readQuery = (search: string) => {
   const params = new URLSearchParams(search);
@@ -61,14 +51,14 @@ const CallSession: React.FC = () => {
     resolvedSessionId,
     isLoading,
     activeAction,
-    errorMessage,
-    createSession,
-    acceptSession,
-    rejectSession,
-    endSession,
+    error,
+    create,
+    accept,
+    reject,
+    end,
     refresh,
   } = useCallSession({
-    sessionId,
+    sessionId: sessionId && sessionId !== 'new' && sessionId !== 'order' ? sessionId : null,
     orderId: sessionId === 'order' ? query.orderId : null,
   });
 
@@ -102,14 +92,13 @@ const CallSession: React.FC = () => {
     const permissionGranted = await requestPermissions();
     if (!permissionGranted) return;
 
-    const params: CreateCallSessionV1Params = {
+    const result = await create({
       p_callee_id: query.calleeId,
       p_mode: mode,
       p_target_type: query.targetType,
       p_target_id: query.targetId,
       p_order_id: query.orderId,
-    };
-    const result = await createSession(params);
+    });
     if (!result) return;
 
     const nextQuery = new URLSearchParams({ mode, peer: query.peerName });
@@ -121,7 +110,7 @@ const CallSession: React.FC = () => {
 
   const handleAccept = async () => {
     const permissionGranted = await requestPermissions();
-    if (permissionGranted) await acceptSession();
+    if (permissionGranted) await accept();
   };
 
   const isNewSession = sessionId === 'new';
@@ -130,6 +119,7 @@ const CallSession: React.FC = () => {
   );
   const status = session?.status;
   const isBusy = Boolean(activeAction || isRequesting);
+  const errorMessage = error ? getCallErrorMessage(error) : null;
 
   return (
     <div className="min-h-[100dvh] bg-slate-950 text-white">
@@ -141,7 +131,7 @@ const CallSession: React.FC = () => {
           </div>
           <div className="mt-3 text-2xl font-semibold">{query.peerName}</div>
           <div className="mt-1 text-sm text-white/75">
-            {mode === 'video' ? '视频通话' : '语音通话'} · {status ? statusLabel[status] : canCreateSession ? '准备发起' : '正在读取会话'}
+            {mode === 'video' ? '视频通话' : '语音通话'} · {status ? CALL_STATUS_LABEL[status] : canCreateSession ? '准备发起' : '正在读取会话'}
           </div>
           {status === 'answered' && <div className="mt-2 font-mono text-xl">{durationLabel}</div>}
           {role && <div className="mt-2 text-xs text-white/60">当前角色：{role === 'caller' ? '发起方' : '接听方'}</div>}
@@ -188,14 +178,14 @@ const CallSession: React.FC = () => {
               <Button className="h-11" onClick={handleAccept} disabled={isBusy}>
                 <PhoneCall size={16} className="mr-1" />接听
               </Button>
-              <Button className="h-11" variant="destructive" onClick={() => void rejectSession()} disabled={isBusy}>
+              <Button className="h-11" variant="destructive" onClick={() => void reject()} disabled={isBusy}>
                 <PhoneOff size={16} className="mr-1" />拒绝
               </Button>
             </>
           )}
 
           {status === 'ringing' && role === 'caller' && (
-            <Button className="col-span-2 h-11" variant="destructive" onClick={() => void endSession('caller_cancelled')} disabled={isBusy}>
+            <Button className="col-span-2 h-11" variant="destructive" onClick={() => void end('caller_cancelled')} disabled={isBusy}>
               <PhoneOff size={16} className="mr-1" />取消呼叫
             </Button>
           )}
@@ -213,7 +203,7 @@ const CallSession: React.FC = () => {
               ) : (
                 <Button className="h-11" variant="secondary" disabled><VideoOff size={16} className="mr-1" />语音模式</Button>
               )}
-              <Button className="col-span-2 h-11" variant="destructive" onClick={() => void endSession()} disabled={isBusy}>
+              <Button className="col-span-2 h-11" variant="destructive" onClick={() => void end()} disabled={isBusy}>
                 <Phone size={16} className="mr-1" />挂断
               </Button>
             </>
@@ -222,7 +212,7 @@ const CallSession: React.FC = () => {
           {status && ['ended', 'cancelled', 'timeout', 'failed'].includes(status) && (
             <Button className="col-span-2 h-11" variant="secondary" disabled>
               {mode === 'video' ? <Video size={16} className="mr-1" /> : <Phone size={16} className="mr-1" />}
-              {statusLabel[status]}
+              {CALL_STATUS_LABEL[status]}
             </Button>
           )}
         </div>

@@ -30,7 +30,8 @@
 - 备注：本轮不接入真实 RTC 媒体传输
 
 ### 权限申请与兜底
-- Hook：`src/hooks/useCallPermissions.ts`
+- 权限 Hook：`src/hooks/useCallPermissions.ts`
+- 会话公共层：`src/features/call/index.ts`
 - 能力：
   - 语音：申请麦克风
   - 视频：申请麦克风 + 摄像头
@@ -49,8 +50,10 @@
 
 - 新增：
   - `src/hooks/useCallPermissions.ts`
-  - `src/hooks/useCallSession.ts`
+  - `src/features/call/useCallSession.ts`（A 公共层，iOS 直接消费）
   - `src/pages/CallSession.tsx`
+- 退役：
+  - `src/hooks/useCallSession.ts`（重复网络/Realtime 实现）
 - 修改：
   - `src/App.tsx`（新增 `/call/:sessionId` 路由）
   - `src/pages/ExpertDetail.tsx`（咨询入口接入）

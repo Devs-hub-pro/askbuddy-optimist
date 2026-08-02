@@ -1,36 +1,57 @@
-<view class="container safe-bottom">
-  <view class="card">
-    <view class="title">Call v1 会话</view>
-    <view class="subtitle">仅同步业务会话状态，不传输实时音视频。</view>
-
-    <view class="row section-row">
-      <text class="subtitle">模式</text>
-      <view class="mode-switch">
-        <button size="mini" class="{{mode==='voice'?'button-primary':''}}" bindtap="setVoice" disabled="{{!canInitiate}}">语音</button>
-        <button size="mini" class="{{mode==='video'?'button-primary':''}}" bindtap="setVideo" disabled="{{!canInitiate}}">视频</button>
-      </view>
+<view class="call-page">
+  <view class="call-header">
+    <view class="call-header-bar" style="{{navLayout.headerStyle}}">
+      <view class="back-button call-back" bindtap="goBack" hover-class="header-control-pressed" hover-stay-time="80" aria-role="button" aria-label="返回">‹</view>
+      <view class="call-header-title">通话</view>
+      <view class="permission-link" bindtap="openPermissionSettings" hover-class="header-control-pressed" hover-stay-time="80" aria-role="button" aria-label="打开权限设置">权限</view>
     </view>
-
-    <view class="section-row">
-      <input class="input" placeholder="被叫用户 ID" value="{{calleeId}}" bindinput="onCalleeInput" disabled="{{!canInitiate}}" />
-    </view>
-
-    <view class="session-status">
-      <view class="status-label">{{statusLabel}}</view>
-      <view class="subtitle">后端状态：{{status}}</view>
-      <view class="subtitle session-id">会话 ID：{{callSessionId || '-'}}</view>
-    </view>
-
-    <view class="error-text" wx:if="{{errorMessage}}">{{errorMessage}}</view>
-    <view class="poll-text" wx:if="{{pollMessage}}">状态刷新：{{pollMessage}}</view>
   </view>
 
-  <view class="card action-card">
-    <view class="action-grid">
-      <button class="button-primary" loading="{{loadingAction==='initiate'}}" bindtap="onInitiate" disabled="{{!canInitiate || loadingAction}}">发起</button>
-      <button loading="{{loadingAction==='accept'}}" bindtap="onAccept" disabled="{{!canAccept || loadingAction}}">接听</button>
-      <button loading="{{loadingAction==='reject'}}" bindtap="onReject" disabled="{{!canReject || loadingAction}}">拒绝</button>
-      <button loading="{{loadingAction==='hangup'}}" bindtap="onHangup" disabled="{{!canHangup || loadingAction}}">挂断</button>
+  <view class="call-stage">
+    <view class="call-mode-switch">
+      <view class="mode-item {{mode === 'voice' ? 'active' : ''}}" bindtap="setVoice">语音优先</view>
+      <view class="mode-item {{mode === 'video' ? 'active' : ''}}" bindtap="setVideo">视频可选</view>
     </view>
+
+    <view class="call-avatar-shell status-{{status}}">
+      <view class="call-avatar">{{mode === 'voice' ? '音' : '视'}}</view>
+      <view class="pulse-ring pulse-one" />
+      <view class="pulse-ring pulse-two" />
+    </view>
+
+    <view class="call-status-label">{{statusLabel}}</view>
+    <view class="call-status-desc" wx:if="{{status === 'idle'}}">准备向{{calleeName || '联系人'}}发起{{mode === 'voice' ? '语音' : '视频'}}通话</view>
+    <view class="call-status-desc" wx:elif="{{status === 'initiated' || status === 'ringing'}}">正在同步对方接听状态</view>
+    <view class="call-status-desc" wx:elif="{{status === 'answered'}}">会话已接通，语音连接能力正在准备中</view>
+    <view class="call-status-desc" wx:else>{{statusLabel}}</view>
+
+    <view class="callee-card">
+      <block wx:if="{{calleeName}}">
+        <view class="callee-profile-mark">{{calleeInitial}}</view>
+        <view class="callee-profile-copy"><view class="callee-label">通话联系人</view><view class="callee-name">{{calleeName}}</view></view>
+      </block>
+      <block wx:else>
+        <view class="callee-input-copy">
+          <view class="callee-label">联系人标识</view>
+          <input class="callee-input" placeholder="输入联系人标识" value="{{calleeId}}" bindinput="onCalleeInput" disabled="{{!canInitiate}}" />
+        </view>
+      </block>
+    </view>
+
+    <view class="session-card">
+      <view class="session-row"><text>会话状态</text><text class="session-value">{{statusLabel}}</text></view>
+      <view class="session-row"><text>通话编号</text><text class="session-id">{{callSessionId || '创建后显示'}}</text></view>
+      <view class="session-note">当前提供呼叫与接听状态，实时语音和视频能力后续开放。</view>
+    </view>
+
+    <view class="call-error" wx:if="{{errorMessage}}">{{errorMessage}}</view>
+    <view class="call-warning" wx:if="{{pollMessage}}">状态刷新：{{pollMessage}}</view>
+  </view>
+
+  <view class="call-actions">
+    <button wx:if="{{canInitiate}}" class="call-action primary-action" loading="{{loadingAction === 'initiate'}}" bindtap="onInitiate" disabled="{{loadingAction}}"><view class="action-symbol">↗</view><text>发起</text></button>
+    <button wx:if="{{canAccept}}" class="call-action accept-action" loading="{{loadingAction === 'accept'}}" bindtap="onAccept" disabled="{{loadingAction}}"><view class="action-symbol">✓</view><text>接听</text></button>
+    <button wx:if="{{canReject}}" class="call-action reject-action" loading="{{loadingAction === 'reject'}}" bindtap="onReject" disabled="{{loadingAction}}"><view class="action-symbol">×</view><text>拒绝</text></button>
+    <button wx:if="{{canHangup}}" class="call-action hangup-action" loading="{{loadingAction === 'hangup'}}" bindtap="onHangup" disabled="{{loadingAction}}"><view class="action-symbol">×</view><text>挂断</text></button>
   </view>
 </view>

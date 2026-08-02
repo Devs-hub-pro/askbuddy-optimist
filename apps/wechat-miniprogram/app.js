@@ -3,17 +3,21 @@ const STORAGE_TOKEN_KEY = 'ab_auth_token';
 App({
   globalData: {
     designTokens: {
-      colorBg: '#F7FAF8',
+      colorBg: '#F8FDFB',
       colorCard: '#FFFFFF',
-      colorPrimary: '#18A058',
-      colorText: '#1F2937',
-      colorTextMuted: '#6B7280',
-      colorBorder: '#E5E7EB'
+      colorPrimary: '#79D5C7',
+      colorPrimaryStrong: '#49AA9B',
+      colorPrimarySoft: '#ECFBF7',
+      colorText: '#1E293B',
+      colorTextMuted: '#64748B',
+      colorBorder: '#CDEFE7'
     },
     authToken: '',
     currentUser: null,
     safeAreaBottom: 0,
-    // 默认走 staging 请求层；失败再降级 mock。
+    statusBarHeight: 0,
+    platform: '',
+    // Mock 只能显式开启，staging 请求失败时不伪装为真实数据。
     useMock: false,
     conflictPolicy: 'A'
   },
@@ -24,10 +28,14 @@ App({
   },
 
   initSafeArea() {
-    const systemInfo = wx.getSystemInfoSync();
-    const safeArea = systemInfo.safeArea || null;
-    const safeAreaBottom = safeArea ? Math.max(0, systemInfo.screenHeight - safeArea.bottom) : 0;
+    const windowInfo = wx.getWindowInfo ? wx.getWindowInfo() : {};
+    const deviceInfo = wx.getDeviceInfo ? wx.getDeviceInfo() : {};
+    const safeArea = windowInfo.safeArea || null;
+    const screenHeight = windowInfo.screenHeight || windowInfo.windowHeight || 0;
+    const safeAreaBottom = safeArea ? Math.max(0, screenHeight - safeArea.bottom) : 0;
     this.globalData.safeAreaBottom = safeAreaBottom;
+    this.globalData.statusBarHeight = windowInfo.statusBarHeight || 0;
+    this.globalData.platform = deviceInfo.platform || '';
   },
 
   restoreToken() {

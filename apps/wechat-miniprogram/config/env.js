@@ -2,6 +2,6 @@ module.exports = {
   environment: 'staging',
   supabaseUrl: '',
   supabaseAnonKey: '',
-  // 默认走 staging 请求层；请求异常时再降级 mock。
-  useMockFallback: true
+  // Mock 必须在本地显式开启，网络错误不能被示例数据掩盖。
+  useMockFallback: false
 };

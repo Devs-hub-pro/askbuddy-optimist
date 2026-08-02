@@ -1,4 +1,5 @@
 const callService = require('../../utils/call/service');
+const { getNavigationLayout } = require('../../utils/navigation');
 
 const POLL_INTERVAL_MS = 2500;
 const TERMINAL_STATUSES = new Set(['ended', 'cancelled', 'timeout', 'failed']);
@@ -19,10 +20,11 @@ const ERROR_LABELS = {
   CALL_FORBIDDEN: '当前账号无权执行此操作',
   CALL_NOT_FOUND: '通话会话不存在',
   CALL_INVALID_STATE: '当前通话状态不允许此操作',
-  CALL_INVALID_PARTICIPANT: '被叫用户无效',
+  CALL_INVALID_PARTICIPANT: '联系人信息无效',
   CALL_ALREADY_ENDED: '通话已经结束',
   CALL_TIMEOUT: '通话已超时',
-  CALL_INTERNAL_ERROR: '通话服务暂时不可用'
+  CALL_INTERNAL_ERROR: '通话服务暂时不可用',
+  A_CONTRACT_GAP: '通话服务暂时不可用'
 };
 
 function parseError(error) {
@@ -38,8 +40,11 @@ function parseError(error) {
 
 Page({
   data: {
+    navLayout: getNavigationLayout(),
     mode: 'voice',
     calleeId: '',
+    calleeName: '',
+    calleeInitial: '联',
     targetType: '',
     targetId: '',
     orderId: '',
@@ -61,6 +66,8 @@ Page({
     this.setData({
       mode: options.mode === 'video' ? 'video' : 'voice',
       calleeId: options.calleeId || '',
+      calleeName: options.calleeName ? decodeURIComponent(options.calleeName) : '',
+      calleeInitial: options.calleeName ? decodeURIComponent(options.calleeName).slice(0, 1) : '联',
       targetType: options.targetType || '',
       targetId: options.targetId || '',
       orderId: options.orderId || '',
@@ -92,11 +99,23 @@ Page({
 
   onShareAppMessage() {
     return {
-      title: 'Call v1 会话',
+      title: this.data.calleeName ? `与${this.data.calleeName}的通话` : 'AskBuddy 通话',
       path: this.data.callSessionId
         ? `/pages/call/index?callSessionId=${this.data.callSessionId}`
         : '/pages/call/index'
     };
+  },
+
+  goBack() {
+    const pages = getCurrentPages();
+    if (pages.length > 1) return wx.navigateBack();
+    wx.switchTab({ url: '/pages/messages/index' });
+  },
+
+  openPermissionSettings() {
+    wx.openSetting({
+      fail: () => wx.showToast({ title: '请在小程序设置中开启麦克风或摄像头', icon: 'none' })
+    });
   },
 
   setVoice() {

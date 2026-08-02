@@ -98,6 +98,35 @@ const mockNotifications = [
   }
 ];
 
+const mockDiscoverFeed = [
+  {
+    id: 'discover_1',
+    author_name: 'Shawn',
+    author_initial: 'Sh',
+    created_at_text: '4 个月前',
+    content: '测试动态 4.18',
+    tags: ['留学申请', '简历优化'],
+    likes_count: 0,
+    comments_count: 0,
+    shares_count: 0,
+    city: '深圳',
+    hot: true
+  },
+  {
+    id: 'discover_2',
+    author_name: 'Luna',
+    author_initial: 'Lu',
+    created_at_text: '5 个月前',
+    content: '整理了一份英国硕士申请时间线，希望能帮正在准备材料的同学少走弯路。',
+    tags: ['留学', '英国申请'],
+    likes_count: 12,
+    comments_count: 3,
+    shares_count: 2,
+    city: '同城',
+    hot: false
+  }
+];
+
 function delay(ms = 220) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
@@ -142,10 +171,16 @@ async function fetchUnreadNotificationCount() {
   return mockNotifications.filter((item) => !item.is_read).length;
 }
 
+async function fetchDiscoverFeed() {
+  await delay();
+  return mockDiscoverFeed;
+}
+
 module.exports = {
   fetchHomeFeed,
   searchContent,
   fetchQuestionDetailWithAnswers,
   fetchNotificationList,
-  fetchUnreadNotificationCount
+  fetchUnreadNotificationCount,
+  fetchDiscoverFeed
 };

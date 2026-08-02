@@ -56,7 +56,7 @@ async function initiate({
   orderId = null
 }) {
   if (!calleeId) {
-    const error = new Error('请输入被叫用户 ID');
+    const error = new Error('请输入联系人标识');
     error.code = 'CALL_INVALID_PARTICIPANT';
     throw error;
   }

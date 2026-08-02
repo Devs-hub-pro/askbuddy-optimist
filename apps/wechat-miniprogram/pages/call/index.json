@@ -1,4 +1,5 @@
 {
-  "navigationBarTitleText": "Call v1 会话",
+  "navigationStyle": "custom",
+  "backgroundColor": "#EAF9F6",
   "enablePullDownRefresh": false
 }

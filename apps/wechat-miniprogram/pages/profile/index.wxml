@@ -1,26 +1,82 @@
-<view class="container safe-bottom">
-  <view class="card profile-header">
-    <view wx:if="{{user}}" class="row">
-      <view class="row" style="justify-content: flex-start; gap: 18rpx;">
-        <image class="avatar" src="{{user.avatarUrl}}" mode="aspectFill" />
-        <view>
-          <view class="title" style="font-size: 32rpx;">{{user.nickName}}</view>
-          <view class="subtitle">已登录 · Token 已写入全局状态</view>
-        </view>
-      </view>
-      <button size="mini" bindtap="logout">退出</button>
-    </view>
-
-    <view wx:else>
-      <view class="title" style="font-size: 32rpx;">未登录</view>
-      <view class="subtitle" style="margin-top: 8rpx;">先完成微信授权，后续进入真实接口联调。</view>
-      <button class="button-primary" style="margin-top: 18rpx;" bindtap="login">微信登录授权</button>
+<view class="page-shell profile-page">
+  <view class="app-header profile-sticky-header">
+    <view class="app-header-bar profile-title-bar" style="{{navLayout.headerStyle}}">
+      <view class="app-header-title">个人中心</view>
+      <view class="settings-button" bindtap="openSettings" hover-class="header-control-pressed" hover-stay-time="80" aria-role="button" aria-label="打开设置">⚙</view>
     </view>
   </view>
+  <view class="profile-hero-art">
+    <view class="hero-orb orb-left" />
+    <view class="hero-orb orb-right" />
+  </view>
 
-  <view class="card" style="margin-top: 20rpx;">
-    <view class="title" style="font-size: 30rpx;">主链路状态</view>
-    <view class="subtitle" style="margin-top: 10rpx;">Token：{{authToken ? '已就绪' : '未就绪'}}</view>
-    <view class="subtitle" style="margin-top: 6rpx;">字段/状态/RPC 冲突策略：A</view>
+  <view class="page-content tab-page-content profile-content">
+    <view class="card identity-card rise-in">
+      <view wx:if="{{user}}" class="identity-row" bindtap="openEdit">
+        <image class="profile-avatar" src="{{user.avatarUrl}}" mode="aspectFill" />
+        <view class="identity-copy">
+          <view class="identity-name">{{user.nickName}}</view>
+          <view class="identity-desc">已登录，可以查看订单、回答和收藏。</view>
+        </view>
+        <button class="logout-button" bindtap="logout">退出</button>
+      </view>
+
+      <view wx:else class="identity-row logged-out">
+        <view class="profile-avatar placeholder-avatar">
+          <view class="profile-head" />
+          <view class="profile-body" />
+        </view>
+        <view class="identity-copy">
+          <button class="login-button button-primary" bindtap="login">登录 / 注册</button>
+          <view class="identity-desc">登录后查看订单、回答、收藏和个人资料。</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="stats-card rise-in">
+      <view wx:for="{{stats}}" wx:key="label" class="stat-item" data-key="{{item.key}}" data-label="我的{{item.label}}" bindtap="openMenu">
+        <view class="stat-value">{{item.value}}</view>
+        <view class="stat-label">{{item.label}}</view>
+      </view>
+    </view>
+
+    <view class="card menu-card rise-in">
+      <view class="menu-title-row">
+        <view class="menu-title-icon">☆</view>
+        <view class="section-title">常用功能</view>
+      </view>
+      <view class="common-grid">
+        <view
+          wx:for="{{commonActions}}"
+          wx:key="key"
+          class="common-item"
+          data-key="{{item.key}}"
+          data-label="{{item.label}}"
+          bindtap="openMenu"
+        >
+          <view class="common-icon common-{{item.tone}}">{{item.short}}</view>
+          <view class="common-label">{{item.label}}</view>
+        </view>
+      </view>
+    </view>
+
+    <view class="card help-card rise-in">
+      <view class="section-title help-title">帮助与信息</view>
+      <view
+        wx:for="{{helpItems}}"
+        wx:key="key"
+        class="help-row"
+        data-key="{{item.key}}"
+        data-label="{{item.title}}"
+        bindtap="openMenu"
+      >
+        <view class="help-icon">{{item.short}}</view>
+        <view class="help-copy">
+          <view class="help-name">{{item.title}}</view>
+          <view class="help-desc">{{item.desc}}</view>
+        </view>
+        <view class="help-chevron">›</view>
+      </view>
+    </view>
   </view>
 </view>

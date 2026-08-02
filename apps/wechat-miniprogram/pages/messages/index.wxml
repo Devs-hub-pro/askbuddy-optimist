@@ -1,27 +1,76 @@
-<view class="container safe-bottom">
-  <view class="row">
-    <view>
-      <view class="page-title">消息</view>
-      <view class="page-subtitle">未读通知 {{unreadCount}}</view>
-    </view>
-    <view class="page-actions">
-      <button size="mini" bindtap="loadData">刷新</button>
-      <button size="mini" bindtap="goCallPage">去通话联调页</button>
+<view class="page-shell messages-page">
+  <view class="app-header messages-header">
+    <view class="messages-header-bar" style="{{navLayout.headerStyle}}">
+      <view class="message-tabs">
+        <view class="message-tab {{activeSegment === 'private' ? 'active' : ''}}" data-segment="private" bindtap="switchSegment">私信</view>
+        <view class="message-tab {{activeSegment === 'notice' ? 'active' : ''}}" data-segment="notice" bindtap="switchSegment">
+          通知
+          <text wx:if="{{unreadCount}}" class="header-unread">{{unreadCount > 99 ? '99+' : unreadCount}}</text>
+        </view>
+      </view>
+      <view class="message-search" bindtap="showSearch" hover-class="message-search-pressed" hover-stay-time="80" aria-role="button" aria-label="搜索消息"><view class="message-search-icon" /></view>
     </view>
   </view>
 
-  <state-card wx:if="{{loading}}" title="加载中" desc="正在读取通知与未读数" />
-  <state-card wx:elif="{{error}}" title="加载失败" desc="{{error}}" actionText="重试" bind:action="loadData" />
-  <state-card wx:elif="{{!list.length}}" title="暂无通知" desc="当前账号暂无可读通知" />
-
-  <view wx:else>
-    <view wx:for="{{list}}" wx:key="id" class="card" style="margin-top: 20rpx;" bindtap="openRelated" data-related-id="{{item.related_id}}" data-related-type="{{item.related_type}}">
-      <view class="row">
-        <view class="title" style="font-size: 30rpx;">{{item.title || item.type}}</view>
-        <text wx:if="{{!item.is_read}}" class="dot" />
+  <view class="page-content tab-page-content messages-content">
+    <view wx:if="{{searchOpen}}" class="message-search-panel rise-in">
+      <view class="message-search-field"><view class="message-search-field-icon" /><input value="{{searchKeyword}}" placeholder="{{activeSegment === 'private' ? '搜索联系人或消息内容' : '搜索通知标题或内容'}}" focus bindinput="onSearchInput" /></view>
+      <view class="search-cancel" bindtap="showSearch">取消</view>
+    </view>
+    <view wx:if="{{activeSegment === 'private'}}" class="private-section">
+      <view class="list-heading">
+        <view class="list-label">最近会话</view>
+        <view class="list-count">{{filteredConversations.length}} 个联系人</view>
       </view>
-      <view class="subtitle" style="margin-top: 8rpx;">{{item.content || '-'}}</view>
-      <view class="subtitle" style="margin-top: 8rpx;">{{item.created_at_text}}</view>
+      <view class="card call-entry rise-in" bindtap="goCallPage">
+        <view class="call-entry-icon">Call</view>
+        <view class="call-entry-copy">
+          <view class="call-entry-title">语音咨询</view>
+          <view class="call-entry-desc">发起或继续与达人的语音会话</view>
+        </view>
+        <view class="chevron">›</view>
+      </view>
+      <view class="conversation-list">
+        <view wx:for="{{filteredConversations}}" wx:key="partnerId" class="card conversation-card rise-in" bindtap="openChat" data-partner-id="{{item.partnerId}}" data-expert-id="{{item.expertId}}">
+          <view class="conversation-avatar">{{item.initial}}</view>
+          <view class="conversation-copy"><view class="conversation-top"><view class="conversation-name">{{item.name}}</view><view class="conversation-time">{{item.time}}</view></view><view class="conversation-message line-clamp-2">{{item.message}}</view></view>
+          <view wx:if="{{item.unread}}" class="conversation-unread">{{item.unread}}</view>
+        </view>
+      </view>
+      <view class="contract-caption">私信能力正在逐步开放，当前会话用于体验页面流程。</view>
+    </view>
+
+    <view wx:else class="notice-section">
+      <view class="list-heading">
+        <view class="list-label">通知中心</view>
+        <view class="list-count">{{unreadCount}} 条未读</view>
+      </view>
+
+      <state-card wx:if="{{loading}}" type="loading" title="加载中" desc="正在读取通知与未读数" />
+      <state-card wx:elif="{{error}}" type="error" title="加载失败" desc="{{error}}" actionText="重试" bind:action="loadData" />
+      <state-card wx:elif="{{!filteredList.length}}" type="empty" title="暂无通知" desc="当前账号暂无匹配的可读通知" actionText="刷新" bind:action="loadData" />
+
+      <view wx:else class="notification-list">
+        <view
+          wx:for="{{filteredList}}"
+          wx:key="id"
+          class="card notification-card rise-in {{!item.is_read ? 'unread' : ''}}"
+          bindtap="openRelated"
+          data-related-id="{{item.related_id}}"
+          data-related-type="{{item.related_type}}"
+        >
+          <view class="notification-icon">{{item.icon_text}}</view>
+          <view class="notification-copy">
+            <view class="notification-topline">
+              <view class="notification-title">{{item.title || item.type_label}}</view>
+              <view class="notification-time">{{item.created_at_text}}</view>
+            </view>
+            <view class="notification-type">{{item.type_label}}</view>
+            <view class="notification-content line-clamp-2">{{item.content || '暂无详细内容'}}</view>
+          </view>
+          <view wx:if="{{!item.is_read}}" class="dot" />
+        </view>
+      </view>
     </view>
   </view>
 </view>

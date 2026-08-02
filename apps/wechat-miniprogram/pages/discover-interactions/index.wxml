@@ -1,0 +1,20 @@
+<view class="page-shell interaction-page">
+  <view class="app-header interaction-header">
+    <view class="interaction-header-bar" style="{{navLayout.headerStyle}}">
+      <view class="back-button" bindtap="goBack">‹</view>
+      <view class="interaction-title">互动通知</view>
+    </view>
+  </view>
+  <view class="interaction-content">
+    <view class="interaction-summary">发现页互动</view>
+    <view wx:for="{{interactions}}" wx:key="id" class="card interaction-card rise-in">
+      <view class="interaction-avatar">{{item.initial}}</view>
+      <view class="interaction-copy">
+        <view><text class="interaction-name">{{item.name}}</text><text class="interaction-action"> {{item.action}}</text></view>
+        <view class="interaction-message line-clamp-2">{{item.content}}</view>
+        <view class="interaction-time">{{item.time}}</view>
+      </view>
+    </view>
+    <view class="interaction-note">互动通知正在逐步开放，当前内容用于体验页面流程。</view>
+  </view>
+</view>

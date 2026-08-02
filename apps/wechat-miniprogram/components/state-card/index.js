@@ -2,7 +2,7 @@ Component({
   properties: {
     type: {
       type: String,
-      value: 'loading'
+      value: 'empty'
     },
     title: {
       type: String,

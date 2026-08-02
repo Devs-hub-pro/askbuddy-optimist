@@ -9,6 +9,7 @@ const CALL_RPC_NAMES = new Set([
 ]);
 
 const CALL_REQUEST_NAMES = new Set(['callV1Invoke', 'fetchCallSession']);
+const PREVIEW_ONLY_NAMES = new Set(['fetchDiscoverFeed']);
 
 function isJwtToken(token) {
   if (!token || typeof token !== 'string') return false;
@@ -17,9 +18,17 @@ function isJwtToken(token) {
 
 function normalizeError(error) {
   if (!error) return new Error('unknown error');
-  if (error instanceof Error) return error;
-  if (typeof error === 'string') return new Error(error);
-  return new Error(JSON.stringify(error));
+  const normalized = error instanceof Error
+    ? error
+    : new Error(typeof error === 'string' ? error : JSON.stringify(error));
+  const message = normalized.message || '';
+  if (/ERR_(PROXY_)?CONNECTION|request:fail|network|timeout/i.test(message)) {
+    return new Error('网络连接失败，请检查 Wi-Fi、代理或 VPN 后重试');
+  }
+  if (message.includes('staging config missing')) {
+    return new Error('测试环境配置缺失，请检查本机开发配置');
+  }
+  return normalized;
 }
 
 function wxRequest({ url, method = 'GET', header = {}, data }) {
@@ -208,6 +217,12 @@ async function fromStaging(name, payload = {}) {
 async function callRpc(name, payload = {}) {
   const app = getApp();
   const useMockOnly = app.globalData.useMock === true;
+
+  // 尚无只读契约的页面只能使用明确标注的体验内容，不能伪装成 staging 数据。
+  if (PREVIEW_ONLY_NAMES.has(name)) {
+    if (typeof mock[name] !== 'function') throw new Error(`preview data not found: ${name}`);
+    return mock[name](payload);
+  }
 
   if (useMockOnly) {
     if (typeof mock[name] !== 'function') throw new Error(`mock rpc not found: ${name}`);
